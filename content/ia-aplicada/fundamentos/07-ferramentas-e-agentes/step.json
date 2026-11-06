@@ -1,0 +1,59 @@
+{
+  "id": "ferramentas-e-agentes",
+  "order": 7,
+  "track": "fundamentos",
+  "minutes": 15,
+  "tags": ["agentes", "ferramentas", "tool-calling", "limites"],
+  "requires": ["rag"],
+  "executors": ["simulado", "no-navegador", "sua-chave"],
+  "model": "agent",
+  "scene": "agent",
+  "command": {
+    "verb": { "pt": "agente", "en": "agent" },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "default": { "pt": "Quanto é 23 x 47 e que horas são em Tóquio?", "en": "What is 23 x 47 and what time is it in Tokyo?" },
+      "ui": "examples",
+      "examples": [
+        { "pt": "Quanto é 23 x 47 e que horas são em Tóquio?", "en": "What is 23 x 47 and what time is it in Tokyo?" },
+        { "pt": "Quanto é 1840 dividido por 8?", "en": "What is 1840 divided by 8?" },
+        { "pt": "Vai chover em Lisboa amanhã?", "en": "Will it rain in Lisbon tomorrow?" }
+      ]
+    },
+    "flags": [
+      {
+        "name": "tools",
+        "alias": { "pt": "ferramentas", "en": "tools" },
+        "type": "list",
+        "options": [
+          { "id": "calc", "pt": "calculadora", "en": "calculator" },
+          { "id": "clock", "pt": "relogio", "en": "clock" },
+          { "id": "search", "pt": "busca", "en": "search" }
+        ],
+        "default": ["calc", "clock", "search"],
+        "ui": "checkboxes"
+      },
+      {
+        "name": "maxSteps",
+        "alias": { "pt": "passos", "en": "steps" },
+        "type": "int",
+        "min": 1,
+        "max": 10,
+        "default": 4,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": { "options": ["tool", "head", "refuse"], "answer": "tool" },
+  "break": { "flag": "limit" },
+  "data": {
+    "cities": [
+      { "names": ["são paulo", "sao paulo", "sp"], "tz": "America/Sao_Paulo", "label": { "pt": "São Paulo", "en": "São Paulo" } },
+      { "names": ["tóquio", "toquio", "tokyo"], "tz": "Asia/Tokyo", "label": { "pt": "Tóquio", "en": "Tokyo" } },
+      { "names": ["lisboa", "lisbon"], "tz": "Europe/Lisbon", "label": { "pt": "Lisboa", "en": "Lisbon" } },
+      { "names": ["nova york", "nova iorque", "new york"], "tz": "America/New_York", "label": { "pt": "Nova York", "en": "New York" } },
+      { "names": ["dublin"], "tz": "Europe/Dublin", "label": { "pt": "Dublin", "en": "Dublin" } }
+    ]
+  }
+}

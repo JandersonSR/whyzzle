@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Entender que o modelo não executa nada: ele pede, e um programa executa.",
+      "Ver o loop do agente: pensar, chamar ferramenta, observar, repetir.",
+      "Saber por que todo agente precisa de limite de passos."
+    ],
+    "minutes": 20,
+    "activity": "Agente humano: um aluno é o “modelo” e só pode escrever pedidos em papeizinhos (“calculadora: 23 x 47”). Outros três são as ferramentas (calculadora, relógio, busca). A busca sempre responde “fora do ar”. Combine antes um limite de 4 papeizinhos e veja o que acontece quando a tarefa é o clima.",
+    "discussion": [
+      "Que ferramentas você daria a um assistente da secretaria da escola? E quais não daria?",
+      "Que tipo de ação deveria exigir que um humano confirme antes?",
+      "Por que “tentar de novo para sempre” é um problema para um computador?"
+    ],
+    "misconceptions": [
+      "“O modelo acessa a internet sozinho.” Ele só usa as ferramentas que o programa oferece.",
+      "“Agente é um robô que pensa por conta própria.” É um loop com regras e limites escritos por pessoas.",
+      "“Mais ferramentas, agente melhor.” Muitas ferramentas confundem a escolha."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Understand that the model executes nothing: it asks, and a program executes.",
+      "See the agent loop: think, call a tool, observe, repeat.",
+      "Know why every agent needs a step limit."
+    ],
+    "minutes": 20,
+    "activity": "Human agent: one student is the “model” and may only write requests on slips (“calculator: 23 x 47”). Three others are the tools (calculator, clock, search). Search always answers “down”. Agree on a 4-slip limit beforehand and see what happens when the task is the weather.",
+    "discussion": [
+      "Which tools would you give a school front-office assistant? Which wouldn’t you?",
+      "What kind of action should require a human to confirm first?",
+      "Why is “retry forever” a problem for a computer?"
+    ],
+    "misconceptions": [
+      "“The model goes online by itself.” It only uses the tools the program offers.",
+      "“An agent is a robot thinking on its own.” It’s a loop with rules and limits written by people.",
+      "“More tools, better agent.” Too many tools muddle the choice."
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Entender que o modelo lê texto em tokens (pedaços), não em letras nem palavras.",
+      "Saber que existe um limite de tokens por vez: a janela de contexto.",
+      "Relacionar tokens com custo e com o “esquecimento” em conversas longas."
+    ],
+    "minutes": 15,
+    "activity": "Telefone sem fio com limite: cada aluno só pode repassar as últimas 8 palavras da mensagem que recebeu. Ao final, compare a mensagem original com a que chegou: o começo se perdeu, como na janela de contexto.",
+    "discussion": [
+      "Por que palavras raras viram vários tokens?",
+      "O que acontece numa conversa muito longa com um chat de IA?",
+      "Por que escrever em português pode custar mais que em inglês?"
+    ],
+    "misconceptions": [
+      "“Um token é uma palavra.” Às vezes sim, às vezes é um pedaço, às vezes é pontuação.",
+      "“A IA lembra de tudo que eu já disse.” Só do que cabe na janela de contexto.",
+      "“Janela grande resolve tudo.” Mesmo com janela grande, o modelo usa pior o que fica no meio."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Understand that the model reads text as tokens (pieces), not letters or words.",
+      "Know there is a limit of tokens at a time: the context window.",
+      "Connect tokens with cost and with “forgetting” in long chats."
+    ],
+    "minutes": 15,
+    "activity": "Telephone game with a limit: each student can only pass on the last 8 words of the message they got. At the end, compare the original with what arrived: the beginning was lost, just like with the context window.",
+    "discussion": [
+      "Why do rare words become several tokens?",
+      "What happens in a very long chat with an AI?",
+      "Why might writing in some languages cost more than in English?"
+    ],
+    "misconceptions": [
+      "“A token is a word.” Sometimes, but it can also be a piece of a word or punctuation.",
+      "“The AI remembers everything I said.” Only what fits in the context window.",
+      "“A big window solves everything.” Even with a big window, the model uses the middle worse."
+    ]
+  }
+}

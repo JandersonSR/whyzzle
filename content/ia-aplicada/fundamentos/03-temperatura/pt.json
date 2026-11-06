@@ -1,0 +1,96 @@
+{
+  "title": "Temperatura",
+  "subtitle": "O botão de “ousadia” do modelo",
+  "mission": "Faça o modelo completar “O gato subiu no…” do jeito mais previsível possível. Depois, faça ele perder a linha.",
+  "predict": {
+    "question": "palpite antes de rodar! Com temperatura 0, se você rodar 10 vezes, o que sai?",
+    "options": {
+      "same": "Sempre a mesma palavra",
+      "diff": "Uma palavra diferente a cada vez",
+      "crash": "O modelo trava, coitado"
+    }
+  },
+  "feedback": {
+    "right": "na mosca! Com temperatura 0 não tem sorteio: o modelo pega sempre a palavra mais provável. Dez vezes, dez “telhado”.",
+    "wrong": "quase! Rode 10 vezes e repare: sempre “telhado”. Com temperatura 0 não tem sorteio, o modelo pega sempre a favorita.",
+    "skipped": "você pulou o palpite, espertinho. Sem problema: rode 10 vezes e repare que, com temperatura 0, sai sempre “telhado”."
+  },
+  "coach": {
+    "ui": "palpite anotado. Deixe a temperatura em 0, marque “Repetir 10 vezes” e aperte o botão laranja.",
+    "cmd": "palpite anotado. Rode o comando aí embaixo com --vezes 10 no fim: são dez respostas de uma vez."
+  },
+  "tryNext": {
+    "ui": "Agora arraste a temperatura para 1,5 e rode 10 vezes de novo. Compare as duas rodadas na cena.",
+    "cmd": "Agora troque para --temp 1.5 e rode 10 vezes de novo. Repare que a cena muda enquanto você digita, antes mesmo de rodar."
+  },
+  "why": {
+    "simples": "Olha o saco de bolinhas na cena: cada bolinha é uma palavra. “Telhado” tem um montão de bolinhas; “micro-ondas”, uma só.\nA temperatura é o quanto você chacoalha o saco antes de pegar a bolinha de cima. Temperatura 0: nada de chacoalhar, e a de cima é sempre “telhado”. Temperatura alta: o saco vira liquidificador, e até a bolinha rara pode subir.",
+    "dev": "Para cada token possível, o modelo devolve um escore (logit, z). Antes do softmax, cada escore é dividido pela temperatura T.\nT menor que 1 aumenta a distância entre os escores (distribuição “pontuda”); T maior que 1 achata. T = 0 vira argmax, a chamada decodificação gulosa. Depois disso, um token é sorteado dessa distribuição.",
+    "especialista": "Temperatura não é “criatividade”: é a entropia da amostragem. Use T perto de 0 para extração, classificação e chamadas de ferramenta; 0,7 a 1 para texto aberto.\nT = 0 não garante resposta idêntica bit a bit: batching e ponto flutuante na GPU podem variar. O teto muda por API (0–1 em umas, 0–2 em outras). Combine com top-p para cortar a cauda, mas ajuste um parâmetro por vez e avalie com um conjunto fixo de prompts."
+  },
+  "formula": "p(token) = exp(z / T) / Σ exp(zⱼ / T)",
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar de propósito. Arraste a temperatura até 2,5 e rode 10 vezes. Aposto que o gato vai parar num lugar esquisito.",
+      "cmd": "hora de quebrar de propósito. Rode com --temp 2.5 --vezes 10. Aposto que o gato vai parar num lugar esquisito."
+    },
+    "success": "Quebrou bonito: “{tok}”. Com temperatura alta a distribuição fica quase plana e até palavra absurda ganha chance. É assim que nasce texto “criativo”… e besteira também.",
+    "calm": "Com T={T}, tudo ainda comportado. Suba a temperatura ou rode de novo: sorteio é sorteio."
+  },
+  "hints": {
+    "ui": [
+      "Arraste o controle de temperatura e aperte o botão laranja.",
+      "Para o mais previsível possível, leve o controle todo para a esquerda.",
+      "Temperatura 0, marque “Repetir 10 vezes” e Rodar."
+    ],
+    "cmd": [
+      "A temperatura vai no fim do comando, depois de --temp.",
+      "Para o mais previsível possível, use o menor valor que existe.",
+      "completar \"O gato subiu no\" --temp 0 --vezes 10"
+    ]
+  },
+  "errors": {
+    "missingFlag.temp": "Faltou a temperatura. Sem ela, a maioria das APIs usa o padrão (em geral 1), e o resultado muda a cada rodada. Coloque --temp 0 no fim.",
+    "notNumber.temp": "“{value}” não é um número, e aqui o modelo não aceita adjetivo. Temperatura vai de 0 (previsível) até 2 (caótico). Tente --temp 0.7.",
+    "belowMin.temp": "Temperatura negativa? Ousado. Só que os escores são divididos pela temperatura: com número negativo o ranking vira de cabeça para baixo e “micro-ondas” vira a favorita. Por isso as APIs recusam.",
+    "aboveMax.temp": "Calma, Prometeu. Acima de 2 quase toda API recusa, e este simulador para em 5. Tente algo entre 0 e 2.",
+    "notNumber.times": "“{value}” não é um número de vezes. Use um inteiro, tipo --vezes 10.",
+    "notInteger.times": "Rodar meia vez não dá. Use um inteiro, tipo --vezes 10.",
+    "belowMin.times": "Rodar zero vezes é o jeito mais barato de usar IA, mas não ensina nada. Tente --vezes 10.",
+    "aboveMax.times": "Até 20 por vez. Mais que isso o gato pede hora extra, e 10 já mostra bem a variação."
+  },
+  "controls": { "arg": "Começo da frase", "temp": "Temperatura", "times": "Repetir 10 vezes" },
+  "scene": {
+    "labelSimple": "O saco de bolinhas do modelo",
+    "labelTech": "O que o modelo está pensando",
+    "thermo": "Temperatura",
+    "moods": [
+      "Gelado: sempre a favorita",
+      "Frio: quase sempre a favorita",
+      "Morno: varia com bom senso",
+      "Quente: começa a viajar",
+      "Caos: a maioria das APIs nem deixa"
+    ],
+    "sliderLeft": "0 · previsível",
+    "sliderRight": "caos · 3",
+    "bagCaption": "Cada cor é uma palavra; mais bolinhas, mais chance. A temperatura é o quanto o saco chacoalha antes de você pegar a de cima.",
+    "bagAria": "Saco com bolinhas coloridas; quanto maior a temperatura, mais misturadas elas ficam",
+    "bars": "Chance de cada próxima palavra",
+    "barsNote": "As barras mudam enquanto você mexe na temperatura. Laranja = a palavra sorteada na última rodada.",
+    "oneWord": "uma palavra só",
+    "manyWords": "{d} palavras diferentes",
+    "otherPrompt": "Neste simulador só o gato tem probabilidades calculadas. No modo receita você testa qualquer frase."
+  },
+  "data": {
+    "prefix": "O gato subiu no",
+    "words": ["telhado", "muro", "sofá", "armário", "colo da vó", "foguete", "micro-ondas"]
+  },
+  "recipe": {
+    "steps": [
+      "Abra o playground (ou a API) do provedor de IA que você usa.",
+      "Escreva o prompt: Complete com uma palavra: “O gato subiu no…”.",
+      "Ajuste a temperatura para 0 e envie três vezes. Depois repita com a temperatura no máximo."
+    ],
+    "ok": "com 0, as três respostas iguais (ou quase; o nível Especialista explica o “quase”). No máximo, respostas variadas e às vezes estranhas."
+  }
+}

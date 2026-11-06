@@ -1,0 +1,111 @@
+{
+  "title": "Alucinação e avaliação",
+  "subtitle": "Como pegar um modelo mentindo com confiança",
+  "mission": "Dois assistentes respondem às mesmas 5 perguntas da Escola Girassol. O B às vezes inventa. Monte um teste que dê nota baixa a quem inventa.",
+  "predict": {
+    "question": "palpite: o assistente B inventa algumas respostas, mas todas são curtinhas. Se o único teste for “a resposta é curta?”, que nota o B tira?",
+    "options": {
+      "high": "Nota alta, talvez 100%",
+      "low": "Nota baixa, porque ele inventa",
+      "zero": "Zero, mentira é mentira"
+    }
+  },
+  "feedback": {
+    "right": "pois é: 100% para quem inventou. O teste mede o que você pediu, não o que você queria. Repare que o A, que é honesto, tirou nota menor.",
+    "wrong": "olha a nota: 100% para quem inventou. O teste mede o que você pediu (“é curta?”), não o que você queria (“é verdade?”).",
+    "skipped": "sem palpite? Olha a nota: 100% para quem inventou. O teste mede o que você pediu, não o que você queria."
+  },
+  "coach": {
+    "ui": "palpite anotado. Deixe só a regra “curta” marcada, o assistente B escolhido, e aperte Rodar.",
+    "cmd": "palpite anotado. Rode o comando aí embaixo: ele avalia o B só pela regra curta."
+  },
+  "tryNext": {
+    "ui": "Agora avalie o assistente A com a mesma regra. Quem parece melhor? Quem é melhor?",
+    "cmd": "Agora rode avaliar \"A\" --regras curta. Quem parece melhor? Quem é melhor?"
+  },
+  "why": {
+    "simples": "Alucinar é quando o modelo fala uma coisa errada com a maior cara de certeza. Ele não está mentindo de propósito: ele só escreve o que parece uma boa resposta.\nPara descobrir, a gente faz uma prova para o modelo. Mas a prova precisa perguntar a coisa certa: se ela só olha se a letra é bonita, quem chuta com letra bonita passa.",
+    "dev": "Uma avaliação (eval) é um conjunto fixo de entradas com critérios de acerto, rodado a cada mudança de prompt, modelo ou dados. Critérios podem ser regras (tem fonte? cabe no limite?), comparação com a resposta esperada ou outro modelo como juiz.\nAqui “honesta” compara com o gabarito (aceita “não encontrei”), “fonte” exige citação ou recusa, e “curta” mede tamanho. Só a combinação certa pega o B.",
+    "especialista": "Lei de Goodhart: quando uma medida vira meta, ela deixa de ser uma boa medida. Evals de formato e tamanho são baratos e enganam; meça a fidelidade às fontes (groundedness) e a correção contra um gabarito revisado por humanos.\nMonte o conjunto com casos difíceis e com perguntas sem resposta nos documentos (o modelo tem que saber recusar). LLM como juiz precisa ser calibrado contra avaliação humana, e o conjunto não pode vazar para o prompt."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar o B: marque as regras que pegam quem inventa e avalie o B de novo.",
+      "cmd": "hora de quebrar o B: rode avaliar \"B\" com regras que pegam quem inventa, tipo --regras curta,honesta"
+    },
+    "success": "Pegou! Com a regra certa, as {invented} respostas inventadas do B reprovam e a nota dele cai para {score}%. Agora o teste mede o que importa.",
+    "calm": "O B tirou {score}% e as invenções passaram despercebidas. Marque uma regra que confira se a resposta é verdadeira ou tem fonte."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o assistente (A ou B), marque as regras e aperte Rodar.",
+      "“Curta” só mede tamanho. Que regra olharia se a resposta é verdadeira?",
+      "Assistente B com as regras “honesta” e “fonte”."
+    ],
+    "cmd": [
+      "O assistente vai entre aspas: \"A\" ou \"B\".",
+      "--regras recebe uma lista: curta,fonte,honesta",
+      "avaliar \"B\" --regras honesta,fonte"
+    ]
+  },
+  "errors": {
+    "notInEnum.rules": "“{value}” não é uma regra daqui. Opções: {options}.",
+    "model.unknownModel": "Só existem os assistentes “A” e “B”. Exemplo: avaliar \"B\""
+  },
+  "controls": { "arg": "Assistente", "rules": "Regras do teste" },
+  "scene": {
+    "label": "O boletim dos assistentes",
+    "board": "Nota com estas regras",
+    "assistant": "Assistente {m}",
+    "aDesc": "usa os documentos e diz quando não sabe",
+    "bDesc": "responde tudo, rápido e curtinho",
+    "question": "Pergunta",
+    "answer": "Resposta do {m}",
+    "invented": "inventou",
+    "rules": { "short": "curta", "source": "fonte", "honest": "honesta" },
+    "noRules": "Sem nenhuma regra, não existe teste: a nota é zero para todo mundo.",
+    "empty": "Rode para ver o boletim."
+  },
+  "data": {
+    "questions": [
+      {
+        "q": "Quando acabam as férias de julho?",
+        "inDocs": true,
+        "a": { "text": "Vão de 13 a 24 de julho; as aulas voltam dia 27. [Fonte: Calendário 2026]", "correct": true, "cites": true, "abstains": false },
+        "b": { "text": "Acabam no dia 24 de julho.", "correct": true, "cites": false, "abstains": false }
+      },
+      {
+        "q": "A cantina aceita dinheiro?",
+        "inDocs": true,
+        "a": { "text": "Não. A cantina aceita só Pix e cartão, das 9h30 às 15h, segundo o documento da cantina. [Fonte: Cantina]", "correct": true, "cites": true, "abstains": false },
+        "b": { "text": "Sim, aceita dinheiro, Pix e cartão.", "correct": false, "cites": false, "abstains": false }
+      },
+      {
+        "q": "Qual é a cor do uniforme?",
+        "inDocs": true,
+        "a": { "text": "Camiseta amarela com girassol e calça ou bermuda azul-marinho. [Fonte: Uniforme]", "correct": true, "cites": true, "abstains": false },
+        "b": { "text": "Camiseta amarela e calça azul.", "correct": true, "cites": false, "abstains": false }
+      },
+      {
+        "q": "Quem é o diretor?",
+        "inDocs": false,
+        "a": { "text": "Não encontrei isso nos documentos da escola. Melhor perguntar na secretaria.", "correct": false, "cites": false, "abstains": true },
+        "b": { "text": "O diretor é o professor Carlos Mendes.", "correct": false, "cites": false, "abstains": false }
+      },
+      {
+        "q": "Posso sair mais cedo sem bilhete?",
+        "inDocs": true,
+        "a": { "text": "Não. A saída antecipada só acontece com bilhete assinado pelo responsável. [Fonte: Saídas e atrasos]", "correct": true, "cites": true, "abstains": false },
+        "b": { "text": "Pode, é só avisar o professor.", "correct": false, "cites": false, "abstains": false }
+      }
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Escreva 5 perguntas sobre um texto que você conhece bem (o regimento da escola, um manual do trabalho) e anote a resposta certa de cada uma. Inclua 1 pergunta que o texto não responde.",
+      "Faça as 5 perguntas a um chat de IA sem colar o texto. Depois, cole o texto e pergunte de novo.",
+      "Corrija as duas rodadas com o seu gabarito: está certa? tem fonte? recusou a pergunta sem resposta?"
+    ],
+    "ok": "sem o texto aparecem respostas erradas com confiança; com o texto, mais acertos e um “não encontrei” na pergunta sem resposta. Seu gabarito pegou a diferença."
+  }
+}

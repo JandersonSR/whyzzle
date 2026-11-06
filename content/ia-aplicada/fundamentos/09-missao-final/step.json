@@ -1,0 +1,68 @@
+{
+  "id": "missao-final",
+  "order": 9,
+  "track": "fundamentos",
+  "kind": "mission",
+  "minutes": 20,
+  "tags": ["missao", "rag", "avaliacao", "temperatura", "prompt"],
+  "requires": ["temperatura", "prompt", "rag", "alucinacao-e-avaliacao"],
+  "executors": ["simulado", "no-navegador", "sua-chave"],
+  "model": "mission",
+  "scene": "mission",
+  "command": {
+    "verb": { "pt": "montar", "en": "build" },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "default": { "pt": "assistente", "en": "assistant" },
+      "ui": "examples",
+      "examples": [
+        { "pt": "assistente", "en": "assistant" },
+        { "pt": "assistente da secretaria da Escola Girassol", "en": "Sunflower School front-office assistant" }
+      ]
+    },
+    "flags": [
+      {
+        "name": "temp",
+        "alias": { "pt": "temp", "en": "temp" },
+        "type": "number",
+        "min": 0,
+        "max": 2,
+        "step": 0.1,
+        "uiMin": 0,
+        "uiMax": 2,
+        "default": 1,
+        "required": true,
+        "ui": "slider"
+      },
+      {
+        "name": "search",
+        "alias": { "pt": "busca", "en": "search" },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "cite",
+        "alias": { "pt": "citar", "en": "cite" },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "tests",
+        "alias": { "pt": "testes", "en": "tests" },
+        "type": "list",
+        "options": [
+          { "id": "short", "pt": "curta", "en": "short" },
+          { "id": "source", "pt": "fonte", "en": "source" },
+          { "id": "honest", "pt": "honesta", "en": "honest" }
+        ],
+        "default": ["short"],
+        "ui": "checkboxes"
+      }
+    ]
+  },
+  "break": { "flag": "passed" },
+  "data": { "embellishIndex": 2 }
+}

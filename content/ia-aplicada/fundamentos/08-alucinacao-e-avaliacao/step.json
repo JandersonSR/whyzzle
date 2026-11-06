@@ -1,0 +1,40 @@
+{
+  "id": "alucinacao-e-avaliacao",
+  "order": 8,
+  "track": "fundamentos",
+  "minutes": 15,
+  "tags": ["alucinacao", "avaliacao", "evals", "goodhart"],
+  "requires": ["rag"],
+  "executors": ["simulado", "no-navegador", "sua-chave"],
+  "model": "evals",
+  "scene": "evals",
+  "command": {
+    "verb": { "pt": "avaliar", "en": "evaluate" },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "default": { "pt": "B", "en": "B" },
+      "ui": "examples",
+      "examples": [
+        { "pt": "A", "en": "A" },
+        { "pt": "B", "en": "B" }
+      ]
+    },
+    "flags": [
+      {
+        "name": "rules",
+        "alias": { "pt": "regras", "en": "rules" },
+        "type": "list",
+        "options": [
+          { "id": "short", "pt": "curta", "en": "short" },
+          { "id": "source", "pt": "fonte", "en": "source" },
+          { "id": "honest", "pt": "honesta", "en": "honest" }
+        ],
+        "default": ["short"],
+        "ui": "checkboxes"
+      }
+    ]
+  },
+  "predict": { "options": ["high", "low", "zero"], "answer": "high" },
+  "break": { "flag": "caught" }
+}

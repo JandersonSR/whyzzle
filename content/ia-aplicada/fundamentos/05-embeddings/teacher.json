@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Entender que o modelo representa significado como posição num mapa (vetor).",
+      "Ver que palavras parecidas ficam perto, independentemente da grafia.",
+      "Perceber o limite: palavras com dois sentidos confundem um mapa de uma palavra só."
+    ],
+    "minutes": 15,
+    "activity": "Mapa humano: distribua cartões com palavras (bichos, frutas, roupas, veículos). Os alunos se posicionam na sala para ficar perto de quem tem palavras parecidas. Depois, entregue “manga” para alguém e veja onde essa pessoa decide ficar.",
+    "discussion": [
+      "Por que “gato” fica longe de “garfo”, se as letras parecem?",
+      "Como uma loja online poderia usar esse mapa para recomendar produtos?",
+      "Como o modelo poderia saber se “manga” é fruta ou roupa?"
+    ],
+    "misconceptions": [
+      "“O computador compara letras.” Ele compara posições no mapa de significados.",
+      "“Cada palavra tem um significado só.” Muitas têm vários; o contexto decide.",
+      "“O mapa tem 2 dimensões.” Os reais têm centenas ou milhares; 2 é só para caber na tela."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Understand that the model represents meaning as a position on a map (a vector).",
+      "See that similar words sit close together, regardless of spelling.",
+      "Notice the limit: words with two meanings confuse a one-word map."
+    ],
+    "minutes": 15,
+    "activity": "Human map: hand out cards with words (animals, fruits, clothes, vehicles). Students place themselves around the room to stand near similar words. Then give someone “bat” and see where they choose to stand.",
+    "discussion": [
+      "Why is “cat” far from “car” if the letters are so similar?",
+      "How could an online shop use this map to recommend products?",
+      "How could the model tell whether “bat” is an animal or sports gear?"
+    ],
+    "misconceptions": [
+      "“The computer compares letters.” It compares positions on the meaning map.",
+      "“Each word has one meaning.” Many have several; context decides.",
+      "“The map has 2 dimensions.” Real ones have hundreds or thousands; 2 just fits the screen."
+    ]
+  }
+}

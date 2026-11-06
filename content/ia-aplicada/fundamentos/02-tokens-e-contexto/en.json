@@ -1,0 +1,83 @@
+{
+  "title": "Tokens and context window",
+  "subtitle": "The model reads in little pieces and has a short memory",
+  "mission": "Find out how many pieces the model cuts a long word into. Then make it forget the start of a text.",
+  "predict": {
+    "question": "guess: to the model, how many tokens is “Antidisestablishmentarianism”?",
+    "options": {
+      "one": "1 token: it’s a single word",
+      "many": "Several pieces",
+      "letters": "One token per letter"
+    }
+  },
+  "feedback": {
+    "right": "yes! “Antidisestablishmentarianism” was cut into pieces. Common words become a single token; rare ones become several.",
+    "wrong": "close! Look at the scene: “Antidisestablishmentarianism” was cut into several pieces. Not the whole word, not letter by letter: pieces the model knows.",
+    "skipped": "skipped the guess? That’s fine: look how “Antidisestablishmentarianism” was cut into pieces, while “is” and “a” stayed whole."
+  },
+  "coach": {
+    "ui": "guess noted. Hit Run and look at the colored pieces.",
+    "cmd": "guess noted. Run the command below."
+  },
+  "tryNext": {
+    "ui": "Now pick the long text in the examples and watch the token counter.",
+    "cmd": "Now write a sentence of your own in quotes and compare: how many tokens does each word take?"
+  },
+  "why": {
+    "simples": "The model doesn’t read letter by letter or word by word: it reads in little pieces, like Lego bricks. A common word is one brick; a rare word is built from several.\nAnd it has a table of limited size (the window). If the text doesn’t fit, the first bricks fall off the table and it forgets them.",
+    "dev": "Tokenizers like BPE learn a subword vocabulary (tens to hundreds of thousands of entries). Each token becomes a number (id), and that’s what the network receives.\nThe context window is the maximum number of tokens per call: instructions + history + answer. Beyond that, something has to go (truncate the start, summarize) or the API refuses.",
+    "especialista": "You pay and wait per token, not per word. Portuguese usually takes more tokens per word than English, and code, numbers and emoji are heavy too: measure with your provider’s tokenizer.\nA big window isn’t perfect memory: models tend to use what sits in the middle of long contexts worse (“lost in the middle”). Put what matters at the start or the end, and prefer retrieving chunks (RAG, step 6) over dumping everything."
+  },
+  "formula": "text → tokens → ids → [ window of N tokens ]",
+  "break": {
+    "mission": {
+      "ui": "time to break it. Pick the long text and lower the window to 8 tokens.",
+      "cmd": "time to break it. Run a long text with --window 8."
+    },
+    "success": "Broken: {lost} tokens didn’t fit in the window and fell off. The model no longer sees “{lostText}”. That’s why long chats “forget” the beginning.",
+    "calm": "Everything fit in the window ({count} of {window} tokens). Use a longer text or a smaller window."
+  },
+  "hints": {
+    "ui": [
+      "Hit Run and look at the pieces.",
+      "The counter shows how many tokens fit in the window.",
+      "Long text + window 8 = forgotten beginning."
+    ],
+    "cmd": [
+      "The text goes in quotes, right after tokenize.",
+      "--window changes how many tokens the model can see.",
+      "tokenize \"a really long text here, with several sentences\" --window 8"
+    ]
+  },
+  "errors": {
+    "aboveMax.window": "Up to 64 here. Real models have windows from thousands to over a million tokens; this one is a toy, sized to fit the screen.",
+    "belowMin.window": "With fewer than 4 tokens not even “Hi, how are you?” fits. Use at least 4.",
+    "notInteger.window": "There’s no half token: use a whole number."
+  },
+  "controls": { "arg": "Text", "window": "Window (tokens)" },
+  "scene": {
+    "label": "How the model reads",
+    "count": "{count} tokens · {chars} characters",
+    "window": "window: {window} tokens",
+    "forgotten": "outside the window (forgotten)",
+    "ids": "ids the network receives",
+    "cost": "With a real model, you would pay for these {count} input tokens, plus the output ones.",
+    "legend": { "word": "whole word", "piece": "piece of a word", "num": "number", "punct": "punctuation" },
+    "empty": "Run to watch the text turn into tokens."
+  },
+  "data": {
+    "vocab": [
+      "word", "long", "school", "where", "everyone", "asked", "teacher", "answered", "another", "question",
+      "class", "alone", "nobody", "remembered", "answers", "because", "then", "when", "after", "always",
+      "model", "text", "sentence", "there", "once", "upon", "time", "things", "memorized"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Open a token counter (for example, OpenAI’s Tokenizer page).",
+      "Paste “Antidisestablishmentarianism is a long word.” and then the same sentence in another language.",
+      "Compare the counts."
+    ],
+    "ok": "the long word shows up cut into pieces, and the counts differ between languages."
+  }
+}

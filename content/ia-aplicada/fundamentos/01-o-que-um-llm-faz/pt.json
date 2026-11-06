@@ -1,0 +1,116 @@
+{
+  "title": "O que um LLM faz",
+  "subtitle": "Spoiler: ele adivinha a próxima palavra (muito bem)",
+  "mission": "Faça o modelo continuar “Era uma vez…” e descubra como ele escreve: tudo de uma vez ou aos pouquinhos?",
+  "predict": {
+    "question": "palpite antes de rodar! Para continuar “Era uma vez”, como o modelo escreve?",
+    "options": {
+      "whole": "A frase inteira de uma vez",
+      "onebyone": "Uma palavra por vez, olhando o que já escreveu",
+      "search": "Procura a continuação na internet"
+    }
+  },
+  "feedback": {
+    "right": "isso! Ele escolheu uma palavra entre algumas candidatas. Para escrever mais, cola essa palavra no texto e escolhe a próxima olhando tudo de novo.",
+    "wrong": "quase! Repare na cena: ele escolheu uma palavra só, entre algumas candidatas. Para escrever mais, repete o processo, uma palavra por vez.",
+    "skipped": "pulou o palpite, hein? Tudo bem: repare que ele escolheu uma palavra só, entre algumas candidatas."
+  },
+  "coach": {
+    "ui": "palpite anotado. Deixe “Era uma vez” e aperte Rodar.",
+    "cmd": "palpite anotado. Rode o comando aí embaixo (Enter ou Rodar)."
+  },
+  "tryNext": {
+    "ui": "Agora arraste “Palavras” até 8 e rode de novo: a frase cresce, uma escolha por vez.",
+    "cmd": "Agora rode com --palavras 8 e veja a frase crescer, uma escolha por vez."
+  },
+  "why": {
+    "simples": "É como o autocompletar do celular, só que muito mais treinado. Ele leu tanto texto que aprendeu quais palavras costumam vir depois de quais.\nPara escrever uma frase, ele dá um palpite, cola no texto e dá outro palpite olhando tudo de novo. Palavra por palavra.",
+    "dev": "Um LLM é uma função que recebe uma sequência de tokens e devolve uma distribuição de probabilidade para o próximo token. A geração é autoregressiva: escolhe-se um token, ele é anexado à entrada e o modelo roda de novo.\nEste simulador olha só a última palavra (um modelo de bigramas). Um LLM de verdade usa o contexto inteiro, com atenção (transformer), e por isso não se perde.",
+    "especialista": "Cada token gerado é uma passada pela rede (com cache KV para não recalcular o passado): a latência cresce com o tamanho da saída, e o custo é cobrado por token de entrada e de saída.\n“Só prever o próximo token” subestima o que emerge daí: para prever bem, o modelo precisa representar fatos, gramática e raciocínio. Mas também explica o limite: ele otimiza plausibilidade, não verdade. Isso volta no passo 8."
+  },
+  "formula": "P(próxima | texto até aqui) → escolhe → anexa → repete",
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar. Toque no exemplo “Xablau” (ou escreva uma palavra inventada) e rode.",
+      "cmd": "hora de quebrar. Rode prever \"Xablau\" --palavras 5 (ou qualquer palavra inventada)."
+    },
+    "success": "Quebrou: o modelo nunca viu “{word}”, então chutou palavras comuns com chances quase iguais. Ele não “sabe” nada fora do que aprendeu; só segue padrões.",
+    "calm": "Essa ele conhecia. Tente uma palavra que nunca existiu."
+  },
+  "hints": {
+    "ui": [
+      "Deixe o texto como está e aperte Rodar.",
+      "Para ver mais de uma palavra, arraste “Palavras”.",
+      "Para quebrar: toque no exemplo “Xablau” e rode."
+    ],
+    "cmd": [
+      "O texto vai entre aspas, logo depois de prever.",
+      "--palavras diz quantas palavras ele escreve.",
+      "prever \"Era uma vez\" --palavras 8"
+    ]
+  },
+  "errors": {
+    "aboveMax.steps": "Até 12 palavras por vez: este modelo de brinquedo tem um vocabulário pequeno e ia começar a se repetir.",
+    "belowMin.steps": "Zero palavras? Aí o modelo nem acorda. Use de 1 a 12.",
+    "notInteger.steps": "Meia palavra não existe aqui: use um número inteiro, como 4."
+  },
+  "controls": { "arg": "Começo do texto", "steps": "Palavras" },
+  "scene": {
+    "label": "O que o modelo está pensando",
+    "candidates": "Candidatas para a próxima palavra",
+    "after": "depois de “{from}”",
+    "guess": "chute: nunca vi “{from}”",
+    "empty": "Rode para ver o modelo escolher a próxima palavra.",
+    "chosen": "escolhida"
+  },
+  "data": {
+    "table": {
+      "era": [["uma", 0.82], ["um", 0.12], ["o", 0.06]],
+      "uma": [["vez", 0.71], ["menina", 0.17], ["casa", 0.12]],
+      "vez": [["um", 0.48], ["uma", 0.33], ["no", 0.19]],
+      "um": [["gato", 0.52], ["robô", 0.31], ["rei", 0.17]],
+      "o": [["gato", 0.5], ["rei", 0.3], ["robô", 0.2]],
+      "gato": [["que", 0.58], ["muito", 0.27], ["chamado", 0.15]],
+      "robo": [["que", 0.62], ["muito", 0.23], ["chamado", 0.15]],
+      "rei": [["que", 0.6], ["muito", 0.25], ["chamado", 0.15]],
+      "menina": [["que", 0.6], ["muito", 0.25], ["chamada", 0.15]],
+      "casa": [["no", 0.5], ["muito", 0.3], ["que", 0.2]],
+      "que": [["adorava", 0.54], ["vivia", 0.31], ["sonhava", 0.15]],
+      "adorava": [["dormir", 0.49], ["pizza", 0.32], ["cantar", 0.19]],
+      "vivia": [["num", 0.7], ["no", 0.2], ["sozinho", 0.1]],
+      "sonhava": [["voar", 0.6], ["alto", 0.25], ["acordado", 0.15]],
+      "num": [["castelo", 0.55], ["telhado", 0.3], ["foguete", 0.15]],
+      "no": [["telhado", 0.5], ["castelo", 0.3], ["mar", 0.2]],
+      "muito": [["curioso", 0.5], ["preguiçoso", 0.3], ["feliz", 0.2]],
+      "chamado": [["Bolota", 0.6], ["Pixel", 0.4]],
+      "chamada": [["Lia", 0.6], ["Bia", 0.4]],
+      "dormir": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "pizza": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "cantar": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "voar": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "alto": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "acordado": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "castelo": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "telhado": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "foguete": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "mar": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "curioso": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "preguicoso": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "feliz": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "sozinho": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "bolota": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "pixel": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "lia": [[".", 0.74], ["e", 0.16], ["de", 0.1]],
+      "bia": [[".", 0.74], ["e", 0.16], ["de", 0.1]]
+    },
+    "fallback": [["de", 0.18], ["o", 0.17], ["que", 0.16]]
+  },
+  "recipe": {
+    "steps": [
+      "Abra qualquer chat de IA.",
+      "Escreva: Continue esta frase com uma palavra só: “Era uma vez…”",
+      "Depois peça: agora continue com mais 10 palavras."
+    ],
+    "ok": "a primeira resposta tem uma palavra só, e a segunda continua de onde parou."
+  }
+}

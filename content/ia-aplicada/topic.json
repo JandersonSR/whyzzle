@@ -1,0 +1,40 @@
+{
+  "id": "ia-aplicada",
+  "title": { "pt": "IA aplicada", "en": "Applied AI" },
+  "tagline": {
+    "pt": "Como os modelos de linguagem funcionam por dentro — e como usar isso de verdade.",
+    "en": "How language models work inside — and how to actually use that."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "ready",
+      "title": { "pt": "Fundamentos", "en": "Foundations" },
+      "audience": { "pt": "Escolas e curiosos", "en": "Schools and the curious" },
+      "description": {
+        "pt": "8 passos e uma missão final para entender o que um LLM faz, sem instalar nada e sem precisar saber programar.",
+        "en": "8 steps and a final mission to understand what an LLM does, nothing to install and no coding needed."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": { "pt": "Prática", "en": "Practice" },
+      "audience": { "pt": "Devs e analistas", "en": "Developers and analysts" },
+      "description": {
+        "pt": "Modelos reais rodando no seu navegador e, se quiser, com a sua chave de API.",
+        "en": "Real models running in your browser and, if you like, with your own API key."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": { "pt": "Produção", "en": "Production" },
+      "audience": { "pt": "Empresas e times", "en": "Companies and teams" },
+      "description": {
+        "pt": "Avaliação, custo, latência, prompt injection, guardrails, LGPD e monitoramento, com casos reais.",
+        "en": "Evaluation, cost, latency, prompt injection, guardrails, privacy law and monitoring, with real cases."
+      }
+    }
+  ]
+}

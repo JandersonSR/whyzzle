@@ -1,0 +1,122 @@
+# Arquitetura do Whyzzle
+
+Este documento é o contrato do motor. Ele descreve como as lições são dados, quais são as peças que se
+plugam por nome e onde as próximas fases (Prática, Produção, guia do professor e modo turma) entram sem
+mudar as lições já escritas.
+
+## Princípios
+
+1. **Um motor, muitas lições.** Uma lição é uma pasta de arquivos JSON. Código só entra quando uma
+   lição precisa de uma cena ou de um modelo que ainda não existe.
+2. **Tudo no navegador.** Site estático, sem backend, progresso salvo no `localStorage`. Deploy no Vercel.
+3. **Bilíngue desde o primeiro dia.** Todo texto visível existe em `pt.json` e `en.json`, com as mesmas
+   chaves e os mesmos `{placeholders}` (conferido por teste).
+4. **O ciclo de todo passo:** prever → executar → ver → entender o porquê → quebrar de propósito.
+5. **Três camadas de explicação** no mesmo passo: Simples, Dev e Especialista.
+
+## Hierarquia do conteúdo
+
+```
+Tema (topic.json)
+└── Trilha: fundamentos · pratica · producao
+    └── Passo (pasta NN-slug/)  ← kind "step" (ciclo completo) ou "mission" (missão final)
+```
+
+```
+content/ia-aplicada/
+  topic.json                       título, chamada e as 3 trilhas (ready | soon)
+  fundamentos/
+    03-temperatura/
+      step.json    definição neutra de idioma: comando, modelo, cena, palpite, quebra, dados numéricos
+      pt.json      todos os textos em português + dados que dependem do idioma
+      en.json      o mesmo em inglês
+      teacher.json guia do professor (pt e en)
+```
+
+O nome da pasta sem o número vira a URL: `/ia-aplicada/fundamentos/temperatura`.
+`receitas` e `professor` são reservados para páginas da trilha.
+
+## As 5 peças do motor
+
+| Peça | Onde | O que é | Como a lição usa |
+| --- | --- | --- | --- |
+| **Cenas** | `src/scenes/` | Componentes React que desenham o que acontece por dentro | `"scene": "sampler"` |
+| **Executores** | `src/engine/executors.ts` | Quem gera a resposta: `simulado`, `no-navegador`, `sua-chave` | `"executors": [...]` em ordem de preferência |
+| **Modelos simulados** | `src/models/` | Os “modelos de brinquedo” do executor simulado | `"model": "sampler"` |
+| **Checagens** | `src/engine/registry.ts` | O que conta como acerto (flags levantadas pelo modelo) | `"break": { "flag": "weird" }` |
+| **Comandos** | `src/engine/command.ts` | Gramática `verbo "texto" --opcao valor`, nos dois idiomas | bloco `"command"` do `step.json` |
+| **Eventos** | `src/engine/events.ts` | Toda ação vira um evento (palpitou, rodou, errou, dica, concluiu) | automático |
+
+### Comandos
+
+`step.json → command` declara verbo, argumento entre aspas e opções (`number`, `int`, `string`, `enum`,
+`list`, `bool`) com limites. A partir disso o motor:
+
+- lê o que a pessoa digita, aceitando verbos e opções em português **ou** inglês, aspas curvas do celular e
+  vírgula decimal;
+- devolve erros estruturados (`notNumber`, `oneDash`, `aboveMax`…) que cada passo explica com texto próprio
+  em `errors["<código>.<opção>"]`, caindo num texto genérico quando não há;
+- gera o **modo Botões** (controle deslizante, caixas de seleção, chips) e o comando equivalente ao vivo;
+- traduz o comando quando a pessoa troca de idioma, mantendo os valores.
+
+### Executores
+
+- `simulado` — modelos de brinquedo determinísticos (com sorteio controlado). Funciona em qualquer celular.
+  É o único da trilha Fundamentos.
+- `no-navegador` — Transformers.js (embeddings, modelos pequenos) e WebLLM (chat, precisa de WebGPU).
+  Baixado sob demanda. Sem WebGPU, volta para o simulado e avisa. **Fase 2.**
+- `sua-chave` — chamada direta do navegador à API do provedor com a chave da própria pessoa, guardada
+  só no aparelho dela. **Fase 2.**
+
+Todo executor recebe os mesmos valores já validados pelo comando e devolve um `ModelResult`
+(`flags`, `vars` e os dados que a cena desenha). Por isso as cenas e as checagens não mudam quando o
+executor muda.
+
+### Eventos e progresso
+
+`emit()` publica eventos; `connectEvents(store)` deriva o progresso deles. O `ProgressStore` é uma
+interface: hoje `createLocalStore()` grava no `localStorage` (até 500 eventos). O modo turma troca por um
+store que também sincroniza com um backend, sem mexer nas lições.
+
+## Fluxo de um passo
+
+```
+digita / mexe nos botões ──► parseCommand ──► preview (modelo, determinístico) ──► cena reage ao vivo
+                                   │
+                    Rodar ─────────┴──► executor.run ──► ModelResult ──► reducer (stepMachine) ──► eventos
+```
+
+`src/engine/stepMachine.ts` é um reducer puro (testável e reproduzível): fase, palpite, rodadas, dicas,
+erro e se o passo foi quebrado. Passos completam quando uma rodada da fase "Quebrar" levanta a flag de
+quebra; missões completam em qualquer rodada que atinja todos os critérios.
+
+## Qualidade
+
+`npm test` roda:
+
+- **content.test.ts** — todas as lições passam no esquema zod; pt e en têm as mesmas chaves, tamanhos de
+  lista e placeholders; comando padrão, exemplos e a "cola" da dica 3 são comandos válidos; textos de erro
+  apontam para opções que existem.
+- **lessons.test.ts** — a jornada prometida de cada passo acontece de verdade no modelo, nos dois idiomas
+  (ex.: temperatura 0 nunca varia; o RAG sem busca alucina; o teste só de tamanho dá 100% ao mentiroso;
+  a missão começa quebrada e tem solução).
+- **command.test.ts** e **stepMachine.test.ts** — leitor de comandos e ciclo do passo.
+
+O build (`npm run build`) roda a validação de conteúdo antes do typecheck e do bundle; a CI roda tudo a
+cada push.
+
+## Onde entram as próximas fases
+
+| Fase | O que muda | O que não muda |
+| --- | --- | --- |
+| 2 · Prática | implementar `no-navegador` e `sua-chave`; lições em `pratica/` | esquema, cenas existentes, comandos |
+| 3 · Produção | casos reais com dados de exemplo em `producao/`; arquivo de preços datado; missões finais | motor |
+| 4 · Professor e turma | página do professor já existe (`/…/professor`); turma = novo `ProgressStore` + painel | lições |
+| Aprendizado direcionado | usar `requires`, `tags` e o histórico de eventos para recomendar o próximo passo | lições |
+
+## Como criar uma lição
+
+1. Copie uma pasta de passo (`content/<tema>/<trilha>/NN-slug/`).
+2. Edite `step.json` (comando, modelo, cena, palpite, flag de quebra) e os textos em `pt.json`/`en.json`.
+3. Se precisar de um modelo ou cena novos, crie em `src/models/` e `src/scenes/` e registre o nome.
+4. Rode `npm test`: o teste de conteúdo aponta qualquer chave faltando ou diferente entre os idiomas.

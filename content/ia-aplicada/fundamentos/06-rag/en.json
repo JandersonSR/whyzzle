@@ -1,0 +1,117 @@
+{
+  "title": "RAG: look it up before answering",
+  "subtitle": "Giving the model an honest cheat sheet",
+  "mission": "Make the Sunflower School assistant answer front-office questions using the school’s documents. Then turn search off and see what happens.",
+  "predict": {
+    "question": "guess: a model has never read Sunflower School’s documents. With no search, you ask when the July break ends. It…",
+    "options": {
+      "invents": "Gives a date, full of confidence",
+      "unknown": "Says it doesn’t know",
+      "knows": "Gets it right, models know everything"
+    }
+  },
+  "feedback": {
+    "right": "yes, and that’s why this step exists. But first the good side: with search on, the answer comes from the Calendar, with the source cited.",
+    "wrong": "close. Models tend to answer confidently even when they don’t know. Notice: with search on, the answer comes from the Calendar, with the source cited.",
+    "skipped": "no guess, that’s fine. Notice: with search on, the answer comes from the school Calendar, with the source cited."
+  },
+  "coach": {
+    "ui": "guess noted. Keep search on, pick a question and hit Run.",
+    "cmd": "guess noted. Run the command below: search is on by default."
+  },
+  "tryNext": {
+    "ui": "Now ask “Who is the principal?”. That isn’t in the documents: see what the assistant does.",
+    "cmd": "Now run ask \"Who is the principal?\". That isn’t in the documents: see what the assistant does."
+  },
+  "why": {
+    "simples": "The model is like a student who has read loads, but never saw your school’s notebook. If you just ask, it guesses. RAG means letting it open the right notebook before answering, and say which page the answer came from.\nIf the answer isn’t in the notebook, the right thing is to say “I couldn’t find it”.",
+    "dev": "RAG (Retrieval-Augmented Generation) has three stages: 1) retrieve the chunks most similar to the question, usually with embeddings (step 5); 2) paste those chunks into the prompt; 3) ask the model to answer only from them and cite the source.\nHere retrieval is by shared words (easier to see); the relevance threshold decides whether a chunk is good enough or the answer is “not found”.",
+    "especialista": "RAG quality is, first of all, retrieval quality: chunk size, hybrid search (vector + keyword), reranking, and metadata such as date and permissions.\nMeasure retrieval (did the right chunk come back?) and generation (is the answer grounded in it?) separately. Stale documents produce wrong answers with sources: RAG cites the error confidently. And every pasted chunk is untrusted input (prompt injection comes in the Production track)."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it. Turn search off and ask again when the July break ends.",
+      "cmd": "time to break it. Run the same question with --search no."
+    },
+    "success": "Broken: without the documents, the model invented a convincing, sourceless answer. That’s hallucination: the text sounds right, but rests on nothing.",
+    "calm": "With search on it held on to the documents. To break it, turn search off."
+  },
+  "hints": {
+    "ui": [
+      "Pick one of the ready-made questions and hit Run.",
+      "“Chunks” is how many document pieces get pasted into the request.",
+      "To see hallucination: turn “Search the documents” off and run."
+    ],
+    "cmd": [
+      "The question goes in quotes, after ask.",
+      "--search yes or no turns document lookup on and off.",
+      "ask \"When does the July break end?\" --search no"
+    ]
+  },
+  "errors": {
+    "notBool.search": "--search takes yes or no. Example: --search no",
+    "aboveMax.top": "Up to 4 chunks: the school only has 4 documents. In real life, pasting too much also hurts (and costs tokens).",
+    "belowMin.top": "At least 1 chunk, or search is pointless.",
+    "notInteger.top": "Chunks is a whole number, like --chunks 2."
+  },
+  "controls": { "arg": "Question", "search": "Search the documents", "top": "Chunks pasted" },
+  "scene": {
+    "label": "Inside the assistant",
+    "question": "1 · Question",
+    "search": "2 · Document search",
+    "searchOff": "Search is off: the model answers only from what it “thinks it knows”.",
+    "relevance": "relevance",
+    "used": "pasted into the request",
+    "threshold": "below the {pct}% threshold",
+    "answer": "3 · Answer",
+    "grounded": "Sourced",
+    "notFound": "Not found",
+    "hallucinated": "No source: invented",
+    "source": "Source: {doc}",
+    "empty": "Run to see the search and the answer.",
+    "docsLabel": "Sunflower School documents"
+  },
+  "data": {
+    "stopwords": ["what", "when", "who", "how", "where", "does", "the", "can", "for", "with", "and", "are", "school", "sunflower", "has"],
+    "genericWrong": "As far as I know, that usually follows the state school schedule.",
+    "notFound": "I couldn’t find that in the school documents. Best to check with the front office.",
+    "docs": [
+      {
+        "id": "calendario",
+        "title": "2026 Calendar",
+        "text": "The July break runs from July 13 to 24. Classes resume on July 27. The parents’ meeting is on August 8.",
+        "answer": "The July break runs from July 13 to 24, and classes resume on the 27th.",
+        "wrong": "The July break starts on the 1st and lasts until the end of the month."
+      },
+      {
+        "id": "uniforme",
+        "title": "Uniform",
+        "text": "The uniform is a yellow T-shirt with the embroidered sunflower and navy trousers or shorts. On Fridays, any T-shirt is fine.",
+        "answer": "A yellow T-shirt with the embroidered sunflower and navy trousers or shorts. Any T-shirt on Fridays.",
+        "wrong": "The uniform is a white T-shirt and jeans."
+      },
+      {
+        "id": "cantina",
+        "title": "Canteen",
+        "text": "The canteen opens from 9:30 to 15:00. It takes Pix and cards; no cash.",
+        "answer": "No. The canteen only takes Pix and cards, from 9:30 to 15:00.",
+        "wrong": "Yes, the canteen takes cash, Pix and cards."
+      },
+      {
+        "id": "saidas",
+        "title": "Leaving and lateness",
+        "text": "Up to 15 minutes late: the student joins the first class. Leaving early only with a note signed by a guardian.",
+        "answer": "Leaving early only with a note signed by a guardian. Up to 15 minutes late still joins the first class.",
+        "wrong": "You can leave early, just tell the teacher."
+      }
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "In an AI chat, ask: “When does the July break end at my school?”. Notice whether it guesses or asks which school.",
+      "Now paste your school’s real calendar (or a piece of it) and write: “Answer only from this text and say where you got it. If it isn’t in the text, say you couldn’t find it”.",
+      "Ask again, then ask something that isn’t in the text."
+    ],
+    "ok": "with the text pasted, the answer uses its dates and cites the passage; for what isn’t in the text, it says it couldn’t find it."
+  }
+}

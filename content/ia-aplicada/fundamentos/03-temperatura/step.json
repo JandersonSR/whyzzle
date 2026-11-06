@@ -1,0 +1,52 @@
+{
+  "id": "temperatura",
+  "order": 3,
+  "track": "fundamentos",
+  "minutes": 12,
+  "tags": ["temperatura", "amostragem", "softmax"],
+  "requires": ["o-que-um-llm-faz"],
+  "executors": ["simulado", "no-navegador", "sua-chave"],
+  "model": "sampler",
+  "scene": "sampler",
+  "command": {
+    "verb": { "pt": "completar", "en": "complete" },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "default": { "pt": "O gato subiu no", "en": "The cat climbed onto the" },
+      "ui": "examples",
+      "examples": [{ "pt": "O gato subiu no", "en": "The cat climbed onto the" }]
+    },
+    "flags": [
+      {
+        "name": "temp",
+        "alias": { "pt": "temp", "en": "temp" },
+        "type": "number",
+        "min": 0,
+        "max": 5,
+        "step": 0.1,
+        "uiMin": 0,
+        "uiMax": 3,
+        "default": 0,
+        "required": true,
+        "ui": "slider"
+      },
+      {
+        "name": "times",
+        "alias": { "pt": "vezes", "en": "times" },
+        "type": "int",
+        "min": 1,
+        "max": 20,
+        "default": 1,
+        "ui": "toggle10"
+      }
+    ]
+  },
+  "predict": { "options": ["same", "diff", "crash"], "answer": "same" },
+  "break": { "flag": "weird" },
+  "data": {
+    "logits": [3.2, 2.4, 1.6, 1.1, 0.7, -0.8, -1.5],
+    "colors": ["#2F5BEA", "#8FA9F7", "#14B8A6", "#9A9CB8", "#F472B6", "#FF9A5C", "#B45309"],
+    "weirdFrom": 4
+  }
+}

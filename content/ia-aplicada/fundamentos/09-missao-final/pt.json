@@ -1,0 +1,112 @@
+{
+  "title": "Missão final: o assistente da secretaria",
+  "subtitle": "Junte tudo o que você aprendeu nos Fundamentos",
+  "mission": "A Escola Girassol quer um assistente para responder os pais. Ele já existe, mas está mal configurado: inventa, varia e passa num teste fraco. Ajuste até todos os critérios ficarem verdes. Sem dicas desta vez: a cena mostra o que está errado.",
+  "coach": {
+    "ui": "Mexa nos controles e aperte Rodar. Cada critério que falhar diz o porquê na lista.",
+    "cmd": "Edite o comando e rode. Cada critério que falhar diz o porquê na lista."
+  },
+  "why": {
+    "simples": "Você montou um assistente de verdade, em miniatura: ele sabe quem é, consulta o caderno da escola antes de responder, mostra de onde tirou, não fica inventando moda e passou numa prova que pega mentira.\nÉ assim que as empresas fazem, só que com documentos e testes muito maiores.",
+    "dev": "O que você configurou é a receita básica de um assistente com RAG: um prompt de sistema com papel claro, temperatura baixa para respostas factuais, recuperação com limite de relevância, instrução de citar a fonte e de recusar quando não houver trecho, e um conjunto de avaliação que mede correção e fidelidade às fontes, não só formato.",
+    "especialista": "Para ir a produção faltam: um conjunto de avaliação maior e versionado, rodado em CI a cada mudança; monitoramento de recusas e de perguntas sem resposta (elas dizem que documento falta); controle de acesso por documento; política de dados pessoais (LGPD); defesa contra prompt injection nos documentos; e custo e latência medidos por pergunta. Tudo isso é a trilha Produção."
+  },
+  "success": "Missão cumprida! O assistente da Escola Girassol responde com base nos documentos, cita a fonte, admite quando não sabe e passou num teste que pega invenção, com nota {score}%.",
+  "errors": {
+    "belowMin.temp": "Temperatura vai de 0 a 2.",
+    "aboveMax.temp": "Temperatura vai de 0 a 2.",
+    "notNumber.temp": "“{value}” não é um número. Temperatura vai de 0 a 2.",
+    "missingFlag.temp": "Faltou a temperatura, tipo --temp 0.2.",
+    "notBool.search": "--busca aceita sim ou nao.",
+    "notBool.cite": "--citar aceita sim ou nao.",
+    "notInEnum.tests": "“{value}” não é um teste daqui. Opções: {options}."
+  },
+  "controls": {
+    "arg": "Papel do assistente",
+    "temp": "Temperatura",
+    "search": "Busca nos documentos",
+    "cite": "Citar a fonte e admitir quando não souber",
+    "tests": "Testes de avaliação"
+  },
+  "scene": {
+    "label": "Painel da missão",
+    "criteriaLabel": "Critérios ({done} de {total})",
+    "criteria": {
+      "role": "Papel claro: o assistente sabe que é da secretaria da escola",
+      "grounded": "Responde com base nos documentos da escola",
+      "noInvent": "Nenhuma resposta inventada",
+      "cites": "Mostra a fonte ou admite que não encontrou",
+      "stable": "Respostas estáveis (temperatura até 0,5)",
+      "testCatches": "O teste pega quem inventa (honesta ou fonte)",
+      "score": "Nota de pelo menos 80% nos seus testes"
+    },
+    "why": {
+      "role": "“{role}” não diz de onde é o assistente. Mencione a secretaria ou a escola.",
+      "grounded": "Sem busca, o modelo responde só com o que “acha que sabe” (passo 6).",
+      "noInvent": "{invented} resposta(s) não se apoiam em nada. Busca, fonte e temperatura baixa ajudam.",
+      "cites": "Sem a instrução de citar e de admitir, o assistente não mostra de onde tirou nem diz “não encontrei”.",
+      "stable": "Com temperatura alta, ele enfeita respostas com “fatos” que ninguém escreveu (passo 3).",
+      "testCatches": "Só “curta” mede tamanho, não verdade: um mentiroso curtinho passa (passo 8).",
+      "score": "Com os seus testes, a nota foi {score}%."
+    },
+    "answers": "As 5 perguntas dos pais",
+    "invented": "inventou",
+    "embellished": "enfeitou",
+    "abstained": "admitiu",
+    "rules": { "short": "curta", "source": "fonte", "honest": "honesta" },
+    "pending": "Rode para ver como o assistente se sai.",
+    "trackDone": "Você concluiu a trilha Fundamentos de IA aplicada."
+  },
+  "data": {
+    "roleWords": ["secretaria", "escola", "girassol", "pais"],
+    "citeFmt": "[Fonte: {doc}]",
+    "notFound": "Não encontrei isso nos documentos da escola. Melhor confirmar com a secretaria.",
+    "embellish": "E às sextas o almoço da cantina é grátis.",
+    "stopwords": ["que", "qual", "quais", "quando", "quem", "como", "onde", "para", "por", "com", "uma", "das", "dos", "escola", "girassol", "pode", "posso", "tem", "mais", "sem"],
+    "docs": [
+      {
+        "id": "calendario",
+        "title": "Calendário 2026",
+        "text": "As férias de julho vão de 13 a 24 de julho. As aulas voltam em 27 de julho. A reunião de pais é em 8 de agosto.",
+        "answer": "As férias de julho vão de 13 a 24 de julho; as aulas voltam no dia 27.",
+        "wrong": ""
+      },
+      {
+        "id": "uniforme",
+        "title": "Uniforme",
+        "text": "O uniforme é camiseta amarela com o girassol bordado e calça ou bermuda azul-marinho. Às sextas, a camiseta é livre.",
+        "answer": "Camiseta amarela com girassol e calça ou bermuda azul-marinho.",
+        "wrong": ""
+      },
+      {
+        "id": "cantina",
+        "title": "Cantina",
+        "text": "A cantina abre das 9h30 às 15h. Aceita Pix e cartão; não aceita dinheiro em espécie.",
+        "answer": "Não. A cantina aceita só Pix e cartão.",
+        "wrong": ""
+      },
+      {
+        "id": "saidas",
+        "title": "Saídas e atrasos",
+        "text": "Atrasos de até 15 minutos: o aluno entra na primeira aula. Saída antecipada só com bilhete assinado pelo responsável.",
+        "answer": "Só com bilhete assinado pelo responsável.",
+        "wrong": ""
+      }
+    ],
+    "questions": [
+      { "q": "Quando acabam as férias de julho?", "invent": "As férias vão de 1º a 31 de julho." },
+      { "q": "Qual é a cor do uniforme?", "invent": "Camiseta branca e calça jeans." },
+      { "q": "A cantina aceita dinheiro?", "invent": "Sim, aceita dinheiro, Pix e cartão." },
+      { "q": "Quem é o diretor?", "invent": "O diretor é o professor Carlos Mendes." },
+      { "q": "Posso sair mais cedo sem bilhete?", "invent": "Pode, é só avisar o professor." }
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Num chat de IA, escreva um prompt de sistema: “Você é o assistente da secretaria da [sua escola]. Responda só com base nos documentos abaixo, cite o nome do documento e, se a resposta não estiver neles, diga que não encontrou.”",
+      "Cole 2 ou 3 documentos curtos e reais (calendário, regras, cardápio). Se der para ajustar a temperatura, deixe baixa.",
+      "Faça as suas 5 perguntas do passo 8, incluindo uma sem resposta, e corrija com o seu gabarito."
+    ],
+    "ok": "todas as respostas citam o documento certo e a pergunta sem resposta recebe um “não encontrei”. Isso é um assistente pronto para um piloto."
+  }
+}

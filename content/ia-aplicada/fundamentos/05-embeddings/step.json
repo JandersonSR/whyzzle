@@ -1,0 +1,39 @@
+{
+  "id": "embeddings",
+  "order": 5,
+  "track": "fundamentos",
+  "minutes": 12,
+  "tags": ["embeddings", "similaridade", "busca-semantica"],
+  "requires": ["tokens-e-contexto"],
+  "executors": ["simulado", "no-navegador", "sua-chave"],
+  "model": "embeddings",
+  "scene": "embeddings",
+  "command": {
+    "verb": { "pt": "perto", "en": "near" },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "default": { "pt": "gato", "en": "cat" },
+      "ui": "examples",
+      "examples": [
+        { "pt": "gato", "en": "cat" },
+        { "pt": "banana", "en": "banana" },
+        { "pt": "carro", "en": "car" },
+        { "pt": "manga", "en": "bat" }
+      ]
+    },
+    "flags": [
+      {
+        "name": "top",
+        "alias": { "pt": "top", "en": "top" },
+        "type": "int",
+        "min": 1,
+        "max": 8,
+        "default": 3,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": { "options": ["animal", "spelling", "same"], "answer": "animal" },
+  "break": { "flag": "ambiguous" }
+}

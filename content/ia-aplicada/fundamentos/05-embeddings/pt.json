@@ -1,0 +1,101 @@
+{
+  "title": "Embeddings e similaridade",
+  "subtitle": "Transformar significado em distância",
+  "mission": "Descubra quem mora perto de quem no mapa de significados do modelo. Depois, ache uma palavra que não sabe onde morar.",
+  "predict": {
+    "question": "palpite: no mapa de significados, “gato” fica mais perto de…",
+    "options": {
+      "animal": "“cachorro”",
+      "spelling": "“garfo” (as letras parecem)",
+      "same": "dos dois, igual"
+    }
+  },
+  "feedback": {
+    "right": "isso! “Gato” mora colado no “cachorro”, longe do “garfo”. O mapa organiza por significado, não pela grafia.",
+    "wrong": "quase! Olha o mapa: “gato” está colado no “cachorro” e longe do “garfo”. Letras parecidas não importam; significado, sim.",
+    "skipped": "sem palpite? Olha o mapa: “gato” mora colado no “cachorro”, longe do “garfo”. É significado, não grafia."
+  },
+  "coach": {
+    "ui": "palpite anotado. Deixe “gato” e aperte Rodar.",
+    "cmd": "palpite anotado. Rode o comando aí embaixo."
+  },
+  "tryNext": {
+    "ui": "Agora teste “banana” e “carro”, e aumente “Vizinhos” para 5.",
+    "cmd": "Agora teste perto \"banana\" --top 5 e depois perto \"carro\"."
+  },
+  "why": {
+    "simples": "Imagine que cada palavra é uma casinha num mapa. Palavras que falam de coisas parecidas moram no mesmo bairro: os bichos de um lado, as frutas do outro.\nPara saber se duas palavras combinam, o computador só mede a distância entre as casinhas.",
+    "dev": "Um modelo de embedding transforma texto num vetor de números (centenas ou milhares de dimensões). Textos com significado parecido viram vetores próximos.\nA proximidade costuma ser medida pela similaridade de cosseno. Aqui são só 2 dimensões e coordenadas feitas à mão, para caber na tela; a similaridade mostrada é 1 − distância normalizada.",
+    "especialista": "Embeddings são a base de busca semântica, recomendação, deduplicação e do RAG (passo 6). Escolha o modelo pelo domínio e idioma, e normalize os vetores se for usar produto escalar.\nUm vetor por texto mistura sentidos: palavras ambíguas e textos longos viram uma média. Por isso se cortam documentos em pedaços (chunking) e se combina busca vetorial com busca por palavra-chave (busca híbrida)."
+  },
+  "formula": "similaridade(a, b) = cos θ = (a · b) / (|a| |b|)",
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar. Toque em “manga” e rode.",
+      "cmd": "hora de quebrar. Rode perto \"manga\" --top 4."
+    },
+    "success": "Quebrou: “{word}” é fruta ou parte da camisa? Com um ponto só, ele fica no meio do caminho e os vizinhos vêm de dois bairros. Modelos reais resolvem melhor olhando a frase inteira, não só a palavra.",
+    "calm": "“{word}” tem um sentido só, então os vizinhos são do mesmo bairro. Procure uma palavra com dois sentidos."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma palavra nos exemplos e aperte Rodar.",
+      "“Vizinhos” diz quantas palavras mais próximas aparecem.",
+      "Palavra com dois sentidos: “manga”."
+    ],
+    "cmd": [
+      "A palavra vai entre aspas, depois de perto.",
+      "--top diz quantos vizinhos mostrar.",
+      "perto \"manga\" --top 4"
+    ]
+  },
+  "errors": {
+    "aboveMax.top": "Até 8 vizinhos, senão o mapa vira teia de aranha.",
+    "belowMin.top": "Pelo menos 1 vizinho, senão não tem com quem comparar.",
+    "model.unknownWord": "“{value}” não está no meu mapinha de palavras. Modelos reais têm um vetor para qualquer texto; este de brinquedo só conhece as palavras do mapa."
+  },
+  "controls": { "arg": "Palavra", "top": "Vizinhos" },
+  "scene": {
+    "label": "O mapa de significados",
+    "nearest": "Vizinhos mais próximos",
+    "sim": "similaridade",
+    "dims": "2 dimensões (modelos reais: centenas)",
+    "groups": { "animais": "animais", "frutas": "frutas", "roupas": "roupas", "veiculos": "veículos", "cozinha": "cozinha" },
+    "mapAria": "Mapa de palavras em duas dimensões; palavras de significado parecido ficam perto",
+    "empty": "Rode para ver os vizinhos."
+  },
+  "data": {
+    "points": [
+      { "w": "gato", "x": 18, "y": 22, "group": "animais" },
+      { "w": "cachorro", "x": 24, "y": 17, "group": "animais" },
+      { "w": "leão", "x": 11, "y": 30, "group": "animais" },
+      { "w": "lobo", "x": 29, "y": 27, "group": "animais" },
+      { "w": "coelho", "x": 14, "y": 13, "group": "animais" },
+      { "w": "banana", "x": 18, "y": 72, "group": "frutas" },
+      { "w": "maçã", "x": 25, "y": 80, "group": "frutas" },
+      { "w": "uva", "x": 11, "y": 84, "group": "frutas" },
+      { "w": "laranja", "x": 29, "y": 69, "group": "frutas" },
+      { "w": "manga", "x": 50, "y": 79, "group": "frutas", "ambiguous": true },
+      { "w": "camisa", "x": 74, "y": 74, "group": "roupas" },
+      { "w": "calça", "x": 82, "y": 82, "group": "roupas" },
+      { "w": "casaco", "x": 70, "y": 85, "group": "roupas" },
+      { "w": "chapéu", "x": 86, "y": 68, "group": "roupas" },
+      { "w": "carro", "x": 74, "y": 20, "group": "veiculos" },
+      { "w": "ônibus", "x": 83, "y": 26, "group": "veiculos" },
+      { "w": "bicicleta", "x": 69, "y": 31, "group": "veiculos" },
+      { "w": "avião", "x": 85, "y": 13, "group": "veiculos" },
+      { "w": "garfo", "x": 56, "y": 46, "group": "cozinha" },
+      { "w": "panela", "x": 63, "y": 52, "group": "cozinha" },
+      { "w": "colher", "x": 50, "y": 52, "group": "cozinha" },
+      { "w": "prato", "x": 57, "y": 58, "group": "cozinha" }
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Peça a um chat de IA: liste 5 palavras de significado parecido com “gato” e 5 com “manga”.",
+      "Repare se ele separa os dois sentidos de “manga” (ou pergunta qual você quer).",
+      "Na trilha Prática você vai calcular embeddings reais no navegador."
+    ],
+    "ok": "para “gato” vêm só bichos; para “manga” aparecem frutas e roupas (ou uma pergunta sobre o sentido)."
+  }
+}
