@@ -1,0 +1,98 @@
+{
+  "title": "Tools and agents",
+  "subtitle": "When the model asks for help (and when it can’t stop)",
+  "mission": "Give the agent tools to solve a sum and tell the time in another country. Then get it stuck trying something that doesn’t work.",
+  "predict": {
+    "question": "guess: the agent has a calculator. You ask what 23 x 47 is. It…",
+    "options": {
+      "tool": "Calls the calculator and uses the result",
+      "head": "Does it “in its head”, word by word",
+      "refuse": "Refuses, since it’s just a text model"
+    }
+  },
+  "feedback": {
+    "right": "exactly! The model doesn’t execute anything itself: it writes a request (“call the calculator with 23 x 47”), the program around it runs it and hands back the result. That’s the agent loop.",
+    "wrong": "close! Look at the trace: the model writes a request for the calculator, the surrounding program runs it and returns the result. The model only decides and reads.",
+    "skipped": "no guess? Look at the trace: think, call the tool, observe the result, answer. That’s the agent loop."
+  },
+  "coach": {
+    "ui": "guess noted. Keep all three tools ticked and hit Run.",
+    "cmd": "guess noted. Run the command below: all three tools are on."
+  },
+  "tryNext": {
+    "ui": "Now untick the calculator and run again. Compare the number with the previous one.",
+    "cmd": "Now run with --tools clock,search (no calculator) and compare the number."
+  },
+  "why": {
+    "simples": "The model is great with words and bad at sums and clocks. So we give it a toolbox. It doesn’t use the tool with its own hands: it asks “calculator, what’s 23 x 47?”, someone presses the buttons and tells it the result.\nAn agent is that, repeated: think, ask, see the answer, think again.",
+    "dev": "Tool calling: you describe the tools (name, what they do, parameters as JSON Schema). The model replies with a structured call; your code runs it, returns the result as a message, and the model continues.\nAn agent is that cycle in a loop, until the model answers or hits a step limit. The limit isn’t a detail: without it, a tool that always fails becomes an infinite loop (and an infinite token bill).",
+    "especialista": "In production the loop needs: step and cost limits, timeouts and retries with backoff, idempotent tools (or human confirmation for actions that spend money or delete things) and a log of every call.\nFewer, well-described tools usually beat many. Treat every tool output as untrusted input: a fetched page can carry instructions for the agent (indirect prompt injection)."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it. Pick “Will it rain in Lisbon tomorrow?” and run. Search is down today…",
+      "cmd": "time to break it. Run agent \"Will it rain in Lisbon tomorrow?\". Search is down today…"
+    },
+    "success": "Broken: search failed, the agent retried, and again, until it hit the {max}-step limit. Without that limit it would keep trying forever, and every attempt costs.",
+    "calm": "The agent finished in {cycles} of {max} steps. To break it, ask for something that depends on a failing tool: the weather."
+  },
+  "hints": {
+    "ui": [
+      "Tick the tools the agent may use and hit Run.",
+      "“Step limit” is how many loops the agent may take before giving up.",
+      "To break it: ask about the weather (search is down)."
+    ],
+    "cmd": [
+      "The task goes in quotes, after agent.",
+      "--tools takes a comma-separated list: calculator,clock,search",
+      "agent \"Will it rain in Lisbon tomorrow?\" --steps 4"
+    ]
+  },
+  "errors": {
+    "notInEnum.tools": "“{value}” isn’t a tool here. Options: {options}. For none, use --tools none.",
+    "aboveMax.maxSteps": "Up to 10 steps. An agent with too high a limit is an agent with too high a bill.",
+    "belowMin.maxSteps": "At least 1 step, or the agent never starts.",
+    "notInteger.maxSteps": "Steps is a whole number, like --steps 4."
+  },
+  "controls": { "arg": "Task", "tools": "Tools", "maxSteps": "Step limit" },
+  "scene": {
+    "label": "The agent’s trace",
+    "cycles": "steps used: {cycles} of {max}",
+    "kinds": { "think": "thinks", "act": "calls", "observe": "observes", "answer": "answers", "stop": "stopped" },
+    "tools": { "calc": "calculator", "clock": "clock", "search": "search" },
+    "toolbox": "Toolbox",
+    "toolOff": "not in the box",
+    "toolDown": "down today",
+    "empty": "Run to see the agent think and act."
+  },
+  "data": {
+    "phrases": {
+      "noTask": "I didn’t understand the task. I can do sums (23 x 47), tell the time in a city and try to check the weather.",
+      "thinkCalc": "I need to compute {expr}. Sums are better on the calculator.",
+      "callCalc": "calculator({expr})",
+      "answerCalc": "{expr} = {value}.",
+      "guessCalc": "No calculator. I’ll estimate word by word… about {guess}.",
+      "answerGuess": "{expr} is roughly {value} (a guess, no calculator).",
+      "thinkTime": "I need the current time in {city}.",
+      "callClock": "clock(\"{city}\")",
+      "answerTime": "In {city} it’s {time} right now.",
+      "guessTime": "Without a clock, I can’t know what time it is now.",
+      "answerTimeGuess": "I don’t know the time in {city}: I need a clock.",
+      "thinkWeather": "I need the weather forecast for {city}.",
+      "noSearch": "Without search, I can’t know the weather.",
+      "answerNoWeather": "I can’t check the weather in {city} without the search tool.",
+      "callSearch": "search(\"{city} forecast tomorrow\")",
+      "searchDown": "error: service unavailable",
+      "retry": "Search failed. Attempt {n}…",
+      "limit": "Stopped: hit the {max}-step limit without finishing."
+    }
+  },
+  "recipe": {
+    "steps": [
+      "In an AI chat with no tools (or with search off), ask: “What time is it in Tokyo right now?”.",
+      "Then, in a chat that shows tool use (search, code or calculator), ask: “Compute 23 x 47 using the code tool and show what you ran”.",
+      "Compare both answers."
+    ],
+    "ok": "without a tool, it says it doesn’t know the current time (or gets it wrong); with the tool, the executed call shows up with the result 1,081."
+  }
+}

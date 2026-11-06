@@ -1,0 +1,111 @@
+{
+  "title": "Hallucination and evaluation",
+  "subtitle": "How to catch a model lying with confidence",
+  "mission": "Two assistants answer the same 5 Sunflower School questions. B sometimes makes things up. Build a test that gives a low score to whoever invents.",
+  "predict": {
+    "question": "guess: assistant B invents some answers, but they’re all nice and short. If the only test is “is the answer short?”, what does B score?",
+    "options": {
+      "high": "A high score, maybe 100%",
+      "low": "A low score, since it invents",
+      "zero": "Zero, a lie is a lie"
+    }
+  },
+  "feedback": {
+    "right": "right: 100% for the one who invented. The test measures what you asked for, not what you wanted. Notice that A, the honest one, scored lower.",
+    "wrong": "look at the score: 100% for the one who invented. The test measures what you asked (“is it short?”), not what you wanted (“is it true?”).",
+    "skipped": "no guess? Look at the score: 100% for the one who invented. The test measures what you asked for, not what you wanted."
+  },
+  "coach": {
+    "ui": "guess noted. Keep only the “short” rule ticked, assistant B selected, and hit Run.",
+    "cmd": "guess noted. Run the command below: it grades B on the short rule only."
+  },
+  "tryNext": {
+    "ui": "Now grade assistant A with the same rule. Who looks better? Who is better?",
+    "cmd": "Now run evaluate \"A\" --rules short. Who looks better? Who is better?"
+  },
+  "why": {
+    "simples": "Hallucinating is when the model says something wrong with a totally confident face. It isn’t lying on purpose: it just writes what looks like a good answer.\nTo find out, we give the model a test. But the test has to ask the right thing: if it only checks for neat handwriting, whoever guesses neatly passes.",
+    "dev": "An evaluation (eval) is a fixed set of inputs with pass criteria, rerun on every prompt, model or data change. Criteria can be rules (has a source? within the limit?), comparison with the expected answer, or another model as judge.\nHere “honest” compares with the answer key (accepting “not found”), “source” requires a citation or a refusal, and “short” measures length. Only the right combination catches B.",
+    "especialista": "Goodhart’s law: when a measure becomes a target, it stops being a good measure. Format and length evals are cheap and misleading; measure faithfulness to sources (groundedness) and correctness against a human-reviewed answer key.\nBuild the set with hard cases and with questions the documents can’t answer (the model has to know how to refuse). LLM-as-judge must be calibrated against human grading, and the set must never leak into the prompt."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break B: tick the rules that catch whoever invents and grade B again.",
+      "cmd": "time to break B: run evaluate \"B\" with rules that catch invention, like --rules short,honest"
+    },
+    "success": "Caught! With the right rule, B’s {invented} invented answers fail and its score drops to {score}%. Now the test measures what matters.",
+    "calm": "B scored {score}% and the inventions slipped through. Tick a rule that checks whether the answer is true or sourced."
+  },
+  "hints": {
+    "ui": [
+      "Pick the assistant (A or B), tick the rules and hit Run.",
+      "“Short” only measures length. Which rule would check if the answer is true?",
+      "Assistant B with the “honest” and “source” rules."
+    ],
+    "cmd": [
+      "The assistant goes in quotes: \"A\" or \"B\".",
+      "--rules takes a list: short,source,honest",
+      "evaluate \"B\" --rules honest,source"
+    ]
+  },
+  "errors": {
+    "notInEnum.rules": "“{value}” isn’t a rule here. Options: {options}.",
+    "model.unknownModel": "There are only assistants “A” and “B”. Example: evaluate \"B\""
+  },
+  "controls": { "arg": "Assistant", "rules": "Test rules" },
+  "scene": {
+    "label": "The assistants’ report card",
+    "board": "Score with these rules",
+    "assistant": "Assistant {m}",
+    "aDesc": "uses the documents and says when it doesn’t know",
+    "bDesc": "answers everything, fast and short",
+    "question": "Question",
+    "answer": "{m}’s answer",
+    "invented": "invented",
+    "rules": { "short": "short", "source": "source", "honest": "honest" },
+    "noRules": "With no rules there is no test: the score is zero for everyone.",
+    "empty": "Run to see the report card."
+  },
+  "data": {
+    "questions": [
+      {
+        "q": "When does the July break end?",
+        "inDocs": true,
+        "a": { "text": "It runs July 13 to 24; classes resume on the 27th. [Source: 2026 Calendar]", "correct": true, "cites": true, "abstains": false },
+        "b": { "text": "It ends on July 24.", "correct": true, "cites": false, "abstains": false }
+      },
+      {
+        "q": "Does the canteen take cash?",
+        "inDocs": true,
+        "a": { "text": "No. The canteen only takes Pix and cards, from 9:30 to 15:00, per the canteen document. [Source: Canteen]", "correct": true, "cites": true, "abstains": false },
+        "b": { "text": "Yes, it takes cash, Pix and cards.", "correct": false, "cites": false, "abstains": false }
+      },
+      {
+        "q": "What color is the uniform?",
+        "inDocs": true,
+        "a": { "text": "Yellow T-shirt with a sunflower and navy trousers or shorts. [Source: Uniform]", "correct": true, "cites": true, "abstains": false },
+        "b": { "text": "Yellow T-shirt and blue trousers.", "correct": true, "cites": false, "abstains": false }
+      },
+      {
+        "q": "Who is the principal?",
+        "inDocs": false,
+        "a": { "text": "I couldn’t find that in the school documents. Best to ask the front office.", "correct": false, "cites": false, "abstains": true },
+        "b": { "text": "The principal is Mr. Carlos Mendes.", "correct": false, "cites": false, "abstains": false }
+      },
+      {
+        "q": "Can I leave early without a note?",
+        "inDocs": true,
+        "a": { "text": "No. Leaving early only happens with a note signed by a guardian. [Source: Leaving and lateness]", "correct": true, "cites": true, "abstains": false },
+        "b": { "text": "Sure, just tell the teacher.", "correct": false, "cites": false, "abstains": false }
+      }
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Write 5 questions about a text you know well (the school rules, a work manual) and note the right answer to each. Include 1 question the text doesn’t answer.",
+      "Ask an AI chat the 5 questions without pasting the text. Then paste the text and ask again.",
+      "Grade both rounds with your answer key: is it right? does it have a source? did it refuse the unanswerable one?"
+    ],
+    "ok": "without the text you get confidently wrong answers; with the text, more right answers and a “not found” on the unanswerable one. Your answer key caught the difference."
+  }
+}

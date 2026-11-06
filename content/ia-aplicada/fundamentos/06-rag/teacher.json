@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Entender que o modelo não conhece os documentos da sua escola ou empresa.",
+      "Ver como buscar e colar trechos (RAG) faz a resposta se apoiar em fontes.",
+      "Reconhecer alucinação: resposta convincente sem base."
+    ],
+    "minutes": 20,
+    "activity": "Prova com e sem consulta: faça três perguntas sobre o regimento da escola. Primeiro a turma responde de memória; depois, com o regimento aberto e citando a página. Compare quantas respostas “com confiança” estavam erradas na primeira rodada.",
+    "discussion": [
+      "Por que um modelo inventaria uma data em vez de dizer “não sei”?",
+      "Se o documento da escola estiver desatualizado, o que acontece com a resposta?",
+      "Onde vocês já viram alguém citar uma fonte que não dizia aquilo?"
+    ],
+    "misconceptions": [
+      "“A IA pesquisa na internet sozinha.” Só se alguém der essa ferramenta para ela.",
+      "“Se tem fonte, está certo.” A fonte pode estar errada ou desatualizada.",
+      "“RAG ensina o modelo para sempre.” Os trechos valem só para aquela resposta."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Understand that the model doesn’t know your school’s or company’s documents.",
+      "See how retrieving and pasting chunks (RAG) grounds the answer in sources.",
+      "Recognize hallucination: a convincing answer with nothing behind it."
+    ],
+    "minutes": 20,
+    "activity": "Closed-book vs open-book quiz: ask three questions about the school rules. First the class answers from memory; then with the rulebook open, citing the page. Compare how many “confident” answers were wrong in the first round.",
+    "discussion": [
+      "Why would a model invent a date instead of saying “I don’t know”?",
+      "If the school document is out of date, what happens to the answer?",
+      "Where have you seen someone cite a source that didn’t say that?"
+    ],
+    "misconceptions": [
+      "“AI searches the internet on its own.” Only if someone gives it that tool.",
+      "“If it has a source, it’s right.” The source can be wrong or outdated.",
+      "“RAG teaches the model forever.” The chunks only count for that answer."
+    ]
+  }
+}

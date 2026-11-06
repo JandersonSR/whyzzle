@@ -1,0 +1,98 @@
+{
+  "title": "Ferramentas e agentes",
+  "subtitle": "Quando o modelo pede ajuda (e quando não sabe parar)",
+  "mission": "Dê ferramentas para o agente resolver uma conta e dizer a hora em outro país. Depois, faça ele ficar preso tentando algo que não funciona.",
+  "predict": {
+    "question": "palpite: o agente tem uma calculadora. Você pergunta quanto é 23 x 47. Ele…",
+    "options": {
+      "tool": "Chama a calculadora e usa o resultado",
+      "head": "Faz a conta “de cabeça”, palavra por palavra",
+      "refuse": "Recusa, porque é só um modelo de texto"
+    }
+  },
+  "feedback": {
+    "right": "exato! O modelo não executa nada sozinho: ele escreve um pedido (“chame a calculadora com 23 x 47”), o programa em volta executa e devolve o resultado. Isso é o loop do agente.",
+    "wrong": "quase! Olha o rastro: o modelo escreve um pedido para a calculadora, o programa em volta executa e devolve o resultado. O modelo só decide e lê.",
+    "skipped": "sem palpite? Olha o rastro: pensar, chamar a ferramenta, observar o resultado, responder. Esse é o loop do agente."
+  },
+  "coach": {
+    "ui": "palpite anotado. Deixe as três ferramentas marcadas e aperte Rodar.",
+    "cmd": "palpite anotado. Rode o comando aí embaixo: as três ferramentas vêm ligadas."
+  },
+  "tryNext": {
+    "ui": "Agora desmarque a calculadora e rode de novo. Compare o número com o anterior.",
+    "cmd": "Agora rode com --ferramentas relogio,busca (sem a calculadora) e compare o número."
+  },
+  "why": {
+    "simples": "O modelo é ótimo com palavras e ruim de conta e de relógio. Então a gente dá a ele uma caixa de ferramentas. Ele não usa a ferramenta com as próprias mãos: ele pede “calculadora, quanto é 23 x 47?”, alguém aperta os botões e conta o resultado para ele.\nUm agente é isso repetido: pensar, pedir, ver a resposta, pensar de novo.",
+    "dev": "Tool calling: você descreve as ferramentas (nome, o que fazem, parâmetros em JSON Schema). O modelo responde com uma chamada estruturada; seu código executa, devolve o resultado como mensagem e o modelo continua.\nUm agente é esse ciclo em loop, até o modelo responder ou bater um limite de passos. O limite não é detalhe: sem ele, uma ferramenta que sempre falha vira loop infinito (e conta infinita de tokens).",
+    "especialista": "Em produção, o loop precisa de: limite de passos e de custo, timeouts e novas tentativas com espera crescente, ferramentas idempotentes (ou confirmação humana para ações que gastam dinheiro ou apagam coisas) e registro de cada chamada.\nMenos ferramentas, bem descritas, costumam funcionar melhor que muitas. Trate a saída de toda ferramenta como entrada não confiável: uma página buscada pode conter instruções para o agente (prompt injection indireta)."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar. Escolha “Vai chover em Lisboa amanhã?” e rode. A busca está fora do ar hoje…",
+      "cmd": "hora de quebrar. Rode agente \"Vai chover em Lisboa amanhã?\". A busca está fora do ar hoje…"
+    },
+    "success": "Quebrou: a busca falhou, o agente tentou de novo, e de novo, até bater o limite de {max} passos. Sem esse limite, ele ficaria tentando para sempre, e cada tentativa custa.",
+    "calm": "O agente terminou em {cycles} de {max} passos. Para quebrar, peça algo que dependa de uma ferramenta que está falhando: o clima."
+  },
+  "hints": {
+    "ui": [
+      "Marque as ferramentas que o agente pode usar e aperte Rodar.",
+      "“Limite de passos” é quantas voltas o agente pode dar antes de desistir.",
+      "Para quebrar: pergunte sobre o clima (a busca está fora do ar)."
+    ],
+    "cmd": [
+      "A tarefa vai entre aspas, depois de agente.",
+      "--ferramentas recebe uma lista separada por vírgula: calculadora,relogio,busca",
+      "agente \"Vai chover em Lisboa amanhã?\" --passos 4"
+    ]
+  },
+  "errors": {
+    "notInEnum.tools": "“{value}” não é uma ferramenta daqui. Opções: {options}. Para nenhuma, use --ferramentas nenhuma.",
+    "aboveMax.maxSteps": "Até 10 passos. Agente com limite alto demais é agente com conta alta demais.",
+    "belowMin.maxSteps": "Pelo menos 1 passo, senão o agente nem começa.",
+    "notInteger.maxSteps": "Passos é um número inteiro, tipo --passos 4."
+  },
+  "controls": { "arg": "Tarefa", "tools": "Ferramentas", "maxSteps": "Limite de passos" },
+  "scene": {
+    "label": "O rastro do agente",
+    "cycles": "passos usados: {cycles} de {max}",
+    "kinds": { "think": "pensa", "act": "chama", "observe": "observa", "answer": "responde", "stop": "parou" },
+    "tools": { "calc": "calculadora", "clock": "relógio", "search": "busca" },
+    "toolbox": "Caixa de ferramentas",
+    "toolOff": "fora da caixa",
+    "toolDown": "fora do ar hoje",
+    "empty": "Rode para ver o agente pensar e agir."
+  },
+  "data": {
+    "phrases": {
+      "noTask": "Não entendi a tarefa. Sei fazer contas (23 x 47), dizer a hora numa cidade e tentar ver o clima.",
+      "thinkCalc": "Preciso calcular {expr}. Conta é melhor na calculadora.",
+      "callCalc": "calculadora({expr})",
+      "answerCalc": "{expr} = {value}.",
+      "guessCalc": "Sem calculadora. Vou estimar palavra por palavra… dá uns {guess}.",
+      "answerGuess": "{expr} dá mais ou menos {value} (chute, sem calculadora).",
+      "thinkTime": "Preciso da hora agora em {city}.",
+      "callClock": "relogio(\"{city}\")",
+      "answerTime": "Em {city} agora são {time}.",
+      "guessTime": "Sem relógio, não tenho como saber que horas são agora.",
+      "answerTimeGuess": "Não sei a hora em {city}: preciso de um relógio.",
+      "thinkWeather": "Preciso da previsão do tempo para {city}.",
+      "noSearch": "Sem busca, não tenho como saber o clima.",
+      "answerNoWeather": "Não consigo ver o clima em {city} sem a ferramenta de busca.",
+      "callSearch": "busca(\"previsão {city} amanhã\")",
+      "searchDown": "erro: serviço fora do ar",
+      "retry": "A busca falhou. Tentativa {n}…",
+      "limit": "Parei: bati o limite de {max} passos sem terminar."
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Num chat de IA sem ferramentas (ou com a busca desligada), pergunte: “Que horas são agora em Tóquio?”.",
+      "Depois, num chat que mostre o uso de ferramentas (busca, código ou calculadora), peça: “Calcule 23 x 47 usando a ferramenta de código e mostre o que você executou”.",
+      "Compare as duas respostas."
+    ],
+    "ok": "sem ferramenta, ele avisa que não sabe a hora atual (ou erra); com a ferramenta, aparece a chamada executada e o resultado 1.081."
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Reconhecer alucinação: resposta errada dita com confiança.",
+      "Entender que avaliar um modelo é fazer uma prova com gabarito.",
+      "Perceber que um teste mal feito premia o comportamento errado."
+    ],
+    "minutes": 20,
+    "activity": "Corretor rigoroso: projete as respostas do assistente B e peça que metade da turma corrija só pela “letra” (tamanho e capricho) e a outra metade com o gabarito. Comparem as notas e discutam qual correção vocês usariam numa prova de verdade.",
+    "discussion": [
+      "Por que um modelo diria o nome de um diretor que não existe?",
+      "Se uma escola medisse os alunos só pelo capricho do caderno, o que os alunos aprenderiam a fazer?",
+      "Que pergunta sem resposta vocês colocariam na prova para testar se o modelo sabe dizer “não sei”?"
+    ],
+    "misconceptions": [
+      "“Alucinação é bug raro.” É um comportamento normal do modelo, que precisa ser medido e controlado.",
+      "“Se o modelo tirou nota alta, ele é bom.” Depende do que o teste mede.",
+      "“Resposta curta e confiante é sinal de acerto.” Confiança não é evidência."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Recognize hallucination: a wrong answer said confidently.",
+      "Understand that evaluating a model means giving it a test with an answer key.",
+      "Notice that a badly designed test rewards the wrong behavior."
+    ],
+    "minutes": 20,
+    "activity": "Strict grader: project assistant B’s answers and ask half the class to grade only on “handwriting” (length and neatness) and the other half with the answer key. Compare the scores and discuss which grading you’d use on a real exam.",
+    "discussion": [
+      "Why would a model name a principal who doesn’t exist?",
+      "If a school graded students only on how neat their notebooks are, what would students learn to do?",
+      "Which unanswerable question would you put on the test to check if the model can say “I don’t know”?"
+    ],
+    "misconceptions": [
+      "“Hallucination is a rare bug.” It’s normal model behavior that has to be measured and controlled.",
+      "“If the model scored high, it’s good.” It depends on what the test measures.",
+      "“A short, confident answer is a sign it’s right.” Confidence isn’t evidence."
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Entender que um LLM gera texto prevendo a próxima palavra (token).",
+      "Perceber que ele escreve uma palavra por vez, reaproveitando o que já escreveu.",
+      "Ver que, fora dos padrões que aprendeu, ele chuta."
+    ],
+    "minutes": 15,
+    "activity": "Autocompletar humano: a turma forma uma roda e cada aluno diz uma palavra que continua a frase do colega. Depois, compare com o simulador: vocês também previram a próxima palavra olhando o que veio antes.",
+    "discussion": [
+      "O autocompletar do celular é um LLM? O que muda?",
+      "Se o modelo só prevê a próxima palavra, como ele consegue responder perguntas?",
+      "Por que ele chuta quando vê uma palavra inventada?"
+    ],
+    "misconceptions": [
+      "“A IA pensa a resposta inteira antes de escrever.” Ela gera palavra por palavra.",
+      "“A IA procura a resposta na internet.” Sem ferramenta de busca, ela só usa o que aprendeu no treino.",
+      "“Se soa certo, é verdade.” Soar plausível é o que ela otimiza; isso não garante verdade."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Understand that an LLM generates text by predicting the next word (token).",
+      "Notice that it writes one word at a time, reusing what it already wrote.",
+      "See that outside the patterns it learned, it guesses."
+    ],
+    "minutes": 15,
+    "activity": "Human autocomplete: the class sits in a circle and each student says one word that continues the previous student’s sentence. Then compare with the simulator: you also predicted the next word from what came before.",
+    "discussion": [
+      "Is your phone’s autocomplete an LLM? What’s different?",
+      "If the model only predicts the next word, how can it answer questions?",
+      "Why does it guess when it sees a made-up word?"
+    ],
+    "misconceptions": [
+      "“AI thinks of the whole answer before writing.” It generates word by word.",
+      "“AI looks the answer up online.” Without a search tool, it only uses what it learned in training.",
+      "“If it sounds right, it’s true.” Sounding plausible is what it optimizes; that doesn’t guarantee truth."
+    ]
+  }
+}

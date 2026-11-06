@@ -1,0 +1,115 @@
+{
+  "title": "What an LLM does",
+  "subtitle": "Spoiler: it guesses the next word (really well)",
+  "mission": "Make the model continue “Once upon a…” and find out how it writes: all at once or bit by bit?",
+  "predict": {
+    "question": "guess before you run! To continue “Once upon a”, how does the model write?",
+    "options": {
+      "whole": "The whole sentence at once",
+      "onebyone": "One word at a time, looking at what it already wrote",
+      "search": "It looks the continuation up on the internet"
+    }
+  },
+  "feedback": {
+    "right": "yes! It picked one word out of a few candidates. To write more, it appends that word and picks the next one looking at everything again.",
+    "wrong": "close! Look at the scene: it picked just one word, out of a few candidates. To write more, it repeats the process, one word at a time.",
+    "skipped": "skipped the guess, huh? That’s fine: notice it picked just one word, out of a few candidates."
+  },
+  "coach": {
+    "ui": "guess noted. Keep “Once upon a” and hit Run.",
+    "cmd": "guess noted. Run the command below (Enter or Run)."
+  },
+  "tryNext": {
+    "ui": "Now drag “Words” to 8 and run again: the sentence grows, one choice at a time.",
+    "cmd": "Now run with --words 8 and watch the sentence grow, one choice at a time."
+  },
+  "why": {
+    "simples": "It’s like your phone’s autocomplete, only trained far more. It has read so much text that it learned which words tend to follow which.\nTo write a sentence, it makes a guess, appends it, and makes another guess looking at everything again. Word by word.",
+    "dev": "An LLM is a function that takes a sequence of tokens and returns a probability distribution over the next token. Generation is autoregressive: pick a token, append it to the input, run the model again.\nThis simulator only looks at the last word (a bigram model). A real LLM uses the whole context, with attention (transformer), which is why it doesn’t lose track.",
+    "especialista": "Each generated token is a pass through the network (with a KV cache so the past isn’t recomputed): latency grows with output length, and cost is billed per input and output token.\n“Just predicting the next token” undersells what emerges: to predict well, the model has to represent facts, grammar and reasoning. It also explains the limit: it optimizes plausibility, not truth. That comes back in step 8."
+  },
+  "formula": "P(next | text so far) → pick → append → repeat",
+  "break": {
+    "mission": {
+      "ui": "time to break it. Tap the “Flibber” example (or type a made-up word) and run.",
+      "cmd": "time to break it. Run predict \"Flibber\" --words 5 (or any made-up word)."
+    },
+    "success": "Broken: the model never saw “{word}”, so it guessed common words with almost equal chances. It doesn’t “know” anything beyond what it learned; it just follows patterns.",
+    "calm": "It knew that one. Try a word that never existed."
+  },
+  "hints": {
+    "ui": [
+      "Leave the text as it is and hit Run.",
+      "To see more than one word, drag “Words”.",
+      "To break it: tap the “Flibber” example and run."
+    ],
+    "cmd": [
+      "The text goes in quotes, right after predict.",
+      "--words says how many words it writes.",
+      "predict \"Once upon a\" --words 8"
+    ]
+  },
+  "errors": {
+    "aboveMax.steps": "Up to 12 words at a time: this toy model has a tiny vocabulary and would start repeating itself.",
+    "belowMin.steps": "Zero words? Then the model doesn’t even wake up. Use 1 to 12.",
+    "notInteger.steps": "There are no half words here: use a whole number, like 4."
+  },
+  "controls": { "arg": "Start of the text", "steps": "Words" },
+  "scene": {
+    "label": "What the model is thinking",
+    "candidates": "Candidates for the next word",
+    "after": "after “{from}”",
+    "guess": "guess: never saw “{from}”",
+    "empty": "Run to watch the model pick the next word.",
+    "chosen": "picked"
+  },
+  "data": {
+    "table": {
+      "a": [["time", 0.81], ["cat", 0.11], ["robot", 0.08]],
+      "time": [["there", 0.55], ["a", 0.3], ["the", 0.15]],
+      "there": [["was", 0.8], ["lived", 0.15], ["is", 0.05]],
+      "was": [["an", 0.5], ["a", 0.35], ["one", 0.15]],
+      "an": [["old", 0.6], ["angry", 0.25], ["owl", 0.15]],
+      "old": [["cat", 0.55], ["robot", 0.3], ["king", 0.15]],
+      "angry": [["cat", 0.5], ["king", 0.3], ["robot", 0.2]],
+      "the": [["cat", 0.5], ["king", 0.3], ["robot", 0.2]],
+      "one": [["day", 0.7], ["cat", 0.3]],
+      "cat": [["who", 0.58], ["named", 0.27], ["that", 0.15]],
+      "robot": [["who", 0.62], ["named", 0.23], ["that", 0.15]],
+      "king": [["who", 0.6], ["named", 0.25], ["that", 0.15]],
+      "owl": [["who", 0.6], [".", 0.4]],
+      "who": [["loved", 0.54], ["lived", 0.31], ["dreamed", 0.15]],
+      "that": [["loved", 0.6], ["lived", 0.4]],
+      "loved": [["naps", 0.49], ["pizza", 0.32], ["singing", 0.19]],
+      "lived": [["in", 0.7], ["alone", 0.2], ["happily", 0.1]],
+      "in": [["castle", 0.55], ["space", 0.3], ["the", 0.15]],
+      "dreamed": [["of", 0.6], ["big", 0.4]],
+      "of": [["flying", 0.7], ["pizza", 0.3]],
+      "named": [["Acorn", 0.6], ["Pixel", 0.4]],
+      "is": [["happy", 0.6], ["here", 0.4]],
+      "naps": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "pizza": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "singing": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "castle": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "space": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "flying": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "big": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "acorn": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "pixel": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "alone": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "happily": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "day": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "happy": [[".", 0.74], ["and", 0.16], ["of", 0.1]],
+      "here": [[".", 0.74], ["and", 0.16], ["of", 0.1]]
+    },
+    "fallback": [["the", 0.18], ["of", 0.17], ["and", 0.16]]
+  },
+  "recipe": {
+    "steps": [
+      "Open any AI chat.",
+      "Type: Continue this sentence with just one word: “Once upon a…”",
+      "Then ask: now continue with 10 more words."
+    ],
+    "ok": "the first answer is a single word, and the second picks up where it left off."
+  }
+}

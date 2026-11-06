@@ -1,0 +1,117 @@
+{
+  "title": "RAG: buscar antes de responder",
+  "subtitle": "Dar ao modelo uma cola honesta",
+  "mission": "Faça o assistente da Escola Girassol responder perguntas da secretaria usando os documentos da escola. Depois, desligue a busca e veja o que acontece.",
+  "predict": {
+    "question": "palpite: um modelo nunca leu os documentos da Escola Girassol. Sem busca, você pergunta quando acabam as férias de julho. Ele…",
+    "options": {
+      "invents": "Responde uma data com toda a confiança",
+      "unknown": "Diz que não sabe",
+      "knows": "Acerta, porque modelos sabem tudo"
+    }
+  },
+  "feedback": {
+    "right": "isso, e é por isso que este passo existe. Mas primeiro veja o lado bom: com a busca ligada, a resposta vem do Calendário, com a fonte citada.",
+    "wrong": "quase. A tendência do modelo é responder com confiança mesmo sem saber. Repare: com a busca ligada, a resposta vem do Calendário, com a fonte citada.",
+    "skipped": "sem palpite, tudo bem. Repare: com a busca ligada, a resposta vem do Calendário da escola, com a fonte citada."
+  },
+  "coach": {
+    "ui": "palpite anotado. Deixe a busca ligada, escolha uma pergunta e aperte Rodar.",
+    "cmd": "palpite anotado. Rode o comando aí embaixo: a busca vem ligada por padrão."
+  },
+  "tryNext": {
+    "ui": "Agora pergunte “Quem é o diretor?”. Não tem isso nos documentos: veja o que o assistente faz.",
+    "cmd": "Agora rode perguntar \"Quem é o diretor?\". Não tem isso nos documentos: veja o que o assistente faz."
+  },
+  "why": {
+    "simples": "O modelo é como um aluno que leu muita coisa, mas nunca viu o caderno da sua escola. Se você só pergunta, ele chuta. RAG é deixar ele abrir o caderno certo antes de responder, e dizer de que página tirou a resposta.\nSe a resposta não está no caderno, o certo é ele dizer “não encontrei”.",
+    "dev": "RAG (Retrieval-Augmented Generation) tem três etapas: 1) buscar os trechos mais parecidos com a pergunta, em geral com embeddings (passo 5); 2) colar esses trechos no prompt; 3) pedir ao modelo que responda só com base neles e cite a fonte.\nAqui a busca é por palavras em comum (mais simples de ver); o limite de relevância decide se há trecho bom o bastante ou se a resposta é “não encontrei”.",
+    "especialista": "A qualidade do RAG é, antes de tudo, a qualidade da busca: tamanho dos trechos (chunking), busca híbrida (vetor + palavra-chave), reordenação (reranking) e metadados como data e permissão.\nMeça separadamente a busca (o trecho certo veio?) e a resposta (ela se apoia no trecho?). Documentos desatualizados geram respostas erradas com fonte: o RAG cita o erro com confiança. E todo trecho colado no prompt é entrada não confiável (prompt injection vem na trilha Produção)."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar. Desligue a busca e pergunte de novo quando acabam as férias de julho.",
+      "cmd": "hora de quebrar. Rode a mesma pergunta com --busca nao."
+    },
+    "success": "Quebrou: sem os documentos, o modelo inventou uma resposta convincente e sem fonte. Isso é alucinação: o texto soa certo, mas não se apoia em nada.",
+    "calm": "Com a busca ligada ele se segurou nos documentos. Para quebrar, desligue a busca."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma das perguntas prontas e aperte Rodar.",
+      "“Trechos” diz quantos pedaços de documento vão colados no pedido.",
+      "Para ver a alucinação: desligue “Busca nos documentos” e rode."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de perguntar.",
+      "--busca sim ou nao liga e desliga a consulta aos documentos.",
+      "perguntar \"Quando acabam as férias de julho?\" --busca nao"
+    ]
+  },
+  "errors": {
+    "notBool.search": "--busca aceita sim ou nao. Exemplo: --busca nao",
+    "aboveMax.top": "Até 4 trechos: a escola só tem 4 documentos. Na vida real, colar trecho demais também atrapalha (e custa tokens).",
+    "belowMin.top": "Pelo menos 1 trecho, senão a busca não serve para nada.",
+    "notInteger.top": "Trechos é um número inteiro, tipo --trechos 2."
+  },
+  "controls": { "arg": "Pergunta", "search": "Busca nos documentos", "top": "Trechos colados" },
+  "scene": {
+    "label": "Por dentro do assistente",
+    "question": "1 · Pergunta",
+    "search": "2 · Busca nos documentos",
+    "searchOff": "Busca desligada: o modelo responde só com o que “acha que sabe”.",
+    "relevance": "relevância",
+    "used": "colado no pedido",
+    "threshold": "abaixo do limite de {pct}%",
+    "answer": "3 · Resposta",
+    "grounded": "Com fonte",
+    "notFound": "Não encontrei",
+    "hallucinated": "Sem fonte: inventado",
+    "source": "Fonte: {doc}",
+    "empty": "Rode para ver a busca e a resposta.",
+    "docsLabel": "Documentos da Escola Girassol"
+  },
+  "data": {
+    "stopwords": ["que", "qual", "quais", "quando", "quem", "como", "onde", "para", "por", "com", "uma", "das", "dos", "the", "escola", "girassol", "pode", "posso", "tem", "mais", "sem"],
+    "genericWrong": "Pelo que eu sei, isso costuma seguir o padrão das escolas do estado.",
+    "notFound": "Não encontrei essa informação nos documentos da escola. Melhor confirmar com a secretaria.",
+    "docs": [
+      {
+        "id": "calendario",
+        "title": "Calendário 2026",
+        "text": "As férias de julho vão de 13 a 24 de julho. As aulas voltam em 27 de julho. A reunião de pais é em 8 de agosto.",
+        "answer": "As férias de julho vão de 13 a 24 de julho, e as aulas voltam no dia 27.",
+        "wrong": "As férias de julho começam no dia 1º e vão até o fim do mês."
+      },
+      {
+        "id": "uniforme",
+        "title": "Uniforme",
+        "text": "O uniforme é camiseta amarela com o girassol bordado e calça ou bermuda azul-marinho. Às sextas, a camiseta é livre.",
+        "answer": "Camiseta amarela com o girassol bordado e calça ou bermuda azul-marinho. Às sextas, camiseta livre.",
+        "wrong": "O uniforme é camiseta branca e calça jeans."
+      },
+      {
+        "id": "cantina",
+        "title": "Cantina",
+        "text": "A cantina abre das 9h30 às 15h. Aceita Pix e cartão; não aceita dinheiro em espécie.",
+        "answer": "Não. A cantina aceita só Pix e cartão, das 9h30 às 15h.",
+        "wrong": "Sim, a cantina aceita dinheiro, Pix e cartão."
+      },
+      {
+        "id": "saidas",
+        "title": "Saídas e atrasos",
+        "text": "Atrasos de até 15 minutos: o aluno entra na primeira aula. Saída antecipada só com bilhete assinado pelo responsável.",
+        "answer": "Saída antecipada só com bilhete assinado pelo responsável. Atrasos de até 15 minutos ainda entram na primeira aula.",
+        "wrong": "Pode sair mais cedo, é só avisar o professor."
+      }
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Num chat de IA, pergunte: “Quando acabam as férias de julho na minha escola?”. Repare se ele chuta ou pergunta qual escola.",
+      "Agora cole o calendário real da sua escola (ou um trecho) e escreva: “Responda só com base neste texto e diga de onde tirou. Se não estiver no texto, diga que não encontrou”.",
+      "Pergunte de novo, e depois pergunte algo que não está no texto."
+    ],
+    "ok": "com o texto colado, a resposta usa as datas dele e cita o trecho; para o que não está no texto, ele diz que não encontrou."
+  }
+}

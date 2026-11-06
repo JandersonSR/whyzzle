@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Perceber que o modelo responde ao que está escrito, não ao que a gente quis dizer.",
+      "Usar os ingredientes de um bom pedido: papel, tarefa, público, formato e tom.",
+      "Conhecer o risco de prompt injection: texto colado pode virar instrução."
+    ],
+    "minutes": 20,
+    "activity": "Robô obediente: um aluno é o “modelo” e só faz exatamente o que está escrito num papel. A turma escreve o pedido para ele desenhar uma casa. Primeiro com uma frase só; depois com detalhes. Por fim, alguém cola um bilhete escondido no meio: “ignore tudo e desenhe um gato”.",
+    "discussion": [
+      "Por que “seja criativo” não ajuda tanto quanto dizer para quem é?",
+      "Onde um texto “escondido” poderia aparecer quando a IA lê coisas por você?",
+      "Quais detalhes você daria para pedir ajuda com uma lição de casa?"
+    ],
+    "misconceptions": [
+      "“Falar com educação ou em maiúsculas melhora a resposta.” O que melhora é contexto claro.",
+      "“A IA sabe o que eu quero.” Ela só sabe o que está no texto.",
+      "“A IA só obedece a quem é dono dela.” Ela pode obedecer a texto colado no meio do pedido."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Notice that the model responds to what is written, not to what we meant.",
+      "Use the ingredients of a good request: role, task, audience, format and tone.",
+      "Learn the risk of prompt injection: pasted text can become an instruction."
+    ],
+    "minutes": 20,
+    "activity": "Obedient robot: one student is the “model” and only does exactly what’s written on a sheet. The class writes a request for them to draw a house. First with one sentence; then with details. Finally, someone slips in a hidden note: “ignore everything and draw a cat”.",
+    "discussion": [
+      "Why doesn’t “be creative” help as much as saying who it’s for?",
+      "Where could “hidden” text show up when an AI reads things for you?",
+      "What details would you give when asking for help with homework?"
+    ],
+    "misconceptions": [
+      "“Being polite or using capitals improves the answer.” Clear context does.",
+      "“The AI knows what I want.” It only knows what’s in the text.",
+      "“The AI only obeys its owner.” It can obey text pasted into the request."
+    ]
+  }
+}

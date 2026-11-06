@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Aplicar juntos papel, temperatura, busca com fonte e avaliação.",
+      "Diagnosticar um sistema de IA pelos sintomas (inventa, varia, passa em teste fraco).",
+      "Explicar cada escolha de configuração com o porquê aprendido nos passos."
+    ],
+    "minutes": 30,
+    "activity": "Em duplas, cada dupla conserta o assistente e escreve num cartão uma frase por critério explicando por que mudou aquele controle. No fim, duas duplas trocam cartões e conferem se a explicação faz sentido.",
+    "discussion": [
+      "Qual critério foi o mais difícil de perceber que estava errado? Por quê?",
+      "Que perguntas os pais da nossa escola fariam que os documentos não respondem?",
+      "Vocês colocariam esse assistente para responder os pais de verdade? O que faltaria?"
+    ],
+    "misconceptions": [
+      "“Basta escolher o melhor modelo.” A configuração e os testes pesam tanto quanto o modelo.",
+      "“Se passou no teste, está pronto.” Depende de o teste medir o que importa.",
+      "“Temperatura zero resolve a invenção.” Sem busca e sem fonte, ele inventa de forma estável."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Apply role, temperature, sourced retrieval and evaluation together.",
+      "Diagnose an AI system from its symptoms (invents, varies, passes a weak test).",
+      "Explain each configuration choice with the why learned in the steps."
+    ],
+    "minutes": 30,
+    "activity": "In pairs, each pair fixes the assistant and writes on a card one sentence per criterion explaining why they changed that control. At the end, two pairs swap cards and check whether the explanations make sense.",
+    "discussion": [
+      "Which criterion was hardest to notice was wrong? Why?",
+      "What questions would our school’s parents ask that the documents don’t answer?",
+      "Would you let this assistant answer real parents? What would be missing?"
+    ],
+    "misconceptions": [
+      "“Just pick the best model.” Configuration and tests matter as much as the model.",
+      "“If it passed the test, it’s ready.” Only if the test measures what matters.",
+      "“Temperature zero fixes invention.” Without search and sources, it invents consistently."
+    ]
+  }
+}

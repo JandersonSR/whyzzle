@@ -1,0 +1,103 @@
+{
+  "title": "Embeddings and similarity",
+  "subtitle": "Turning meaning into distance",
+  "mission": "Find out who lives near whom on the model’s map of meanings. Then find a word that doesn’t know where to live.",
+  "predict": {
+    "question": "guess: on the map of meanings, “cat” is closer to…",
+    "options": {
+      "animal": "“dog”",
+      "spelling": "“car” (only one letter differs)",
+      "same": "both, equally"
+    }
+  },
+  "feedback": {
+    "right": "yes! “Cat” lives right next to “dog”, far from “car”. The map is organized by meaning, not spelling.",
+    "wrong": "close! Look at the map: “cat” sits right next to “dog” and far from “car”. Similar letters don’t matter; meaning does.",
+    "skipped": "no guess? Look at the map: “cat” lives next to “dog”, far from “car”. It’s meaning, not spelling."
+  },
+  "coach": {
+    "ui": "guess noted. Keep “cat” and hit Run.",
+    "cmd": "guess noted. Run the command below."
+  },
+  "tryNext": {
+    "ui": "Now try “banana” and “car”, and raise “Neighbors” to 5.",
+    "cmd": "Now try near \"banana\" --top 5 and then near \"car\"."
+  },
+  "why": {
+    "simples": "Imagine every word is a little house on a map. Words about similar things live in the same neighborhood: animals on one side, fruits on the other.\nTo know if two words go together, the computer just measures the distance between the houses.",
+    "dev": "An embedding model turns text into a vector of numbers (hundreds or thousands of dimensions). Texts with similar meaning become nearby vectors.\nCloseness is usually measured with cosine similarity. Here there are only 2 dimensions and hand-made coordinates, to fit the screen; the similarity shown is 1 − normalized distance.",
+    "especialista": "Embeddings power semantic search, recommendations, deduplication and RAG (step 6). Pick the model by domain and language, and normalize vectors if you’ll use dot product.\nOne vector per text blends meanings: ambiguous words and long texts become an average. That’s why documents are split into chunks and vector search is combined with keyword search (hybrid search)."
+  },
+  "formula": "similarity(a, b) = cos θ = (a · b) / (|a| |b|)",
+  "break": {
+    "mission": {
+      "ui": "time to break it. Tap “bat” and run.",
+      "cmd": "time to break it. Run near \"bat\" --top 4."
+    },
+    "success": "Broken: is “{word}” an animal or a baseball bat? With a single point it sits halfway, and its neighbors come from two neighborhoods. Real models do better by looking at the whole sentence, not just the word.",
+    "calm": "“{word}” has one meaning, so its neighbors share a neighborhood. Look for a word with two meanings."
+  },
+  "hints": {
+    "ui": [
+      "Pick a word from the examples and hit Run.",
+      "“Neighbors” sets how many nearest words appear.",
+      "A word with two meanings: “bat”."
+    ],
+    "cmd": [
+      "The word goes in quotes, after near.",
+      "--top sets how many neighbors to show.",
+      "near \"bat\" --top 4"
+    ]
+  },
+  "errors": {
+    "aboveMax.top": "Up to 8 neighbors, or the map turns into a spider web.",
+    "belowMin.top": "At least 1 neighbor, or there’s nothing to compare with.",
+    "model.unknownWord": "“{value}” isn’t on my little word map. Real models have a vector for any text; this toy only knows the words on the map."
+  },
+  "controls": { "arg": "Word", "top": "Neighbors" },
+  "scene": {
+    "label": "The map of meanings",
+    "nearest": "Nearest neighbors",
+    "sim": "similarity",
+    "dims": "2 dimensions (real models: hundreds)",
+    "groups": { "animals": "animals", "fruits": "fruits", "clothes": "clothes", "vehicles": "vehicles", "kitchen": "kitchen", "sports": "sports" },
+    "mapAria": "Two-dimensional word map; words with similar meanings sit close together",
+    "empty": "Run to see the neighbors."
+  },
+  "data": {
+    "points": [
+      { "w": "cat", "x": 18, "y": 22, "group": "animals" },
+      { "w": "dog", "x": 24, "y": 17, "group": "animals" },
+      { "w": "lion", "x": 11, "y": 30, "group": "animals" },
+      { "w": "wolf", "x": 29, "y": 27, "group": "animals" },
+      { "w": "rabbit", "x": 14, "y": 13, "group": "animals" },
+      { "w": "bat", "x": 33, "y": 44, "group": "animals", "ambiguous": true },
+      { "w": "ball", "x": 38, "y": 58, "group": "sports" },
+      { "w": "glove", "x": 44, "y": 63, "group": "sports" },
+      { "w": "helmet", "x": 34, "y": 64, "group": "sports" },
+      { "w": "banana", "x": 18, "y": 78, "group": "fruits" },
+      { "w": "apple", "x": 25, "y": 86, "group": "fruits" },
+      { "w": "grape", "x": 11, "y": 88, "group": "fruits" },
+      { "w": "orange", "x": 29, "y": 76, "group": "fruits" },
+      { "w": "shirt", "x": 74, "y": 74, "group": "clothes" },
+      { "w": "pants", "x": 82, "y": 82, "group": "clothes" },
+      { "w": "coat", "x": 70, "y": 85, "group": "clothes" },
+      { "w": "hat", "x": 86, "y": 68, "group": "clothes" },
+      { "w": "car", "x": 74, "y": 20, "group": "vehicles" },
+      { "w": "bus", "x": 83, "y": 26, "group": "vehicles" },
+      { "w": "bike", "x": 69, "y": 31, "group": "vehicles" },
+      { "w": "plane", "x": 85, "y": 13, "group": "vehicles" },
+      { "w": "fork", "x": 58, "y": 46, "group": "kitchen" },
+      { "w": "pan", "x": 65, "y": 52, "group": "kitchen" },
+      { "w": "spoon", "x": 54, "y": 53, "group": "kitchen" }
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Ask an AI chat: list 5 words similar in meaning to “cat” and 5 to “bat”.",
+      "Notice whether it separates the two meanings of “bat” (or asks which one you mean).",
+      "In the Practice track you’ll compute real embeddings in the browser."
+    ],
+    "ok": "for “cat” you get only animals; for “bat” you get animals and sports gear (or a question about the meaning)."
+  }
+}

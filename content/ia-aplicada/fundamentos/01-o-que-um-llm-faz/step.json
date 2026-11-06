@@ -1,0 +1,38 @@
+{
+  "id": "o-que-um-llm-faz",
+  "order": 1,
+  "track": "fundamentos",
+  "minutes": 10,
+  "tags": ["llm", "proximo-token", "autoregressivo"],
+  "requires": [],
+  "executors": ["simulado", "no-navegador", "sua-chave"],
+  "model": "next-token",
+  "scene": "next-token",
+  "command": {
+    "verb": { "pt": "prever", "en": "predict" },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "default": { "pt": "Era uma vez", "en": "Once upon a" },
+      "ui": "examples",
+      "examples": [
+        { "pt": "Era uma vez", "en": "Once upon a" },
+        { "pt": "O gato", "en": "The cat" },
+        { "pt": "Xablau", "en": "Flibber" }
+      ]
+    },
+    "flags": [
+      {
+        "name": "steps",
+        "alias": { "pt": "palavras", "en": "words" },
+        "type": "int",
+        "min": 1,
+        "max": 12,
+        "default": 1,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": { "options": ["whole", "onebyone", "search"], "answer": "onebyone" },
+  "break": { "flag": "unknown" }
+}

@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Entender que o modelo calcula uma chance para cada próxima palavra.",
+      "Ver que a temperatura controla o quanto a escolha é sorteada.",
+      "Saber quando usar temperatura baixa (tarefas exatas) e alta (texto criativo)."
+    ],
+    "minutes": 15,
+    "activity": "Saco de papel de verdade: coloque 21 papeizinhos com “telhado”, 10 com “muro”, 4 com “sofá”, 3 com “armário”, 2 com “colo da vó”, 1 com “foguete” e 1 com “micro-ondas”. Primeiro tire sempre o de cima sem chacoalhar; depois chacoalhe muito e tire 10 vezes. Anote os resultados no quadro.",
+    "discussion": [
+      "Para um robô que responde a nota de uma prova, você usaria temperatura alta ou baixa? Por quê?",
+      "E para inventar nomes de personagens?",
+      "Se a resposta muda a cada vez, como a gente confia nela?"
+    ],
+    "misconceptions": [
+      "“Temperatura alta deixa a IA mais inteligente.” Deixa mais variada, e também mais sujeita a besteira.",
+      "“Temperatura 0 sempre dá exatamente a mesma resposta.” Quase sempre; detalhes de hardware podem variar.",
+      "“A IA escolhe a palavra que ela acha mais bonita.” Ela sorteia segundo as chances que calculou."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Understand that the model computes a chance for every next word.",
+      "See that temperature controls how much the choice is left to chance.",
+      "Know when to use low temperature (exact tasks) and high (creative text)."
+    ],
+    "minutes": 15,
+    "activity": "A real paper bag: put 21 slips saying “roof”, 10 “wall”, 4 “couch”, 3 “cupboard”, 2 “grandma’s lap”, 1 “rocket” and 1 “microwave”. First always take the top slip without shaking; then shake hard and draw 10 times. Write the results on the board.",
+    "discussion": [
+      "For a bot that reports exam grades, would you use high or low temperature? Why?",
+      "And for inventing character names?",
+      "If the answer changes every time, how do we trust it?"
+    ],
+    "misconceptions": [
+      "“High temperature makes AI smarter.” It makes it more varied, and more prone to nonsense.",
+      "“Temperature 0 always gives exactly the same answer.” Almost always; hardware details can vary.",
+      "“The AI picks the word it likes best.” It samples according to the chances it computed."
+    ]
+  }
+}

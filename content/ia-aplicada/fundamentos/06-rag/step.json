@@ -1,0 +1,46 @@
+{
+  "id": "rag",
+  "order": 6,
+  "track": "fundamentos",
+  "minutes": 15,
+  "tags": ["rag", "busca", "fontes", "alucinacao"],
+  "requires": ["embeddings"],
+  "executors": ["simulado", "no-navegador", "sua-chave"],
+  "model": "rag",
+  "scene": "rag",
+  "command": {
+    "verb": { "pt": "perguntar", "en": "ask" },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "default": { "pt": "Quando acabam as férias de julho?", "en": "When does the July break end?" },
+      "ui": "examples",
+      "examples": [
+        { "pt": "Quando acabam as férias de julho?", "en": "When does the July break end?" },
+        { "pt": "A cantina aceita dinheiro?", "en": "Does the canteen take cash?" },
+        { "pt": "Qual é a cor do uniforme?", "en": "What color is the uniform?" },
+        { "pt": "Quem é o diretor?", "en": "Who is the principal?" }
+      ]
+    },
+    "flags": [
+      {
+        "name": "search",
+        "alias": { "pt": "busca", "en": "search" },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "top",
+        "alias": { "pt": "trechos", "en": "chunks" },
+        "type": "int",
+        "min": 1,
+        "max": 4,
+        "default": 2,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": { "options": ["invents", "unknown", "knows"], "answer": "invents" },
+  "break": { "flag": "hallucinated" }
+}

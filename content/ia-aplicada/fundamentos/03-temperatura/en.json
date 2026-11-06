@@ -1,0 +1,96 @@
+{
+  "title": "Temperature",
+  "subtitle": "The model’s “boldness” knob",
+  "mission": "Make the model finish “The cat climbed onto the…” as predictably as possible. Then make it lose the plot.",
+  "predict": {
+    "question": "guess before you run! At temperature 0, if you run it 10 times, what comes out?",
+    "options": {
+      "same": "The same word every time",
+      "diff": "A different word each time",
+      "crash": "The poor model freezes"
+    }
+  },
+  "feedback": {
+    "right": "spot on! At temperature 0 there is no lottery: the model always takes the most likely word. Ten runs, ten “roof”.",
+    "wrong": "close! Run it 10 times and notice: always “roof”. At temperature 0 there is no lottery, the model always takes the favorite.",
+    "skipped": "you skipped the guess, sneaky. No worries: run it 10 times and notice that at temperature 0 it’s always “roof”."
+  },
+  "coach": {
+    "ui": "guess noted. Keep temperature at 0, tick “Repeat 10 times” and hit the orange button.",
+    "cmd": "guess noted. Run the command below with --times 10 at the end: ten answers in one go."
+  },
+  "tryNext": {
+    "ui": "Now drag the temperature to 1.5 and run 10 times again. Compare both runs in the scene.",
+    "cmd": "Now switch to --temp 1.5 and run 10 times again. Notice the scene changes as you type, before you even run."
+  },
+  "why": {
+    "simples": "Look at the bag of marbles in the scene: every marble is a word. “Roof” has loads of marbles; “microwave” has just one.\nTemperature is how hard you shake the bag before grabbing the top marble. Temperature 0: no shaking, and the top one is always “roof”. High temperature: the bag turns into a blender, and even the rare marble can rise.",
+    "dev": "For every possible token, the model returns a score (logit, z). Before softmax, each score is divided by the temperature T.\nT below 1 stretches the gaps between scores (a “peaky” distribution); T above 1 flattens it. T = 0 becomes argmax, a.k.a. greedy decoding. Then one token is sampled from that distribution.",
+    "especialista": "Temperature isn’t “creativity”: it’s sampling entropy. Use T near 0 for extraction, classification and tool calls; 0.7 to 1 for open-ended text.\nT = 0 does not guarantee bit-identical output: batching and GPU floating point can vary. The ceiling depends on the API (0–1 on some, 0–2 on others). Pair it with top-p to cut the tail, but tune one knob at a time and evaluate on a fixed prompt set."
+  },
+  "formula": "p(token) = exp(z / T) / Σ exp(zⱼ / T)",
+  "break": {
+    "mission": {
+      "ui": "time to break it on purpose. Drag the temperature to 2.5 and run 10 times. Bet the cat ends up somewhere weird.",
+      "cmd": "time to break it on purpose. Run with --temp 2.5 --times 10. Bet the cat ends up somewhere weird."
+    },
+    "success": "Nicely broken: “{tok}”. At high temperature the distribution goes almost flat and even absurd words get a shot. That’s how “creative” text is born… and nonsense too.",
+    "calm": "At T={T}, everything still behaving. Turn the temperature up or run again: a lottery is a lottery."
+  },
+  "hints": {
+    "ui": [
+      "Drag the temperature control and hit the orange button.",
+      "For the most predictable result, push the control all the way left.",
+      "Temperature 0, tick “Repeat 10 times” and Run."
+    ],
+    "cmd": [
+      "Temperature goes at the end of the command, after --temp.",
+      "For the most predictable result, use the smallest value there is.",
+      "complete \"The cat climbed onto the\" --temp 0 --times 10"
+    ]
+  },
+  "errors": {
+    "missingFlag.temp": "You left out the temperature. Without it, most APIs use the default (usually 1), so the result changes every run. Add --temp 0 at the end.",
+    "notNumber.temp": "“{value}” isn’t a number, and the model doesn’t take adjectives here. Temperature goes from 0 (predictable) to 2 (chaotic). Try --temp 0.7.",
+    "belowMin.temp": "Negative temperature? Bold. But scores get divided by the temperature: with a negative number the ranking flips and “microwave” becomes the favorite. That’s why APIs refuse it.",
+    "aboveMax.temp": "Easy there, Prometheus. Above 2 almost every API refuses, and this simulator stops at 5. Try something between 0 and 2.",
+    "notNumber.times": "“{value}” isn’t a number of times. Use a whole number, like --times 10.",
+    "notInteger.times": "You can’t run half a time. Use a whole number, like --times 10.",
+    "belowMin.times": "Running zero times is the cheapest way to use AI, but it teaches nothing. Try --times 10.",
+    "aboveMax.times": "Up to 20 at a time. Beyond that the cat asks for overtime, and 10 already shows the variation nicely."
+  },
+  "controls": { "arg": "Start of the sentence", "temp": "Temperature", "times": "Repeat 10 times" },
+  "scene": {
+    "labelSimple": "The model’s bag of marbles",
+    "labelTech": "What the model is thinking",
+    "thermo": "Temperature",
+    "moods": [
+      "Frozen: always the favorite",
+      "Cold: nearly always the favorite",
+      "Warm: varies, sensibly",
+      "Hot: starting to wander",
+      "Chaos: most APIs won’t even allow it"
+    ],
+    "sliderLeft": "0 · predictable",
+    "sliderRight": "chaos · 3",
+    "bagCaption": "Each color is a word; more marbles, more chance. Temperature is how hard the bag shakes before you grab the top one.",
+    "bagAria": "Bag of colored marbles; the higher the temperature, the more mixed they get",
+    "bars": "Chance of each next word",
+    "barsNote": "The bars change as you adjust the temperature. Orange = the word drawn in the last run.",
+    "oneWord": "just one word",
+    "manyWords": "{d} different words",
+    "otherPrompt": "In this simulator only the cat has computed probabilities. In recipe mode you can test any sentence."
+  },
+  "data": {
+    "prefix": "The cat climbed onto the",
+    "words": ["roof", "wall", "couch", "cupboard", "grandma’s lap", "rocket", "microwave"]
+  },
+  "recipe": {
+    "steps": [
+      "Open the playground (or API) of the AI provider you use.",
+      "Write the prompt: Complete with one word: “The cat climbed onto the…”.",
+      "Set temperature to 0 and send it three times. Then repeat with temperature at its maximum."
+    ],
+    "ok": "at 0, three identical answers (or nearly; the Expert level explains the “nearly”). At max, varied and sometimes odd answers."
+  }
+}

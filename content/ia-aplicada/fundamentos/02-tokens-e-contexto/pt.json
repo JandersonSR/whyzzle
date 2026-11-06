@@ -1,0 +1,83 @@
+{
+  "title": "Tokens e janela de contexto",
+  "subtitle": "O modelo lê em pedacinhos e tem memória curta",
+  "mission": "Descubra em quantos pedaços o modelo corta uma palavra comprida. Depois, faça ele esquecer o começo de um texto.",
+  "predict": {
+    "question": "palpite: para o modelo, “Paralelepípedo” vira quantos tokens?",
+    "options": {
+      "one": "1 token: é uma palavra só",
+      "many": "Vários pedaços",
+      "letters": "Um token por letra"
+    }
+  },
+  "feedback": {
+    "right": "isso! “Paralelepípedo” foi cortada em pedaços. Palavras comuns viram um token só; as raras viram vários.",
+    "wrong": "quase! Olha a cena: “Paralelepípedo” foi cortada em vários pedaços. Nem a palavra inteira, nem letra por letra: pedaços que o modelo conhece.",
+    "skipped": "pulou o palpite? Tudo bem: olha como “Paralelepípedo” foi cortada em pedaços, enquanto “é” e “uma” ficaram inteiras."
+  },
+  "coach": {
+    "ui": "palpite anotado. Aperte Rodar e olhe os pedaços coloridos.",
+    "cmd": "palpite anotado. Rode o comando aí embaixo."
+  },
+  "tryNext": {
+    "ui": "Agora escolha o texto longo nos exemplos e repare no contador de tokens.",
+    "cmd": "Agora escreva uma frase sua entre aspas e compare: quantos tokens tem cada palavra?"
+  },
+  "why": {
+    "simples": "O modelo não lê letra por letra nem palavra por palavra: ele lê em pedacinhos, como peças de Lego. Palavra comum é uma peça só; palavra rara é montada com várias.\nE ele tem uma mesa de tamanho limitado (a janela). Se o texto não cabe, as primeiras peças caem da mesa e ele esquece.",
+    "dev": "Tokenizadores como o BPE aprendem um vocabulário de subpalavras (dezenas a centenas de milhares de entradas). Cada token vira um número (id), e é isso que a rede recebe.\nA janela de contexto é o máximo de tokens por chamada: instruções + histórico + resposta. Passou disso, algo precisa sair (cortar o início, resumir) ou a API recusa.",
+    "especialista": "Você paga e espera por token, não por palavra. Português costuma gastar mais tokens por palavra que inglês, e código, números e emoji também pesam: meça com o tokenizador do seu provedor.\nJanela grande não é memória perfeita: modelos tendem a usar pior o que fica no meio de contextos longos (“lost in the middle”). Ponha o que importa no começo ou no fim, e prefira recuperar trechos (RAG, passo 6) a despejar tudo."
+  },
+  "formula": "texto → tokens → ids → [ janela de N tokens ]",
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar. Escolha o texto longo e baixe a janela para 8 tokens.",
+      "cmd": "hora de quebrar. Rode um texto longo com --janela 8."
+    },
+    "success": "Quebrou: {lost} tokens não couberam na janela e caíram fora. O modelo não vê mais “{lostText}”. É por isso que conversas longas “esquecem” o começo.",
+    "calm": "Coube tudo na janela ({count} de {window} tokens). Use um texto maior ou uma janela menor."
+  },
+  "hints": {
+    "ui": [
+      "Aperte Rodar e veja os pedaços.",
+      "O contador mostra quantos tokens cabem na janela.",
+      "Texto longo + janela 8 = começo esquecido."
+    ],
+    "cmd": [
+      "O texto vai entre aspas, logo depois de tokenizar.",
+      "--janela muda quantos tokens o modelo enxerga.",
+      "tokenizar \"um texto bem comprido aqui, com várias frases\" --janela 8"
+    ]
+  },
+  "errors": {
+    "aboveMax.window": "Até 64 aqui. Modelos reais têm janelas de milhares a mais de um milhão de tokens; este é de brinquedo, para caber na tela.",
+    "belowMin.window": "Com menos de 4 tokens não cabe nem um “Oi, tudo bem?”. Use pelo menos 4.",
+    "notInteger.window": "Não existe meio token: use um número inteiro."
+  },
+  "controls": { "arg": "Texto", "window": "Janela (tokens)" },
+  "scene": {
+    "label": "Como o modelo lê",
+    "count": "{count} tokens · {chars} caracteres",
+    "window": "janela: {window} tokens",
+    "forgotten": "fora da janela (esquecido)",
+    "ids": "ids que a rede recebe",
+    "cost": "Num modelo real, você pagaria por estes {count} tokens de entrada, mais os de saída.",
+    "legend": { "word": "palavra inteira", "piece": "pedaço de palavra", "num": "número", "punct": "pontuação" },
+    "empty": "Rode para ver o texto virar tokens."
+  },
+  "data": {
+    "vocab": [
+      "palavra", "comprida", "escola", "mundo", "pergunta", "perguntava", "professora", "respondia", "outra",
+      "turma", "sozinha", "ninguém", "lembrava", "respostas", "porque", "porquê", "então", "quando", "depois",
+      "sempre", "muito", "texto", "frase", "modelo", "tudo", "todo", "onde"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Abra um contador de tokens (por exemplo, a página Tokenizer da OpenAI).",
+      "Cole “Paralelepípedo é uma palavra comprida.” e depois a mesma frase em inglês.",
+      "Compare as contagens."
+    ],
+    "ok": "a palavra comprida aparece cortada em pedaços, e a versão em português gasta mais tokens."
+  }
+}

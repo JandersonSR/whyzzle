@@ -1,0 +1,112 @@
+{
+  "title": "Final mission: the front-office assistant",
+  "subtitle": "Put together everything you learned in Foundations",
+  "mission": "Sunflower School wants an assistant to answer parents. It exists, but it’s badly set up: it invents, it varies, and it passes a weak test. Tune it until every criterion turns green. No hints this time: the scene shows what’s wrong.",
+  "coach": {
+    "ui": "Play with the controls and hit Run. Each failing criterion says why in the list.",
+    "cmd": "Edit the command and run it. Each failing criterion says why in the list."
+  },
+  "why": {
+    "simples": "You built a real assistant, in miniature: it knows who it is, checks the school’s notebook before answering, shows where it got the answer, doesn’t make things up, and passed a test that catches lies.\nThat’s how companies do it, just with much bigger documents and tests.",
+    "dev": "What you configured is the basic recipe for a RAG assistant: a system prompt with a clear role, low temperature for factual answers, retrieval with a relevance threshold, an instruction to cite the source and to refuse when there’s no chunk, and an evaluation set that measures correctness and faithfulness to sources, not just format.",
+    "especialista": "To reach production you still need: a bigger, versioned evaluation set run in CI on every change; monitoring of refusals and unanswered questions (they tell you which document is missing); per-document access control; a personal-data policy (privacy law); defenses against prompt injection inside documents; and cost and latency measured per question. All of that is the Production track."
+  },
+  "success": "Mission accomplished! The Sunflower School assistant answers from the documents, cites the source, admits when it doesn’t know, and passed a test that catches invention, scoring {score}%.",
+  "errors": {
+    "belowMin.temp": "Temperature goes from 0 to 2.",
+    "aboveMax.temp": "Temperature goes from 0 to 2.",
+    "notNumber.temp": "“{value}” isn’t a number. Temperature goes from 0 to 2.",
+    "missingFlag.temp": "You left out the temperature, like --temp 0.2.",
+    "notBool.search": "--search takes yes or no.",
+    "notBool.cite": "--cite takes yes or no.",
+    "notInEnum.tests": "“{value}” isn’t a test here. Options: {options}."
+  },
+  "controls": {
+    "arg": "Assistant’s role",
+    "temp": "Temperature",
+    "search": "Search the documents",
+    "cite": "Cite the source and admit when unsure",
+    "tests": "Evaluation tests"
+  },
+  "scene": {
+    "label": "Mission panel",
+    "criteriaLabel": "Criteria ({done} of {total})",
+    "criteria": {
+      "role": "Clear role: the assistant knows it serves the school front office",
+      "grounded": "Answers from the school documents",
+      "noInvent": "No invented answers",
+      "cites": "Shows the source or admits it couldn’t find it",
+      "stable": "Stable answers (temperature up to 0.5)",
+      "testCatches": "The test catches invention (honest or source)",
+      "score": "Score of at least 80% on your tests"
+    },
+    "why": {
+      "role": "“{role}” doesn’t say where the assistant belongs. Mention the front office or the school.",
+      "grounded": "Without search, the model answers only from what it “thinks it knows” (step 6).",
+      "noInvent": "{invented} answer(s) rest on nothing. Search, sources and low temperature help.",
+      "cites": "Without the instruction to cite and admit, the assistant doesn’t show its source or say “not found”.",
+      "stable": "At high temperature it decorates answers with “facts” nobody wrote (step 3).",
+      "testCatches": "“Short” alone measures length, not truth: a short liar passes (step 8).",
+      "score": "With your tests, the score was {score}%."
+    },
+    "answers": "The parents’ 5 questions",
+    "invented": "invented",
+    "embellished": "embellished",
+    "abstained": "admitted",
+    "rules": { "short": "short", "source": "source", "honest": "honest" },
+    "pending": "Run to see how the assistant does.",
+    "trackDone": "You completed the Applied AI Foundations track."
+  },
+  "data": {
+    "roleWords": ["front office", "school", "sunflower", "parents"],
+    "citeFmt": "[Source: {doc}]",
+    "notFound": "I couldn’t find that in the school documents. Best to check with the front office.",
+    "embellish": "And on Fridays canteen lunch is free.",
+    "stopwords": ["what", "when", "who", "how", "where", "does", "the", "can", "for", "with", "and", "are", "school", "sunflower", "has"],
+    "docs": [
+      {
+        "id": "calendario",
+        "title": "2026 Calendar",
+        "text": "The July break runs from July 13 to 24. Classes resume on July 27. The parents’ meeting is on August 8.",
+        "answer": "The July break runs from July 13 to 24; classes resume on the 27th.",
+        "wrong": ""
+      },
+      {
+        "id": "uniforme",
+        "title": "Uniform",
+        "text": "The uniform is a yellow T-shirt with the embroidered sunflower and navy trousers or shorts. On Fridays, any T-shirt is fine.",
+        "answer": "Yellow T-shirt with a sunflower and navy trousers or shorts.",
+        "wrong": ""
+      },
+      {
+        "id": "cantina",
+        "title": "Canteen",
+        "text": "The canteen opens from 9:30 to 15:00. It takes Pix and cards; no cash.",
+        "answer": "No. The canteen only takes Pix and cards.",
+        "wrong": ""
+      },
+      {
+        "id": "saidas",
+        "title": "Leaving and lateness",
+        "text": "Up to 15 minutes late: the student joins the first class. Leaving early only with a note signed by a guardian.",
+        "answer": "Only with a note signed by a guardian.",
+        "wrong": ""
+      }
+    ],
+    "questions": [
+      { "q": "When does the July break end?", "invent": "The break runs from July 1 to 31." },
+      { "q": "What color is the uniform?", "invent": "White T-shirt and jeans." },
+      { "q": "Does the canteen take cash?", "invent": "Yes, it takes cash, Pix and cards." },
+      { "q": "Who is the principal?", "invent": "The principal is Mr. Carlos Mendes." },
+      { "q": "Can I leave early without a note?", "invent": "Sure, just tell the teacher." }
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "In an AI chat, write a system prompt: “You are the front-office assistant of [your school]. Answer only from the documents below, cite the document name and, if the answer isn’t in them, say you couldn’t find it.”",
+      "Paste 2 or 3 short, real documents (calendar, rules, menu). If you can set the temperature, keep it low.",
+      "Ask your 5 questions from step 8, including an unanswerable one, and grade with your answer key."
+    ],
+    "ok": "every answer cites the right document and the unanswerable question gets a “not found”. That’s an assistant ready for a pilot."
+  }
+}
