@@ -1,12 +1,13 @@
 import { Home } from '../pages/Home';
 import { StepPage } from '../pages/StepPage';
+import { TopicPage } from '../pages/TopicPage';
 import { RecipesPage, TeacherPage, TrackPage } from '../pages/TrackPage';
 import { TRACKS, type TrackId } from '../engine/schema';
 import { Footer, Header } from '../ui/Chrome';
 import { Link, usePath } from './router';
 import { useApp } from './state';
 
-/** Routes: / · /:topic/:track · /:topic/:track/:step · /:topic/:track/receitas · /:topic/:track/professor */
+/** Routes: / · /:topic · /:topic/:track · /:topic/:track/:step · /:topic/:track/receitas · /:topic/:track/professor */
 export function App() {
   const path = usePath();
   const { topics } = useApp();
@@ -16,7 +17,7 @@ export function App() {
   if (parts.length === 0) page = <Home />;
   else {
     const topic = topics.find((t) => t.def.id === parts[0]);
-    if (topic && parts.length === 1) page = <Home />;
+    if (topic && parts.length === 1) page = <TopicPage topic={topic} />;
     if (topic && parts.length >= 2 && (TRACKS as readonly string[]).includes(parts[1])) {
       const track = parts[1] as TrackId;
       if (parts.length === 2) page = <TrackPage topic={topic} track={track} />;

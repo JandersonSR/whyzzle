@@ -1,0 +1,63 @@
+{
+  "id": "staff-engineer",
+  "order": 20,
+  "area": "carreira",
+  "title": {
+    "pt": "Staff Engineer e carreira técnica",
+    "en": "Staff engineer and technical career"
+  },
+  "tagline": {
+    "pt": "Crescer além do sênior com influência e estratégia.",
+    "en": "Growing beyond senior with influence and strategy."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Níveis, expectativas, portfólio e plano de estudos.",
+        "en": "Levels, expectations, portfolio and study plans."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Escrita técnica, RFCs, decisões, estratégia, mentoria e promoção.",
+        "en": "Technical writing, RFCs, decisions, strategy, mentoring and promotion."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Arquitetura evolutiva, plataforma, operação e roteiro de 24 meses.",
+        "en": "Evolutionary architecture, platforms, operations and a 24-month plan."
+      }
+    }
+  ]
+}

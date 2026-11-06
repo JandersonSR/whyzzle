@@ -2,7 +2,7 @@ import { interpolate } from '../engine/text';
 import type { TokenizerResult } from '../models/tokenizer';
 import { str, type SceneProps } from './types';
 
-const HUES = ['#E6ECFD', '#FFE7D6', '#DDF4F1', '#F3E8FF', '#FDE7F1', '#EEF0F7'];
+
 
 export function TokensScene({ s, preview, last, layer }: SceneProps) {
   const r = (preview ?? last) as TokenizerResult | null;
@@ -18,7 +18,7 @@ export function TokensScene({ s, preview, last, layer }: SceneProps) {
         {r.tokens.map((t, i) => {
           const lost = i < r.overflow;
           return (
-            <span key={i} className={`wz-token wz-token--${t.kind}${lost ? ' wz-token--lost' : ''}`} style={{ background: lost ? undefined : HUES[i % HUES.length] }}>
+            <span key={i} className={`wz-token wz-token--${t.kind}${lost ? ' wz-token--lost' : ''}`} data-hue={lost ? undefined : i % 6}>
               <span className="wz-token__text">
                 {t.space && <span className="wz-token__space" aria-hidden="true">·</span>}
                 {t.text}

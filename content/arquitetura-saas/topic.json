@@ -1,0 +1,63 @@
+{
+  "id": "arquitetura-saas",
+  "order": 22,
+  "area": "arquitetura",
+  "title": {
+    "pt": "Arquitetura SaaS multi-tenant",
+    "en": "Multi-tenant SaaS architecture"
+  },
+  "tagline": {
+    "pt": "Um produto, muitos clientes, isolados e cobrados certo.",
+    "en": "One product, many customers, isolated and billed correctly."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Clientes, planos, isolamento, cobrança e suporte.",
+        "en": "Customers, plans, isolation, billing and support."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Modelos de isolamento, contexto do tenant, onboarding, limites, billing e SSO.",
+        "en": "Isolation models, tenant context, onboarding, limits, billing and SSO."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Vizinho barulhento, custo por tenant, migrações, SLAs e segurança.",
+        "en": "Noisy neighbors, cost per tenant, migrations, SLAs and security."
+      }
+    }
+  ]
+}

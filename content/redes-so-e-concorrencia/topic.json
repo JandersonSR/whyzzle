@@ -1,0 +1,63 @@
+{
+  "id": "redes-so-e-concorrencia",
+  "order": 23,
+  "area": "base",
+  "title": {
+    "pt": "Redes, sistemas operacionais e concorrência",
+    "en": "Networking, operating systems and concurrency"
+  },
+  "tagline": {
+    "pt": "O que está por baixo de cada requisição.",
+    "en": "What sits underneath every request."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Processos, memória, arquivos, IP, DNS, TCP e HTTP.",
+        "en": "Processes, memory, files, IP, DNS, TCP and HTTP."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Threads, locks, event loop, I/O, TLS e HTTP/2 e 3.",
+        "en": "Threads, locks, event loops, I/O, TLS and HTTP/2 and 3."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Latência de rede, limites do SO, conexões, cgroups e diagnóstico.",
+        "en": "Network latency, OS limits, connections, cgroups and diagnostics."
+      }
+    }
+  ]
+}

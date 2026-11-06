@@ -1,0 +1,63 @@
+{
+  "id": "frontend",
+  "order": 16,
+  "area": "frontend",
+  "title": {
+    "pt": "Frontend",
+    "en": "Frontend"
+  },
+  "tagline": {
+    "pt": "Do navegador ao React, Angular e Next.js, acessível e rápido.",
+    "en": "From the browser to React, Angular and Next.js, accessible and fast."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "HTML, CSS, JavaScript, o navegador por dentro e acessibilidade.",
+        "en": "HTML, CSS, JavaScript, how the browser works and accessibility."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Componentes, estado, dados, formulários, Angular, renderização e Web Vitals.",
+        "en": "Components, state, data, forms, Angular, rendering and Web Vitals."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Design system, micro-frontends, observabilidade de frontend e IA na interface.",
+        "en": "Design systems, micro-frontends, frontend observability and AI in the UI."
+      }
+    }
+  ]
+}

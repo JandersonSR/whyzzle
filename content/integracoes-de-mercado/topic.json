@@ -1,0 +1,63 @@
+{
+  "id": "integracoes-de-mercado",
+  "order": 25,
+  "area": "negocios",
+  "title": {
+    "pt": "Integrações de mercado",
+    "en": "Real-world integrations"
+  },
+  "tagline": {
+    "pt": "Automação, WhatsApp, pagamentos e identidade sem perder pedido.",
+    "en": "Automation, WhatsApp, payments and identity without losing orders."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Gatilhos, APIs, webhooks, planilhas e segurança.",
+        "en": "Triggers, APIs, webhooks, spreadsheets and security."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "n8n, WhatsApp Business, Pix e cartão, identidade, analytics, busca e feature flags.",
+        "en": "n8n, WhatsApp Business, Pix and cards, identity, analytics, search and feature flags."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Retries, idempotência, limites, monitoramento, custo e LGPD.",
+        "en": "Retries, idempotency, limits, monitoring, cost and privacy law."
+      }
+    }
+  ]
+}

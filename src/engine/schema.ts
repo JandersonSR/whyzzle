@@ -160,8 +160,15 @@ const TeacherLoc = z.object({
 export const TeacherGuide = z.object({ pt: TeacherLoc, en: TeacherLoc });
 export type TeacherGuide = z.infer<typeof TeacherGuide>;
 
+/** Catalog areas, used to group and filter topics. */
+export const AREAS = ['ia', 'arquitetura', 'backend', 'frontend', 'dados', 'infra', 'seguranca', 'carreira', 'base', 'negocios'] as const;
+export type Area = (typeof AREAS)[number];
+
 export const TopicDef = z.object({
-  id: z.string().min(1),
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  /** Priority in the roadmap (1 = first). */
+  order: z.number().int().positive(),
+  area: z.enum(AREAS),
   title: Loc,
   tagline: Loc,
   tracks: z

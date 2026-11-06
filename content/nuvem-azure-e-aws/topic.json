@@ -1,0 +1,63 @@
+{
+  "id": "nuvem-azure-e-aws",
+  "order": 12,
+  "area": "infra",
+  "title": {
+    "pt": "Nuvem: Azure e AWS",
+    "en": "Cloud: Azure and AWS"
+  },
+  "tagline": {
+    "pt": "Escolher, desenhar e operar serviços de nuvem.",
+    "en": "Choosing, designing and running cloud services."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "IaaS, PaaS e SaaS, regiões, rede, identidade, armazenamento e custo.",
+        "en": "IaaS, PaaS and SaaS, regions, networking, identity, storage and cost."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Azure e AWS no trabalho: identidade, rede, computação, dados, mensageria e monitoramento.",
+        "en": "Azure and AWS at work: identity, networking, compute, data, messaging and monitoring."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Arquitetura bem-arquitetada, DR, migração, LGPD e FinOps. Preparatórios AZ-104, AZ-305 e AWS SAA.",
+        "en": "Well-architected design, DR, migration, privacy law and FinOps. AZ-104, AZ-305 and AWS SAA prep."
+      }
+    }
+  ]
+}

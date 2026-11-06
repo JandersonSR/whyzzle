@@ -25,6 +25,20 @@ describe('content', () => {
     expect(lessons.length).toBe(9);
   });
 
+  it('catalog: unique topic ids and priorities, honest track status', () => {
+    const ids = topics.map((t) => t.def.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    const orders = topics.map((t) => t.def.order);
+    expect(new Set(orders).size).toBe(orders.length);
+    expect(orders).toEqual([...orders].sort((a, b) => a - b));
+    for (const t of topics) {
+      for (const tr of t.def.tracks) {
+        const has = t.lessons.some((l) => l.track === tr.id);
+        expect(tr.status === 'ready', `${t.def.id}/${tr.id}: "ready" iff it has lessons`).toBe(has);
+      }
+    }
+  });
+
   it('has unique ids and orders per track', () => {
     const ids = lessons.map((l) => l.def.id);
     expect(new Set(ids).size).toBe(ids.length);

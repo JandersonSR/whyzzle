@@ -1,0 +1,63 @@
+{
+  "id": "tech-lead",
+  "order": 19,
+  "area": "carreira",
+  "title": {
+    "pt": "Tech Lead e gestão de times",
+    "en": "Tech lead and team management"
+  },
+  "tagline": {
+    "pt": "Liderar pessoas e entregas sem largar a técnica.",
+    "en": "Leading people and delivery without dropping the tech."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Papéis, combinados, feedback e reuniões que funcionam.",
+        "en": "Roles, team agreements, feedback and meetings that work."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "1:1, decisões técnicas, estimativas, fluxo, stakeholders e gestão de projetos com IA.",
+        "en": "1:1s, technical decisions, estimates, flow, stakeholders and AI-assisted project management."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Estrutura de times, métricas saudáveis, contratação, desempenho e crise.",
+        "en": "Team structure, healthy metrics, hiring, performance and crisis."
+      }
+    }
+  ]
+}

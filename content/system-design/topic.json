@@ -1,0 +1,63 @@
+{
+  "id": "system-design",
+  "order": 6,
+  "area": "arquitetura",
+  "title": {
+    "pt": "System design e sistemas distribuídos",
+    "en": "System design and distributed systems"
+  },
+  "tagline": {
+    "pt": "Como sistemas grandes são desenhados e por que falham.",
+    "en": "How large systems are designed and why they fail."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Cliente e servidor, escala, balanceador, cache, réplica e fila.",
+        "en": "Client and server, scaling, load balancers, caches, replicas and queues."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Método de design, estimativas, consistência, replicação, consenso e falhas parciais.",
+        "en": "Design method, estimates, consistency, replication, consensus and partial failures."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Casos reais: feed, chat, busca, mídia, multi-região, rate limiting e sistemas com IA.",
+        "en": "Real cases: feeds, chat, search, media, multi-region, rate limiting and AI systems."
+      }
+    }
+  ]
+}

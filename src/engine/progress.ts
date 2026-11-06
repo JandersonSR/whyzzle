@@ -18,6 +18,8 @@ export interface Prefs {
   lang?: Lang;
   layer?: Layer;
   mode?: 'ui' | 'cmd';
+  /** Explicit choice; absent = follow the system setting. */
+  theme?: 'light' | 'dark';
 }
 
 export interface ProgressStore {

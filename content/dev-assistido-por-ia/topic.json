@@ -1,0 +1,63 @@
+{
+  "id": "dev-assistido-por-ia",
+  "order": 2,
+  "area": "ia",
+  "title": {
+    "pt": "Desenvolvimento assistido por IA",
+    "en": "AI-assisted development"
+  },
+  "tagline": {
+    "pt": "Usar IA no editor e com agentes de código sem perder qualidade.",
+    "en": "Using AI in the editor and with coding agents without losing quality."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Autocompletar, chat e agente; contexto; revisar o que a IA escreveu.",
+        "en": "Autocomplete, chat and agents; context; reviewing what the AI wrote."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Especificação antes do código, regras do repositório, testes como contrato, revisão de PR e vários agentes em paralelo.",
+        "en": "Spec before code, repository rules, tests as contracts, PR review and parallel agents."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Política de uso, IA no CI/CD, AIOps, MCP para sistemas internos e métricas reais de produtividade.",
+        "en": "Usage policy, AI in CI/CD, AIOps, MCP for internal systems and real productivity metrics."
+      }
+    }
+  ]
+}

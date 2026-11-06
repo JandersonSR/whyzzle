@@ -1,0 +1,63 @@
+{
+  "id": "algoritmos-e-entrevistas",
+  "order": 21,
+  "area": "base",
+  "title": {
+    "pt": "Algoritmos e entrevistas técnicas",
+    "en": "Algorithms and technical interviews"
+  },
+  "tagline": {
+    "pt": "Padrões de algoritmo e processos seletivos exigentes.",
+    "en": "Algorithm patterns and demanding hiring loops."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Passo a passo, Big O, busca, ordenação e recursão.",
+        "en": "Step by step, Big O, search, sorting and recursion."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Hash, ponteiros, árvores, grafos, heap, programação dinâmica, STAR e pitch.",
+        "en": "Hashing, pointers, trees, graphs, heaps, dynamic programming, STAR and pitch."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Estruturas de dados em sistemas reais e trade-offs de memória.",
+        "en": "Data structures in real systems and memory trade-offs."
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "machine-learning",
+  "order": 18,
+  "area": "ia",
+  "title": {
+    "pt": "Machine learning e deep learning",
+    "en": "Machine learning and deep learning"
+  },
+  "tagline": {
+    "pt": "Como modelos aprendem, com modelos reais no navegador.",
+    "en": "How models learn, with real models in the browser."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Exemplos e rótulos, treino e teste, sobreajuste e viés.",
+        "en": "Examples and labels, train and test, overfitting and bias."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Regressão, árvores, métricas, redes neurais, PyTorch e ajuste fino.",
+        "en": "Regression, trees, metrics, neural networks, PyTorch and fine-tuning."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Modelos locais, quantização, voz, deriva e responsabilidade.",
+        "en": "Local models, quantization, speech, drift and responsibility."
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "bancos-de-dados",
+  "order": 7,
+  "area": "dados",
+  "title": {
+    "pt": "Bancos de dados, consistência e cache",
+    "en": "Databases, consistency and caching"
+  },
+  "tagline": {
+    "pt": "SQL de verdade no navegador, índices, transações e Redis.",
+    "en": "Real SQL in the browser, indexes, transactions and Redis."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Tabelas, chaves, SQL básico, índices, transação e SQL × NoSQL.",
+        "en": "Tables, keys, basic SQL, indexes, transactions and SQL vs NoSQL."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Postgres no navegador: planos de execução, isolamento, locks, migrations; cache e Redis.",
+        "en": "Postgres in the browser: query plans, isolation, locks, migrations; caching and Redis."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Réplicas, sharding, backup testado, multi-tenant, LGPD e custo.",
+        "en": "Replicas, sharding, tested backups, multi-tenancy, privacy law and cost."
+      }
+    }
+  ]
+}

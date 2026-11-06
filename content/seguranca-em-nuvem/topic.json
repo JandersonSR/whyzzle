@@ -1,0 +1,63 @@
+{
+  "id": "seguranca-em-nuvem",
+  "order": 24,
+  "area": "seguranca",
+  "title": {
+    "pt": "Segurança em nuvem e SecOps",
+    "en": "Cloud security and SecOps"
+  },
+  "tagline": {
+    "pt": "Zero Trust, operação de segurança e arquitetura de defesa.",
+    "en": "Zero Trust, security operations and defense architecture."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Defesa em camadas: identidade, rede, dados, monitoramento e resposta.",
+        "en": "Defense in depth: identity, network, data, monitoring and response."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Acesso condicional, privilégio mínimo, Defender, Sentinel e caça a ameaças.",
+        "en": "Conditional access, least privilege, Defender, Sentinel and threat hunting."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Estratégia, governança, SecOps e segurança de IA. Preparatórios SC-100, SC-200, SC-300 e SC-500.",
+        "en": "Strategy, governance, SecOps and AI security. SC-100, SC-200, SC-300 and SC-500 prep."
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "apis-e-integracao",
+  "order": 8,
+  "area": "arquitetura",
+  "title": {
+    "pt": "APIs, contratos e integração",
+    "en": "APIs, contracts and integration"
+  },
+  "tagline": {
+    "pt": "APIs que outros times conseguem usar sem quebrar.",
+    "en": "APIs other teams can use without breaking."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "HTTP, REST, JSON, status codes e documentação.",
+        "en": "HTTP, REST, JSON, status codes and documentation."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Paginação, versionamento, idempotência, ETag, gRPC, GraphQL e webhooks.",
+        "en": "Pagination, versioning, idempotency, ETags, gRPC, GraphQL and webhooks."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "OpenAPI, contract testing, gateway, cotas, deprecação e segurança de APIs.",
+        "en": "OpenAPI, contract testing, gateways, quotas, deprecation and API security."
+      }
+    }
+  ]
+}

@@ -126,5 +126,35 @@
   "executorSoon": "soon",
   "simulatedNote": "Toy model: the numbers are hand-made to show the mechanism. Recipe mode does it for real.",
   "none": "none",
-  "stepLabel": "Step {n}"
+  "stepLabel": "Step {n}",
+  "themeDark": "Dark theme",
+  "themeToLight": "Switch to light theme",
+  "themeToDark": "Switch to dark theme",
+  "areas": {
+    "all": "All",
+    "ia": "AI",
+    "arquitetura": "Architecture",
+    "backend": "Backend",
+    "frontend": "Frontend",
+    "dados": "Data",
+    "infra": "Infra and cloud",
+    "seguranca": "Security",
+    "carreira": "Leadership and career",
+    "base": "CS foundations",
+    "negocios": "Business"
+  },
+  "catalog": {
+    "title": "Pick what to learn",
+    "sub": "{n} topics, each with three tracks: Foundations, Practice and Production. New stages land often.",
+    "search": "Search topics",
+    "searchPh": "e.g. Kafka, security, React…",
+    "areas": "Filter by area",
+    "ready": "{n} of 3 tracks available",
+    "soon": "Coming soon",
+    "empty": "No topic found.",
+    "open": "Open topic",
+    "tracksLabel": "Tracks",
+    "backHome": "All topics",
+    "order": "Priority {n}"
+  }
 }

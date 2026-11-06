@@ -1,0 +1,63 @@
+{
+  "id": "projeto-integrador",
+  "order": 28,
+  "area": "carreira",
+  "title": {
+    "pt": "Projeto integrador",
+    "en": "Capstone project"
+  },
+  "tagline": {
+    "pt": "Da ideia ao produto publicado, usando tudo o que você aprendeu.",
+    "en": "From idea to shipped product, using everything you learned."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Escopo e MVP: o que construir primeiro.",
+        "en": "Scope and MVP: what to build first."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "IA no produto, SaaS e segurança.",
+        "en": "AI in the product, SaaS and security."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Operação, custo e apresentação do produto.",
+        "en": "Operations, cost and presenting the product."
+      }
+    }
+  ]
+}

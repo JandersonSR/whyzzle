@@ -1,0 +1,63 @@
+{
+  "id": "dados-e-analytics",
+  "order": 17,
+  "area": "dados",
+  "title": {
+    "pt": "Dados e analytics",
+    "en": "Data and analytics"
+  },
+  "tagline": {
+    "pt": "Perguntas com dados, SQL analítico e pipelines confiáveis.",
+    "en": "Questions with data, analytical SQL and reliable pipelines."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Médias, distribuições, gráficos honestos e correlação × causa.",
+        "en": "Averages, distributions, honest charts and correlation vs causation."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "SQL analítico no navegador (DuckDB), modelagem dimensional, A/B, ingestão e lakehouse.",
+        "en": "Analytical SQL in the browser (DuckDB), dimensional modeling, A/B tests, ingestion and lakehouse."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Custo, acesso, linhagem, LGPD e contratos de dados. Preparatórios DP-700 e PL-300.",
+        "en": "Cost, access, lineage, privacy law and data contracts. DP-700 and PL-300 prep."
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "telefonia-e-voz",
+  "order": 27,
+  "area": "backend",
+  "title": {
+    "pt": "Telefonia e agentes de voz",
+    "en": "Telephony and voice agents"
+  },
+  "tagline": {
+    "pt": "Da URA ao agente de voz com IA.",
+    "en": "From IVR to AI voice agents."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Telefonia, VoIP, SIP, URA e filas.",
+        "en": "Telephony, VoIP, SIP, IVR and queues."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Asterisk, dialplan, AMI e ARI, CRM, gravação e transcrição real no navegador.",
+        "en": "Asterisk, dialplan, AMI and ARI, CRM, recording and real in-browser transcription."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Fraude, escala, qualidade, LGPD em gravações e custo.",
+        "en": "Fraud, scale, quality, privacy law for recordings and cost."
+      }
+    }
+  ]
+}

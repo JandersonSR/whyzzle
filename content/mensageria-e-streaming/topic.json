@@ -1,0 +1,63 @@
+{
+  "id": "mensageria-e-streaming",
+  "order": 3,
+  "area": "arquitetura",
+  "title": {
+    "pt": "Mensageria e streaming",
+    "en": "Messaging and streaming"
+  },
+  "tagline": {
+    "pt": "Filas e eventos que deixam sistemas aguentarem picos e falhas.",
+    "en": "Queues and events that let systems survive peaks and failures."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Síncrono × assíncrono, comando × evento, garantias de entrega, idempotência e DLQ.",
+        "en": "Sync vs async, command vs event, delivery guarantees, idempotency and DLQs."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "RabbitMQ e Kafka a fundo, outbox, saga e Event Hubs.",
+        "en": "RabbitMQ and Kafka in depth, outbox, saga and Event Hubs."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Partições, lag, segurança, multi-região, custo e incidentes. Preparatório Confluent.",
+        "en": "Partitions, lag, security, multi-region, cost and incidents. Confluent exam prep."
+      }
+    }
+  ]
+}

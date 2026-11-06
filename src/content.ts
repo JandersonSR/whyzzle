@@ -69,6 +69,7 @@ export function loadTopics(): Topic[] {
       teacher: parse(TeacherGuide, teacherFiles[`${dir}teacher.json`], `${dir}teacher.json`),
     });
   }
+  topics.sort((a, b) => a.def.order - b.def.order);
   for (const t of topics) t.lessons.sort((a, b) => (a.track === b.track ? a.def.order - b.def.order : a.track.localeCompare(b.track)));
   return topics;
 }

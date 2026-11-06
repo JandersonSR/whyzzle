@@ -1,0 +1,63 @@
+{
+  "id": "devops-e-plataforma",
+  "order": 13,
+  "area": "infra",
+  "title": {
+    "pt": "DevOps, IaC e Platform Engineering",
+    "en": "DevOps, IaC and platform engineering"
+  },
+  "tagline": {
+    "pt": "Entregar com segurança, automação e custo sob controle.",
+    "en": "Shipping safely, automatically and with cost under control."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Versionamento, integração e entrega contínuas, ambientes e automação.",
+        "en": "Version control, continuous integration and delivery, environments and automation."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Pipelines, Terraform, ambientes e aprovações, deploy canário e feature flags.",
+        "en": "Pipelines, Terraform, environments and approvals, canary deploys and feature flags."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Plataforma interna, golden paths, métricas DORA e FinOps. Preparatório AZ-400.",
+        "en": "Internal platforms, golden paths, DORA metrics and FinOps. AZ-400 prep."
+      }
+    }
+  ]
+}

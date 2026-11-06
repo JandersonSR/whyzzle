@@ -126,5 +126,35 @@
   "executorSoon": "em breve",
   "simulatedNote": "Modelo de brinquedo: os números são feitos à mão para mostrar o mecanismo. O modo receita faz de verdade.",
   "none": "nenhum",
-  "stepLabel": "Passo {n}"
+  "stepLabel": "Passo {n}",
+  "themeDark": "Tema escuro",
+  "themeToLight": "Mudar para o tema claro",
+  "themeToDark": "Mudar para o tema escuro",
+  "areas": {
+    "all": "Todos",
+    "ia": "IA",
+    "arquitetura": "Arquitetura",
+    "backend": "Backend",
+    "frontend": "Frontend",
+    "dados": "Dados",
+    "infra": "Infra e nuvem",
+    "seguranca": "Segurança",
+    "carreira": "Liderança e carreira",
+    "base": "Base da computação",
+    "negocios": "Negócios"
+  },
+  "catalog": {
+    "title": "Escolha o que aprender",
+    "sub": "{n} tópicos, cada um com três trilhas: Fundamentos, Prática e Produção. Novas etapas chegam com frequência.",
+    "search": "Buscar tópico",
+    "searchPh": "ex.: Kafka, segurança, React…",
+    "areas": "Filtrar por área",
+    "ready": "{n} de 3 trilhas disponíveis",
+    "soon": "Em breve",
+    "empty": "Nenhum tópico encontrado.",
+    "open": "Ver tópico",
+    "tracksLabel": "Trilhas",
+    "backHome": "Todos os tópicos",
+    "order": "Prioridade {n}"
+  }
 }

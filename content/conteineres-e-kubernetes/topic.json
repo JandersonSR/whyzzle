@@ -1,0 +1,63 @@
+{
+  "id": "conteineres-e-kubernetes",
+  "order": 4,
+  "area": "infra",
+  "title": {
+    "pt": "Contêineres e Kubernetes",
+    "en": "Containers and Kubernetes"
+  },
+  "tagline": {
+    "pt": "Do Dockerfile ao cluster em produção.",
+    "en": "From Dockerfile to a production cluster."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Processo, contêiner e VM; imagens e camadas; por que orquestrar.",
+        "en": "Process, container and VM; images and layers; why orchestrate."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "kubectl de verdade: deployments, services, probes, limites, rollback e troubleshooting; AKS na prática.",
+        "en": "Real kubectl: deployments, services, probes, limits, rollback and troubleshooting; AKS in practice."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "GitOps, políticas, upgrades, capacidade, resiliência e custo. Preparatório CKA.",
+        "en": "GitOps, policies, upgrades, capacity, resilience and cost. CKA exam prep."
+      }
+    }
+  ]
+}

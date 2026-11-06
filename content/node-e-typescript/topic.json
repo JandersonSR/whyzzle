@@ -1,0 +1,63 @@
+{
+  "id": "node-e-typescript",
+  "order": 14,
+  "area": "backend",
+  "title": {
+    "pt": "Node.js e TypeScript",
+    "en": "Node.js and TypeScript"
+  },
+  "tagline": {
+    "pt": "Backend em JavaScript com tipos, filas e cache.",
+    "en": "JavaScript backends with types, queues and caching."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Tipos, funções, módulos, promises e erros.",
+        "en": "Types, functions, modules, promises and errors."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Event loop, HTTP, MongoDB e SQL, Redis, RabbitMQ, testes e Node × Deno × Bun.",
+        "en": "Event loop, HTTP, MongoDB and SQL, Redis, RabbitMQ, tests and Node vs Deno vs Bun."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Memória, worker threads, observabilidade, dependências seguras e escala.",
+        "en": "Memory, worker threads, observability, safe dependencies and scaling."
+      }
+    }
+  ]
+}

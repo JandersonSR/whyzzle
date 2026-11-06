@@ -1,0 +1,63 @@
+{
+  "id": "arquitetura-e-ddd",
+  "order": 10,
+  "area": "arquitetura",
+  "title": {
+    "pt": "Arquitetura de software e DDD",
+    "en": "Software architecture and DDD"
+  },
+  "tagline": {
+    "pt": "Código e fronteiras que aguentam anos de mudança.",
+    "en": "Code and boundaries that survive years of change."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Nomes, responsabilidade única, testes, Git e débito técnico.",
+        "en": "Naming, single responsibility, tests, Git and technical debt."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "SOLID, padrões, hexagonal, estrutura de pastas, Event Storming, bounded contexts e BDD.",
+        "en": "SOLID, patterns, hexagonal, folder structure, Event Storming, bounded contexts and BDD."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Monólito modular, extração de serviços, ADRs e RFCs, fitness functions e migração estrangulada.",
+        "en": "Modular monolith, service extraction, ADRs and RFCs, fitness functions and strangler migration."
+      }
+    }
+  ]
+}

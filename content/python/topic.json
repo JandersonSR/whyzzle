@@ -1,0 +1,63 @@
+{
+  "id": "python",
+  "order": 15,
+  "area": "backend",
+  "title": {
+    "pt": "Python para backend e IA",
+    "en": "Python for backend and AI"
+  },
+  "tagline": {
+    "pt": "Python de verdade no navegador, do script à API.",
+    "en": "Real Python in the browser, from scripts to APIs."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Tipos, listas, dicionários, funções, arquivos e bibliotecas.",
+        "en": "Types, lists, dictionaries, functions, files and libraries."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Ambientes, tipagem, asyncio, FastAPI, banco, testes e workers.",
+        "en": "Environments, typing, asyncio, FastAPI, databases, tests and workers."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Empacotamento, GIL, observabilidade, contêiner e desempenho.",
+        "en": "Packaging, the GIL, observability, containers and performance."
+      }
+    }
+  ]
+}

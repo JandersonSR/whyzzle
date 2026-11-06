@@ -7,7 +7,9 @@ Um guia interativo de aprendizado que mistura jogo passo a passo e livro de rece
 reagir, **entende o porquê** em três níveis (Simples, Dev, Especialista) e **quebra de propósito** para
 descobrir o limite. No fim, o **modo receita** mostra como fazer o mesmo fora do simulador.
 
-Sem vídeo, sem instalar nada, sem backend. Português e inglês.
+Sem vídeo, sem instalar nada, sem backend. Português e inglês, tema claro e escuro.
+
+O catálogo tem 28 tópicos (de IA aplicada a Kubernetes, system design e liderança), cada um com as trilhas Fundamentos, Prática e Produção. O que já existe e o que vem a seguir está em [ROADMAP.md](ROADMAP.md).
 
 ## Primeiro tema: IA aplicada — trilha Fundamentos
 

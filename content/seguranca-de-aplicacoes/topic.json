@@ -1,0 +1,63 @@
+{
+  "id": "seguranca-de-aplicacoes",
+  "order": 9,
+  "area": "seguranca",
+  "title": {
+    "pt": "Segurança de aplicações e identidade",
+    "en": "Application security and identity"
+  },
+  "tagline": {
+    "pt": "Ataques reais, defesas reais e identidade bem feita.",
+    "en": "Real attacks, real defenses and identity done right."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Senhas e MFA, phishing, ataques web e autenticação × autorização.",
+        "en": "Passwords and MFA, phishing, web attacks and authentication vs authorization."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "OWASP na prática, OAuth 2 e OIDC, JWT, RBAC e identidade em cada stack.",
+        "en": "OWASP in practice, OAuth 2 and OIDC, JWT, RBAC and identity in every stack."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Modelagem de ameaças, segurança na esteira, supply chain, LLMs e resposta a incidentes.",
+        "en": "Threat modeling, pipeline security, supply chain, LLMs and incident response."
+      }
+    }
+  ]
+}

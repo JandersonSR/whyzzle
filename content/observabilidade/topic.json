@@ -1,0 +1,63 @@
+{
+  "id": "observabilidade",
+  "order": 11,
+  "area": "infra",
+  "title": {
+    "pt": "Observabilidade, performance e confiabilidade",
+    "en": "Observability, performance and reliability"
+  },
+  "tagline": {
+    "pt": "Saber o que acontece em produção e agir com dados.",
+    "en": "Knowing what happens in production and acting on data."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Logs, métricas, traces, alertas e painéis.",
+        "en": "Logs, metrics, traces, alerts and dashboards."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "OpenTelemetry, Prometheus, PromQL, profiling e testes de carga.",
+        "en": "OpenTelemetry, Prometheus, PromQL, profiling and load testing."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "SLOs e error budget, on-call, postmortem, caos controlado e custo.",
+        "en": "SLOs and error budgets, on-call, postmortems, controlled chaos and cost."
+      }
+    }
+  ]
+}

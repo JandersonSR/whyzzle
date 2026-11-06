@@ -1,0 +1,63 @@
+{
+  "id": "negocios-e-produto",
+  "order": 26,
+  "area": "negocios",
+  "title": {
+    "pt": "Negócios, produto e empreendedorismo",
+    "en": "Business, product and entrepreneurship"
+  },
+  "tagline": {
+    "pt": "Engenharia que gera resultado, e como abrir sua empresa.",
+    "en": "Engineering that drives results, and how to start your company."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Receita e custo, cliente, valor, preço e concorrência.",
+        "en": "Revenue and cost, customers, value, pricing and competition."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Descoberta, métricas, priorização, preço, vendas e contratos.",
+        "en": "Discovery, metrics, prioritization, pricing, sales and contracts."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Nicho e oferta, validação, vendas, métricas e conversa com a diretoria.",
+        "en": "Niche and offer, validation, sales, metrics and talking to leadership."
+      }
+    }
+  ]
+}

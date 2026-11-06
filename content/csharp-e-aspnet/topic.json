@@ -1,0 +1,63 @@
+{
+  "id": "csharp-e-aspnet",
+  "order": 5,
+  "area": "backend",
+  "title": {
+    "pt": "C# e ASP.NET Core",
+    "en": "C# and ASP.NET Core"
+  },
+  "tagline": {
+    "pt": "Da linguagem às APIs corporativas em .NET.",
+    "en": "From the language to enterprise APIs in .NET."
+  },
+  "tracks": [
+    {
+      "id": "fundamentos",
+      "status": "soon",
+      "title": {
+        "pt": "Fundamentos",
+        "en": "Foundations"
+      },
+      "audience": {
+        "pt": "Escolas e iniciantes",
+        "en": "Schools and beginners"
+      },
+      "description": {
+        "pt": "Tipos, coleções, LINQ, classes, nulabilidade e async/await.",
+        "en": "Types, collections, LINQ, classes, nullability and async/await."
+      }
+    },
+    {
+      "id": "pratica",
+      "status": "soon",
+      "title": {
+        "pt": "Prática",
+        "en": "Practice"
+      },
+      "audience": {
+        "pt": "Devs e analistas",
+        "en": "Developers and analysts"
+      },
+      "description": {
+        "pt": "Web APIs, injeção de dependência, EF Core, JWT, testes e a transição de Node para C#.",
+        "en": "Web APIs, dependency injection, EF Core, JWT, tests and moving from Node to C#."
+      }
+    },
+    {
+      "id": "producao",
+      "status": "soon",
+      "title": {
+        "pt": "Produção",
+        "en": "Production"
+      },
+      "audience": {
+        "pt": "Empresas e times",
+        "en": "Companies and teams"
+      },
+      "description": {
+        "pt": "Monólito modular, performance, resiliência, OpenTelemetry e AKS.",
+        "en": "Modular monolith, performance, resilience, OpenTelemetry and AKS."
+      }
+    }
+  ]
+}
