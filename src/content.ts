@@ -1,3 +1,4 @@
+import { declIssues } from './models/declarative';
 import { StepDef, StepLocale, TeacherGuide, TopicDef, stepLocaleIssues, type Lang, type TrackId } from './engine/schema';
 
 /**
@@ -56,6 +57,7 @@ export function loadTopics(): Topic[] {
     };
     for (const lang of ['pt', 'en'] as const) {
       const issues = stepLocaleIssues(def, locale[lang]);
+      if (def.model === 'declarative') issues.push(...declIssues(def.data.sim, locale[lang].scene));
       if (issues.length) throw new Error(`Whyzzle content error in ${dir}${lang}.json: ${issues.join('; ')}`);
     }
     const slug = folder.replace(/^\d+-/, '');

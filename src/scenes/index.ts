@@ -7,6 +7,7 @@ import { PromptScene } from './Prompt';
 import { RagScene } from './Rag';
 import { SamplerScene } from './Sampler';
 import { TokensScene } from './Tokens';
+import { WidgetsScene } from './Widgets';
 import type { Scene } from './types';
 
 /** Scenes by the name a lesson uses in step.json → "scene". */
@@ -20,4 +21,5 @@ export const scenes: Record<string, Scene> = {
   agent: AgentScene,
   evals: EvalsScene,
   mission: MissionScene,
+  widgets: WidgetsScene,
 };

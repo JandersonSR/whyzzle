@@ -1,6 +1,7 @@
 import { registerModel } from '../engine/registry';
 import { agent } from './agent';
 import { embeddings } from './embeddings';
+import { declarative } from './declarative';
 import { evals } from './evals';
 import { mission } from './mission';
 import { nextToken } from './nextToken';
@@ -11,5 +12,5 @@ import { tokenizer } from './tokenizer';
 
 /** Registers every simulated model. Import once at startup (and in tests). */
 export function registerAllModels(): void {
-  [nextToken, tokenizer, sampler, promptGrader, embeddings, rag, agent, evals, mission].forEach((m) => registerModel(m));
+  [nextToken, tokenizer, sampler, promptGrader, embeddings, rag, agent, evals, mission, declarative].forEach((m) => registerModel(m));
 }

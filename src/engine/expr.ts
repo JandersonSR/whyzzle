@@ -1,0 +1,316 @@
+/**
+ * A tiny, safe expression language for data-driven lessons (no eval).
+ *
+ *   numbers 1.5 · strings 'a' "b" · lists [1, 2] · identifiers a.b · x[0]
+ *   + - * / % **  == != < <= > >=  && || !  cond ? a : b
+ *   functions: see FUNCS below
+ *
+ * Lessons use it in step.json → data (compute, cases, widgets).
+ */
+
+export type Value = number | string | boolean | null | undefined | Value[] | { [k: string]: Value };
+export type Env = Record<string, unknown>;
+
+type Node =
+  | { t: 'num'; v: number }
+  | { t: 'str'; v: string }
+  | { t: 'list'; items: Node[] }
+  | { t: 'id'; name: string }
+  | { t: 'member'; obj: Node; key: string }
+  | { t: 'index'; obj: Node; index: Node }
+  | { t: 'call'; name: string; args: Node[] }
+  | { t: 'unary'; op: string; arg: Node }
+  | { t: 'bin'; op: string; l: Node; r: Node }
+  | { t: 'cond'; c: Node; a: Node; b: Node };
+
+export class ExprError extends Error {}
+
+interface Tok {
+  k: 'num' | 'str' | 'id' | 'op' | 'end';
+  v: string;
+}
+
+const OPS = ['**', '==', '!=', '<=', '>=', '&&', '||', '+', '-', '*', '/', '%', '<', '>', '!', '?', ':', '(', ')', '[', ']', ',', '.'];
+
+function lex(src: string): Tok[] {
+  const out: Tok[] = [];
+  let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (/\s/.test(c)) {
+      i++;
+      continue;
+    }
+    if (/[0-9]/.test(c) || (c === '.' && /[0-9]/.test(src[i + 1] ?? ''))) {
+      let j = i;
+      while (j < src.length && /[0-9._]/.test(src[j])) j++;
+      out.push({ k: 'num', v: src.slice(i, j).replace(/_/g, '') });
+      i = j;
+      continue;
+    }
+    if (c === "'" || c === '"') {
+      let j = i + 1;
+      let s = '';
+      while (j < src.length && src[j] !== c) s += src[j++];
+      if (j >= src.length) throw new ExprError(`unterminated string in: ${src}`);
+      out.push({ k: 'str', v: s });
+      i = j + 1;
+      continue;
+    }
+    if (/[A-Za-z_$]/.test(c)) {
+      let j = i;
+      while (j < src.length && /[A-Za-z0-9_$]/.test(src[j])) j++;
+      out.push({ k: 'id', v: src.slice(i, j) });
+      i = j;
+      continue;
+    }
+    const op = OPS.find((o) => src.startsWith(o, i));
+    if (!op) throw new ExprError(`unexpected "${c}" in: ${src}`);
+    out.push({ k: 'op', v: op });
+    i += op.length;
+  }
+  out.push({ k: 'end', v: '' });
+  return out;
+}
+
+const BIN: Record<string, number> = { '||': 1, '&&': 2, '==': 3, '!=': 3, '<': 4, '<=': 4, '>': 4, '>=': 4, '+': 5, '-': 5, '*': 6, '/': 6, '%': 6, '**': 8 };
+
+function parse(src: string): Node {
+  const toks = lex(src);
+  let p = 0;
+  const peek = () => toks[p];
+  const eat = (v?: string) => {
+    const t = toks[p];
+    if (v !== undefined && t.v !== v) throw new ExprError(`expected "${v}" but got "${t.v || 'end'}" in: ${src}`);
+    p++;
+    return t;
+  };
+
+  function primary(): Node {
+    const t = eat();
+    if (t.k === 'num') return { t: 'num', v: Number(t.v) };
+    if (t.k === 'str') return { t: 'str', v: t.v };
+    if (t.k === 'op' && t.v === '(') {
+      const e = expr();
+      eat(')');
+      return e;
+    }
+    if (t.k === 'op' && t.v === '[') {
+      const items: Node[] = [];
+      if (peek().v !== ']') {
+        do items.push(expr());
+        while (peek().v === ',' && eat());
+      }
+      eat(']');
+      return { t: 'list', items };
+    }
+    if (t.k === 'id') {
+      if (peek().v === '(') {
+        eat('(');
+        const args: Node[] = [];
+        if (peek().v !== ')') {
+          do args.push(expr());
+          while (peek().v === ',' && eat());
+        }
+        eat(')');
+        return { t: 'call', name: t.v, args };
+      }
+      return { t: 'id', name: t.v };
+    }
+    throw new ExprError(`unexpected "${t.v || 'end'}" in: ${src}`);
+  }
+
+  function postfix(): Node {
+    let n = primary();
+    for (;;) {
+      if (peek().v === '.') {
+        eat('.');
+        const k = eat();
+        if (k.k !== 'id' && k.k !== 'num') throw new ExprError(`bad member access in: ${src}`);
+        n = { t: 'member', obj: n, key: k.v };
+      } else if (peek().v === '[') {
+        eat('[');
+        const index = expr();
+        eat(']');
+        n = { t: 'index', obj: n, index };
+      } else return n;
+    }
+  }
+
+  function unary(): Node {
+    if (peek().k === 'op' && (peek().v === '!' || peek().v === '-')) {
+      const op = eat().v;
+      return { t: 'unary', op, arg: unary() };
+    }
+    return postfix();
+  }
+
+  function binary(min: number): Node {
+    let l = unary();
+    for (;;) {
+      const t = peek();
+      const prec = t.k === 'op' ? BIN[t.v] : undefined;
+      if (prec === undefined || prec < min) return l;
+      eat();
+      // ** is right-associative
+      const r = binary(t.v === '**' ? prec : prec + 1);
+      l = { t: 'bin', op: t.v, l, r };
+    }
+  }
+
+  function expr(): Node {
+    const c = binary(1);
+    if (peek().v === '?') {
+      eat('?');
+      const a = expr();
+      eat(':');
+      const b = expr();
+      return { t: 'cond', c, a, b };
+    }
+    return c;
+  }
+
+  const n = expr();
+  if (peek().k !== 'end') throw new ExprError(`unexpected "${peek().v}" in: ${src}`);
+  return n;
+}
+
+const num = (v: unknown) => (typeof v === 'number' ? v : Number(v));
+const arr = (v: unknown): Value[] => (Array.isArray(v) ? (v as Value[]) : []);
+
+/** Whitelisted functions. `rng` comes from the evaluation context. */
+const FUNCS: Record<string, (args: Value[], rng: () => number) => Value> = {
+  min: (a) => Math.min(...a.map(num)),
+  max: (a) => Math.max(...a.map(num)),
+  pow: ([b, e]) => Math.pow(num(b), num(e)),
+  sqrt: ([x]) => Math.sqrt(num(x)),
+  abs: ([x]) => Math.abs(num(x)),
+  round: ([x, d]) => {
+    const f = Math.pow(10, num(d ?? 0));
+    return Math.round(num(x) * f) / f;
+  },
+  floor: ([x]) => Math.floor(num(x)),
+  ceil: ([x]) => Math.ceil(num(x)),
+  clamp: ([x, lo, hi]) => Math.min(num(hi), Math.max(num(lo), num(x))),
+  log10: ([x]) => Math.log10(num(x)),
+  len: ([x]) => (typeof x === 'string' ? x.length : arr(x).length),
+  includes: ([list, x]) => (typeof list === 'string' ? list.includes(String(x)) : arr(list).some((v) => v === x)),
+  range: ([n, start]) => Array.from({ length: Math.max(0, Math.floor(num(n))) }, (_, i) => i + num(start ?? 0)),
+  fill: ([n, v]) => Array.from({ length: Math.max(0, Math.floor(num(n))) }, () => v),
+  sum: ([list]) => arr(list).reduce<number>((s, v) => s + num(v), 0),
+  count: ([list, v]) => arr(list).filter((x) => x === v).length,
+  join: ([list, sep]) => arr(list).join(String(sep ?? ', ')),
+  lower: ([s]) => String(s ?? '').toLowerCase(),
+  str: ([v]) => String(v ?? ''),
+  number: ([v]) => num(v),
+  concat: (a) => a.flatMap((x) => (Array.isArray(x) ? x : [x])),
+  slice: ([list, a, b]) => arr(list).slice(num(a), b === undefined ? undefined : num(b)),
+  /** Seeded random in [0, 1): deterministic in previews and tests. */
+  rand: (_a, rng) => rng(),
+  pick: ([list], rng) => {
+    const l = arr(list);
+    return l[Math.floor(rng() * l.length)];
+  },
+};
+
+function lookup(env: Env, name: string): Value {
+  if (name === 'true') return true;
+  if (name === 'false') return false;
+  if (name === 'null') return null;
+  if (!Object.prototype.hasOwnProperty.call(env, name)) throw new ExprError(`unknown name "${name}"`);
+  return env[name] as Value;
+}
+
+function ev(n: Node, env: Env, rng: () => number): Value {
+  switch (n.t) {
+    case 'num':
+      return n.v;
+    case 'str':
+      return n.v;
+    case 'list':
+      return n.items.map((i) => ev(i, env, rng));
+    case 'id':
+      return lookup(env, n.name);
+    case 'member': {
+      const o = ev(n.obj, env, rng);
+      if (o === null || o === undefined) return undefined;
+      if (n.key === 'length' && (Array.isArray(o) || typeof o === 'string')) return o.length;
+      return Object.prototype.hasOwnProperty.call(o, n.key) ? (o as Record<string, Value>)[n.key] : undefined;
+    }
+    case 'index': {
+      const o = ev(n.obj, env, rng);
+      const i = ev(n.index, env, rng);
+      if (o === null || o === undefined) return undefined;
+      return Object.prototype.hasOwnProperty.call(o, String(i)) ? (o as Record<string, Value>)[String(i)] : undefined;
+    }
+    case 'call': {
+      const f = FUNCS[n.name];
+      if (!f) throw new ExprError(`unknown function "${n.name}"`);
+      return f(
+        n.args.map((a) => ev(a, env, rng)),
+        rng,
+      );
+    }
+    case 'unary': {
+      const v = ev(n.arg, env, rng);
+      return n.op === '!' ? !v : -num(v);
+    }
+    case 'cond':
+      return ev(n.c, env, rng) ? ev(n.a, env, rng) : ev(n.b, env, rng);
+    case 'bin': {
+      if (n.op === '&&') return ev(n.l, env, rng) ? ev(n.r, env, rng) : false;
+      if (n.op === '||') {
+        const l = ev(n.l, env, rng);
+        return l ? l : ev(n.r, env, rng);
+      }
+      const l = ev(n.l, env, rng);
+      const r = ev(n.r, env, rng);
+      switch (n.op) {
+        case '+':
+          return typeof l === 'string' || typeof r === 'string' ? `${l ?? ''}${r ?? ''}` : num(l) + num(r);
+        case '-':
+          return num(l) - num(r);
+        case '*':
+          return num(l) * num(r);
+        case '/':
+          return num(l) / num(r);
+        case '%':
+          return num(l) % num(r);
+        case '**':
+          return Math.pow(num(l), num(r));
+        case '==':
+          return l === r;
+        case '!=':
+          return l !== r;
+        case '<':
+          return num(l) < num(r);
+        case '<=':
+          return num(l) <= num(r);
+        case '>':
+          return num(l) > num(r);
+        case '>=':
+          return num(l) >= num(r);
+      }
+    }
+  }
+  throw new ExprError('bad expression');
+}
+
+const cache = new Map<string, Node>();
+
+/** Parses (once, cached) and evaluates an expression. */
+export function evaluate(src: string, env: Env, rng: () => number = Math.random): Value {
+  let n = cache.get(src);
+  if (!n) {
+    n = parse(src);
+    cache.set(src, n);
+  }
+  return ev(n, env, rng);
+}
+
+/** Throws ExprError if the expression doesn't parse (used by content tests). */
+export function check(src: string): void {
+  parse(src);
+}
+
+export const FUNCTION_NAMES = Object.keys(FUNCS);

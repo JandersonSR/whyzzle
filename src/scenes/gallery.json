@@ -1,0 +1,138 @@
+{
+  "sim": {
+    "consts": { "rps": 1200, "replicas": 3 },
+    "compute": {
+      "p95": "incidente ? 2400 : 180",
+      "erros": "incidente ? 7.5 : 0.2",
+      "fila": "incidente ? 18 : 2",
+      "podStatus": "incidente ? 'CrashLoopBackOff' : 'Running'"
+    },
+    "cases": [
+      { "when": "incidente", "flags": ["incident"], "vars": { "culpado": "'api-7d9f'" } },
+      { "when": "!incidente", "flags": ["healthy"] }
+    ],
+    "widgets": [
+      {
+        "type": "metrics",
+        "label": "@metrics",
+        "items": [
+          { "label": "@p95", "value": "=p95", "format": "ms", "tone": "=p95 > 500 ? 'bad' : 'ok'" },
+          { "label": "@errors", "value": "=erros", "format": "pct", "tone": "=erros > 1 ? 'bad' : 'ok'" },
+          { "label": "@rps", "value": "=rps", "format": "int", "tone": "info" }
+        ]
+      },
+      {
+        "type": "flow",
+        "label": "@flow",
+        "steps": [
+          { "label": "@client", "tone": "info" },
+          { "label": "Gateway", "sub": "=p95 > 500 ? '504' : '200'", "tone": "=p95 > 500 ? 'warn' : 'ok'" },
+          { "label": "API", "sub": "=podStatus", "tone": "=incidente ? 'bad' : 'ok'" },
+          { "label": "Postgres", "tone": "ok" }
+        ]
+      },
+      {
+        "type": "cluster",
+        "label": "@cluster",
+        "nodes": [
+          { "name": "aks-node-1", "status": "Ready", "pods": [ { "name": "api-7d9f", "status": "=podStatus" }, { "name": "worker-1a2b", "status": "Running" } ] },
+          { "name": "aks-node-2", "status": "Ready", "pods": [ { "name": "api-5c1e", "status": "Running" }, { "name": "api-9f00", "status": "=incidente ? 'Pending' : 'Running'" } ] }
+        ]
+      },
+      {
+        "type": "terminal",
+        "label": "@terminal",
+        "lines": [
+          "$ kubectl get pods -n checkout",
+          "~NAME          READY   STATUS             RESTARTS",
+          "=(incidente ? '!' : '+') + 'api-7d9f      ' + (incidente ? '0/1     CrashLoopBackOff   12' : '1/1     Running            0')",
+          "+api-5c1e      1/1     Running            0"
+        ]
+      },
+      {
+        "type": "queue",
+        "label": "@queue",
+        "producer": "checkout",
+        "messages": "=concat(fill(fila - 1, '#'), incidente ? ['!poison'] : ['#'])",
+        "consumers": [ { "label": "worker-1", "note": "prefetch 10", "tone": "ok" }, { "label": "worker-2", "note": "=incidente ? 'offline' : 'prefetch 10'", "tone": "=incidente ? 'bad' : 'ok'" } ],
+        "dlq": "=incidente ? ['poison'] : []",
+        "dlqLabel": "DLQ"
+      },
+      {
+        "type": "table",
+        "label": "@table",
+        "columns": ["id", "status", "total"],
+        "rows": [[1041, "pago", "R$ 89,90"], [1042, "=incidente ? 'pendente' : 'pago'", "R$ 120,00"], [1043, "pago", "R$ 35,50"]],
+        "tones": ["neutral", "=incidente ? 'warn' : 'neutral'", "neutral"],
+        "caption": "@tableCaption"
+      },
+      {
+        "type": "chart",
+        "label": "@chart",
+        "kind": "line",
+        "labels": ["10:00", "10:05", "10:10", "10:15", "10:20", "10:25"],
+        "series": [ { "label": "p95 (ms)", "values": "=incidente ? [170, 190, 900, 2400, 2300, 2400] : [170, 180, 175, 182, 178, 180]" } ],
+        "threshold": { "value": 500, "label": "SLO 500 ms" }
+      },
+      { "type": "note", "when": "=incidente", "tone": "bad", "text": "@incidentNote" },
+      {
+        "type": "checks",
+        "label": "@checks",
+        "items": [
+          { "label": "@slo", "ok": "=p95 <= 500", "why": "@sloWhy" },
+          { "label": "@pods", "ok": "=!incidente", "why": "@podsWhy" }
+        ]
+      }
+    ]
+  },
+  "scene": {
+    "pt": {
+      "title": "Galeria de cenas",
+      "intro": "Todas as peças reutilizáveis que uma lição pode usar só com dados. Para quem escreve lições.",
+      "healthy": "Saudável",
+      "incident": "Incidente",
+      "metrics": "Métricas",
+      "p95": "latência p95",
+      "errors": "taxa de erro",
+      "rps": "requisições/s",
+      "flow": "Fluxo da requisição",
+      "client": "Cliente",
+      "cluster": "Cluster (pods)",
+      "terminal": "Terminal",
+      "queue": "Fila de pedidos",
+      "table": "Tabela pedidos",
+      "tableCaption": "3 linhas · consulta por índice em id",
+      "chart": "Latência nos últimos 30 minutos",
+      "incidentNote": "O pod {culpado} reinicia em loop e a fila de pedidos cresce.",
+      "checks": "Critérios",
+      "slo": "p95 abaixo de 500 ms",
+      "sloWhy": "p95 em {p95} ms",
+      "pods": "Todos os pods prontos",
+      "podsWhy": "{culpado} em CrashLoopBackOff"
+    },
+    "en": {
+      "title": "Scene gallery",
+      "intro": "Every reusable piece a lesson can use with data only. For lesson authors.",
+      "healthy": "Healthy",
+      "incident": "Incident",
+      "metrics": "Metrics",
+      "p95": "p95 latency",
+      "errors": "error rate",
+      "rps": "requests/s",
+      "flow": "Request flow",
+      "client": "Client",
+      "cluster": "Cluster (pods)",
+      "terminal": "Terminal",
+      "queue": "Orders queue",
+      "table": "orders table",
+      "tableCaption": "3 rows · index lookup on id",
+      "chart": "Latency over the last 30 minutes",
+      "incidentNote": "Pod {culpado} restarts in a loop and the orders queue grows.",
+      "checks": "Criteria",
+      "slo": "p95 under 500 ms",
+      "sloWhy": "p95 at {p95} ms",
+      "pods": "All pods ready",
+      "podsWhy": "{culpado} in CrashLoopBackOff"
+    }
+  }
+}

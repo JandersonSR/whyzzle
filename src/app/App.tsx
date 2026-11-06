@@ -1,3 +1,4 @@
+import { GalleryPage } from '../pages/GalleryPage';
 import { Home } from '../pages/Home';
 import { StepPage } from '../pages/StepPage';
 import { TopicPage } from '../pages/TopicPage';
@@ -15,6 +16,7 @@ export function App() {
   let page = <NotFound />;
 
   if (parts.length === 0) page = <Home />;
+  else if (parts.length === 1 && parts[0] === 'galeria') page = <GalleryPage />;
   else {
     const topic = topics.find((t) => t.def.id === parts[0]);
     if (topic && parts.length === 1) page = <TopicPage topic={topic} />;

@@ -8,7 +8,7 @@ export function normalize(s: string): string {
     .trim();
 }
 
-export function interpolate(template: string, vars: Record<string, string | number | undefined> = {}): string {
+export function interpolate(template: string, vars: Record<string, string | number | boolean | undefined> = {}): string {
   return template.replace(/\{(\w+)\}/g, (m, k: string) => (vars[k] === undefined ? m : String(vars[k])));
 }
 

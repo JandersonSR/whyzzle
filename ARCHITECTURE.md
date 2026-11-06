@@ -40,7 +40,7 @@ O nome da pasta sem o número vira a URL: `/ia-aplicada/fundamentos/temperatura`
 
 | Peça | Onde | O que é | Como a lição usa |
 | --- | --- | --- | --- |
-| **Cenas** | `src/scenes/` | Componentes React que desenham o que acontece por dentro | `"scene": "sampler"` |
+| **Cenas** | `src/scenes/` | Componentes React que desenham o que acontece por dentro; `widgets` é a cena reutilizável configurada por dados | `"scene": "widgets"` |
 | **Executores** | `src/engine/executors.ts` | Quem gera a resposta: `simulado`, `no-navegador`, `sua-chave` | `"executors": [...]` em ordem de preferência |
 | **Modelos simulados** | `src/models/` | Os “modelos de brinquedo” do executor simulado | `"model": "sampler"` |
 | **Checagens** | `src/engine/registry.ts` | O que conta como acerto (flags levantadas pelo modelo) | `"break": { "flag": "weird" }` |
@@ -77,6 +77,57 @@ executor muda.
 `emit()` publica eventos; `connectEvents(store)` deriva o progresso deles. O `ProgressStore` é uma
 interface: hoje `createLocalStore()` grava no `localStorage` (até 500 eventos). O modo turma troca por um
 store que também sincroniza com um backend, sem mexer nas lições.
+
+## Lições só com dados (modelo `declarative` + cena `widgets`)
+
+A maioria das lições novas não precisa de código: `step.json` usa `"model": "declarative"` e
+`"scene": "widgets"`, e descreve a simulação em `data.sim`.
+
+```jsonc
+"data": {
+  "sim": {
+    "live": true,                       // a cena acompanha o que é digitado (senão mostra a última rodada)
+    "consts": { "disponibilidade": 0.99 },
+    "compute": {                        // em ordem; enxerga consts, os valores do comando e pt/en.json → data
+      "total": "round(pow(disponibilidade, servicos) * 100, 2)"
+    },
+    "cases": [                          // todo caso verdadeiro se aplica, em ordem
+      { "when": "modo == 'sincrono' && queda > 0", "flags": ["cascata"], "vars": { "falhas": "queda * 100" } },
+      { "when": "len(text) == 0", "error": "vazio" }   // explicado em errors["model.vazio"]
+    ],
+    "widgets": [                        // "=expr" é expressão; "@chave" é texto da lição (pt/en.json → scene)
+      { "type": "metrics", "items": [ { "label": "@total", "value": "=total", "format": "pct", "tone": "=total < 99 ? 'bad' : 'ok'" } ] },
+      { "type": "terminal", "lines": ["$ kubectl get pods", "=ok ? '+api 1/1 Running' : '!api 0/1 CrashLoopBackOff'"] }
+    ]
+  }
+}
+```
+
+**Expressões** (`src/engine/expr.ts`): números, textos, listas, `a.b`, `x[0]`, `+ - * / % **`,
+comparações, `&& || !`, `cond ? a : b` e só as funções da lista branca (`min max pow round floor ceil clamp
+sqrt abs log10 len includes range fill sum count join concat slice lower str number rand pick`). Não há
+`eval` nem acesso a nada fora do que a lição define. `rand()` usa o sorteio controlado do motor (a prévia e os
+testes são determinísticos).
+
+**Peças da cena** (`src/scenes/Widgets.tsx`; todas aceitam `label` e `when`):
+
+| Tipo | Campos | Uso típico |
+| --- | --- | --- |
+| `metrics` | `items: [{ label, value, format: pct·int·ms·min·money·num, tone }]` | disponibilidade, latência, custo |
+| `terminal` | `lines: [...]` com prefixos `$` comando, `+` ok, `!` erro, `?` aviso, `~` apagado | `kubectl`, `kafka-*`, `psql`, `az` |
+| `queue` | `producer`, `messages` (número ou lista), `consumers: [{ label, note, tone }]`, `dlq` | filas, DLQ, prefetch |
+| `cluster` | `nodes: [{ name, status, pods: [{ name, status }] }]` (status do Kubernetes vira cor) | pods e nós |
+| `table` | `columns`, `rows`, `tones`, `caption` | tabelas de banco, resultados |
+| `flow` | `steps: [{ label, sub, tone }]` | fluxo de requisição, pipeline |
+| `chart` | `kind: bar·line`, `labels`, `series: [{ label, values }]`, `threshold` | latência, lag, custo no tempo |
+| `checks` | `items: [{ label, ok, why }]` | critérios de missão |
+| `note` | `text`, `tone` | avisos e explicações curtas |
+
+Tons: `ok`, `warn`, `bad`, `info`, `dim`, `neutral`, iguais nos temas claro e escuro.
+
+**Validação**: o carregador de conteúdo roda `declIssues` em toda lição declarativa. Dados inválidos,
+expressão que não faz parse, peça desconhecida ou texto `@chave` faltando em PT ou EN quebram o build com a
+mensagem do problema. A página `/galeria` mostra todas as peças funcionando (estado saudável × incidente).
 
 ## Fluxo de um passo
 

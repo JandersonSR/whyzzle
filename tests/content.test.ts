@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildCommand, defaultCommand, defaultValues, parseCommand } from '../src/engine/command';
 import { hasModel } from '../src/engine/registry';
+import { scenes } from '../src/scenes';
 import { LANGS } from '../src/engine/schema';
 import { lessons, topics } from './helpers';
 
@@ -51,7 +52,12 @@ describe('content', () => {
     for (const l of lessons) {
       expect(hasModel(l.def.model), `${l.def.id} model`).toBe(true);
       for (const r of l.def.requires) expect(ids.has(r), `${l.def.id} requires ${r}`).toBe(true);
+      expect(scenes[l.def.scene], `${l.def.id} scene "${l.def.scene}"`).toBeTruthy();
     }
+  });
+
+  it('no topic id collides with an app route', () => {
+    for (const t of topics) expect(['galeria', 'professor', 'receitas']).not.toContain(t.def.id);
   });
 
   for (const l of lessons) {
