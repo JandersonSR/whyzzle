@@ -1,0 +1,348 @@
+{
+  "id": "k8s-missao-empacotar-api",
+  "order": 7,
+  "track": "fundamentos",
+  "kind": "mission",
+  "minutes": 25,
+  "tags": [
+    "missao",
+    "dockerfile",
+    "seguranca",
+    "multi-stage",
+    "distroless",
+    "cache"
+  ],
+  "requires": [
+    "k8s-imagem-e-camadas",
+    "k8s-dockerfile",
+    "k8s-registro"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "empacotar",
+      "en": "package"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "api-pedidos",
+        "en": "api-pedidos"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "base",
+        "alias": {
+          "pt": "base",
+          "en": "base"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "latest",
+            "pt": "node:latest",
+            "en": "node:latest"
+          },
+          {
+            "id": "full",
+            "pt": "node:24",
+            "en": "node:24"
+          },
+          {
+            "id": "slim",
+            "pt": "node:24-slim",
+            "en": "node:24-slim"
+          },
+          {
+            "id": "distroless",
+            "pt": "distroless",
+            "en": "distroless"
+          }
+        ],
+        "default": "latest",
+        "ui": "select"
+      },
+      {
+        "name": "order",
+        "alias": {
+          "pt": "ordem",
+          "en": "order"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "copyAll",
+            "pt": "copia-tudo",
+            "en": "copy-all"
+          },
+          {
+            "id": "depsFirst",
+            "pt": "deps-primeiro",
+            "en": "deps-first"
+          }
+        ],
+        "default": "copyAll",
+        "ui": "select"
+      },
+      {
+        "name": "user",
+        "alias": {
+          "pt": "usuario",
+          "en": "user"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "root",
+            "pt": "root",
+            "en": "root"
+          },
+          {
+            "id": "nonroot",
+            "pt": "nao-root",
+            "en": "non-root"
+          }
+        ],
+        "default": "root",
+        "ui": "select"
+      },
+      {
+        "name": "secret",
+        "alias": {
+          "pt": "segredo",
+          "en": "secret"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "image",
+            "pt": "imagem",
+            "en": "image"
+          },
+          {
+            "id": "runtime",
+            "pt": "execucao",
+            "en": "runtime"
+          }
+        ],
+        "default": "image",
+        "ui": "select"
+      },
+      {
+        "name": "ignore",
+        "alias": {
+          "pt": "dockerignore",
+          "en": "dockerignore"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "tag",
+        "alias": {
+          "pt": "tag",
+          "en": "tag"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "latest",
+            "pt": "latest",
+            "en": "latest"
+          },
+          {
+            "id": "version",
+            "pt": "1.0.0",
+            "en": "1.0.0"
+          }
+        ],
+        "default": "latest",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "packed"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "baseSize": {
+          "latest": 1100,
+          "full": 1100,
+          "slim": 220,
+          "distroless": 150
+        },
+        "depsMB": 60,
+        "codeMB": 2,
+        "nmMB": 300,
+        "gitMB": 70,
+        "npmS": 84,
+        "fromL": {
+          "latest": "FROM node:latest",
+          "full": "FROM node:24",
+          "slim": "FROM node:24-slim"
+        },
+        "lBuild": "FROM node:24-slim AS build",
+        "lDistroRoot": "FROM gcr.io/distroless/nodejs24-debian13",
+        "lDistroNon": "FROM gcr.io/distroless/nodejs24-debian13:nonroot",
+        "lEnvProd": "ENV NODE_ENV=production",
+        "lSecret": "ENV DB_PASSWORD=marmita123",
+        "lWork": "WORKDIR /app",
+        "lCopyPkg": "COPY package.json package-lock.json ./",
+        "lNpm": "RUN npm ci --omit=dev",
+        "lCopyAll": "COPY . .",
+        "lCopyFrom": "COPY --from=build /app /app",
+        "lUser": "USER node",
+        "lExpose": "EXPOSE 3000",
+        "lCmd": "CMD [\"node\", \"server.js\"]",
+        "lCmdD": "CMD [\"server.js\"]"
+      },
+      "compute": {
+        "isD": "base == 'distroless'",
+        "isDeps": "order == 'depsFirst'",
+        "isRoot": "user == 'root'",
+        "junkMB": "ignore ? 0 : (isD && !isDeps ? gitMB : nmMB + gitMB)",
+        "imgMB": "lookup(baseSize, base, 0) + depsMB + codeMB + junkMB",
+        "ctxMB": "ignore ? 2 : 380",
+        "rebuildS": "round((ignore ? 0.1 : 4) + (isDeps ? 0 : npmS) + 2 + (isD ? 1 : 0), 1)",
+        "secretsN": "(secret == 'image' ? 1 : 0) + (ignore ? 0 : 1)",
+        "tagStr": "tag == 'latest' ? 'latest' : '1.0.0'",
+        "okBase": "base == 'slim' || isD",
+        "okSize": "imgMB <= 300",
+        "okCache": "isDeps",
+        "okUser": "!isRoot",
+        "okSecret": "secretsN == 0",
+        "okPin": "base != 'latest' && tag != 'latest'",
+        "okCount": "(okSize ? 1 : 0) + (okCache ? 1 : 0) + (okUser ? 1 : 0) + (okSecret ? 1 : 0) + (okPin ? 1 : 0)",
+        "allOk": "okCount == 5",
+        "userName": "isRoot ? 'root' : (isD ? 'nonroot' : 'node')",
+        "dfRows": "concat(isD ? [[lBuild, '@eBuild']] : [], !isD ? [[lookup(fromL, base, ''), base == 'latest' ? '@eFromLatest' : (base == 'full' ? '@eFromFull' : '@eFromSlim')]] : [], !isD ? [[lEnvProd, '@eEnvProd']] : [], !isD && secret == 'image' ? [[lSecret, '@eSecret']] : [], [[lWork, '@eWork']], isDeps ? [[lCopyPkg, '@eCopyPkg']] : [], isDeps ? [[lNpm, '@eNpmFirst']] : [], [[lCopyAll, isDeps ? (ignore ? '@eCopyLast' : '@eCopyLastNoIgnore') : (ignore ? '@eCopyFirst' : '@eCopyFirstNoIgnore')]], !isDeps ? [[lNpm, '@eNpmAfter']] : [], isD ? [[isRoot ? lDistroRoot : lDistroNon, isRoot ? '@eDistroRoot' : '@eDistroNon']] : [], isD ? [[lEnvProd, '@eEnvProd']] : [], isD && secret == 'image' ? [[lSecret, '@eSecret']] : [], isD ? [[lWork, '@eWork2']] : [], isD ? [[lCopyFrom, '@eCopyFrom']] : [], !isD && !isRoot ? [[lUser, '@eUser']] : [], !isD && isRoot ? [['@lNoUser', '@eNoUser']] : [], [[lExpose, '@eExpose']], [[isD ? lCmdD : lCmd, isD ? '@eCmdD' : '@eCmd']])",
+        "dfTones": "concat(isD ? ['ok'] : [], !isD ? [base == 'slim' ? 'ok' : 'bad'] : [], !isD ? ['neutral'] : [], !isD && secret == 'image' ? ['bad'] : [], ['neutral'], isDeps ? ['ok'] : [], isDeps ? ['ok'] : [], [isDeps && ignore ? 'ok' : 'bad'], !isDeps ? ['bad'] : [], isD ? [isRoot ? 'bad' : 'ok'] : [], isD ? ['neutral'] : [], isD && secret == 'image' ? ['bad'] : [], isD ? ['neutral'] : [], isD ? ['ok'] : [], !isD && !isRoot ? ['ok'] : [], !isD && isRoot ? ['bad'] : [], ['neutral'], ['neutral'])"
+      },
+      "cases": [
+        {
+          "when": "allOk",
+          "flags": [
+            "packed"
+          ]
+        },
+        {
+          "when": "secretsN > 0",
+          "flags": [
+            "secretLeak"
+          ]
+        },
+        {
+          "when": "!okSize",
+          "flags": [
+            "fatImage"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "imgMB": "imgMB",
+            "rebuildS": "round(rebuildS)",
+            "secretsN": "secretsN",
+            "okCount": "okCount",
+            "tagStr": "tagStr"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "checks",
+          "label": "@checks",
+          "items": [
+            {
+              "label": "@cSize",
+              "ok": "=okSize",
+              "why": "=okBase ? '@cSizeJunk' : '@cSizeBase'"
+            },
+            {
+              "label": "@cCache",
+              "ok": "=okCache",
+              "why": "@cCacheWhy"
+            },
+            {
+              "label": "@cUser",
+              "ok": "=okUser",
+              "why": "=isD ? '@cUserD' : '@cUserN'"
+            },
+            {
+              "label": "@cSecret",
+              "ok": "=okSecret",
+              "why": "=secret == 'image' ? (ignore ? '@cSecEnv' : '@cSecBoth') : '@cSecFile'"
+            },
+            {
+              "label": "@cPin",
+              "ok": "=okPin",
+              "why": "=base == 'latest' ? (tag == 'latest' ? '@cPinBoth' : '@cPinBase') : '@cPinTag'"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@sizeM",
+              "value": "=imgMB",
+              "format": "int",
+              "tone": "=okSize ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@rebuildM",
+              "value": "=rebuildS",
+              "tone": "=okCache ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@secretsM",
+              "value": "=secretsN",
+              "format": "int",
+              "tone": "=okSecret ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@userM",
+              "value": "=userName",
+              "tone": "=okUser ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@dfLabel",
+          "columns": [
+            "@colLine",
+            "@colWhy"
+          ],
+          "rows": "=dfRows",
+          "tones": "=dfTones",
+          "caption": "@dfCap"
+        },
+        {
+          "type": "terminal",
+          "label": "@terminal",
+          "lines": [
+            "='$ docker build -t ' + text + ':' + tagStr + ' .'",
+            "=ignore ? '@tIgnoreOn' : '@tIgnoreOff'",
+            "=okCache ? '@tCacheOk' : '@tCacheBad'",
+            "=isRoot ? '@tRoot' : '@tNonroot'",
+            "=okSecret ? '@tSecOk' : '@tSecBad'",
+            "=okSize ? '@tSizeOk' : '@tSizeBad'",
+            "=okPin ? '@tPinOk' : '@tPinBad'"
+          ]
+        }
+      ]
+    }
+  }
+}

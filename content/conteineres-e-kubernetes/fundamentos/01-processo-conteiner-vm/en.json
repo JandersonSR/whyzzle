@@ -1,0 +1,110 @@
+{
+  "title": "Process vs container vs VM",
+  "subtitle": "Three cooks, one kitchen: share the salt jar, get a food truck each, or build a whole restaurant?",
+  "mission": "Aunt Cida’s Lunchbox Co. has three programs to run on a 16 GB server: api-pedidos (Node 24), painel-antigo (only works on Node 18) and relatorio (Python 3.12). Compare running everything as plain processes, in containers and in virtual machines. Watch how many kernels are running, how much memory goes away and who breaks.",
+  "predict": {
+    "question": "with containers, does each app carry a whole operating system, with its own kernel?",
+    "options": {
+      "ownKernel": "Yes: each container boots its own kernel",
+      "sharedKernel": "No: they all use the machine’s kernel, each with its own files",
+      "noIsolation": "No, and that’s why there’s no isolation at all"
+    }
+  },
+  "feedback": {
+    "right": "right! A container is a regular process, just boxed in: it only sees its own files, processes and network. The kernel is the machine’s, one for everybody. That’s why it starts in seconds and uses little memory.",
+    "wrong": "look at the kernel counter: with containers it stays at 1, however many apps. Each container has its own files (Node 18 in one, Node 24 in the other), but they all use the same kernel. Your own kernel is a VM thing.",
+    "skipped": "no guess? Run it and look at the kernel counter. Then switch to vm and compare."
+  },
+  "coach": {
+    "ui": "guess noted. Run with container, then switch to vm. Compare \"kernels running\".",
+    "cmd": "guess noted. Run host and then host --isolation vm. Compare \"kernels running\"."
+  },
+  "tryNext": {
+    "ui": "Now pick vm with 20 apps: see how many virtual machines fit in 16 GB.",
+    "cmd": "Run host --isolation vm --apps 20 and see how many VMs fit in 16 GB."
+  },
+  "why": {
+    "simples": "Think of Aunt Cida’s kitchen. Plain processes are everyone cooking at the same counter, with the same salt jar: if one cook needs coarse salt and another needs fine salt, there’s a fight. That’s what happened to painel-antigo, which wanted Node 18 on a machine that only has 24.\nA container is giving each cook a closed food truck, with their own spices inside. The trucks are parked on the same street and share the same water and power lines: that street is the kernel. A VM is building a whole restaurant, with its own plumbing, for each cook: lots of isolation, but expensive and slow to open.",
+    "dev": "A container is a Linux process with isolation: namespaces make it see only its own processes, network, mount points and hostname, and cgroups limit CPU and memory. The files it sees come from an image, so each one can have its own Node. There’s no system to boot, so it starts fast and uses little.\nA VM emulates hardware on top of a hypervisor and runs a whole operating system, with its own kernel. On Windows and Mac, Docker Desktop keeps a lightweight Linux VM underneath, and containers run inside it: that’s why Linux images work on those machines.",
+    "especialista": "The price of a shared kernel is the security boundary. A kernel bug or a loose setting (a --privileged container, mounting /var/run/docker.sock inside, running as root without user namespaces) can let a container touch the machine. For code you don’t trust, use stronger isolation: sandboxes like gVisor, microVMs (Firecracker, Kata Containers) or plain VMs.\nThe shared kernel also explains why a Linux image doesn’t run natively on a Windows kernel and why an arm64 image needs emulation on an amd64 machine. What makes the pieces interchangeable is the OCI (Open Container Initiative): the runtime spec describes how to run a container, and runc, the reference implementation, is what containerd uses under Docker and many Kubernetes clusters."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick \"process\" and run the 3 apps with no isolation at all.",
+      "cmd": "time to break it: run host --isolation process"
+    },
+    "success": "Broken: with no isolation, {brokenApps} app(s) that need Node 18 didn’t start, because the shared machine only has Node 24 on the PATH. Same code, same machine: what was missing was each one bringing its own kitchen.",
+    "calm": "{running} app(s) up with {kernels} kernel(s) and {usedMB} MB of memory used. To break it, run everything as a plain process, with no isolation."
+  },
+  "hints": {
+    "ui": [
+      "Pick the isolation and how many apps to host; the scene updates by itself.",
+      "With no isolation, the apps share the same Node installed on the machine.",
+      "Pick \"process\" with 3 apps."
+    ],
+    "cmd": [
+      "The server name goes in quotes; --isolation and --apps are optional.",
+      "--isolation takes container, process or vm.",
+      "host --isolation process"
+    ]
+  },
+  "errors": {
+    "notInEnum.isolation": "Use container, process or vm.",
+    "belowMin.apps": "At least 1 app, or the server just heats the room.",
+    "aboveMax.apps": "Up to 20 apps in this simulation: Aunt Cida has a single server."
+  },
+  "controls": {
+    "arg": "Server name",
+    "isolation": "Isolation",
+    "apps": "How many apps"
+  },
+  "scene": {
+    "label": "One server, three programs",
+    "empty": "Run to switch the server on.",
+    "kernelsM": "kernels running",
+    "ramM": "memory used (MB, out of 16,384)",
+    "bootM": "seconds to start each app",
+    "brokenM": "apps that won’t start",
+    "clusterLabel": "The server and its apps (simulated)",
+    "stVm": "{kernels} VMs, {kernels} kernels",
+    "stProc": "1 kernel, everything on one counter",
+    "stCtr": "1 kernel, each app in its own container",
+    "termProc": "Server terminal (no isolation)",
+    "termCtr": "Terminal: each container brings its own Node",
+    "termVm": "With virtual machines",
+    "clashLine": "! painel-antigo needs Node 18, but the machine has 24 on the PATH",
+    "soloLine": "+ a single app: no version fight (for now)",
+    "vmLine1": "~ each VM boots its own system: {kernels} kernels for {running} app(s) up",
+    "vmLine2": "? 1,224 MB per app, of which 1,024 MB is the guest system",
+    "tableLabel": "The three options side by side",
+    "colAspect": "aspect",
+    "colProc": "process",
+    "colCtr": "container",
+    "colVm": "VM",
+    "rKernel": "own kernel",
+    "rFiles": "separate files and versions",
+    "rBoot": "time to start",
+    "rRam": "extra memory per app",
+    "yes": "yes",
+    "no": "no",
+    "bootProc": "0.1 s",
+    "bootCtr": "~1 s",
+    "bootVm": "~40 s",
+    "ramVm": "1,024 MB",
+    "tableCap": "Simulation numbers, to compare orders of magnitude; in real life they depend on the machine and the image.",
+    "clashNote": "{brokenApps} app(s) on Node 18 won’t start: on the shared counter there’s only one Node on the PATH, and it’s 24. The classic “works on my machine”.",
+    "roomNote": "It doesn’t fit: each VM carries a whole system on top of the app. This machine fits {maxApps} VMs; the rest are left waiting.",
+    "ctrNote": "{running} app(s), each with its own Node, sharing 1 kernel. Each container cost only 10 MB more than the bare app.",
+    "vmNote": "Maximum isolation, but each app pays for a whole system: {kernels} kernels running and about 40 s to start each one."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Install Docker (Docker Desktop on Windows or Mac, Docker Engine on Linux) and run:\ndocker run --rm alpine:3.20 cat /etc/os-release\nIt shows Alpine Linux, whatever your machine runs: the files the container sees are the image’s.",
+      "Compare the kernel inside and outside:\ndocker run --rm alpine:3.20 uname -r\nOn Linux, also run uname -r in your terminal: both match. On Docker Desktop (Windows or Mac) you see the kernel of the lightweight Linux VM it keeps underneath, not your system’s.",
+      "Start a container that just sleeps and look at the process from inside and outside:\ndocker run -d --name dorminhoco alpine:3.20 sleep 300\ndocker exec dorminhoco ps\ndocker top dorminhoco",
+      "Clean the counter: docker rm -f dorminhoco"
+    ],
+    "ok": "inside the container, ps shows sleep 300 as PID 1; docker top shows the same process as the machine sees it; and uname -r gives the same kernel inside and out (on Linux). It’s an isolated process, not a new computer."
+  }
+}

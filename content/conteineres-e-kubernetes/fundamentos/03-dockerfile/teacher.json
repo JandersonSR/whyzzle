@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Ler um Dockerfile linha a linha.",
+      "Ordenar instruções para aproveitar o cache.",
+      "Usar .dockerignore para encolher o contexto."
+    ],
+    "minutes": 20,
+    "activity": "Receita embaralhada: cada grupo recebe as seis linhas do Dockerfile em tiras de papel e precisa ordená-las para que mudar o código seja rápido. Depois, o professor \"muda\" uma linha e os grupos riscam os passos que precisariam rodar de novo.",
+    "discussion": [
+      "Que outro passo lento do seu projeto mereceria ficar mais em cima no Dockerfile?",
+      "O que mais você colocaria no .dockerignore?"
+    ],
+    "misconceptions": [
+      "\"O Docker sabe que o npm ci não mudou.\" Ele só sabe que a camada de baixo mudou; a ordem das linhas é que protege o cache.",
+      "\"O .dockerignore é só para deixar o build rápido.\" Ele também impede que .env e .git entrem na imagem."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Read a Dockerfile line by line.",
+      "Order instructions to take advantage of the cache.",
+      "Use .dockerignore to shrink the context."
+    ],
+    "minutes": 20,
+    "activity": "Shuffled recipe: each group gets the six Dockerfile lines on paper strips and must order them so changing the code is fast. Then the teacher \"changes\" a line and the groups cross out the steps that would have to run again.",
+    "discussion": [
+      "What other slow step in your project deserves to move up in the Dockerfile?",
+      "What else would you put in .dockerignore?"
+    ],
+    "misconceptions": [
+      "\"Docker knows npm ci didn’t change.\" It only knows the layer below changed; the line order is what protects the cache.",
+      "\"The .dockerignore is only about build speed.\" It also keeps .env and .git out of the image."
+    ]
+  }
+}

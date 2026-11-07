@@ -1,0 +1,526 @@
+{
+  "id": "k8s-processo-conteiner-vm",
+  "order": 1,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "conteiner",
+    "vm",
+    "processo",
+    "kernel",
+    "isolamento"
+  ],
+  "requires": [],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "hospedar",
+      "en": "host"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "servidor-da-cozinha",
+        "en": "kitchen-server"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "isolation",
+        "alias": {
+          "pt": "isolamento",
+          "en": "isolation"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "container",
+            "pt": "conteiner",
+            "en": "container"
+          },
+          {
+            "id": "process",
+            "pt": "processo",
+            "en": "process"
+          },
+          {
+            "id": "vm",
+            "pt": "vm",
+            "en": "vm"
+          }
+        ],
+        "default": "container",
+        "ui": "select"
+      },
+      {
+        "name": "apps",
+        "alias": {
+          "pt": "apps",
+          "en": "apps"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 20,
+        "default": 3,
+        "ui": "slider"
+      }
+    ]
+  },
+  "break": {
+    "flag": "versionClash"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "hostMB": 16384,
+        "hostOsMB": 2048,
+        "appMB": 200,
+        "overheadMB": {
+          "process": 0,
+          "container": 10,
+          "vm": 1024
+        },
+        "startSec": {
+          "process": 0.1,
+          "container": 1,
+          "vm": 40
+        },
+        "podsOk": [
+          {
+            "name": "api-pedidos · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo · Node 18",
+            "status": "Running"
+          },
+          {
+            "name": "relatorio · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-2 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-2 · Node 18",
+            "status": "Running"
+          },
+          {
+            "name": "relatorio-2 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-3 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-3 · Node 18",
+            "status": "Running"
+          },
+          {
+            "name": "relatorio-3 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-4 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-4 · Node 18",
+            "status": "Running"
+          },
+          {
+            "name": "relatorio-4 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-5 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-5 · Node 18",
+            "status": "Running"
+          },
+          {
+            "name": "relatorio-5 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-6 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-6 · Node 18",
+            "status": "Running"
+          },
+          {
+            "name": "relatorio-6 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-7 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-7 · Node 18",
+            "status": "Running"
+          }
+        ],
+        "podsClash": [
+          {
+            "name": "api-pedidos · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo · Node 18",
+            "status": "Error"
+          },
+          {
+            "name": "relatorio · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-2 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-2 · Node 18",
+            "status": "Error"
+          },
+          {
+            "name": "relatorio-2 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-3 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-3 · Node 18",
+            "status": "Error"
+          },
+          {
+            "name": "relatorio-3 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-4 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-4 · Node 18",
+            "status": "Error"
+          },
+          {
+            "name": "relatorio-4 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-5 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-5 · Node 18",
+            "status": "Error"
+          },
+          {
+            "name": "relatorio-5 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-6 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-6 · Node 18",
+            "status": "Error"
+          },
+          {
+            "name": "relatorio-6 · Python 3.12",
+            "status": "Running"
+          },
+          {
+            "name": "api-pedidos-7 · Node 24",
+            "status": "Running"
+          },
+          {
+            "name": "painel-antigo-7 · Node 18",
+            "status": "Error"
+          }
+        ],
+        "podsWait": [
+          {
+            "name": "api-pedidos · Node 24",
+            "status": "Pending"
+          },
+          {
+            "name": "painel-antigo · Node 18",
+            "status": "Pending"
+          },
+          {
+            "name": "relatorio · Python 3.12",
+            "status": "Pending"
+          },
+          {
+            "name": "api-pedidos-2 · Node 24",
+            "status": "Pending"
+          },
+          {
+            "name": "painel-antigo-2 · Node 18",
+            "status": "Pending"
+          },
+          {
+            "name": "relatorio-2 · Python 3.12",
+            "status": "Pending"
+          },
+          {
+            "name": "api-pedidos-3 · Node 24",
+            "status": "Pending"
+          },
+          {
+            "name": "painel-antigo-3 · Node 18",
+            "status": "Pending"
+          },
+          {
+            "name": "relatorio-3 · Python 3.12",
+            "status": "Pending"
+          },
+          {
+            "name": "api-pedidos-4 · Node 24",
+            "status": "Pending"
+          },
+          {
+            "name": "painel-antigo-4 · Node 18",
+            "status": "Pending"
+          },
+          {
+            "name": "relatorio-4 · Python 3.12",
+            "status": "Pending"
+          },
+          {
+            "name": "api-pedidos-5 · Node 24",
+            "status": "Pending"
+          },
+          {
+            "name": "painel-antigo-5 · Node 18",
+            "status": "Pending"
+          },
+          {
+            "name": "relatorio-5 · Python 3.12",
+            "status": "Pending"
+          },
+          {
+            "name": "api-pedidos-6 · Node 24",
+            "status": "Pending"
+          },
+          {
+            "name": "painel-antigo-6 · Node 18",
+            "status": "Pending"
+          },
+          {
+            "name": "relatorio-6 · Python 3.12",
+            "status": "Pending"
+          },
+          {
+            "name": "api-pedidos-7 · Node 24",
+            "status": "Pending"
+          },
+          {
+            "name": "painel-antigo-7 · Node 18",
+            "status": "Pending"
+          }
+        ]
+      },
+      "compute": {
+        "isProc": "isolation == 'process'",
+        "isVm": "isolation == 'vm'",
+        "ovh": "lookup(overheadMB, isolation, 0)",
+        "perApp": "appMB + ovh",
+        "maxApps": "floor((hostMB - hostOsMB) / perApp)",
+        "fits": "apps <= maxApps",
+        "upApps": "min(apps, maxApps)",
+        "kernels": "isVm ? upApps : 1",
+        "usedMB": "hostOsMB + upApps * perApp",
+        "startS": "lookup(startSec, isolation, 0)",
+        "clash": "isProc && apps >= 2",
+        "brokenApps": "clash ? floor((apps + 1) / 3) : 0",
+        "running": "upApps - brokenApps",
+        "pods": "slice(concat(slice(clash ? podsClash : podsOk, 0, upApps), slice(podsWait, upApps, apps)), 0, 12)"
+      },
+      "cases": [
+        {
+          "when": "clash",
+          "flags": [
+            "versionClash"
+          ]
+        },
+        {
+          "when": "!fits",
+          "flags": [
+            "noRoom"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "kernels": "kernels",
+            "usedMB": "usedMB",
+            "brokenApps": "brokenApps",
+            "maxApps": "maxApps",
+            "running": "running"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@kernelsM",
+              "value": "=kernels",
+              "format": "int",
+              "tone": "=isVm ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@ramM",
+              "value": "=usedMB",
+              "format": "int",
+              "tone": "=fits ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@bootM",
+              "value": "=startS",
+              "tone": "=isVm ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@brokenM",
+              "value": "=brokenApps",
+              "format": "int",
+              "tone": "=brokenApps > 0 ? 'bad' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "cluster",
+          "label": "@clusterLabel",
+          "nodes": [
+            {
+              "name": "=text",
+              "status": "=isVm ? '@stVm' : (isProc ? '@stProc' : '@stCtr')",
+              "tone": "=fits ? (clash ? 'warn' : 'ok') : 'bad'",
+              "pods": "=pods"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "when": "=isProc",
+          "label": "@termProc",
+          "lines": [
+            "$ node -p \"process.versions.node.split('.')[0]\"",
+            "24",
+            "=clash ? '@clashLine' : '@soloLine'"
+          ]
+        },
+        {
+          "type": "terminal",
+          "when": "=isolation == 'container'",
+          "label": "@termCtr",
+          "lines": [
+            "$ docker run --rm node:18-alpine node -p \"process.versions.node.split('.')[0]\"",
+            "18",
+            "$ docker run --rm node:24-alpine node -p \"process.versions.node.split('.')[0]\"",
+            "24"
+          ]
+        },
+        {
+          "type": "terminal",
+          "when": "=isVm",
+          "label": "@termVm",
+          "lines": [
+            "@vmLine1",
+            "@vmLine2"
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@colAspect",
+            "@colProc",
+            "@colCtr",
+            "@colVm"
+          ],
+          "rows": [
+            [
+              "@rKernel",
+              "@no",
+              "@no",
+              "@yes"
+            ],
+            [
+              "@rFiles",
+              "@no",
+              "@yes",
+              "@yes"
+            ],
+            [
+              "@rBoot",
+              "@bootProc",
+              "@bootCtr",
+              "@bootVm"
+            ],
+            [
+              "@rRam",
+              "0 MB",
+              "10 MB",
+              "@ramVm"
+            ]
+          ],
+          "caption": "@tableCap"
+        },
+        {
+          "type": "note",
+          "when": "=clash",
+          "tone": "bad",
+          "text": "@clashNote"
+        },
+        {
+          "type": "note",
+          "when": "=!fits",
+          "tone": "bad",
+          "text": "@roomNote"
+        },
+        {
+          "type": "note",
+          "when": "=isolation == 'container'",
+          "tone": "ok",
+          "text": "@ctrNote"
+        },
+        {
+          "type": "note",
+          "when": "=isVm && fits",
+          "tone": "info",
+          "text": "@vmNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "ownKernel",
+      "sharedKernel",
+      "noIsolation"
+    ],
+    "answer": "sharedKernel"
+  }
+}

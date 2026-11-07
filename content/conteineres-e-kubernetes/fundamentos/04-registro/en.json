@@ -1,0 +1,112 @@
+{
+  "title": "Registry",
+  "subtitle": "The kitchen’s central freezer: a pencil label vs a fingerprint",
+  "mission": "On Monday, Aunt Cida pushed api-pedidos 1.4 to the registry, and server A pulled it. On Tuesday, a teammate pushed 1.5 (and the latest tag moved with it). On Wednesday, server B is born and pulls the same reference A used. Compare deploying by version tag, by latest and by digest; and see what happens if someone re-pushes the 1.4 tag over the old one.",
+  "predict": {
+    "question": "server A pulled api-pedidos:1.4 on Monday. On Wednesday, B pulls api-pedidos:1.4 too, after the teammate pushed 1.5. What does B run?",
+    "options": {
+      "v14": "1.4, same as A",
+      "v15": "1.5, the newest",
+      "error": "An error: 1.4 is stale"
+    }
+  },
+  "feedback": {
+    "right": "right: pushing 1.5 doesn’t touch the 1.4 label, which still points to the same content. As long as nobody re-pushes over it… which, spoiler, is possible.",
+    "wrong": "it’s 1.4. Each tag is a separate label: pushing 1.5 moves latest, but not 1.4. Both servers run the same digest.",
+    "skipped": "no guess? Run it and compare both servers’ digests."
+  },
+  "coach": {
+    "ui": "guess noted. Run with the version tag, then switch to latest. Compare both servers’ versions.",
+    "cmd": "guess noted. Run deploy and compare the versions on servers A and B."
+  },
+  "tryNext": {
+    "ui": "Turn on \"a teammate re-pushed 1.4\": even a version tag is just a label. Then switch the reference to digest with the re-push still on.",
+    "cmd": "Run deploy --overwritten yes (even a version tag is just a label) and then deploy --ref digest --overwritten yes."
+  },
+  "why": {
+    "simples": "The registry is the kitchen’s central freezer: you store lunchboxes there and any branch picks them up. The label (tag) is written in pencil: “lasagna of the week” is one today and another next week, and someone can erase it and write again. The digest is the lunchbox’s fingerprint: if the content is different, the fingerprint is different.\nlatest is nothing magical: it’s just a label people usually stick on the newest lunchbox. Asking for “latest” means asking for “whichever has that label right now”.",
+    "dev": "An image’s full name: registry/path/repository:tag, like ghcr.io/escola/api-pedidos:1.4. With no registry in the name, Docker uses Docker Hub (docker.io), and official images live under library/: node:24-slim is docker.io/library/node:24-slim. On GHCR the name is ghcr.io/OWNER/IMAGE, and login uses a personal token (docker login ghcr.io). On ACR the name uses the registry’s login server (something like myregistry.azurecr.io; az acr create shows the exact loginServer), and login is az acr login --name myregistry.\nA tag is a pointer that can move: docker push with an existing tag moves the pointer. A digest (sha256:…) is the manifest’s hash and never changes: name@sha256:… always brings exactly the same image.",
+    "especialista": "In production: push tags that never repeat (semantic version or the commit SHA), never reuse a version tag and deploy by digest. Several registries let you lock tags against overwrites (on ACR, by locking the image; on ECR, with immutable tags). latest is for experimenting, not deploying; in Kubernetes it also flips the imagePullPolicy default to Always.\nA tag can point to a multi-platform index (amd64 and arm64), and the index digest differs from each manifest’s digest. The registry is also a security surface: sign images (cosign, Notation), generate an SBOM, scan for vulnerabilities and use machine credentials (managed identity on Azure, GITHUB_TOKEN in Actions) instead of personal passwords."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: deploy by the latest tag.",
+      "cmd": "time to break it: run deploy --ref latest"
+    },
+    "success": "Broken: both servers asked for {fullRef}, but A runs {a} and B runs {b}. A label that moves doesn’t guarantee everyone runs the same code, and the bug that only shows up “on some servers” is born like this.",
+    "calm": "A and B run {b}, asking for {fullRef}. To break it, deploy by the latest tag."
+  },
+  "hints": {
+    "ui": [
+      "Pick the reference, the registry and whether someone re-pushed 1.4; the table shows where each tag points.",
+      "A tag that moves makes the new server pull something else.",
+      "Pick the latest reference."
+    ],
+    "cmd": [
+      "The repository goes in quotes; --ref, --registry and --overwritten are optional.",
+      "--ref takes version, latest or digest.",
+      "deploy --ref latest"
+    ]
+  },
+  "errors": {
+    "notInEnum.ref": "Use version, latest or digest.",
+    "notInEnum.registry": "Use ghcr, dockerhub, acr or local.",
+    "notBool.overwrite": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Repository",
+    "ref": "How the server asks for the image",
+    "registry": "Registry",
+    "overwrite": "A teammate re-pushed the 1.4 tag on Tuesday"
+  },
+  "scene": {
+    "label": "Monday, Tuesday and Wednesday at the registry",
+    "empty": "Run to deploy.",
+    "aM": "version on server A (Monday)",
+    "bM": "version on server B (Wednesday)",
+    "sameM": "same code on both?",
+    "yes": "yes",
+    "no": "no",
+    "clusterLabel": "Servers and the digest each one runs",
+    "srvA": "server-a",
+    "srvB": "server-b",
+    "pulledMon": "pulled on Monday",
+    "pulledWed": "pulled on Wednesday",
+    "tableLabel": "Where each tag points (digest prefix)",
+    "colWhen": "when",
+    "colEvent": "what happened",
+    "mon": "Monday",
+    "tue": "Tuesday",
+    "evMon": "push of 1.4 (and latest)",
+    "evTue": "push of 1.5 (and latest)",
+    "evTueOver": "push of 1.5, latest and a rebuilt 1.4 over the old one",
+    "tableCap": "Simulated digests. A tag is a pointer; the digest is the content.",
+    "termLabel": "Server B terminal (simulated)",
+    "driftLatest": "latest moved from 1.4 to 1.5 on Tuesday. A runs {a}, B runs {b}: same name, different code.",
+    "driftOver": "Someone re-pushed 1.4 over the old one. A runs {a}, B runs {b}: even a version tag is just a pencil label.",
+    "pinNote": "Asking by digest, B runs exactly what A runs, whatever happens to the labels.",
+    "versionNote": "The 1.4 tag stayed put and both run {b}. It works as long as nobody re-pushes the same tag."
+  },
+  "data": {
+    "verNames": {
+      "A": "1.4",
+      "B": "1.4 (rebuilt)",
+      "C": "1.5"
+    },
+    "logins": {
+      "ghcr": "echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin",
+      "hub": "docker login",
+      "acr": "az acr login --name escola",
+      "local": "docker run -d -p 5000:5000 --name registry registry:3"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Start a local study registry (no TLS, for your machine only):\ndocker run -d -p 5000:5000 --name registry registry:3\nOn macOS port 5000 may be taken by AirPlay; in that case use -p 5001:5000 and replace localhost:5000 with localhost:5001 in the next steps.",
+      "Give lesson 3’s image a name with an address and push it (the last push line shows the digest, sha256:…):\ndocker tag api-pedidos:1.0 localhost:5000/api-pedidos:1.0\ndocker push localhost:5000/api-pedidos:1.0",
+      "Ask the registry what it stores; it’s an HTTP API:\ncurl http://localhost:5000/v2/_catalog\ncurl http://localhost:5000/v2/api-pedidos/tags/list",
+      "Delete the local label and pull by the digest from step 2:\ndocker image rm localhost:5000/api-pedidos:1.0\ndocker pull localhost:5000/api-pedidos@sha256:PASTE_THE_DIGEST_HERE\ndocker image ls --digests localhost:5000/api-pedidos"
+    ],
+    "ok": "_catalog lists api-pedidos, the tag list shows 1.0, the pull by digest finishes without errors and docker image ls --digests shows the same sha256 that appeared on push."
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "title": "Dockerfile",
+  "subtitle": "The recipe card: the slow beans first, today’s seasoning last",
+  "mission": "api-pedidos has a six-line Dockerfile. Installing dependencies (npm ci) takes 84 seconds; copying the code, 1. Change the code, the dependencies or nothing, swap the order of the lines and turn the .dockerignore on or off. Find out how many steps Docker reuses from cache and how long each build takes.",
+  "predict": {
+    "question": "in the right order (dependencies first), you changed one line of server.js. How long does the new build take?",
+    "options": {
+      "full": "About 86 s: the whole build again",
+      "fast": "About 2 s: only the code COPY runs again",
+      "zero": "0 s: Docker doesn’t need to run anything"
+    }
+  },
+  "feedback": {
+    "right": "right! COPY package.json package-lock.json ./ didn’t change, so RUN npm ci stays CACHED too. Only COPY . . runs again, because server.js changed.",
+    "wrong": "look at the table: WORKDIR, the package.json copy and npm ci show as CACHED. Only COPY . . runs, and the build takes about 2 seconds.",
+    "skipped": "no guess? Run it and count the CACHED lines in the terminal."
+  },
+  "coach": {
+    "ui": "guess noted. Run with deps-first, then copy-all. Compare \"build seconds\".",
+    "cmd": "guess noted. Run build and then build --order copy-all. Compare \"build seconds\"."
+  },
+  "tryNext": {
+    "ui": "Now change the dependencies in the right order (then npm ci really has to run) and then turn off the .dockerignore to see the context swell.",
+    "cmd": "Run build --changed deps (then npm ci really has to run) and then build --dockerignore no to see the context swell."
+  },
+  "why": {
+    "simples": "The Dockerfile is the lunchbox recipe card, read top to bottom, and Docker keeps the result of each step. If a step didn’t change and nothing before it changed, it reuses what’s already done: that’s the cache.\nGolden kitchen rule: what’s slow and rarely changes goes first (cooking the beans is installing dependencies); what changes all the time goes last (today’s seasoning is your code). If you mix in the seasoning before cooking the beans, every seasoning change forces you to cook all the beans again.",
+    "dev": "The lines: FROM picks the base; WORKDIR sets the working folder; COPY brings files from the context; RUN executes a command and stores the result in a layer; CMD says what to run when the container starts. The cache works per instruction: a RUN is invalidated when the command text changes; COPY and ADD, when the copied files change (content or properties such as permissions). Once a layer is invalidated, all following ones are too.\nHence the Node pattern: COPY package.json package-lock.json ./, then RUN npm ci --omit=dev, then COPY . .: dependencies only reinstall when the lock file changes. The .dockerignore keeps out of the context what shouldn’t go to the builder (node_modules, .git, .env): the build gets faster and you don’t carry junk or secrets inside. Prefer CMD in JSON form, [\"node\", \"server.js\"], so the process gets system signals directly.",
+    "especialista": "With BuildKit, the default builder in current Docker, you can go further: cache mounts (RUN --mount=type=cache,target=/root/.npm npm ci) keep npm’s cache between builds even when the layer is rebuilt; secret mounts (RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci) use a token without writing it into the image; multi-stage builds separate the stage that compiles from the stage that runs.\nIn CI, the local cache disappears with every fresh machine: export and import the cache (docker buildx --cache-to and --cache-from, stored in the registry or in the GitHub Actions cache). And, for repeatable builds, pin the base by digest (FROM node:24-slim@sha256:…) with a tool like Renovate or Dependabot opening update PRs."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch the order to copy-all, changing only the code.",
+      "cmd": "time to break it: run build --order copy-all"
+    },
+    "success": "Broken: with COPY . . before npm ci, changing one line of code made {reran} steps run again and the build took {secs} s, almost all of it reinstalling dependencies that didn’t even change.",
+    "calm": "Build in {secs} s, with {reran} step(s) redone. To break it, copy everything before installing the dependencies."
+  },
+  "hints": {
+    "ui": [
+      "Pick the order, what changed and whether there’s a .dockerignore; the table marks what came from cache.",
+      "If COPY . . comes before npm ci, any code change invalidates npm ci.",
+      "Pick the copy-all order, changing only the code."
+    ],
+    "cmd": [
+      "The tag goes in quotes; --order, --changed and --dockerignore are optional.",
+      "--order takes deps-first or copy-all.",
+      "build --order copy-all"
+    ]
+  },
+  "errors": {
+    "notInEnum.order": "Use deps-first or copy-all.",
+    "notInEnum.changed": "Use code, deps or nothing.",
+    "notBool.ignore": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Image tag",
+    "order": "Line order",
+    "changed": "What changed since the last build",
+    "ignore": "Has a .dockerignore?"
+  },
+  "scene": {
+    "label": "The api-pedidos build",
+    "empty": "Run to build the image.",
+    "secsM": "build seconds",
+    "reranM": "steps redone",
+    "ctxM": "context sent to the builder (MB)",
+    "tableLabel": "Dockerfile, line by line",
+    "colInstr": "instruction",
+    "colStatus": "in this build",
+    "colTime": "seconds",
+    "stBase": "base already pulled",
+    "stCached": "CACHED: reused",
+    "stRan": "ran again",
+    "stMeta": "metadata only",
+    "tableCap": "Simulated times. The first build, with no cache, would take about 86 s.",
+    "termLabel": "docker build output (simulated)",
+    "bustNote": "COPY . . comes before npm ci: changing one line of server.js invalidated the cache and npm ci ran again for 84 s, to install exactly the same dependencies.",
+    "ctxNote": "Without .dockerignore, {ctxMB} MB (node_modules and .git) travel to the builder on every build, and COPY . . carries your machine’s node_modules into the image, on top of what npm ci installed.",
+    "depsNote": "package-lock.json changed: now npm ci really has to run. The cache pays off when you change code, not dependencies.",
+    "okNote": "{reran} step(s) redone and {secs} s of build. The dependencies stayed cached, as they should."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Create an api-pedidos folder with this server.js:\nconst express = require(\"express\");\nconst app = express();\napp.get(\"/\", (req, res) => res.send(\"Hello from the lunchbox kitchen!\\n\"));\napp.listen(3000, () => console.log(\"listening on port 3000\"));",
+      "Generate package.json and package-lock.json with Express. With Node installed:\nnpm init -y && npm install express\nWithout Node, use a container (bash, zsh or PowerShell):\ndocker run --rm -v \"${PWD}:/app\" -w /app node:24-slim sh -c \"npm init -y && npm install express\"",
+      "Create the Dockerfile:\nFROM node:24-slim\nWORKDIR /app\nCOPY package.json package-lock.json ./\nRUN npm ci --omit=dev\nCOPY . .\nCMD [\"node\", \"server.js\"]\nAnd the .dockerignore:\nnode_modules\n.git",
+      "Build, run and test:\ndocker build -t api-pedidos:1.0 .\ndocker run -d --name api -p 3000:3000 api-pedidos:1.0\ncurl http://localhost:3000\n(or open the address in a browser). Then: docker rm -f api",
+      "Change the response text in server.js and run again:\ndocker build -t api-pedidos:1.0 ."
+    ],
+    "ok": "curl answers with the kitchen’s message, and in the second build the WORKDIR, package.json copy and RUN npm ci lines show as CACHED: only COPY . . runs again."
+  }
+}

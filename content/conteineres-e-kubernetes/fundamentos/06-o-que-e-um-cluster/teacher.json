@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Nomear os componentes do control plane e dos nós.",
+      "Seguir um pedido do kubectl até o contêiner rodando.",
+      "Prever o que para (e o que não para) quando um componente cai."
+    ],
+    "minutes": 20,
+    "activity": "Escritório da marmitaria: distribua papéis (recepção = apiserver, caderno = etcd, supervisor = controller-manager, despachante = scheduler, chefes de cozinha = kubelets). Um aluno pede \"mais 2 marmitas\". Rodem a cena; depois tirem um papel de cada vez e vejam onde o pedido empaca.",
+    "discussion": [
+      "Por que só o apiserver pode falar com o etcd?",
+      "O que deveria ser monitorado no control plane para descobrir problemas antes dos usuários?"
+    ],
+    "misconceptions": [
+      "\"Se o control plane cai, os apps caem.\" Os contêineres que já rodam continuam; param só as mudanças.",
+      "\"O kubectl liga os contêineres.\" Ele só conversa com o apiserver; quem liga é o kubelet de cada nó."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Name the control-plane and node components.",
+      "Follow a request from kubectl to a running container.",
+      "Predict what stops (and what doesn’t) when a component goes down."
+    ],
+    "minutes": 20,
+    "activity": "Lunchbox office: hand out roles (front desk = apiserver, notebook = etcd, supervisor = controller-manager, dispatcher = scheduler, head cooks = kubelets). A student asks for \"2 more lunchboxes\". Play the scene; then remove one role at a time and see where the request gets stuck.",
+    "discussion": [
+      "Why may only the apiserver talk to etcd?",
+      "What should be monitored on the control plane to find problems before users do?"
+    ],
+    "misconceptions": [
+      "\"If the control plane goes down, the apps go down.\" Containers already running keep going; only changes stop.",
+      "\"kubectl starts the containers.\" It only talks to the apiserver; each node’s kubelet starts them."
+    ]
+  }
+}

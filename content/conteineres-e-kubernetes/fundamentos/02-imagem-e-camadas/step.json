@@ -1,0 +1,255 @@
+{
+  "id": "k8s-imagem-e-camadas",
+  "order": 2,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "imagem",
+    "camadas",
+    "oci",
+    "docker-pull",
+    "cache"
+  ],
+  "requires": [
+    "k8s-processo-conteiner-vm"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "puxar",
+      "en": "pull"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "localhost:5000/api-pedidos:1.1",
+        "en": "localhost:5000/api-pedidos:1.1"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "changed",
+        "alias": {
+          "pt": "mudou",
+          "en": "changed"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "code",
+            "pt": "codigo",
+            "en": "code"
+          },
+          {
+            "id": "deps",
+            "pt": "dependencias",
+            "en": "deps"
+          },
+          {
+            "id": "base",
+            "pt": "base",
+            "en": "base"
+          }
+        ],
+        "default": "code",
+        "ui": "select"
+      },
+      {
+        "name": "cleanup",
+        "alias": {
+          "pt": "limpeza",
+          "en": "cleanup"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "same",
+            "pt": "mesmo-run",
+            "en": "same-run"
+          },
+          {
+            "id": "separate",
+            "pt": "run-separado",
+            "en": "separate-run"
+          }
+        ],
+        "default": "same",
+        "ui": "select"
+      },
+      {
+        "name": "apps",
+        "alias": {
+          "pt": "apps",
+          "en": "apps"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 10,
+        "default": 3,
+        "ui": "slider"
+      }
+    ]
+  },
+  "break": {
+    "flag": "ghostBytes"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "baseMB": 75,
+        "runtimeMB": 45,
+        "depsMB": 60,
+        "toolsMB": 180,
+        "codeMB": 2,
+        "iFrom": "FROM node:24-slim",
+        "iDepsGood": "RUN apt-get install … && npm ci && apt-get purge …",
+        "iDepsBad": "RUN apt-get install … && npm ci",
+        "iRm": "RUN apt-get purge …",
+        "iCode": "COPY . .",
+        "ids": [
+          "3f8a1c2b9d04",
+          "a71e5d0c6b13",
+          "5c2d9e8f7a60",
+          "e94b0a3d1f27",
+          "0d6c4b8e2a95"
+        ],
+        "digests": {
+          "code-same": "987e019f23c8aaa1bb78a30f6a590e54a1664e13e4c1eac0010fc351bdd5fade",
+          "code-separate": "3aeb2ddb3735920269f41a4b790eca74b079bc12a530dd89e11b0e237d173529",
+          "deps-same": "75bfb6ea7a8f039d737301182a5718b8327bd1e0196c6cf227d0cdb0eb7c6b84",
+          "deps-separate": "710e829295527c26cfd4a8d41532ba24973833e07188aa61deffcb0c82be03b5",
+          "base-same": "05dfbf45a67f9633c669cc49fb959efa20df57cec049a1d499a35575b8aa6b38",
+          "base-separate": "4f99736f2b0f11641a77ef7482db7301f25bde8cb37231120f1ebbfc838b89f1"
+        }
+      },
+      "compute": {
+        "bad": "cleanup == 'separate'",
+        "depsLayer": "bad ? depsMB + toolsMB : depsMB",
+        "imageMB": "baseMB + runtimeMB + depsLayer + codeMB",
+        "pullMB": "changed == 'code' ? codeMB : (changed == 'deps' ? depsLayer + codeMB : imageMB)",
+        "layersN": "bad ? 5 : 4",
+        "newLayers": "changed == 'code' ? 1 : (changed == 'deps' ? (bad ? 3 : 2) : layersN)",
+        "diskMB": "baseMB + runtimeMB + apps * (depsLayer + codeMB)",
+        "naiveMB": "apps * imageMB",
+        "savedMB": "naiveMB - diskMB",
+        "stBase": "changed == 'base' ? 'Pull complete' : 'Already exists'",
+        "stDeps": "changed == 'code' ? 'Already exists' : 'Pull complete'",
+        "tBase": "changed == 'base' ? 'info' : 'dim'",
+        "tDeps": "changed == 'code' ? 'dim' : 'info'",
+        "mark": "changed == 'base' ? '+' : '~'",
+        "markD": "changed == 'code' ? '~' : '+'",
+        "rows": "concat([[1, '@lOs', iFrom, baseMB + ' MB', stBase]], [[2, '@lRt', iFrom, runtimeMB + ' MB', stBase]], [[3, '@lDeps', bad ? iDepsBad : iDepsGood, depsLayer + ' MB', stDeps]], bad ? [[4, '@lRm', iRm, '0 MB', stDeps]] : [], [[layersN, '@lCode', iCode, codeMB + ' MB', 'Pull complete']])",
+        "tones": "concat([tBase, tBase], [bad ? 'bad' : tDeps], bad ? ['warn'] : [], ['info'])",
+        "pullLines": "concat(['$ docker pull ' + text], [mark + ids[0] + ': ' + stBase, mark + ids[1] + ': ' + stBase, markD + ids[2] + ': ' + stDeps], bad ? [markD + ids[3] + ': ' + stDeps] : [], ['+' + ids[4] + ': Pull complete', 'Digest: sha256:' + lookup(digests, changed + '-' + cleanup, ''), 'Status: Downloaded newer image for ' + text])"
+      },
+      "cases": [
+        {
+          "when": "bad",
+          "flags": [
+            "ghostBytes"
+          ]
+        },
+        {
+          "when": "changed == 'base'",
+          "flags": [
+            "fullPull"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "pullMB": "pullMB",
+            "imageMB": "imageMB",
+            "newLayers": "newLayers",
+            "diskMB": "diskMB",
+            "savedMB": "savedMB"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@pullM",
+              "value": "=pullMB",
+              "format": "int",
+              "tone": "=pullMB > 100 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@imageM",
+              "value": "=imageMB",
+              "format": "int",
+              "tone": "=bad ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@diskM",
+              "value": "=diskMB",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@savedM",
+              "value": "=savedMB",
+              "format": "int",
+              "tone": "=savedMB > 0 ? 'ok' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "#",
+            "@colLayer",
+            "@colInstr",
+            "@colSize",
+            "@colPull"
+          ],
+          "rows": "=rows",
+          "tones": "=tones",
+          "caption": "@tableCap"
+        },
+        {
+          "type": "terminal",
+          "label": "@termLabel",
+          "lines": "=pullLines"
+        },
+        {
+          "type": "note",
+          "when": "=bad",
+          "tone": "bad",
+          "text": "@ghostNote"
+        },
+        {
+          "type": "note",
+          "when": "=changed == 'base'",
+          "tone": "warn",
+          "text": "@fullNote"
+        },
+        {
+          "type": "note",
+          "when": "=!bad && changed != 'base'",
+          "tone": "ok",
+          "text": "@shareNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "all",
+      "code",
+      "zero"
+    ],
+    "answer": "code"
+  }
+}

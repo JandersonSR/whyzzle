@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Ler o nome completo de uma imagem (registro, repositório, tag).",
+      "Diferenciar tag mutável de digest imutável.",
+      "Explicar por que latest não serve para implantar."
+    ],
+    "minutes": 15,
+    "activity": "Freezer de etiquetas: o professor cola etiquetas de papel (latest, 1.4, 1.5) em caixas numeradas (os digests). Durante a aula, ele move a etiqueta latest e reescreve a 1.4. Dois alunos \"servidores\" pegam a caixa pela etiqueta em momentos diferentes: pegaram a mesma caixa?",
+    "discussion": [
+      "Onde no seu trabalho ou projeto algo é referenciado por um nome que pode mudar de conteúdo?",
+      "Quem deveria poder sobrescrever uma tag de versão?"
+    ],
+    "misconceptions": [
+      "\"latest é a versão mais nova.\" É só uma etiqueta; aponta para onde a última pessoa que publicou deixou.",
+      "\"Tag de versão é imutável.\" Só se o registro travar; por padrão, um push com a mesma tag move o ponteiro."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Read an image’s full name (registry, repository, tag).",
+      "Tell a mutable tag from an immutable digest.",
+      "Explain why latest isn’t fit for deploying."
+    ],
+    "minutes": 15,
+    "activity": "Label freezer: the teacher sticks paper labels (latest, 1.4, 1.5) on numbered boxes (the digests). During class, they move the latest label and rewrite 1.4. Two \"server\" students fetch the box by label at different moments: did they get the same box?",
+    "discussion": [
+      "Where in your work or project is something referenced by a name whose content can change?",
+      "Who should be allowed to overwrite a version tag?"
+    ],
+    "misconceptions": [
+      "\"latest is the newest version.\" It’s just a label; it points wherever the last person who pushed left it.",
+      "\"A version tag is immutable.\" Only if the registry locks it; by default, a push with the same tag moves the pointer."
+    ]
+  }
+}

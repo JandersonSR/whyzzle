@@ -1,0 +1,102 @@
+{
+  "title": "What a cluster is",
+  "subtitle": "The head office and the kitchens: who writes it down, who dispatches and who lights the stove",
+  "mission": "The school cluster has a control-plane node (escola-control-plane) and two workers. The api Deployment already has 2 pods running. You’ll ask for more replicas with kubectl scale and follow the request along the path: kube-apiserver, etcd, kube-controller-manager, kube-scheduler and kubelet. Then stop one component at a time and see where the request gets stuck and what keeps running.",
+  "predict": {
+    "question": "who decides which worker each new pod will run on?",
+    "options": {
+      "kubectl": "kubectl, on your machine",
+      "scheduler": "The kube-scheduler",
+      "kubelet": "Each worker’s kubelet, competing",
+      "etcd": "etcd"
+    }
+  },
+  "feedback": {
+    "right": "right! The controller-manager creates the pods with no node; the kube-scheduler looks for pods with no node and picks a worker for each (looking at resources, rules and what’s already there). Only then does that worker’s kubelet start the containers.",
+    "wrong": "it’s the kube-scheduler. kubectl only sends the request to the apiserver, etcd only stores the state, and the kubelet only starts what was assigned to its node. Picking the node is the scheduler’s job.",
+    "skipped": "no guess? Run it and read the timeline, component by component."
+  },
+  "coach": {
+    "ui": "guess noted. Run with nothing stopped and read the request’s path.",
+    "cmd": "guess noted. Run scale and read the request’s path, component by component."
+  },
+  "tryNext": {
+    "ui": "Stop the kubelet: the cluster works around the sick worker. Then stop the controller-manager: kubectl says \"scaled\", but nothing happens.",
+    "cmd": "Run scale --stopped kubelet (the cluster works around the sick worker) and then scale --stopped controller-manager (kubectl says scaled, but nothing happens)."
+  },
+  "why": {
+    "simples": "The cluster is the whole lunchbox business: the head office (the control plane) and the kitchens (the nodes). In the office there’s the front desk that takes every request (kube-apiserver), the official notebook where everything is written down (etcd), the supervisors who check that what’s written is happening (controller-manager) and the dispatcher who decides which kitchen makes each lunchbox (kube-scheduler). In each kitchen there’s a head cook (kubelet) who gets the list and lights the stove (the container runtime).\nIf the office closes for an hour, the kitchens keep cooking what was already on the list; no new orders get in, that’s all.",
+    "dev": "Everything goes through the kube-apiserver: kubectl, the controllers, the scheduler and the kubelets only talk to it, and it’s the one that reads and writes etcd, the consistent key-value store where the cluster state lives.\nThe path of a kubectl scale: the apiserver validates and stores replicas: 4; the ReplicaSet controller, inside kube-controller-manager, sees 2 pods missing and creates the objects; the kube-scheduler finds pods with no node and picks one for each (requested resources, affinities, taints); that node’s kubelet sees the assigned pod and asks the runtime (containerd or CRI-O, through the CRI interface) to pull the image and start the containers. kube-proxy, optional when the network plugin takes over that role, keeps the network rules for Services.",
+    "especialista": "Each piece is a reconciliation loop that watches the apiserver and acts on the difference; that’s why the system is eventually consistent and tolerates component restarts. etcd uses Raft and needs quorum: with 3 members it survives losing 1, with 5 it survives 2; without quorum it accepts no writes, and the cluster stops changing.\nIn production the control plane runs replicated (several apiservers behind a load balancer; scheduler and controller-manager with leader election), and managed services like AKS handle that for you. In kind and kubeadm, the control-plane components are static pods: the control-plane node’s kubelet starts them from /etc/kubernetes/manifests, without depending on the apiserver itself, which is why you can turn the scheduler off by moving a file out of that folder."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: stop the kube-scheduler.",
+      "cmd": "time to break it: run scale --stopped scheduler"
+    },
+    "success": "Broken: you asked for {replicas} replicas and only {runningN} are running; {missingN} new pod(s) never got to run because {comp} is down. Notice: the 2 old pods keep running. What stops is change, not what was already up.",
+    "calm": "{runningN} of {replicas} pods running. To break it, stop the kube-scheduler."
+  },
+  "hints": {
+    "ui": [
+      "Pick how many replicas you want and which component to stop; the timeline shows where the request gets stuck.",
+      "Without the scheduler, the new pods exist but nobody picks a node for them.",
+      "Stop the scheduler."
+    ],
+    "cmd": [
+      "The Deployment goes in quotes; --replicas and --stopped are optional.",
+      "--stopped takes none, apiserver, etcd, controller-manager, scheduler or kubelet.",
+      "scale --stopped scheduler"
+    ]
+  },
+  "errors": {
+    "notInEnum.stopped": "Use none, apiserver, etcd, controller-manager, scheduler or kubelet.",
+    "belowMin.replicas": "api already has 2 replicas; in this lesson we only scale up. Ask for 3 or more.",
+    "aboveMax.replicas": "Up to 8: in this simulation each worker fits 4 pods."
+  },
+  "controls": {
+    "arg": "Deployment",
+    "replicas": "Desired replicas",
+    "stopped": "Stopped component"
+  },
+  "scene": {
+    "label": "One kubectl scale, end to end",
+    "empty": "Run to scale.",
+    "runningM": "pods running / requested",
+    "missingM": "new pods that didn’t run",
+    "oldM": "old pods still serving",
+    "kubectlM": "kubectl",
+    "kOk": "answered",
+    "kErr": "failed",
+    "flowLabel": "The request’s path",
+    "sub1": "validates and passes it on",
+    "sub2": "stores replicas: {replicas}",
+    "sub3": "creates {newN} pod(s) with no node",
+    "sub4": "picks each pod’s node",
+    "sub5": "starts the containers",
+    "subKubeletHalf": "escola-worker2 has no kubelet; escola-worker takes over",
+    "subStopped": "STOPPED",
+    "subNever": "never heard about it",
+    "clusterLabel": "Nodes and pods (simulated)",
+    "unscheduled": "no node (Pending)",
+    "termLabel": "Terminal (kubectl get pods with trimmed columns)",
+    "etcdErr": "! server error: kube-apiserver couldn’t write to etcd (simulated)",
+    "n_none": "Everything in place: {runningN} of {replicas} pods running. kubectl only talked to the apiserver; the rest was each component doing its part.",
+    "n_apiserver": "Without kube-apiserver, nobody talks to anybody: kubectl gets \"connection refused\". The 2 old pods keep serving, because a running container doesn’t depend on the control plane.",
+    "n_etcd": "The apiserver is up, but has nowhere to write: without etcd, the request never becomes state and nothing changes. The old pods don’t even notice.",
+    "n_controllers": "kubectl answered \"scaled\" and etcd stored replicas: {replicas}, but without the controller-manager nobody created the {newN} pods. A request written down isn’t a request fulfilled.",
+    "n_scheduler": "The {newN} new pods exist, but stayed Pending with no node: nobody picked a kitchen for them. The old ones stay Running.",
+    "n_kubelet": "escola-worker2 stopped reporting and turned NotReady; the scheduler sent the new pods to escola-worker, giving {runningN} of {replicas}. The old pod on worker2 keeps running, but with nobody confirming it."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Use the cluster from lesson 5 (or create one with kind create cluster --name escola --config kind.yaml and the api Deployment with 3 replicas). Look at the nodes and the control-plane components:\nkubectl get nodes\nkubectl get pods -n kube-system -o wide",
+      "Notice the names etcd-escola-control-plane, kube-apiserver-escola-control-plane, kube-controller-manager-… and kube-scheduler-…: they’re static pods the control-plane node’s kubelet starts from files. Look at the files inside the node (which is a container):\ndocker exec escola-control-plane ls /etc/kubernetes/manifests",
+      "Turn the scheduler off by moving its manifest out of the folder. Wait a few seconds and check it’s gone from the list:\ndocker exec escola-control-plane mv /etc/kubernetes/manifests/kube-scheduler.yaml /root/\nkubectl get pods -n kube-system",
+      "Ask for more replicas and see what happens:\nkubectl scale deployment api --replicas=5\nkubectl get pods -o wide",
+      "Put the scheduler back and look again:\ndocker exec escola-control-plane mv /root/kube-scheduler.yaml /etc/kubernetes/manifests/\nkubectl get pods -o wide"
+    ],
+    "ok": "with the manifest out, kube-scheduler disappears from kube-system, the new pods stay Pending with NODE <none> and the old ones keep Running; when the file comes back, the scheduler reappears and the Pending pods turn Running."
+  }
+}

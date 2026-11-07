@@ -1,0 +1,256 @@
+{
+  "title": "Por que orquestrar",
+  "subtitle": "Um food truck você toca sozinho; uma frota precisa de uma gerente que nunca dorme",
+  "mission": "A api-pedidos roda com 3 réplicas espalhadas em alguns servidores. Três coisas vão acontecer: um servidor cai às 3h da manhã, o movimento triplica ao meio-dia e sai uma versão nova às 15h. Compare cuidar disso no braço (docker run em cada servidor) com um orquestrador como o Kubernetes (com um autoscaler configurado para o pico). Conte quanto tempo o serviço fica abaixo do pedido e quantas pessoas precisam largar tudo.",
+  "predict": {
+    "question": "com orquestrador e 3 servidores, às 3h o servidor-1 cai. O que acontece com a réplica que estava nele?",
+    "options": {
+      "rescheduled": "O orquestrador cria outra num servidor que sobrou",
+      "waits": "Fica fora até alguém acordar e subir de novo",
+      "gone": "Some para sempre: agora são só 2"
+    }
+  },
+  "feedback": {
+    "right": "isso! Você pediu 3 réplicas, então o orquestrador corre atrás de ter 3. Quando o nó some, ele espera a tolerância padrão (uns 5 minutos no Kubernetes), despeja os pods dele e recria as réplicas nos servidores que sobraram. Ninguém acordou.",
+    "wrong": "olhe o cluster: o pod do servidor-1 ficou Terminating e um novo apareceu Running em outro servidor, sem ninguém digitar nada. Você declara \"quero 3\"; o orquestrador corrige a diferença.",
+    "skipped": "sem palpite? Rode e procure, no cluster, o pod novo que apareceu sozinho."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com orquestrador e depois troque para manual. Compare \"pessoas acordadas\".",
+    "cmd": "palpite anotado. Rode operar e depois operar --jeito manual. Compare \"pessoas acordadas\"."
+  },
+  "tryNext": {
+    "ui": "Agora deixe 1 servidor só: nem orquestrador faz milagre sem outro lugar para mandar as réplicas. Depois teste o evento \"versão\".",
+    "cmd": "Rode operar --servidores 1 (nem orquestrador faz milagre sem outro servidor) e depois operar --evento versao."
+  },
+  "why": {
+    "simples": "Com um food truck, você mesmo dá conta: abre, cozinha, fecha. Com vinte trucks espalhados pela cidade, alguém precisa coordenar: quando um quebra às 3 da manhã, mandar outro; no almoço, pôr mais trucks na rua; trocar o cardápio sem fechar todos de uma vez.\nO orquestrador é essa gerente que nunca dorme. Você não diz “ligue o truck 3”; você diz “quero sempre 3 trucks servindo”, e ela corre atrás para que isso continue verdade.",
+    "dev": "docker run resolve uma máquina. Com várias, aparecem perguntas que ele não responde: em qual servidor cada contêiner roda? Quem recria o que morreu? Como trocar de versão sem derrubar o serviço? Como os contêineres se acham na rede?\nO Kubernetes responde com estado desejado: você declara (um Deployment com replicas: 3) e controladores comparam o desejado com o real o tempo todo, corrigindo a diferença. Pod que morre é recriado; nó que cai tem os pods recriados em outros nós (por padrão, depois de uns 5 minutos de tolerância); a atualização é gradual (rolling update, que por padrão sobe pods novos antes de tirar todos os velhos) e dá para voltar com rollback. Escalar com a carga exige configurar, por exemplo, um HorizontalPodAutoscaler: não vem ligado sozinho.",
+    "especialista": "Orquestração tem custo: um control plane para manter (ou pagar, como no AKS, EKS e GKE), rede, armazenamento, atualizações de versão algumas vezes por ano, RBAC, políticas e observabilidade. Para um app pequeno, um PaaS de contêineres (Azure Container Apps, Cloud Run) ou um servidor com docker compose pode sair mais barato e mais simples.\nOs tempos padrão entram no desenho: um nó sem notícias vira NotReady depois de um período de carência, e os pods dele só são despejados quando acaba o tolerationSeconds de 300 s que o Kubernetes adiciona por padrão. Para reagir mais rápido, ajuste as tolerâncias por pod; para não depender disso, espalhe réplicas por nós e zonas (topologySpreadConstraints) e proteja-as em manutenções (PodDisruptionBudget). E auto-recuperação não é alta disponibilidade: com uma réplica só, todo reinício é queda."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: troque para o jeito manual.",
+      "cmd": "hora de quebrar: rode operar --jeito manual"
+    },
+    "success": "Quebrou: {downMin} minutos com menos réplicas do que o pedido e {humansN} pessoa precisou largar tudo às {atTime}. Motivo: {causeText}.",
+    "calm": "Ninguém precisou intervir: o orquestrador voltou às {needN} réplicas pedidas em {downMin} min, criando {autoN} pod(s) sozinho. Para quebrar, opere no braço."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o jeito, o evento e quantos servidores; o cluster mostra onde ficou cada réplica.",
+      "No jeito manual, tudo espera alguém ver o alerta e digitar comandos.",
+      "Escolha o jeito manual."
+    ],
+    "cmd": [
+      "O app vai entre aspas; --jeito, --evento e --servidores são opcionais.",
+      "--jeito aceita orquestrador ou manual; --evento aceita queda, pico ou versao.",
+      "operar --jeito manual"
+    ]
+  },
+  "errors": {
+    "notInEnum.way": "Use orquestrador ou manual.",
+    "notInEnum.event": "Use queda, pico ou versao.",
+    "belowMin.servers": "Pelo menos 1 servidor: sem nenhum, nem o orquestrador acha onde cozinhar.",
+    "aboveMax.servers": "Até 5 servidores nesta simulação."
+  },
+  "controls": {
+    "arg": "App",
+    "way": "Quem cuida",
+    "event": "O que acontece",
+    "servers": "Servidores"
+  },
+  "scene": {
+    "label": "Um dia na vida da api-pedidos",
+    "empty": "Rode para começar o dia.",
+    "readyM": "réplicas prontas durante o evento",
+    "downM": "tempo abaixo do pedido",
+    "humansM": "pessoas que largaram tudo",
+    "cmdsM": "comandos digitados à mão",
+    "srv1": "servidor-1",
+    "srv2": "servidor-2",
+    "srv3": "servidor-3",
+    "srv4": "servidor-4",
+    "srv5": "servidor-5",
+    "clusterLabel": "Servidores depois do evento (simulado)",
+    "noNode": "sem servidor (Pending)",
+    "flowLabel": "Linha do tempo",
+    "humanNote": "{humansN} pessoa precisou agir às {atTime}: {causeText}.",
+    "healNote": "Ninguém precisou agir: {autoN} pod(s) criado(s) pelo orquestrador e {downMin} min abaixo do pedido."
+  },
+  "data": {
+    "flows": {
+      "manual-crash": [
+        {
+          "label": "03:00",
+          "sub": "servidor-1 apaga",
+          "tone": "bad"
+        },
+        {
+          "label": "03:25",
+          "sub": "o alerta acorda alguém",
+          "tone": "warn"
+        },
+        {
+          "label": "03:35",
+          "sub": "ssh + docker run em outro servidor",
+          "tone": "warn"
+        },
+        {
+          "label": "03:40",
+          "sub": "de volta, 40 min depois",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-crash": [
+        {
+          "label": "03:00",
+          "sub": "servidor-1 apaga",
+          "tone": "bad"
+        },
+        {
+          "label": "~03:01",
+          "sub": "o nó vira NotReady",
+          "tone": "warn"
+        },
+        {
+          "label": "~03:06",
+          "sub": "acaba a tolerância padrão de 5 min: pods despejados",
+          "tone": "info"
+        },
+        {
+          "label": "~03:06",
+          "sub": "réplicas novas Running nos outros servidores",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-crash-short": [
+        {
+          "label": "03:00",
+          "sub": "servidor-1 apaga",
+          "tone": "bad"
+        },
+        {
+          "label": "~03:01",
+          "sub": "o nó vira NotReady",
+          "tone": "warn"
+        },
+        {
+          "label": "~03:06",
+          "sub": "pods novos ficam Pending: não há outro servidor",
+          "tone": "bad"
+        },
+        {
+          "label": "03:45",
+          "sub": "alguém conserta o servidor",
+          "tone": "warn"
+        }
+      ],
+      "manual-peak": [
+        {
+          "label": "12:00",
+          "sub": "o movimento triplica",
+          "tone": "bad"
+        },
+        {
+          "label": "12:20",
+          "sub": "alguém percebe a lentidão",
+          "tone": "warn"
+        },
+        {
+          "label": "12:35",
+          "sub": "docker run de mais 3 contêineres, à mão",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-peak": [
+        {
+          "label": "12:00",
+          "sub": "o movimento triplica",
+          "tone": "bad"
+        },
+        {
+          "label": "12:00",
+          "sub": "o HPA vê a CPU alta e pede 6 réplicas",
+          "tone": "info"
+        },
+        {
+          "label": "~12:02",
+          "sub": "6 réplicas Running",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-peak-short": [
+        {
+          "label": "12:00",
+          "sub": "o movimento triplica",
+          "tone": "bad"
+        },
+        {
+          "label": "12:00",
+          "sub": "o HPA pede 6 réplicas",
+          "tone": "info"
+        },
+        {
+          "label": "~12:01",
+          "sub": "não cabe tudo: parte fica Pending",
+          "tone": "bad"
+        },
+        {
+          "label": "13:00",
+          "sub": "alguém adiciona servidores",
+          "tone": "warn"
+        }
+      ],
+      "manual-release": [
+        {
+          "label": "15:00",
+          "sub": "docker stop na versão velha",
+          "tone": "warn"
+        },
+        {
+          "label": "15:01",
+          "sub": "docker run na nova, uma por uma",
+          "tone": "warn"
+        },
+        {
+          "label": "15:06",
+          "sub": "pronto, com erros no meio do caminho",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-release": [
+        {
+          "label": "15:00",
+          "sub": "kubectl set image",
+          "tone": "info"
+        },
+        {
+          "label": "15:00",
+          "sub": "sobe 1 pod novo antes de tirar 1 velho",
+          "tone": "info"
+        },
+        {
+          "label": "~15:02",
+          "sub": "3 réplicas da versão nova, sem queda",
+          "tone": "ok"
+        }
+      ]
+    },
+    "causes": {
+      "manual": "tudo dependia de alguém ver o alerta e digitar comandos",
+      "oneServer": "com um servidor só, não há para onde mandar as réplicas",
+      "noRoom": "não há espaço nos servidores para todas as réplicas"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Instale o kind (kind.sigs.k8s.io) e o kubectl (kubernetes.io/docs/tasks/tools). Eles usam o Docker que você já tem. Crie o arquivo kind.yaml:\nkind: Cluster\napiVersion: kind.x-k8s.io/v1alpha4\nnodes:\n- role: control-plane\n- role: worker\n- role: worker",
+      "Crie um cluster com 1 nó de controle e 2 workers. Cada nó é um contêiner, como o docker ps mostra:\nkind create cluster --name escola --config kind.yaml\ndocker ps",
+      "Leve a imagem da lição 3 para dentro do cluster e peça 3 réplicas (pulou a lição 3? use --image=nginx:alpine e pule o kind load):\nkind load docker-image api-pedidos:1.0 --name escola\nkubectl create deployment api --image=api-pedidos:1.0 --replicas=3\nkubectl get pods -o wide",
+      "Apague um pod e veja outro ocupar o lugar:\nkubectl delete pod NOME-DE-UM-POD\nkubectl get pods",
+      "Agora derrube um nó inteiro (é só um contêiner) e acompanhe por uns 6 minutos; Ctrl+C sai do -w:\ndocker stop escola-worker\nkubectl get nodes\nkubectl get pods -o wide -w\nQuando terminar: docker start escola-worker"
+    ],
+    "ok": "o pod apagado é substituído em segundos; com o escola-worker parado, ele aparece como NotReady e, depois de uns 5 minutos (a tolerância padrão), as réplicas que estavam nele são recriadas no nó que sobrou, e você volta a ter 3 Running (as antigas podem ficar como Terminating até o nó voltar)."
+  }
+}

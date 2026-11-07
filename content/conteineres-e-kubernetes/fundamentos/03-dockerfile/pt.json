@@ -1,0 +1,94 @@
+{
+  "title": "Dockerfile",
+  "subtitle": "A ficha da receita: primeiro o feijão que demora, por último o tempero do dia",
+  "mission": "A api-pedidos tem um Dockerfile de seis linhas. Instalar as dependências (npm ci) leva 84 segundos; copiar o código, 1. Mude o código, as dependências ou nada, troque a ordem das linhas e ligue ou desligue o .dockerignore. Descubra quantos passos o Docker reaproveita do cache e quanto tempo leva cada build.",
+  "predict": {
+    "question": "na ordem certa (dependências primeiro), você mudou uma linha do server.js. Quanto tempo leva o novo build?",
+    "options": {
+      "full": "Uns 86 s: o build inteiro de novo",
+      "fast": "Uns 2 s: só o COPY do código roda de novo",
+      "zero": "0 s: o Docker nem precisa rodar nada"
+    }
+  },
+  "feedback": {
+    "right": "isso! O COPY package.json package-lock.json ./ não mudou, então o RUN npm ci também fica em CACHED. Só o COPY . . roda de novo, porque o server.js mudou.",
+    "wrong": "olhe a tabela: WORKDIR, a cópia do package.json e o npm ci aparecem como CACHED. Só o COPY . . roda, e o build leva uns 2 segundos.",
+    "skipped": "sem palpite? Rode e conte as linhas CACHED no terminal."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com a ordem deps-primeiro e depois copia-tudo. Compare \"segundos de build\".",
+    "cmd": "palpite anotado. Rode construir e depois construir --ordem copia-tudo. Compare \"segundos de build\"."
+  },
+  "tryNext": {
+    "ui": "Agora mude as dependências na ordem certa (aí sim o npm ci precisa rodar) e depois desligue o .dockerignore para ver o contexto inchar.",
+    "cmd": "Rode construir --mudou dependencias (aí sim o npm ci precisa rodar) e depois construir --dockerignore nao para ver o contexto inchar."
+  },
+  "why": {
+    "simples": "O Dockerfile é a ficha da receita da marmita, lida de cima para baixo, e o Docker guarda o resultado de cada passo. Se um passo não mudou e nada antes dele mudou, ele reaproveita o que já está pronto: é o cache.\nRegra de ouro da cozinha: o que demora e muda pouco vem primeiro (cozinhar o feijão é instalar as dependências); o que muda toda hora vem por último (o tempero do dia é o seu código). Se você mistura o tempero antes de cozinhar o feijão, cada troca de tempero obriga a cozinhar o feijão inteiro de novo.",
+    "dev": "As linhas: FROM escolhe a base; WORKDIR define a pasta de trabalho; COPY traz arquivos do contexto; RUN executa um comando e grava o resultado numa camada; CMD diz o que rodar quando o contêiner sobe. O cache vale por instrução: um RUN é invalidado quando o texto do comando muda; COPY e ADD, quando os arquivos copiados mudam (conteúdo ou propriedades, como permissões). Depois que uma camada é invalidada, todas as seguintes também são.\nDaí o padrão para Node: COPY package.json package-lock.json ./, depois RUN npm ci --omit=dev, depois COPY . .: as dependências só reinstalam quando o lock muda. O .dockerignore tira do contexto o que não deve ir para o builder (node_modules, .git, .env): o build fica mais rápido e você não leva lixo nem segredos para dentro. Prefira o CMD em formato JSON, [\"node\", \"server.js\"], para o processo receber os sinais do sistema diretamente.",
+    "especialista": "Com o BuildKit, o builder padrão do Docker atual, dá para ir além: cache mounts (RUN --mount=type=cache,target=/root/.npm npm ci) guardam o cache do npm entre builds mesmo quando a camada é refeita; secret mounts (RUN --mount=type=secret,id=npmrc,target=/root/.npmrc npm ci) usam um token sem gravá-lo na imagem; multi-stage builds separam o estágio que compila do estágio que roda.\nEm CI, o cache local some a cada máquina nova: exporte e importe o cache (--cache-to e --cache-from do docker buildx, guardando no registro ou no cache do GitHub Actions). E, para builds repetíveis, fixe a base por digest (FROM node:24-slim@sha256:…) com uma ferramenta como Renovate ou Dependabot abrindo PRs de atualização."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: troque a ordem para copia-tudo, mudando só o código.",
+      "cmd": "hora de quebrar: rode construir --ordem copia-tudo"
+    },
+    "success": "Quebrou: com o COPY . . antes do npm ci, mudar uma linha do código fez {reran} passos rodarem de novo e o build levou {secs} s, quase tudo reinstalando dependências que nem mudaram.",
+    "calm": "Build em {secs} s, com {reran} passo(s) refeito(s). Para quebrar, copie tudo antes de instalar as dependências."
+  },
+  "hints": {
+    "ui": [
+      "Escolha a ordem, o que mudou e se há .dockerignore; a tabela marca o que veio do cache.",
+      "Se o COPY . . vem antes do npm ci, qualquer mudança no código invalida o npm ci.",
+      "Escolha a ordem copia-tudo, mudando só o código."
+    ],
+    "cmd": [
+      "A tag vai entre aspas; --ordem, --mudou e --dockerignore são opcionais.",
+      "--ordem aceita deps-primeiro ou copia-tudo.",
+      "construir --ordem copia-tudo"
+    ]
+  },
+  "errors": {
+    "notInEnum.order": "Use deps-primeiro ou copia-tudo.",
+    "notInEnum.changed": "Use codigo, dependencias ou nada.",
+    "notBool.ignore": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Tag da imagem",
+    "order": "Ordem das linhas",
+    "changed": "O que mudou desde o último build",
+    "ignore": "Tem .dockerignore?"
+  },
+  "scene": {
+    "label": "O build da api-pedidos",
+    "empty": "Rode para construir a imagem.",
+    "secsM": "segundos de build",
+    "reranM": "passos refeitos",
+    "ctxM": "contexto enviado ao builder (MB)",
+    "tableLabel": "Dockerfile, linha a linha",
+    "colInstr": "instrução",
+    "colStatus": "neste build",
+    "colTime": "segundos",
+    "stBase": "base já baixada",
+    "stCached": "CACHED: reaproveitado",
+    "stRan": "rodou de novo",
+    "stMeta": "só metadado",
+    "tableCap": "Tempos da simulação. O primeiro build, sem cache, levaria uns 86 s.",
+    "termLabel": "Saída do docker build (simulada)",
+    "bustNote": "O COPY . . vem antes do npm ci: mudar uma linha do server.js invalidou o cache e o npm ci rodou de novo por 84 s, para instalar exatamente as mesmas dependências.",
+    "ctxNote": "Sem .dockerignore, {ctxMB} MB (node_modules e .git) viajam até o builder a cada build, e o COPY . . leva o node_modules da sua máquina para dentro da imagem, por cima do que o npm ci instalou.",
+    "depsNote": "Mudou o package-lock.json: aí o npm ci precisa rodar mesmo. O cache acerta quando você muda dependência, não quando muda o código.",
+    "okNote": "{reran} passo(s) refeito(s) e {secs} s de build. As dependências ficaram no cache, como devem."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Crie uma pasta api-pedidos com este server.js:\nconst express = require(\"express\");\nconst app = express();\napp.get(\"/\", (req, res) => res.send(\"Olá da marmitaria!\\n\"));\napp.listen(3000, () => console.log(\"ouvindo na porta 3000\"));",
+      "Gere o package.json e o package-lock.json com o Express. Com o Node instalado:\nnpm init -y && npm install express\nSem Node, use um contêiner (bash, zsh ou PowerShell):\ndocker run --rm -v \"${PWD}:/app\" -w /app node:24-slim sh -c \"npm init -y && npm install express\"",
+      "Crie o Dockerfile:\nFROM node:24-slim\nWORKDIR /app\nCOPY package.json package-lock.json ./\nRUN npm ci --omit=dev\nCOPY . .\nCMD [\"node\", \"server.js\"]\nE o .dockerignore:\nnode_modules\n.git",
+      "Construa, rode e teste:\ndocker build -t api-pedidos:1.0 .\ndocker run -d --name api -p 3000:3000 api-pedidos:1.0\ncurl http://localhost:3000\n(ou abra o endereço no navegador). Depois: docker rm -f api",
+      "Mude o texto da resposta no server.js e rode de novo:\ndocker build -t api-pedidos:1.0 ."
+    ],
+    "ok": "o curl responde com a mensagem da marmitaria, e no segundo build as linhas do WORKDIR, da cópia do package.json e do RUN npm ci aparecem como CACHED: só o COPY . . roda de novo."
+  }
+}
