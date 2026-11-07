@@ -108,6 +108,7 @@ Depende das etapas de plataforma PL1 a PL3.
   6. Chamada de ferramentas com um modelo pequeno.
   7. Quando usar modelo local, aberto ou de fronteira (custo, privacidade, qualidade).
 - [ ] → **Etapa P2 · RAG de verdade** (8 lições): ingestão e limpeza de documentos; chunking (tamanho e sobreposição); embeddings e banco vetorial no navegador; busca híbrida (palavra-chave + vetor); reranking; citação de fonte e recusa; perguntas multi-documento; avaliação de recuperação (recall@k).
+  - Em andamento: lições 1 a 4 prontas em rascunho (ingestão, fatiamento, índice vetorial, busca híbrida; branch wip/ia-pratica-p2), falta 5 a 8 (reranking, citação e recusa, multi-documento, recall@k), revisão, testes e publicação.
 - [ ] **Etapa P3 · Prompts e agentes para o trabalho** (7 lições): prompt de sistema e papéis; exemplos (few-shot) e formato; extração de dados de e-mails e notas fiscais; classificação e triagem de tickets de atendimento; agente com ferramentas e limites; memória de conversa e resumo; MCP para conectar sistemas da empresa.
 - [ ] **Missão final da Prática**: assistente de RH que responde dúvidas a partir das políticas da empresa (fonte citada, recusa quando não sabe, triagem para humano), rodando no navegador.
 
