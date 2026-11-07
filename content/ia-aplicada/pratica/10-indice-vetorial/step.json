@@ -1,0 +1,247 @@
+{
+  "id": "p-indice-vetorial",
+  "order": 10,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "rag",
+    "vector-store",
+    "embeddings",
+    "memoria"
+  ],
+  "requires": [
+    "p-fatiar-documentos",
+    "p-embeddings-de-verdade"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "indexar",
+      "en": "index"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Com quanta antecedência eu peço férias?",
+        "en": "How far in advance do I request vacation?"
+      },
+      "examples": [
+        {
+          "pt": "Com quanta antecedência eu peço férias?",
+          "en": "How far in advance do I request vacation?"
+        },
+        {
+          "pt": "Quem pode ser dependente no plano de saúde?",
+          "en": "Who can be a dependent on the health plan?"
+        },
+        {
+          "pt": "Quanto tempo antes devo avisar que vou descansar?",
+          "en": "How long before should I tell them I’ll take time off?"
+        },
+        {
+          "pt": "Esqueci minha senha, o que faço?",
+          "en": "I forgot my password, what do I do?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "scale",
+        "alias": {
+          "pt": "escala",
+          "en": "scale"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 100000000,
+        "step": 1,
+        "uiMin": 12,
+        "uiMax": 10000000,
+        "default": 12,
+        "ui": "slider"
+      },
+      {
+        "name": "dims",
+        "alias": {
+          "pt": "dims",
+          "en": "dims"
+        },
+        "type": "int",
+        "min": 16,
+        "max": 4096,
+        "step": 16,
+        "uiMax": 3072,
+        "default": 384,
+        "ui": "slider"
+      },
+      {
+        "name": "top",
+        "alias": {
+          "pt": "top",
+          "en": "top"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 5,
+        "default": 3,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "kb",
+      "mb",
+      "gb"
+    ],
+    "answer": "kb"
+  },
+  "break": {
+    "flag": "tooBig"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realSims": []
+      },
+      "compute": {
+        "bytes": "scale * dims * 4",
+        "mb": "bytes / 1000000",
+        "memText": "bytes < 1000000 ? round(bytes / 1000) + ' KB' : (bytes < 1000000000 ? round(bytes / 1000000) + ' MB' : round(bytes / 1000000000, 1) + ' GB')",
+        "bruteMs": "scale * dims / 500000",
+        "sims": "real ? realSims : roundall(lookup(semSims, text, affine(clampall(scale(overlapall(text, chunkTexts, stop), 4), 0, 1), 0.7, 0.2)), 3)",
+        "top": "topk(sims, top)",
+        "gold": "lookup(goldMap, text, [])",
+        "hit": "len(gold) > 0 && includes(gold, top[0])"
+      },
+      "cases": [
+        {
+          "when": "mb > 500",
+          "flags": [
+            "tooBig"
+          ]
+        },
+        {
+          "when": "bruteMs > 100",
+          "flags": [
+            "needsAnn"
+          ]
+        },
+        {
+          "when": "hit",
+          "flags": [
+            "hit"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "mem": "memText",
+            "scale": "scale",
+            "dims": "dims",
+            "ms": "round(bruteMs, 1)"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mem",
+              "value": "=memText",
+              "tone": "=mb > 500 ? 'bad' : (mb > 50 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@vectors",
+              "value": "=scale",
+              "format": "int",
+              "tone": "neutral"
+            },
+            {
+              "label": "@brute",
+              "value": "=bruteMs",
+              "format": "ms",
+              "tone": "=bruteMs > 100 ? 'warn' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@q",
+              "sub": "='query: ' + text",
+              "tone": "info"
+            },
+            {
+              "label": "@embed",
+              "sub": "=real ? 'e5-small · 384' : '@simShort'",
+              "tone": "neutral"
+            },
+            {
+              "label": "@compare",
+              "sub": "='× ' + scale",
+              "tone": "=bruteMs > 100 ? 'warn' : 'neutral'"
+            },
+            {
+              "label": "@topk",
+              "sub": "='top ' + top",
+              "tone": "ok"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@source",
+            "@chunk",
+            "@sim"
+          ],
+          "rows": "=zip(pickall(chunkSources, top), pickall(chunkTexts, top), roundall(pickall(sims, top), 2))",
+          "tones": "=mark(len(top), 0, hit ? 'ok' : 'warn', 'neutral')"
+        },
+        {
+          "type": "note",
+          "when": "=mb > 500",
+          "tone": "bad",
+          "text": "@bigNote"
+        },
+        {
+          "type": "note",
+          "when": "=bruteMs > 100 && mb <= 500",
+          "tone": "warn",
+          "text": "@annNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Xenova/multilingual-e5-small",
+      "op": "embed",
+      "args": {
+        "against": "chunkTexts",
+        "queryPrefix": "query: ",
+        "passagePrefix": "passage: "
+      }
+    }
+  }
+}

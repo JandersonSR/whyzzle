@@ -1,0 +1,149 @@
+{
+  "title": "Chunk without cutting the answer",
+  "subtitle": "Chunk size, overlap and the sentence that falls in between",
+  "mission": "Split Aurora’s handbook into chunks for the index. Big chunks mix topics and waste tokens; small ones cut the answer in half. Find a size and overlap where the answer sentence fits whole.",
+  "predict": {
+    "question": "if you double the chunk size from 40 to 80 words, the number of chunks…",
+    "options": {
+      "half": "Roughly halves",
+      "same": "Stays the same",
+      "double": "Doubles"
+    }
+  },
+  "feedback": {
+    "right": "right: the text is the same, so chunks twice as big give about half as many. Overlap shifts the math a bit, since each chunk repeats the end of the one before.",
+    "wrong": "it roughly halves: same text, cut into bigger pieces. Overlap makes the math not exact.",
+    "skipped": "no guess? Compare the chunk count at 40 and at 80."
+  },
+  "coach": {
+    "ui": "guess noted. Move size from 40 to 80 and watch the chunk counter.",
+    "cmd": "guess noted. Run chunk --size 40 and then --size 80."
+  },
+  "tryNext": {
+    "ui": "Now size 200: almost one chunk left. Search finds it, but the chunk sent to the LLM carries the whole handbook.",
+    "cmd": "Run chunk --size 200 and see the big-chunk warning."
+  },
+  "why": {
+    "simples": "For the AI to look up a handbook, we cut it into pieces, like index cards. A card too small can cut the answer sentence in half; one too big has everything mixed.\nOverlap repeats the end of one card at the start of the next, so nothing gets lost at the seam.",
+    "dev": "Fixed-size chunking (in words or tokens) with overlap is the starting point. Better: split along structure (headings, paragraphs, list items) and only then cap the size.\nCommon sizes sit between 200 and 800 tokens with 10% to 20% overlap, but the right value depends on the questions: measure on a test set (the recall@k lesson) instead of copying a number.",
+    "especialista": "A chunk serves two uses pulling opposite ways: for embedding, small and single-topic gives sharper vectors; for the LLM, bigger gives context. One pattern indexes small chunks and returns the bigger \"parent\" passage (parent-child, or sentence window).\nStore each chunk’s offset in the source document to cite and highlight it. When you change the chunking strategy, reindex everything and compare recall on the same set."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: size 6 and overlap 0, with the advance-notice question.",
+      "cmd": "time to break it: run chunk \"How far in advance do I request vacation?\" --size 6 --overlap 0"
+    },
+    "success": "Broken: with {size}-word chunks and {overlap} overlap, the answer sentence got split across two chunks. No single chunk answers.",
+    "calm": "{n} chunks of {size} words (~{tokens} tokens) and the answer fit whole. To break it, make chunks tiny with no overlap."
+  },
+  "hints": {
+    "ui": [
+      "Move the controls; the scene updates by itself.",
+      "\"Whole in some chunk?\" says whether the answer sentence fits in a single chunk.",
+      "Size 6 and overlap 0 with the advance-notice question."
+    ],
+    "cmd": [
+      "The question goes in quotes, after chunk.",
+      "--size is in words; --overlap is how many words to repeat between chunks.",
+      "chunk \"How far in advance do I request vacation?\" --size 6 --overlap 0"
+    ]
+  },
+  "errors": {
+    "belowMin.size": "At least 4 words per chunk.",
+    "aboveMax.size": "Up to 400 words in this exercise.",
+    "aboveMax.overlap": "Up to 100 words of overlap.",
+    "model.overlapTooBig": "Overlap must be smaller than the chunk size, or the window never moves."
+  },
+  "controls": {
+    "arg": "Test question",
+    "size": "Chunk size (words)",
+    "overlap": "Overlap (words)"
+  },
+  "scene": {
+    "label": "Chunker",
+    "empty": "Run to chunk.",
+    "n": "chunks",
+    "tokens": "tokens per chunk (approx.)",
+    "whole": "whole in some chunk?",
+    "yes": "yes",
+    "no": "no",
+    "table": "Most relevant chunks",
+    "chunk": "chunk",
+    "score": "score %",
+    "splitNote": "The answer sentence doesn’t fit whole in any chunk.",
+    "broadNote": "Huge chunks: search finds it, but each mixes several topics and burns many tokens in the LLM."
+  },
+  "data": {
+    "chunkTexts": [
+      "Vacation must be requested through the employee portal 30 days in advance and needs the manager’s approval.",
+      "Vacation can be split into up to three periods: one of at least 14 days and the others of at least 5 days each.",
+      "Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.",
+      "The meal allowance (VR) is R$ 45 per working day; anyone may swap it for the grocery allowance (VA) of the same value.",
+      "The health plan covers spouses and children up to 24 as dependents, with co-payment on appointments.",
+      "The PLR profit share is paid in March, proportional to how well company and team goals were met the previous year.",
+      "Remote work is allowed up to 2 days a week, agreed with the manager at the start of each month.",
+      "Anyone with remote days gets a R$ 120 monthly home office allowance, paid with the salary.",
+      "Work expenses are reimbursed with an invoice uploaded in the expenses app within 30 days.",
+      "Home internet and electricity aren’t reimbursable: those costs are already covered by the home office allowance.",
+      "To change your portal password, go to My profile > Security or call IT extension 4000.",
+      "To use the VPN, install the corporate app and select the AUR-VPN-02 profile."
+    ],
+    "needles": {
+      "How far in advance do I request vacation?": "through the employee portal 30 days in advance",
+      "When is the PLR paid?": "PLR profit share is paid in March, proportional",
+      "Which VPN profile do I use?": "install the corporate app and select the AUR-VPN-02 profile.",
+      "Who can be a dependent on the health plan?": "covers spouses and children up to 24 as dependents"
+    },
+    "stop": [
+      "what",
+      "which",
+      "how",
+      "when",
+      "where",
+      "can",
+      "could",
+      "the",
+      "for",
+      "with",
+      "does",
+      "did",
+      "was",
+      "my",
+      "your",
+      "that",
+      "this",
+      "get",
+      "have",
+      "has",
+      "and",
+      "you",
+      "do",
+      "to",
+      "of",
+      "in",
+      "is",
+      "an",
+      "on",
+      "a",
+      "i",
+      "it",
+      "me",
+      "long",
+      "far",
+      "far",
+      "should",
+      "tell",
+      "them",
+      "ll"
+    ],
+    "tokPerWord": 1.3
+  },
+  "recipe": {
+    "steps": [
+      "Take the clean text from the last lesson (or a document of yours) and write 5 questions with the exact answer sentence.",
+      "Split it into 50-, 200- and 800-word chunks with 10% overlap (LangChain RecursiveCharacterTextSplitter or a simple loop).",
+      "For each size, check that each answer sentence fits whole in some chunk."
+    ],
+    "ok": "there’s a size where all 5 answers fit whole and each chunk covers a single topic. That’s your starting point."
+  }
+}

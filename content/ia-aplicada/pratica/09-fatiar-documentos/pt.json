@@ -1,0 +1,158 @@
+{
+  "title": "Fatiar sem cortar a resposta",
+  "subtitle": "Tamanho do pedaço, sobreposição e a frase que cai no meio",
+  "mission": "Divida o manual da Aurora em pedaços para o índice. Pedaço grande mistura assuntos e gasta tokens; pedaço pequeno corta a resposta ao meio. Ache um tamanho e uma sobreposição em que a frase da resposta caiba inteira.",
+  "predict": {
+    "question": "se você dobrar o tamanho do pedaço de 40 para 80 palavras, o número de pedaços…",
+    "options": {
+      "half": "Cai mais ou menos pela metade",
+      "same": "Fica igual",
+      "double": "Dobra"
+    }
+  },
+  "feedback": {
+    "right": "isso: o texto é o mesmo, então pedaços com o dobro do tamanho dão perto da metade. A sobreposição muda um pouco a conta, porque cada pedaço repete o fim do anterior.",
+    "wrong": "cai perto da metade: o texto é o mesmo, só cortado em pedaços maiores. A sobreposição faz a conta não ser exata.",
+    "skipped": "sem palpite? Compare o número de pedaços com 40 e com 80."
+  },
+  "coach": {
+    "ui": "palpite anotado. Leve o tamanho de 40 para 80 e veja o contador de pedaços.",
+    "cmd": "palpite anotado. Rode fatiar --tamanho 40 e depois --tamanho 80."
+  },
+  "tryNext": {
+    "ui": "Agora tamanho 200: sobra quase um pedaço só. A busca acha, mas o trecho que vai para o LLM traz o manual inteiro.",
+    "cmd": "Rode fatiar --tamanho 200 e veja o aviso de pedaço grande."
+  },
+  "why": {
+    "simples": "Para a IA consultar um manual, a gente corta ele em pedaços, como fichas. Ficha pequena demais pode cortar a frase da resposta ao meio; ficha grande demais tem tudo misturado.\nA sobreposição é repetir o fim de uma ficha no começo da próxima, para nada ficar perdido na emenda.",
+    "dev": "Chunking por tamanho fixo (em palavras ou tokens) com sobreposição é o ponto de partida. Melhor ainda: cortar respeitando a estrutura (títulos, parágrafos, itens de lista) e só então limitar o tamanho.\nTamanhos comuns ficam entre 200 e 800 tokens com 10% a 20% de sobreposição, mas o certo depende das perguntas: meça com um conjunto de teste (lição de recall@k) em vez de copiar um número.",
+    "especialista": "O pedaço serve a dois usos com forças opostas: para o embedding, pequeno e focado num assunto dá vetores mais precisos; para o LLM, maior dá contexto. Um padrão é indexar pedaços pequenos e devolver o trecho \"pai\" maior (parent-child, ou janela de frases).\nRegistre o deslocamento de cada pedaço no documento original para citar e destacar a fonte. Ao mudar a estratégia de corte, reindexe tudo e compare o recall no mesmo conjunto."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: tamanho 6 e sobreposição 0, com a pergunta da antecedência.",
+      "cmd": "hora de quebrar: rode fatiar \"Com quanta antecedência eu peço férias?\" --tamanho 6 --sobreposicao 0"
+    },
+    "success": "Quebrou: com pedaços de {size} palavras e sobreposição {overlap}, a frase da resposta ficou dividida entre dois pedaços. Nenhum pedaço sozinho responde.",
+    "calm": "{n} pedaços de {size} palavras (~{tokens} tokens) e a resposta coube inteira. Para quebrar, deixe o pedaço bem pequeno e sem sobreposição."
+  },
+  "hints": {
+    "ui": [
+      "Mexa nos controles; a cena atualiza sozinha.",
+      "\"Inteira em algum pedaço?\" diz se a frase da resposta cabe num pedaço só.",
+      "Tamanho 6 e sobreposição 0 com a pergunta da antecedência."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de fatiar.",
+      "--tamanho é em palavras; --sobreposicao é quantas palavras repetir entre pedaços.",
+      "fatiar \"Com quanta antecedência eu peço férias?\" --tamanho 6 --sobreposicao 0"
+    ]
+  },
+  "errors": {
+    "belowMin.size": "Pelo menos 4 palavras por pedaço.",
+    "aboveMax.size": "Até 400 palavras neste exercício.",
+    "aboveMax.overlap": "Até 100 palavras de sobreposição.",
+    "model.overlapTooBig": "A sobreposição precisa ser menor que o tamanho do pedaço, senão ele nunca anda."
+  },
+  "controls": {
+    "arg": "Pergunta de teste",
+    "size": "Tamanho do pedaço (palavras)",
+    "overlap": "Sobreposição (palavras)"
+  },
+  "scene": {
+    "label": "Fatiador",
+    "empty": "Rode para fatiar.",
+    "n": "pedaços",
+    "tokens": "tokens por pedaço (aprox.)",
+    "whole": "inteira em algum pedaço?",
+    "yes": "sim",
+    "no": "não",
+    "table": "Pedaços mais relevantes",
+    "chunk": "pedaço",
+    "score": "pontuação %",
+    "splitNote": "A frase da resposta não cabe inteira em nenhum pedaço.",
+    "broadNote": "Pedaços enormes: a busca acha, mas cada um mistura vários assuntos e gasta muitos tokens no LLM."
+  },
+  "data": {
+    "chunkTexts": [
+      "As férias devem ser solicitadas pelo portal do colaborador com 30 dias de antecedência e dependem da aprovação do gestor.",
+      "É possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.",
+      "O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+      "O vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.",
+      "O plano de saúde cobre cônjuge e filhos até 24 anos como dependentes, com coparticipação nas consultas.",
+      "A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+      "O trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.",
+      "Quem tem dias de trabalho remoto recebe um auxílio home office de R$ 120 por mês, pago junto com o salário.",
+      "Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.",
+      "Internet e energia de casa não são reembolsáveis: esses custos já são cobertos pelo auxílio home office.",
+      "Para trocar a senha do portal, use Meu perfil > Segurança ou ligue no ramal 4000 da TI.",
+      "Para acessar a VPN, instale o app corporativo e selecione o perfil AUR-VPN-02."
+    ],
+    "needles": {
+      "Com quanta antecedência eu peço férias?": "pelo portal do colaborador com 30 dias de antecedência",
+      "Quando sai a PLR?": "PLR é paga em março, proporcional ao atingimento",
+      "Qual perfil de VPN eu uso?": "instale o app corporativo e selecione o perfil AUR-VPN-02.",
+      "Quem pode ser dependente no plano de saúde?": "cobre cônjuge e filhos até 24 anos como dependentes"
+    },
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "quanta",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "uma",
+      "uns",
+      "umas",
+      "tem",
+      "faco",
+      "fazer",
+      "devo",
+      "eu",
+      "de",
+      "do",
+      "da",
+      "das",
+      "dos",
+      "no",
+      "na",
+      "nos",
+      "nas",
+      "o",
+      "a",
+      "os",
+      "as",
+      "e",
+      "ou",
+      "em",
+      "ao",
+      "se",
+      "sai",
+      "vou"
+    ],
+    "tokPerWord": 1.6
+  },
+  "recipe": {
+    "steps": [
+      "Pegue o texto limpo da lição anterior (ou um documento seu) e escreva 5 perguntas com a frase exata da resposta.",
+      "Corte em pedaços de 50, 200 e 800 palavras, com 10% de sobreposição (LangChain RecursiveCharacterTextSplitter ou um laço simples).",
+      "Para cada tamanho, verifique se a frase de cada resposta cabe inteira em algum pedaço."
+    ],
+    "ok": "existe um tamanho em que todas as 5 respostas cabem inteiras e cada pedaço trata de um assunto só. Esse é o seu ponto de partida."
+  }
+}

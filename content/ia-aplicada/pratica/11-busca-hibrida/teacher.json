@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Comparar busca vetorial e por palavra-chave.",
+      "Combinar notas com peso ou RRF.",
+      "Escolher o modo pelo tipo de pergunta."
+    ],
+    "minutes": 20,
+    "activity": "Metade da turma escreve perguntas com sinônimos, a outra metade com siglas da escola ou empresa. Testem nos três modos e anotem quem acerta.",
+    "discussion": [
+      "Que tipo de pergunta o seu público mais faz?",
+      "Por que RRF dispensa normalizar as notas?"
+    ],
+    "misconceptions": [
+      "\"Busca vetorial substitui a busca por palavra.\" Para códigos e siglas, a palavra exata ainda ganha."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Compare vector and keyword search.",
+      "Combine scores with a weight or RRF.",
+      "Pick the mode by question type."
+    ],
+    "minutes": 20,
+    "activity": "Half the class writes questions with synonyms, the other half with school or company acronyms. Test all three modes and note who wins.",
+    "discussion": [
+      "What kind of question does your audience ask most?",
+      "Why does RRF need no score normalization?"
+    ],
+    "misconceptions": [
+      "\"Vector search replaces keyword search.\" For codes and acronyms, exact words still win."
+    ]
+  }
+}

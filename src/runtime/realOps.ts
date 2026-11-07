@@ -107,6 +107,35 @@ export const OPS: Record<string, RealOp> = {
     return { realSims: sims, realTop: order[0]?.[1] ?? -1, realTopSim: order[0]?.[0] ?? 0, realOrder: order.map((o) => o[1]) };
   },
 
+  /** Similarity of every query against every document: realMatrix[q][d]. */
+  async embedmatrix(env, args, deps) {
+    if (!deps.embed) throw new Error('embeddings need the in-browser executor');
+    const qs = listFrom(env, args.queries).map((x) => `${args.queryPrefix ?? ''}${String(x)}`);
+    const ds = listFrom(env, args.against).map((x) => `${args.passagePrefix ?? ''}${String(x)}`);
+    const vecs = await deps.embed([...qs, ...ds]);
+    const Q = vecs.slice(0, qs.length);
+    const D = vecs.slice(qs.length);
+    return { realMatrix: Q.map((q) => D.map((d) => Math.round(cosine(q, d) * 1000) / 1000)) };
+  },
+
+  /** LLM as reranker: scores each candidate 0–10 for the question. */
+  async rerank(env, args, deps) {
+    const cands = listFrom(env, args.candidates).map(String);
+    const q = String(env[String(args.query ?? 'text')] ?? '');
+    const list = cands.map((c, i) => `[${i + 1}] ${c}`).join('\n');
+    const reply = await deps.chat(
+      [
+        { role: 'system', content: fill(args.system, env) },
+        { role: 'user', content: `${q}\n\n${list}` },
+      ],
+      { temperature: 0, max_tokens: 120 },
+    );
+    const obj = extractJson(reply);
+    const raw = (obj?.scores as unknown[]) ?? [];
+    const scores = cands.map((_, i) => Math.max(0, Math.min(10, Number(raw[i] ?? 0))) / 10);
+    return { realRerank: scores, realRerankOk: Array.isArray(obj?.scores) };
+  },
+
   async chat(env, args, deps, values) {
     const n = Math.max(1, Math.min(5, Number(values.samples ?? args.samples ?? 1)));
     const outs: string[] = [];

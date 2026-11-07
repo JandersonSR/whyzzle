@@ -1,0 +1,145 @@
+{
+  "title": "Ingestão: limpar antes de indexar",
+  "subtitle": "Cabeçalho, palavra quebrada e linha repetida: o lixo que estraga o RAG",
+  "mission": "O manual da Aurora veio de um PDF. Antes de qualquer embedding, deixe o texto limpo: tire cabeçalho e rodapé, junte palavras quebradas e remova linhas repetidas. Depois confira se a busca acha a resposta.",
+  "predict": {
+    "question": "o texto bruto tem 12 linhas. Quantas são lixo (cabeçalho, rodapé ou repetida)?",
+    "options": {
+      "zero": "Nenhuma, PDF já sai limpo",
+      "five": "Umas 5",
+      "ten": "Quase todas"
+    }
+  },
+  "feedback": {
+    "right": "isso: 4 linhas de cabeçalho e rodapé e 1 repetida, quase metade do texto. Num PDF de 300 páginas, isso vira centenas de trechos inúteis no índice.",
+    "wrong": "são 5: 4 de cabeçalho e rodapé e 1 repetida. PDF guarda o layout da página, não o texto corrido; o lixo vem junto.",
+    "skipped": "sem palpite? Desligue as três limpezas e conte o que aparece em vermelho."
+  },
+  "coach": {
+    "ui": "palpite anotado. Desligue as três chaves e veja o texto bruto; depois ligue uma de cada vez.",
+    "cmd": "palpite anotado. Rode limpar --cabecalho nao --hifen nao --duplicadas nao e depois ligue uma de cada vez."
+  },
+  "tryNext": {
+    "ui": "Agora pergunte \"Posso dividir minhas férias?\" com e sem remover duplicadas. A busca acha nos dois casos, mas o índice fica maior.",
+    "cmd": "Rode limpar \"Posso dividir minhas férias?\" --duplicadas nao e compare as linhas."
+  },
+  "why": {
+    "simples": "Antes de guardar um documento para a IA consultar, a gente arruma a bagunça: tira o \"cabeçalho de toda página\", gruda palavras que o PDF partiu no fim da linha e joga fora repetições.\nSe \"ante-\" e \"cedência\" ficarem separados, ninguém acha \"antecedência\".",
+    "dev": "Ingestão é extrair, limpar e normalizar antes de fatiar. Regras típicas: remover cabeçalhos e rodapés por padrão (texto que se repete em toda página), juntar hifenização de fim de linha, remover duplicatas exatas, normalizar espaços e Unicode.\nGuarde metadados úteis (seção, página, data) separados do texto: eles servem para filtrar e citar, não para gerar embedding.",
+    "especialista": "Extração de PDF é a parte mais frágil do RAG: tabelas viram texto embaralhado, colunas se misturam, PDFs escaneados precisam de OCR. Meça a qualidade com amostras (quantos trechos têm palavra quebrada ou lixo) antes de culpar o modelo de embedding.\nDuplicatas quase iguais (versões do mesmo documento) pedem deduplicação por similaridade e uma regra de \"versão vigente\"; senão o assistente cita a política antiga. Reprocesse quando a fonte mudar e versionem o pipeline."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: desligue \"Juntar palavras quebradas\" e pergunte da antecedência das férias.",
+      "cmd": "hora de quebrar: rode limpar \"Com quanta antecedência eu peço férias?\" --hifen nao"
+    },
+    "success": "Quebrou: com {broken} palavra partida, \"antecedência\" não existe no índice e a busca devolveu outra linha. Um hífen de fim de linha bastou para esconder a resposta.",
+    "calm": "{removed} linhas de lixo removidas e a resposta foi achada. Para quebrar, deixe a palavra partida e pergunte da antecedência."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma pergunta e mexa nas chaves; a cena atualiza sozinha.",
+      "Linhas com \"!\" são cabeçalho ou rodapé; \"palavras partidas\" são as que o PDF quebrou com hífen.",
+      "Desligue \"Juntar palavras quebradas\" com a pergunta da antecedência."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de limpar. As limpezas começam ligadas.",
+      "--cabecalho, --hifen e --duplicadas aceitam sim ou nao.",
+      "limpar \"Com quanta antecedência eu peço férias?\" --hifen nao"
+    ]
+  },
+  "errors": {
+    "notBool.headers": "Use sim ou nao.",
+    "notBool.hyphen": "Use sim ou nao.",
+    "notBool.dupes": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Pergunta de teste",
+    "headers": "Tirar cabeçalho e rodapé",
+    "hyphen": "Juntar palavras quebradas",
+    "dupes": "Remover linhas repetidas"
+  },
+  "scene": {
+    "label": "Limpeza do manual",
+    "empty": "Rode para limpar.",
+    "removed": "lixo removido",
+    "junkLeft": "lixo que ficou",
+    "broken": "palavras partidas",
+    "docs": "Texto que vai para o índice",
+    "q": "Pergunta",
+    "bm25": "Busca",
+    "keyword": "palavra-chave",
+    "found": "Achou a resposta?",
+    "yes": "sim",
+    "no": "não",
+    "nothing": "Nenhuma linha bateu com a pergunta."
+  },
+  "data": {
+    "raw": "AURORA TECNOLOGIA LTDA · CONFIDENCIAL\nManual do Colaborador · Página 1 de 2\nPOLÍTICA DE FÉRIAS\nAs férias devem ser solicitadas pelo portal do colaborador com 30 dias de ante-\ncedência e dependem da aprovação do gestor.\nÉ possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.\nÉ possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.\nAURORA TECNOLOGIA LTDA · CONFIDENCIAL\nManual do Colaborador · Página 2 de 2\nBENEFÍCIOS\nO vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.\nA PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+    "needles": {
+      "Com quanta antecedência eu peço férias?": "30 dias",
+      "Posso dividir minhas férias?": "três períodos",
+      "Quando sai a PLR?": "março",
+      "Qual é o valor do VR?": "R$ 45"
+    },
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "quanta",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "uma",
+      "uns",
+      "umas",
+      "tem",
+      "faco",
+      "fazer",
+      "devo",
+      "eu",
+      "de",
+      "do",
+      "da",
+      "das",
+      "dos",
+      "no",
+      "na",
+      "nos",
+      "nas",
+      "o",
+      "a",
+      "os",
+      "as",
+      "e",
+      "ou",
+      "em",
+      "ao",
+      "se",
+      "sai",
+      "vou"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Pegue um PDF real da sua empresa (manual, política) e extraia o texto com uma ferramenta como pdftotext ou a biblioteca pypdf.",
+      "Procure três problemas: linhas que se repetem em toda página, palavras partidas com hífen no fim da linha e parágrafos duplicados.",
+      "Escreva uma regra para cada um e conte quantas linhas sobram."
+    ],
+    "ok": "o texto limpo não tem cabeçalho repetido nem palavra partida, e uma busca por uma palavra do meio de uma quebra (como \"antecedência\") encontra o parágrafo certo."
+  }
+}

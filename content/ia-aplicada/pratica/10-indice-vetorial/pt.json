@@ -1,0 +1,331 @@
+{
+  "title": "Um índice vetorial no navegador",
+  "subtitle": "Quanto ocupa cada vetor e quando a busca exata deixa de servir",
+  "mission": "Indexe os 12 trechos do manual da Aurora com embeddings reais no seu aparelho e busque neles. Depois aumente a escala e descubra quando o índice não cabe mais no navegador.",
+  "predict": {
+    "question": "12 trechos × 384 dimensões × 4 bytes por número. Quanto ocupa o índice?",
+    "options": {
+      "kb": "Uns 18 KB",
+      "mb": "Uns 18 MB",
+      "gb": "Uns 2 GB"
+    }
+  },
+  "feedback": {
+    "right": "isso: 12 × 384 × 4 = 18.432 bytes. Um manual inteiro cabe com folga no navegador; o modelo de embedding (~120 MB) pesa muito mais que o índice.",
+    "wrong": "são uns 18 KB: 12 × 384 × 4 = 18.432 bytes. Vetor é pequeno; o que cresce é a quantidade.",
+    "skipped": "sem palpite? Rode e olhe a memória."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com a escala em 12. Para embeddings reais, escolha \"No navegador\" (~120 MB, uma vez).",
+    "cmd": "palpite anotado. Rode indexar com --escala 12; troque o executor na cena para usar embeddings reais."
+  },
+  "tryNext": {
+    "ui": "Pergunte \"Quanto tempo antes devo avisar que vou descansar?\": nenhuma palavra em comum com o trecho das férias, e mesmo assim ele vem primeiro.",
+    "cmd": "Rode indexar \"Quanto tempo antes devo avisar que vou descansar?\" e veja o primeiro trecho."
+  },
+  "why": {
+    "simples": "Cada trecho do manual vira uma lista de 384 números que resume o significado. Guardar isso é barato: o manual todo ocupa menos que uma foto.\nPara buscar, a pergunta também vira números e a gente compara com todos os trechos. Com milhões de trechos, comparar um por um fica lento e pesado.",
+    "dev": "Memória ≈ vetores × dimensões × 4 bytes (float32), mais metadados e o texto. Busca exata (força bruta) compara a consulta com todos os vetores: perfeita, mas O(n·d).\nNo navegador, até dezenas de milhares de trechos funcionam bem em memória (ou no IndexedDB). Acima disso, use um banco vetorial no servidor com índice aproximado (ANN, como HNSW): pgvector, Qdrant, Elasticsearch e similares.",
+    "especialista": "Índices ANN trocam um pouco de recall por muita velocidade; parâmetros como M e ef no HNSW controlam essa troca e o uso de memória. Quantização (int8, binária) e dimensões menores (modelos Matryoshka) reduzem memória com alguma perda.\nO embedding da consulta e dos documentos precisa vir do mesmo modelo e versão: trocar o modelo exige reindexar tudo. Guarde a versão do modelo junto do índice e meça o recall antes e depois de qualquer mudança."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: leve a escala para 1.000.000 de trechos.",
+      "cmd": "hora de quebrar: rode indexar --escala 1000000"
+    },
+    "success": "Quebrou: {scale} vetores de {dims} dimensões ocupam {mem}, mais do que uma aba de navegador aguenta com folga. Nessa escala, o índice vai para um servidor com busca aproximada.",
+    "calm": "{scale} vetores ocupam {mem} e a busca exata leva ~{ms} ms. Para quebrar, aumente a escala até passar de 500 MB."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma pergunta e aperte Rodar.",
+      "\"Escala\" é quantos trechos o índice teria; \"dims\" é o tamanho de cada vetor.",
+      "Escala 1.000.000."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de indexar.",
+      "--escala é o número de trechos; --dims o tamanho do vetor; --top quantos resultados.",
+      "indexar --escala 1000000"
+    ]
+  },
+  "errors": {
+    "aboveMax.scale": "Até 100 milhões neste exercício.",
+    "belowMin.scale": "Pelo menos 1 trecho.",
+    "belowMin.dims": "Pelo menos 16 dimensões.",
+    "aboveMax.dims": "Até 4096 dimensões.",
+    "aboveMax.top": "Até 5 resultados."
+  },
+  "controls": {
+    "arg": "Pergunta",
+    "scale": "Escala (trechos)",
+    "dims": "Dimensões do vetor",
+    "top": "Resultados (top-k)"
+  },
+  "scene": {
+    "label": "Índice vetorial",
+    "empty": "Rode para indexar e buscar.",
+    "mem": "memória do índice",
+    "vectors": "vetores",
+    "brute": "busca exata (estimada)",
+    "q": "Consulta",
+    "embed": "Embedding",
+    "simShort": "simulado",
+    "compare": "Comparar com todos",
+    "topk": "Top-k",
+    "table": "Trechos mais parecidos",
+    "source": "seção",
+    "chunk": "trecho",
+    "sim": "similaridade",
+    "bigNote": "Passou de 500 MB: pesado demais para o navegador. Use um banco vetorial no servidor.",
+    "annNote": "A busca exata passou de 100 ms por consulta. Nessa escala, use um índice aproximado (HNSW).",
+    "simNote": "Modo simulado: similaridades aproximadas escritas à mão. Use \"No navegador\" para embeddings reais."
+  },
+  "data": {
+    "chunkTexts": [
+      "As férias devem ser solicitadas pelo portal do colaborador com 30 dias de antecedência e dependem da aprovação do gestor.",
+      "É possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.",
+      "O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+      "O vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.",
+      "O plano de saúde cobre cônjuge e filhos até 24 anos como dependentes, com coparticipação nas consultas.",
+      "A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+      "O trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.",
+      "Quem tem dias de trabalho remoto recebe um auxílio home office de R$ 120 por mês, pago junto com o salário.",
+      "Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.",
+      "Internet e energia de casa não são reembolsáveis: esses custos já são cobertos pelo auxílio home office.",
+      "Para trocar a senha do portal, use Meu perfil > Segurança ou ligue no ramal 4000 da TI.",
+      "Para acessar a VPN, instale o app corporativo e selecione o perfil AUR-VPN-02."
+    ],
+    "chunkSources": [
+      "Férias",
+      "Férias",
+      "Férias",
+      "Benefícios",
+      "Benefícios",
+      "Benefícios",
+      "Trabalho remoto",
+      "Trabalho remoto",
+      "Reembolso",
+      "Reembolso",
+      "TI",
+      "TI"
+    ],
+    "semSims": {
+      "Com quanta antecedência eu peço férias?": [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso dividir minhas férias?": [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Quando sai a PLR?": [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Qual perfil de VPN eu uso?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      "Quem pode ser dependente no plano de saúde?": [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso pedir reembolso da internet de casa?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      "Quanto tempo antes devo avisar que vou descansar?": [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso vender parte das férias e quanto recebo de VR por dia?": [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Esqueci minha senha, o que faço?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ]
+    },
+    "goldMap": {
+      "Com quanta antecedência eu peço férias?": [
+        0
+      ],
+      "Posso dividir minhas férias?": [
+        1
+      ],
+      "Quando sai a PLR?": [
+        5
+      ],
+      "Qual perfil de VPN eu uso?": [
+        11
+      ],
+      "Quem pode ser dependente no plano de saúde?": [
+        4
+      ],
+      "Posso pedir reembolso da internet de casa?": [
+        9,
+        7
+      ],
+      "Quanto tempo antes devo avisar que vou descansar?": [
+        0
+      ],
+      "Posso vender parte das férias e quanto recebo de VR por dia?": [
+        2,
+        3
+      ],
+      "Esqueci minha senha, o que faço?": [
+        10
+      ]
+    },
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "quanta",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "uma",
+      "uns",
+      "umas",
+      "tem",
+      "faco",
+      "fazer",
+      "devo",
+      "eu",
+      "de",
+      "do",
+      "da",
+      "das",
+      "dos",
+      "no",
+      "na",
+      "nos",
+      "nas",
+      "o",
+      "a",
+      "os",
+      "as",
+      "e",
+      "ou",
+      "em",
+      "ao",
+      "se",
+      "sai",
+      "vou"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Com Transformers.js, gere embeddings dos trechos do seu documento com o multilingual-e5-small (prefixo \"passage: \").",
+      "Guarde os vetores num array (ou no IndexedDB) com o texto e a seção de cada trecho.",
+      "Gere o embedding da pergunta (prefixo \"query: \"), calcule o cosseno com todos e mostre os 3 maiores."
+    ],
+    "ok": "uma pergunta escrita com outras palavras ainda traz o trecho certo entre os 3 primeiros, e o índice inteiro ocupa poucos KB."
+  }
+}

@@ -259,6 +259,95 @@ const FUNCS: Record<string, (args: Value[], rng: () => number) => Value> = {
       const w = String(s ?? '').split(/\s+/);
       return w.length > num(n) ? w.slice(0, Math.max(1, num(n))).join(' ') + '…' : String(s ?? '');
     }),
+  /** Text → word chunks of `size` words with `overlap` words shared between neighbors. */
+  chunks: ([text, size, overlap]) => {
+    const w = String(text ?? '').split(/\s+/).filter(Boolean);
+    const n = Math.max(1, Math.floor(num(size)));
+    const o = Math.min(n - 1, Math.max(0, Math.floor(num(overlap ?? 0))));
+    const out: string[] = [];
+    for (let i = 0; i < w.length; i += n - o) {
+      out.push(w.slice(i, i + n).join(' '));
+      if (i + n >= w.length) break;
+    }
+    return out;
+  },
+  lines: ([text]) => String(text ?? '').split(/\n/),
+  /** Drops items that contain any of the patterns (case-insensitive). */
+  dropmatching: ([list, patterns]) => {
+    const ps = arr(patterns).map((p) => String(p).toLowerCase());
+    return arr(list).filter((x) => !ps.some((p) => String(x).toLowerCase().includes(p)));
+  },
+  trimall: ([list]) => arr(list).map((x) => String(x ?? '').trim()).filter((x) => x !== ''),
+  /** Re-joins words broken across lines with a hyphen ("ante-\ncedência"). */
+  unhyphen: ([text]) => String(text ?? '').replace(/(\p{L})-\n(\p{L})/gu, '$1$2'),
+  /** BM25 keyword scores of a query against documents, scaled so the best is 1. */
+  bm25: ([query, docs, stop]) => {
+    const norm = (x: unknown) => String(x ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const skip = new Set(arr(stop).map(norm));
+    const toks = (x: unknown) => norm(x).split(/[^a-z0-9]+/).filter((t) => t.length > 1 && !skip.has(t));
+    const D = arr(docs).map(toks);
+    const N = D.length || 1;
+    const avg = D.reduce((s, d) => s + d.length, 0) / N || 1;
+    const q = Array.from(new Set(toks(query)));
+    const k1 = 1.2;
+    const b = 0.75;
+    const scores = D.map((d) =>
+      q.reduce((sum, term) => {
+        const tf = d.filter((t) => t === term).length;
+        if (!tf) return sum;
+        const df = D.filter((x) => x.includes(term)).length;
+        const idf = Math.log(1 + (N - df + 0.5) / (df + 0.5));
+        return sum + (idf * tf * (k1 + 1)) / (tf + k1 * (1 - b + (b * d.length) / avg));
+      }, 0),
+    );
+    const max = Math.max(...scores, 0);
+    return scores.map((s) => (max ? Math.round((s / max) * 1000) / 1000 : 0));
+  },
+  /** Each value divided by the largest (0 when all are 0). */
+  normalizeall: ([list]) => {
+    const l = arr(list).map(num);
+    const max = Math.max(...l, 0);
+    return l.map((v) => (max ? v / max : 0));
+  },
+  /** Rescales to 0–1 by min and max (all 0 when flat). */
+  minmax: ([list]) => {
+    const l = arr(list).map(num);
+    const lo = Math.min(...l);
+    const hi = Math.max(...l);
+    return l.map((v) => (hi > lo ? (v - lo) / (hi - lo) : 0));
+  },
+  minmaxall: ([m], rng) => arr(m).map((row) => FUNCS.minmax([row], rng)),
+  bm25all: ([queries, docs, stop], rng) => arr(queries).map((q) => FUNCS.bm25([q, docs, stop], rng)),
+  blendall: ([m1, m2, a], rng) => arr(m1).map((row, i) => FUNCS.blend([row, arr(m2)[i], a], rng)),
+  /** Indices of the k best values; scores of 0 or less are never "found". */
+  topk: ([list, k], rng) =>
+    (FUNCS.order([list], rng) as Value[]).filter((i) => num(arr(list)[num(i)]) > 0).slice(0, Math.max(0, num(k))),
+  /** 1 for each item that is in the set, else 0. */
+  memberall: ([list, set]) => arr(list).map((x) => (arr(set).includes(x) ? 1 : 0)),
+  /** Prefixes each text: `yes` when it contains any pattern (case-insensitive), else `no`. */
+  tagmatching: ([list, patterns, yes, no]) => {
+    const ps = arr(patterns).map((p) => String(p).toLowerCase());
+    return arr(list).map((x) => (ps.some((p) => String(x).toLowerCase().includes(p)) ? String(yes ?? '') : String(no ?? '')) + String(x));
+  },
+  /** recall@k of each row against its gold list. */
+  recallall: ([m, golds, k], rng) => arr(m).map((row, i) => FUNCS.recall([FUNCS.topk([row, k], rng), arr(golds)[i]], rng) as number),
+  split: ([text, sep]) => String(text ?? '').split(String(sep)).map((x) => x.trim()).filter(Boolean),
+  anyincludes: ([list, s]) => arr(list).some((x) => String(x).includes(String(s))),
+  /** a·x + b·y, item by item. */
+  blend: ([x, y, a]) => arr(x).map((v, i) => num(a) * num(v) + (1 - num(a)) * num(arr(y)[i] ?? 0)),
+  /** map[key] when present, else the default. */
+  lookup: ([map, key, dflt]) => {
+    const m = map && typeof map === 'object' ? (map as Record<string, Value>) : {};
+    return Object.prototype.hasOwnProperty.call(m, String(key)) ? m[String(key)] : dflt;
+  },
+  /** Numbers cited as [n] in a text. */
+  refs: ([text]) => Array.from(String(text ?? '').matchAll(/\[(\d+)\]/g)).map((m) => Number(m[1])),
+  /** Fraction of the gold ids found in the top-k list (recall@k). */
+  recall: ([top, gold]) => {
+    const g = arr(gold);
+    if (!g.length) return 1;
+    return g.filter((x) => arr(top).includes(x)).length / g.length;
+  },
   endsany: ([s, list]) => arr(list).some((x) => String(s ?? '').trimEnd().endsWith(String(x))),
   /** Seeded random in [0, 1): deterministic in previews and tests. */
   rand: (_a, rng) => rng(),

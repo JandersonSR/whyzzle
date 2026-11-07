@@ -1,0 +1,228 @@
+{
+  "id": "p-busca-hibrida",
+  "order": 11,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "rag",
+    "busca-hibrida",
+    "bm25",
+    "embeddings"
+  ],
+  "requires": [
+    "p-indice-vetorial"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "buscar",
+      "en": "search"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Quanto tempo antes devo avisar que vou descansar?",
+        "en": "How long before should I tell them I’ll take time off?"
+      },
+      "examples": [
+        {
+          "pt": "Quanto tempo antes devo avisar que vou descansar?",
+          "en": "How long before should I tell them I’ll take time off?"
+        },
+        {
+          "pt": "Quando sai a PLR?",
+          "en": "When is the PLR paid?"
+        },
+        {
+          "pt": "Qual perfil de VPN eu uso?",
+          "en": "Which VPN profile do I use?"
+        },
+        {
+          "pt": "Com quanta antecedência eu peço férias?",
+          "en": "How far in advance do I request vacation?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "mode",
+        "alias": {
+          "pt": "modo",
+          "en": "mode"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "vector",
+            "pt": "vetor",
+            "en": "vector"
+          },
+          {
+            "id": "keyword",
+            "pt": "palavra",
+            "en": "keyword"
+          },
+          {
+            "id": "hybrid",
+            "pt": "hibrida",
+            "en": "hybrid"
+          }
+        ],
+        "default": "hybrid",
+        "ui": "select"
+      },
+      {
+        "name": "weight",
+        "alias": {
+          "pt": "peso",
+          "en": "weight"
+        },
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "default": 0.5,
+        "ui": "slider"
+      },
+      {
+        "name": "top",
+        "alias": {
+          "pt": "top",
+          "en": "top"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 5,
+        "default": 2,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "yes",
+      "no"
+    ],
+    "answer": "no"
+  },
+  "break": {
+    "flag": "vectorMiss"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realSims": []
+      },
+      "compute": {
+        "vec": "real ? realSims : roundall(lookup(semSims, text, affine(clampall(scale(overlapall(text, chunkTexts, stop), 4), 0, 1), 0.7, 0.2)), 3)",
+        "vecN": "minmax(vec)",
+        "kw": "bm25(text, chunkTexts, stop)",
+        "score": "mode == 'vector' ? vecN : (mode == 'keyword' ? kw : blend(vecN, kw, weight))",
+        "top": "topk(score, top)",
+        "gold": "lookup(goldMap, text, [])",
+        "r": "recall(top, gold)",
+        "hit": "len(gold) > 0 && r == 1"
+      },
+      "cases": [
+        {
+          "when": "hit",
+          "flags": [
+            "found"
+          ]
+        },
+        {
+          "when": "mode == 'vector' && len(gold) > 0 && r < 1",
+          "flags": [
+            "vectorMiss"
+          ]
+        },
+        {
+          "when": "mode == 'keyword' && len(gold) > 0 && r < 1",
+          "flags": [
+            "keywordMiss"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "recallPct": "round(r * 100)",
+            "first": "len(top) ? chunkTexts[top[0]] : ''",
+            "mode": "mode"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "chart",
+          "label": "@chart",
+          "labels": "=range(12, 1)",
+          "series": [
+            {
+              "name": "@vec",
+              "values": "=roundall(scale(vecN, 100), 0)"
+            },
+            {
+              "name": "@kw",
+              "values": "=roundall(scale(kw, 100), 0)"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@source",
+            "@chunk",
+            "@score"
+          ],
+          "rows": "=zip(pickall(chunkSources, top), pickall(chunkTexts, top), roundall(scale(pickall(score, top), 100), 0))",
+          "tones": "=mark(len(top), 0, hit ? 'ok' : 'bad', 'neutral')"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@recall",
+              "value": "=round(r * 100)",
+              "format": "pct",
+              "tone": "=hit ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=len(top) == 0",
+          "tone": "bad",
+          "text": "@nothing"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Xenova/multilingual-e5-small",
+      "op": "embed",
+      "args": {
+        "against": "chunkTexts",
+        "queryPrefix": "query: ",
+        "passagePrefix": "passage: "
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@ import { getModel, type ModelCtx, type ModelResult } from '../engine/registry';
 import type { Lang } from '../engine/schema';
 import type { PromptResult } from '../models/promptGrader';
 import type { Tok, TokenizerResult } from '../models/tokenizer';
+import { computeEnv } from '../models/declarative';
 import { OPS } from './realOps';
 import type { ChatMessage, ChatOptions } from './webllm';
 
@@ -134,7 +135,8 @@ const declarativeReal: RealAdapter = {
   async run(values, ctx, deps, info, cfg) {
     const op = OPS[cfg?.op ?? ''];
     if (!op) throw new Error(`unknown real op "${cfg?.op}"`);
-    const env = { ...ctx.data, ...ctx.text, ...values };
+    // The op sees what the lesson computes before cases (e.g. chunks), in simulated terms.
+    const env = computeEnv(values, ctx);
     const injected = await op(env, { model: info.model, ...(cfg?.args ?? {}) }, deps, values);
     const r = getModel('declarative').run({ ...values, ...injected, real: true } as Values, ctx);
     return { ...r, real: info };

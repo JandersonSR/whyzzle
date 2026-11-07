@@ -47,6 +47,31 @@ describe('expression language', () => {
     expect(ev("len(unique(sample(['a','b','c'], 5, 1)))")).toBe(1);
   });
 
+  it('has RAG helpers', () => {
+    expect(ev("chunks('a b c d e f g', 3, 1)")).toEqual(['a b c', 'c d e', 'e f g']);
+    expect(ev("chunks('a b c d', 10, 0)")).toEqual(['a b c d']);
+    expect(ev("trimall(dropmatching(['Página 1 de 3', ' Férias ', 'CONFIDENCIAL', ''], ['página', 'confidencial']))")).toEqual(['Férias']);
+    expect(evaluate('unhyphen(t)', { t: 'ante-\ncedência' })).toBe('antecedência');
+    const s = evaluate("bm25('reembolso VR', docs)", { docs: ['VR é vale-refeição', 'reembolso de despesas', 'férias'] }) as number[];
+    expect(s[2]).toBe(0);
+    expect(Math.max(...s)).toBe(1);
+    expect(ev('blend([1, 0], [0, 1], 0.25)')).toEqual([0.25, 0.75]);
+    expect(evaluate("lookup(m, 'x', 0)", { m: { x: 2 } })).toBe(2);
+    expect(ev("refs('Sim [1], e [3].')")).toEqual([1, 3]);
+    expect(ev('recall([2, 5, 7], [5, 9])')).toBe(0.5);
+  });
+
+  it('has matrix helpers for retrieval evals', () => {
+    expect((ev('minmax([0.7, 0.8, 0.9])') as number[]).map((x: number) => Math.round(x * 10) / 10)).toEqual([0, 0.5, 1]);
+    expect(ev('topk([0.1, 0.9, 0.5], 2)')).toEqual([1, 2]);
+    expect(ev('recallall([[0.9, 0.1, 0.5], [0.1, 0.2, 0.9]], [[0], [0, 1]], 1)')).toEqual([1, 0]);
+    expect(ev("split('férias e VR', ' e ')")).toEqual(['férias', 'VR']);
+    expect(ev("anyincludes(['abc', 'xyz'], 'yz')")).toBe(true);
+    expect(ev('topk([0, 0, 0.4], 3)')).toEqual([2]);
+    expect(ev('memberall([3, 5, 7], [5])')).toEqual([0, 1, 0]);
+    expect(ev("tagmatching(['Página 1', 'texto'], ['página'], '! ', '')")).toEqual(['! Página 1', 'texto']);
+  });
+
   it('is deterministic with a seeded rng', () => {
     expect(evaluate('rand()', {}, makeRng(3))).toBe(evaluate('rand()', {}, makeRng(3)));
   });

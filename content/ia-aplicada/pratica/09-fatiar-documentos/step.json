@@ -1,0 +1,187 @@
+{
+  "id": "p-fatiar-documentos",
+  "order": 9,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "rag",
+    "chunking",
+    "sobreposicao"
+  ],
+  "requires": [
+    "p-ingestao-e-limpeza"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "fatiar",
+      "en": "chunk"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Com quanta antecedência eu peço férias?",
+        "en": "How far in advance do I request vacation?"
+      },
+      "examples": [
+        {
+          "pt": "Com quanta antecedência eu peço férias?",
+          "en": "How far in advance do I request vacation?"
+        },
+        {
+          "pt": "Quando sai a PLR?",
+          "en": "When is the PLR paid?"
+        },
+        {
+          "pt": "Qual perfil de VPN eu uso?",
+          "en": "Which VPN profile do I use?"
+        },
+        {
+          "pt": "Quem pode ser dependente no plano de saúde?",
+          "en": "Who can be a dependent on the health plan?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "size",
+        "alias": {
+          "pt": "tamanho",
+          "en": "size"
+        },
+        "type": "int",
+        "min": 4,
+        "max": 400,
+        "uiMax": 120,
+        "default": 40,
+        "ui": "slider"
+      },
+      {
+        "name": "overlap",
+        "alias": {
+          "pt": "sobreposicao",
+          "en": "overlap"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 100,
+        "uiMax": 30,
+        "default": 10,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "half",
+      "same",
+      "double"
+    ],
+    "answer": "half"
+  },
+  "break": {
+    "flag": "split"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "compute": {
+        "doc": "join(chunkTexts, ' ')",
+        "cs": "chunks(doc, size, overlap)",
+        "scores": "bm25(text, cs, stop)",
+        "top": "topk(scores, 3)",
+        "best": "len(top) ? cs[top[0]] : ''",
+        "needle": "lookup(needles, text, '')",
+        "whole": "anyincludes(cs, needle)",
+        "hit": "needle != '' && anyincludes(pickall(cs, top), needle)",
+        "tokens": "round(size * tokPerWord)"
+      },
+      "cases": [
+        {
+          "when": "overlap >= size",
+          "error": "overlapTooBig"
+        },
+        {
+          "when": "hit",
+          "flags": [
+            "hit"
+          ]
+        },
+        {
+          "when": "!whole",
+          "flags": [
+            "split"
+          ]
+        },
+        {
+          "when": "len(cs) <= 2",
+          "flags": [
+            "tooBroad"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "n": "len(cs)",
+            "size": "size",
+            "overlap": "overlap",
+            "tokens": "round(size * tokPerWord)"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@n",
+              "value": "=len(cs)",
+              "format": "int",
+              "tone": "=len(cs) <= 2 ? 'warn' : 'info'"
+            },
+            {
+              "label": "@tokens",
+              "value": "=tokens",
+              "format": "int",
+              "tone": "neutral"
+            },
+            {
+              "label": "@whole",
+              "value": "=whole ? '@yes' : '@no'",
+              "tone": "=whole ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "#",
+            "@chunk",
+            "@score"
+          ],
+          "rows": "=zip(scale(top, 1), pickall(cs, top), roundall(scale(pickall(scores, top), 100), 0))",
+          "tones": "=mark(len(top), 0, hit ? 'ok' : 'bad', 'neutral')"
+        },
+        {
+          "type": "note",
+          "when": "=!whole",
+          "tone": "bad",
+          "text": "@splitNote"
+        },
+        {
+          "type": "note",
+          "when": "=len(cs) <= 2",
+          "tone": "warn",
+          "text": "@broadNote"
+        }
+      ]
+    }
+  }
+}

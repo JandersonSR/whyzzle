@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Calcular a memória de um índice vetorial.",
+      "Rodar busca vetorial exata no navegador.",
+      "Saber quando partir para um índice aproximado."
+    ],
+    "minutes": 20,
+    "activity": "Cada grupo estima a memória do índice para um caso real (todos os e-mails de suporte de um ano, todos os contratos da empresa) e decide: navegador ou servidor?",
+    "discussion": [
+      "O que muda se trocarmos o modelo de embedding?",
+      "Por que guardar a versão do modelo junto do índice?"
+    ],
+    "misconceptions": [
+      "\"Vetor ocupa muito espaço.\" Um vetor de 384 dimensões tem ~1,5 KB; o problema é ter milhões."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Compute a vector index’s memory.",
+      "Run exact vector search in the browser.",
+      "Know when to move to an approximate index."
+    ],
+    "minutes": 20,
+    "activity": "Each group estimates index memory for a real case (a year of support emails, all company contracts) and decides: browser or server?",
+    "discussion": [
+      "What changes if we switch the embedding model?",
+      "Why store the model version with the index?"
+    ],
+    "misconceptions": [
+      "\"Vectors take lots of space.\" A 384-dim vector is ~1.5 KB; the issue is having millions."
+    ]
+  }
+}

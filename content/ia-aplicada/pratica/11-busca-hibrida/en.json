@@ -1,0 +1,314 @@
+{
+  "title": "Hybrid search: meaning + exact words",
+  "subtitle": "Vectors get synonyms, keywords catch acronyms; together they miss less",
+  "mission": "Aurora’s assistant gets questions with synonyms (\"time off\" instead of \"vacation\") and with acronyms and codes (PLR, AUR-VPN-02). Compare vector, keyword and hybrid search and find the weight that gets both right.",
+  "predict": {
+    "question": "\"How long before should I tell them I’ll take time off?\" shares no words with the vacation chunk. With keywords only, does it find the right chunk?",
+    "options": {
+      "yes": "Yes",
+      "no": "No"
+    }
+  },
+  "feedback": {
+    "right": "right: keyword search (BM25) only scores identical words. With no \"vacation\" or \"advance\" in the question, the right chunk scores zero. The vector, comparing meaning, finds it.",
+    "wrong": "it doesn’t: BM25 only scores identical words, and the question repeats none from the chunk. That’s where vectors win.",
+    "skipped": "no guess? Run with --mode keyword and then --mode vector."
+  },
+  "coach": {
+    "ui": "guess noted. Run the \"time off\" question in keyword mode, then vector, then hybrid.",
+    "cmd": "guess noted. Run search --mode keyword, then --mode vector and --mode hybrid."
+  },
+  "tryNext": {
+    "ui": "Now \"Which VPN profile do I use?\" in vector and hybrid mode. Who finds the AUR-VPN-02 code?",
+    "cmd": "Run search \"Which VPN profile do I use?\" --mode vector --top 1 and then --mode hybrid."
+  },
+  "why": {
+    "simples": "There are two ways to search: by meaning (it gets that \"time off\" is like \"vacation\") and by exact word (it finds \"PLR\" without knowing what it is).\nEach misses where the other hits, so hybrid search combines both scores.",
+    "dev": "BM25 scores rare terms that appear in the document; great for acronyms, codes, names and numbers, blind to synonyms. Embeddings capture paraphrase but dilute rare tokens the model barely saw.\nTo combine, normalize both scores (min-max) and mix with a weight, or use Reciprocal Rank Fusion (RRF), which merges by rank and needs no normalizing. Elasticsearch, OpenSearch, Weaviate, Qdrant and pgvector with full-text search support hybrid.",
+    "especialista": "The ideal weight depends on the question type: technical bases with many codes lean BM25; natural-language support leans vector. Choose on a labeled set (next lessons), not by gut.\nBeware min-max normalization: for a query sharing no words, it can stretch tiny differences into 0 to 1. RRF is more stable. In Portuguese, BM25 improves with accent folding, stopwords and stemming (the \"portuguese\" analyzer)."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: vector mode, top 1, with the PLR question.",
+      "cmd": "time to break it: run search \"When is the PLR paid?\" --mode vector --top 1"
+    },
+    "success": "Broken: vector only, the PLR acronym didn’t count and the first chunk was another one (\"{first}\"). Acronyms and codes need keywords too.",
+    "calm": "Recall {recallPct}% in {mode} mode. To break it, use vector only on a question with an acronym."
+  },
+  "hints": {
+    "ui": [
+      "Pick a question, a mode and hit Run.",
+      "\"Weight\" is how much of the vector goes into the hybrid score (1 = vector only, 0 = keyword only).",
+      "Vector mode, top 1, PLR question."
+    ],
+    "cmd": [
+      "The question goes in quotes, after search.",
+      "--mode vector, keyword or hybrid; --weight from 0 to 1; --top how many chunks.",
+      "search \"When is the PLR paid?\" --mode vector --top 1"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Modes: vector, keyword or hybrid.",
+    "aboveMax.weight": "Weight goes from 0 to 1.",
+    "aboveMax.top": "Up to 5 chunks."
+  },
+  "controls": {
+    "arg": "Question",
+    "mode": "Search mode",
+    "weight": "Vector weight",
+    "top": "Chunks (top-k)"
+  },
+  "scene": {
+    "label": "Hybrid search",
+    "empty": "Run to search.",
+    "chart": "Score of each chunk (1 to 12)",
+    "vec": "vector",
+    "kw": "keyword",
+    "table": "Chosen chunks",
+    "source": "section",
+    "chunk": "chunk",
+    "score": "score %",
+    "recall": "right chunks found",
+    "nothing": "No chunk scored: nothing in common with the question.",
+    "simNote": "Simulated mode: hand-written vector similarities; keywords are real BM25. Use \"In the browser\" for real vectors."
+  },
+  "data": {
+    "chunkTexts": [
+      "Vacation must be requested through the employee portal 30 days in advance and needs the manager’s approval.",
+      "Vacation can be split into up to three periods: one of at least 14 days and the others of at least 5 days each.",
+      "Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.",
+      "The meal allowance (VR) is R$ 45 per working day; anyone may swap it for the grocery allowance (VA) of the same value.",
+      "The health plan covers spouses and children up to 24 as dependents, with co-payment on appointments.",
+      "The PLR profit share is paid in March, proportional to how well company and team goals were met the previous year.",
+      "Remote work is allowed up to 2 days a week, agreed with the manager at the start of each month.",
+      "Anyone with remote days gets a R$ 120 monthly home office allowance, paid with the salary.",
+      "Work expenses are reimbursed with an invoice uploaded in the expenses app within 30 days.",
+      "Home internet and electricity aren’t reimbursable: those costs are already covered by the home office allowance.",
+      "To change your portal password, go to My profile > Security or call IT extension 4000.",
+      "To use the VPN, install the corporate app and select the AUR-VPN-02 profile."
+    ],
+    "chunkSources": [
+      "Vacation",
+      "Vacation",
+      "Vacation",
+      "Benefits",
+      "Benefits",
+      "Benefits",
+      "Remote work",
+      "Remote work",
+      "Expenses",
+      "Expenses",
+      "IT",
+      "IT"
+    ],
+    "semSims": {
+      "How far in advance do I request vacation?": [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Can I split my vacation?": [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "When is the PLR paid?": [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Which VPN profile do I use?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      "Who can be a dependent on the health plan?": [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Can I claim my home internet?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      "How long before should I tell them I’ll take time off?": [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Can I sell part of my vacation and how much VR do I get per day?": [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "I forgot my password, what do I do?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ]
+    },
+    "goldMap": {
+      "How far in advance do I request vacation?": [
+        0
+      ],
+      "Can I split my vacation?": [
+        1
+      ],
+      "When is the PLR paid?": [
+        5
+      ],
+      "Which VPN profile do I use?": [
+        11
+      ],
+      "Who can be a dependent on the health plan?": [
+        4
+      ],
+      "Can I claim my home internet?": [
+        9,
+        7
+      ],
+      "How long before should I tell them I’ll take time off?": [
+        0
+      ],
+      "Can I sell part of my vacation and how much VR do I get per day?": [
+        2,
+        3
+      ],
+      "I forgot my password, what do I do?": [
+        10
+      ]
+    },
+    "stop": [
+      "what",
+      "which",
+      "how",
+      "when",
+      "where",
+      "can",
+      "could",
+      "the",
+      "for",
+      "with",
+      "does",
+      "did",
+      "was",
+      "my",
+      "your",
+      "that",
+      "this",
+      "get",
+      "have",
+      "has",
+      "and",
+      "you",
+      "do",
+      "to",
+      "of",
+      "in",
+      "is",
+      "an",
+      "on",
+      "a",
+      "i",
+      "it",
+      "me",
+      "long",
+      "far",
+      "far",
+      "should",
+      "tell",
+      "them",
+      "ll"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Write 6 questions about a document of yours: 3 with synonyms and 3 with acronyms, codes or numbers.",
+      "Run vector search (embeddings) and BM25 (rank_bm25 in Python or wink-bm25 in JavaScript) and note each one’s first result.",
+      "Combine with RRF: score = 1/(60 + vector rank) + 1/(60 + BM25 rank) and compare."
+    ],
+    "ok": "vectors get the synonym ones, BM25 gets the acronym ones, and the combination gets at least 5 of the 6."
+  }
+}

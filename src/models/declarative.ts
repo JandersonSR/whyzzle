@@ -101,6 +101,15 @@ export function* expressionsIn(v: unknown): Generator<string> {
 
 const primitive = (v: unknown): v is string | number | boolean => ['string', 'number', 'boolean'].includes(typeof v);
 
+/** consts + command values + compute, before cases: what real ops may read (e.g. chunks to embed). */
+export function computeEnv(values: Record<string, unknown>, ctx: { data: Record<string, unknown>; text: Record<string, unknown>; lang: string; layer: string; rng: () => number }): Env {
+  const d = DeclData.parse(ctx.data.sim ?? {});
+  const env: Env = { ...ctx.data, ...ctx.text, ...d.consts, ...values, lang: ctx.lang, layer: ctx.layer };
+  delete env.sim;
+  for (const [name, src] of Object.entries(d.compute)) env[name] = evaluate(src, env, ctx.rng);
+  return env;
+}
+
 export const declarative: SimModel<DeclResult> = {
   id: 'declarative',
   run(values, ctx) {

@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Entender o efeito do tamanho do pedaço.",
+      "Usar sobreposição para não perder respostas na emenda.",
+      "Relacionar pedaço com custo de tokens."
+    ],
+    "minutes": 20,
+    "activity": "Imprimam uma página de um manual e cortem com tesoura em pedaços de 3 tamanhos. Cada grupo tenta responder perguntas usando só um pedaço.",
+    "discussion": [
+      "Por que cortar por parágrafo costuma ser melhor que por número fixo?",
+      "Quando vale devolver um trecho maior que o pedaço indexado?"
+    ],
+    "misconceptions": [
+      "\"Quanto maior o pedaço, melhor a resposta.\" Mais contexto também traz mais ruído e custo."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Understand how chunk size matters.",
+      "Use overlap so answers aren’t lost at the seam.",
+      "Relate chunk size to token cost."
+    ],
+    "minutes": 20,
+    "activity": "Print a handbook page and cut it with scissors into chunks of 3 sizes. Each group tries to answer questions using only one chunk.",
+    "discussion": [
+      "Why is splitting by paragraph usually better than by a fixed count?",
+      "When is it worth returning a passage bigger than the indexed chunk?"
+    ],
+    "misconceptions": [
+      "\"The bigger the chunk, the better the answer.\" More context also brings more noise and cost."
+    ]
+  }
+}

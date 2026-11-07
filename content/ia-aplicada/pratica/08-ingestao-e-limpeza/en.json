@@ -1,0 +1,136 @@
+{
+  "title": "Ingestion: clean before you index",
+  "subtitle": "Headers, broken words and repeated lines: the junk that spoils RAG",
+  "mission": "Aurora’s handbook came out of a PDF. Before any embedding, clean the text: drop headers and footers, join broken words and remove repeated lines. Then check that search finds the answer.",
+  "predict": {
+    "question": "the raw text has 12 lines. How many are junk (header, footer or repeated)?",
+    "options": {
+      "zero": "None, PDFs come out clean",
+      "five": "About 5",
+      "ten": "Almost all"
+    }
+  },
+  "feedback": {
+    "right": "right: 4 header and footer lines and 1 repeated, almost half the text. In a 300-page PDF that’s hundreds of useless chunks in the index.",
+    "wrong": "it’s 5: 4 header and footer lines and 1 repeated. A PDF stores the page layout, not flowing text; the junk comes along.",
+    "skipped": "no guess? Turn off all three clean-ups and count what shows up in red."
+  },
+  "coach": {
+    "ui": "guess noted. Turn off all three switches to see the raw text; then turn them on one at a time.",
+    "cmd": "guess noted. Run clean --headers no --hyphen no --dupes no, then turn them on one at a time."
+  },
+  "tryNext": {
+    "ui": "Now ask \"Can I split my vacation?\" with and without removing dupes. Search finds it both ways, but the index gets bigger.",
+    "cmd": "Run clean \"Can I split my vacation?\" --dupes no and compare the lines."
+  },
+  "why": {
+    "simples": "Before storing a document for the AI to look up, we tidy the mess: drop the \"header on every page\", glue back words the PDF split at line ends and throw away repeats.\nIf \"ad-\" and \"vance\" stay apart, nobody finds \"advance\".",
+    "dev": "Ingestion is extract, clean and normalize before chunking. Typical rules: drop headers and footers by pattern (text repeated on every page), join end-of-line hyphenation, remove exact duplicates, normalize whitespace and Unicode.\nKeep useful metadata (section, page, date) apart from the text: it’s for filtering and citing, not for embedding.",
+    "especialista": "PDF extraction is RAG’s most fragile part: tables become scrambled text, columns mix, scanned PDFs need OCR. Measure quality on samples (how many chunks have broken words or junk) before blaming the embedding model.\nNear-duplicates (versions of the same document) need similarity dedup and a \"current version\" rule; otherwise the assistant cites the old policy. Reprocess when the source changes and version the pipeline."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: turn off \"Join broken words\" and ask how far in advance to request vacation.",
+      "cmd": "time to break it: run clean \"How far in advance do I request vacation?\" --hyphen no"
+    },
+    "success": "Broken: with {broken} split word, \"advance\" doesn’t exist in the index and search returned another line. One end-of-line hyphen was enough to hide the answer.",
+    "calm": "{removed} junk lines removed and the answer was found. To break it, leave the word split and ask about advance notice."
+  },
+  "hints": {
+    "ui": [
+      "Pick a question and flip the switches; the scene updates by itself.",
+      "Lines with \"!\" are headers or footers; \"split words\" are the ones the PDF broke with a hyphen.",
+      "Turn off \"Join broken words\" with the advance-notice question."
+    ],
+    "cmd": [
+      "The question goes in quotes, after clean. Clean-ups start on.",
+      "--headers, --hyphen and --dupes take yes or no.",
+      "clean \"How far in advance do I request vacation?\" --hyphen no"
+    ]
+  },
+  "errors": {
+    "notBool.headers": "Use yes or no.",
+    "notBool.hyphen": "Use yes or no.",
+    "notBool.dupes": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Test question",
+    "headers": "Drop headers and footers",
+    "hyphen": "Join broken words",
+    "dupes": "Remove repeated lines"
+  },
+  "scene": {
+    "label": "Handbook clean-up",
+    "empty": "Run to clean.",
+    "removed": "junk removed",
+    "junkLeft": "junk left",
+    "broken": "split words",
+    "docs": "Text going into the index",
+    "q": "Question",
+    "bm25": "Search",
+    "keyword": "keyword",
+    "found": "Found the answer?",
+    "yes": "yes",
+    "no": "no",
+    "nothing": "No line matched the question."
+  },
+  "data": {
+    "raw": "AURORA TECNOLOGIA LTDA · CONFIDENTIAL\nEmployee Handbook · Page 1 of 2\nVACATION POLICY\nVacation must be requested through the employee portal 30 days in ad-\nvance and needs the manager’s approval.\nVacation can be split into up to three periods: one of at least 14 days and the others of at least 5 days each.\nVacation can be split into up to three periods: one of at least 14 days and the others of at least 5 days each.\nAURORA TECNOLOGIA LTDA · CONFIDENTIAL\nEmployee Handbook · Page 2 of 2\nBENEFITS\nThe meal allowance (VR) is R$ 45 per working day; anyone may swap it for the grocery allowance (VA) of the same value.\nThe PLR profit share is paid in March, proportional to how well company and team goals were met the previous year.",
+    "needles": {
+      "How far in advance do I request vacation?": "30 days",
+      "Can I split my vacation?": "three periods",
+      "When is the PLR paid?": "March",
+      "How much is the VR?": "R$ 45"
+    },
+    "stop": [
+      "what",
+      "which",
+      "how",
+      "when",
+      "where",
+      "can",
+      "could",
+      "the",
+      "for",
+      "with",
+      "does",
+      "did",
+      "was",
+      "my",
+      "your",
+      "that",
+      "this",
+      "get",
+      "have",
+      "has",
+      "and",
+      "you",
+      "do",
+      "to",
+      "of",
+      "in",
+      "is",
+      "an",
+      "on",
+      "a",
+      "i",
+      "it",
+      "me",
+      "long",
+      "far",
+      "far",
+      "should",
+      "tell",
+      "them",
+      "ll"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Take a real PDF from your company (handbook, policy) and extract the text with a tool like pdftotext or the pypdf library.",
+      "Look for three problems: lines repeated on every page, words split with an end-of-line hyphen and duplicated paragraphs.",
+      "Write one rule for each and count how many lines remain."
+    ],
+    "ok": "the clean text has no repeated header or split word, and a search for a word that used to be split (like \"advance\") finds the right paragraph."
+  }
+}

@@ -1,0 +1,323 @@
+{
+  "title": "Busca híbrida: significado + palavra exata",
+  "subtitle": "Vetor entende sinônimo, palavra-chave acha sigla; juntos erram menos",
+  "mission": "O assistente da Aurora recebe perguntas com sinônimos (\"descansar\" em vez de \"férias\") e com siglas e códigos (PLR, AUR-VPN-02). Compare busca por vetor, por palavra e híbrida e ache o peso que acerta as duas.",
+  "predict": {
+    "question": "\"Quanto tempo antes devo avisar que vou descansar?\" não tem nenhuma palavra do trecho das férias. Só com palavra-chave, ele acha o trecho certo?",
+    "options": {
+      "yes": "Acha",
+      "no": "Não acha"
+    }
+  },
+  "feedback": {
+    "right": "isso: palavra-chave (BM25) só pontua palavras iguais. Sem \"férias\" nem \"antecedência\" na pergunta, o trecho certo fica com zero. O vetor, que compara significado, acha.",
+    "wrong": "não acha: BM25 só pontua palavras iguais, e a pergunta não repete nenhuma do trecho. É aí que o vetor ganha.",
+    "skipped": "sem palpite? Rode com --modo palavra e depois --modo vetor."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode a pergunta do \"descansar\" no modo palavra, depois vetor, depois híbrida.",
+    "cmd": "palpite anotado. Rode buscar --modo palavra, depois --modo vetor e --modo hibrida."
+  },
+  "tryNext": {
+    "ui": "Agora \"Qual perfil de VPN eu uso?\" no modo vetor e no híbrido. Quem acha o código AUR-VPN-02?",
+    "cmd": "Rode buscar \"Qual perfil de VPN eu uso?\" --modo vetor --top 1 e depois --modo hibrida."
+  },
+  "why": {
+    "simples": "Tem dois jeitos de procurar: pelo sentido (entende que \"descansar\" lembra \"férias\") e pela palavra exata (acha \"PLR\" mesmo sem saber o que é).\nCada um erra onde o outro acerta, então a busca híbrida junta as duas notas.",
+    "dev": "BM25 pontua termos raros que aparecem no documento; é ótimo para siglas, códigos, nomes e números, e cego para sinônimos. Embeddings capturam paráfrase, mas diluem tokens raros que o modelo quase não viu.\nPara combinar, normalize as duas notas (min-max) e misture com um peso, ou use Reciprocal Rank Fusion (RRF), que junta pelas posições e dispensa normalizar. Elasticsearch, OpenSearch, Weaviate, Qdrant e pgvector com busca textual suportam híbrida.",
+    "especialista": "O peso ideal depende do tipo de pergunta: base técnica com muitos códigos puxa para BM25; atendimento em linguagem natural puxa para vetor. Escolha com um conjunto rotulado (próximas lições), não por intuição.\nCuidado com a normalização min-max: numa consulta sem nenhuma palavra em comum, ela pode transformar diferenças minúsculas em 0 a 1. RRF é mais estável. Em português, BM25 melhora com remoção de acentos, stopwords e stemming (analisador \"portuguese\")."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: modo vetor, top 1, com a pergunta da PLR.",
+      "cmd": "hora de quebrar: rode buscar \"Quando sai a PLR?\" --modo vetor --top 1"
+    },
+    "success": "Quebrou: só com vetor, a sigla PLR não pesou e o primeiro trecho foi outro (\"{first}\"). Siglas e códigos pedem palavra-chave junto.",
+    "calm": "Recall {recallPct}% no modo {mode}. Para quebrar, use só vetor numa pergunta com sigla."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma pergunta, um modo e aperte Rodar.",
+      "\"Peso\" é quanto do vetor entra na nota híbrida (1 = só vetor, 0 = só palavra).",
+      "Modo vetor, top 1, pergunta da PLR."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de buscar.",
+      "--modo vetor, palavra ou hibrida; --peso de 0 a 1; --top quantos trechos.",
+      "buscar \"Quando sai a PLR?\" --modo vetor --top 1"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Modos: vetor, palavra ou hibrida.",
+    "aboveMax.weight": "O peso vai de 0 a 1.",
+    "aboveMax.top": "Até 5 trechos."
+  },
+  "controls": {
+    "arg": "Pergunta",
+    "mode": "Modo de busca",
+    "weight": "Peso do vetor",
+    "top": "Trechos (top-k)"
+  },
+  "scene": {
+    "label": "Busca híbrida",
+    "empty": "Rode para buscar.",
+    "chart": "Nota de cada trecho (1 a 12)",
+    "vec": "vetor",
+    "kw": "palavra-chave",
+    "table": "Trechos escolhidos",
+    "source": "seção",
+    "chunk": "trecho",
+    "score": "nota %",
+    "recall": "trechos certos encontrados",
+    "nothing": "Nenhum trecho pontuou: nada em comum com a pergunta.",
+    "simNote": "Modo simulado: similaridades do vetor escritas à mão; a palavra-chave é BM25 de verdade. Use \"No navegador\" para vetores reais."
+  },
+  "data": {
+    "chunkTexts": [
+      "As férias devem ser solicitadas pelo portal do colaborador com 30 dias de antecedência e dependem da aprovação do gestor.",
+      "É possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.",
+      "O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+      "O vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.",
+      "O plano de saúde cobre cônjuge e filhos até 24 anos como dependentes, com coparticipação nas consultas.",
+      "A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+      "O trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.",
+      "Quem tem dias de trabalho remoto recebe um auxílio home office de R$ 120 por mês, pago junto com o salário.",
+      "Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.",
+      "Internet e energia de casa não são reembolsáveis: esses custos já são cobertos pelo auxílio home office.",
+      "Para trocar a senha do portal, use Meu perfil > Segurança ou ligue no ramal 4000 da TI.",
+      "Para acessar a VPN, instale o app corporativo e selecione o perfil AUR-VPN-02."
+    ],
+    "chunkSources": [
+      "Férias",
+      "Férias",
+      "Férias",
+      "Benefícios",
+      "Benefícios",
+      "Benefícios",
+      "Trabalho remoto",
+      "Trabalho remoto",
+      "Reembolso",
+      "Reembolso",
+      "TI",
+      "TI"
+    ],
+    "semSims": {
+      "Com quanta antecedência eu peço férias?": [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso dividir minhas férias?": [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Quando sai a PLR?": [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Qual perfil de VPN eu uso?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      "Quem pode ser dependente no plano de saúde?": [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso pedir reembolso da internet de casa?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      "Quanto tempo antes devo avisar que vou descansar?": [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso vender parte das férias e quanto recebo de VR por dia?": [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Esqueci minha senha, o que faço?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ]
+    },
+    "goldMap": {
+      "Com quanta antecedência eu peço férias?": [
+        0
+      ],
+      "Posso dividir minhas férias?": [
+        1
+      ],
+      "Quando sai a PLR?": [
+        5
+      ],
+      "Qual perfil de VPN eu uso?": [
+        11
+      ],
+      "Quem pode ser dependente no plano de saúde?": [
+        4
+      ],
+      "Posso pedir reembolso da internet de casa?": [
+        9,
+        7
+      ],
+      "Quanto tempo antes devo avisar que vou descansar?": [
+        0
+      ],
+      "Posso vender parte das férias e quanto recebo de VR por dia?": [
+        2,
+        3
+      ],
+      "Esqueci minha senha, o que faço?": [
+        10
+      ]
+    },
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "quanta",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "uma",
+      "uns",
+      "umas",
+      "tem",
+      "faco",
+      "fazer",
+      "devo",
+      "eu",
+      "de",
+      "do",
+      "da",
+      "das",
+      "dos",
+      "no",
+      "na",
+      "nos",
+      "nas",
+      "o",
+      "a",
+      "os",
+      "as",
+      "e",
+      "ou",
+      "em",
+      "ao",
+      "se",
+      "sai",
+      "vou"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Monte 6 perguntas sobre um documento seu: 3 com sinônimos e 3 com siglas, códigos ou números.",
+      "Rode busca vetorial (embeddings) e BM25 (a biblioteca rank_bm25 em Python ou wink-bm25 em JavaScript) e anote o primeiro resultado de cada.",
+      "Combine com RRF: nota = 1/(60 + posição no vetor) + 1/(60 + posição no BM25) e compare."
+    ],
+    "ok": "o vetor acerta as de sinônimo, o BM25 acerta as de sigla, e a combinação acerta pelo menos 5 das 6."
+  }
+}

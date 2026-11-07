@@ -1,0 +1,215 @@
+{
+  "id": "p-ingestao-e-limpeza",
+  "order": 8,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "rag",
+    "ingestao",
+    "limpeza",
+    "pdf"
+  ],
+  "requires": [
+    "p-busca-no-faq-de-rh"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "limpar",
+      "en": "clean"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Com quanta antecedência eu peço férias?",
+        "en": "How far in advance do I request vacation?"
+      },
+      "examples": [
+        {
+          "pt": "Com quanta antecedência eu peço férias?",
+          "en": "How far in advance do I request vacation?"
+        },
+        {
+          "pt": "Posso dividir minhas férias?",
+          "en": "Can I split my vacation?"
+        },
+        {
+          "pt": "Quando sai a PLR?",
+          "en": "When is the PLR paid?"
+        },
+        {
+          "pt": "Qual é o valor do VR?",
+          "en": "How much is the VR?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "headers",
+        "alias": {
+          "pt": "cabecalho",
+          "en": "headers"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "hyphen",
+        "alias": {
+          "pt": "hifen",
+          "en": "hyphen"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "dupes",
+        "alias": {
+          "pt": "duplicadas",
+          "en": "dupes"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "zero",
+      "five",
+      "ten"
+    ],
+    "answer": "five"
+  },
+  "break": {
+    "flag": "brokenWord"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "headerPatterns": [
+          "AURORA TECNOLOGIA",
+          "Página ",
+          "Page "
+        ]
+      },
+      "compute": {
+        "raw0": "trimall(lines(raw))",
+        "junkTotal": "(len(raw0) - len(dropmatching(raw0, headerPatterns))) + (len(raw0) - len(unique(raw0)))",
+        "t1": "hyphen ? unhyphen(raw) : raw",
+        "l1": "trimall(lines(t1))",
+        "l2": "headers ? dropmatching(l1, headerPatterns) : l1",
+        "docs": "dupes ? unique(l2) : l2",
+        "headersLeft": "len(docs) - len(dropmatching(docs, headerPatterns))",
+        "dupesLeft": "len(docs) - len(unique(docs))",
+        "brokenLeft": "hyphen ? 0 : len(lines(raw)) - len(lines(unhyphen(raw)))",
+        "junkLeft": "headersLeft + dupesLeft",
+        "scores": "bm25(text, docs, stop)",
+        "top": "topk(scores, 1)",
+        "best": "len(top) ? docs[top[0]] : \"\"",
+        "needle": "lookup(needles, text, '')",
+        "hit": "needle != '' && includes(best, needle)"
+      },
+      "cases": [
+        {
+          "when": "junkLeft + brokenLeft == 0",
+          "flags": [
+            "clean"
+          ]
+        },
+        {
+          "when": "hit",
+          "flags": [
+            "hit"
+          ]
+        },
+        {
+          "when": "!hit",
+          "flags": [
+            "miss"
+          ]
+        },
+        {
+          "when": "brokenLeft > 0 && !hit",
+          "flags": [
+            "brokenWord"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "removed": "junkTotal - junkLeft",
+            "junkLeft": "junkLeft",
+            "broken": "brokenLeft",
+            "lines": "len(docs)"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@removed",
+              "value": "=junkTotal - junkLeft",
+              "format": "int",
+              "tone": "=junkLeft == 0 ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@junkLeft",
+              "value": "=junkLeft",
+              "format": "int",
+              "tone": "=junkLeft == 0 ? 'dim' : 'bad'"
+            },
+            {
+              "label": "@broken",
+              "value": "=brokenLeft",
+              "format": "int",
+              "tone": "=brokenLeft == 0 ? 'dim' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@docs",
+          "lines": "=tagmatching(docs, headerPatterns, '! ', '')"
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@q",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "@bm25",
+              "sub": "@keyword",
+              "tone": "neutral"
+            },
+            {
+              "label": "@found",
+              "sub": "=hit ? '@yes' : '@no'",
+              "tone": "=hit ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "=hit ? 'ok' : 'bad'",
+          "text": "=best == '' ? '@nothing' : best"
+        }
+      ]
+    }
+  }
+}
