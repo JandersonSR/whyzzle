@@ -1,4 +1,4 @@
-import sys; sys.path.insert(0,'/home/claude/wz-work')
+import sys; import os; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from p1_common import *
 from p2_corpus import *
 

@@ -1,5 +1,5 @@
 import json, os
-BASE='/home/claude/whyzzle/content/ia-aplicada/pratica'
+BASE=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','content','ia-aplicada','pratica')
 def write(folder, step, pt, en, teacher):
     d=f'{BASE}/{folder}'; os.makedirs(d, exist_ok=True)
     for name,obj in (('step',step),('pt',pt),('en',en),('teacher',teacher)):
