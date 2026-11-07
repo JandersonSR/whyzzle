@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Montar o ciclo pedir ferramenta, executar e devolver.",
+      "Limitar ferramentas e passos.",
+      "Tratar falhas de formato de modelos pequenos."
+    ],
+    "minutes": 20,
+    "activity": "Encenação: um aluno é o modelo e só escreve JSON em papeizinhos; outro é o código e executa só ferramentas liberadas. O resto da turma conta os passos.",
+    "discussion": [
+      "Que ferramentas um assistente de RH nunca deveria ter?",
+      "Quem deveria aprovar uma ação que muda o salário de alguém?"
+    ],
+    "misconceptions": [
+      "\"O modelo acessa o sistema.\" Ele só pede; o código decide e executa."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Build the request-tool, execute, return loop.",
+      "Limit tools and steps.",
+      "Handle small models’ format failures."
+    ],
+    "minutes": 20,
+    "activity": "Role play: one student is the model and only writes JSON on slips; another is the code and only runs allowed tools. The rest of the class counts steps.",
+    "discussion": [
+      "Which tools should an HR assistant never have?",
+      "Who should approve an action that changes someone’s salary?"
+    ],
+    "misconceptions": [
+      "\"The model accesses the system.\" It only asks; code decides and executes."
+    ]
+  }
+}

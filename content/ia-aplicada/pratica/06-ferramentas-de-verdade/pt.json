@@ -1,0 +1,96 @@
+{
+  "title": "Ferramentas de verdade",
+  "subtitle": "Um modelo pedindo dados do cadastro e fazendo conta com calculadora",
+  "mission": "O assistente de RH precisa responder com dados do cadastro e fazer contas sem errar. Dê a ele as ferramentas certas e um limite de passos, e veja um modelo real tentar seguir o protocolo.",
+  "predict": {
+    "question": "para saber quanto valem 10 dias do salário da Ana, o assistente com as duas ferramentas…",
+    "options": {
+      "tools": "Consulta o cadastro e usa a calculadora",
+      "guess": "Chuta um valor redondo",
+      "refuse": "Diz que não pode ver salários"
+    }
+  },
+  "feedback": {
+    "right": "isso: primeiro consultar (dado do sistema), depois calcular (conta exata). O modelo só decide e escreve os pedidos; quem executa é o código.",
+    "wrong": "olha o rastro: consultar, depois calculadora, depois responder. O modelo só pede; o código executa.",
+    "skipped": "sem palpite? Siga o rastro: pedido de ferramenta, resultado, nova decisão."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com as duas ferramentas. Para um modelo real, escolha \"No navegador\" ou \"Sua chave\" e compare o rastro.",
+    "cmd": "palpite anotado. Rode o comando; depois troque o executor na cena e rode de novo."
+  },
+  "tryNext": {
+    "ui": "Desmarque a calculadora e rode de novo. O valor continua exato?",
+    "cmd": "Rode com --ferramentas consultar (sem calculadora) e compare o valor."
+  },
+  "why": {
+    "simples": "O modelo não tem acesso ao cadastro da empresa nem é bom de conta. Então ele pede: \"consulte a Ana\", \"calcule 4500 ÷ 30 × 10\". Um programa faz o pedido de verdade e devolve o resultado, e o modelo continua.\nSem a ferramenta certa, ele chuta; sem limite de passos, pode ficar pedindo para sempre.",
+    "dev": "Aqui o protocolo é por texto: o modelo responde só com {\"tool\": …, \"args\": …} ou {\"answer\": …}; o código interpreta, executa a ferramenta liberada e devolve o resultado como mensagem. É o mesmo ciclo do tool calling nativo das APIs, que recebe as ferramentas descritas em JSON Schema e devolve chamadas estruturadas, com bem menos erro de formato.\nModelos pequenos quebram o protocolo com frequência (texto solto em vez de JSON): o código precisa tolerar, insistir e desistir no limite.",
+    "especialista": "Ferramentas são permissões: cada uma expõe dados ou ações da empresa. Dê só o mínimo (consulta de leitura, não escrita), valide os argumentos no servidor, registre cada chamada e peça confirmação humana para ações que mudam dados ou gastam dinheiro.\nDados de RH são dados pessoais (LGPD): a ferramenta deve aplicar a permissão de quem pergunta, não a do assistente. E todo resultado de ferramenta volta como entrada não confiável para o modelo."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: deixe o limite de passos em 1 e rode.",
+      "cmd": "hora de quebrar: rode com --passos 1."
+    },
+    "success": "Quebrou: com {max} passo(s) o assistente parou antes de responder. Limite curto demais corta o trabalho; longo demais deixa o agente gastar à toa. Calibre pelo pior caso real.",
+    "calm": "O assistente terminou usando {calls} ferramenta(s). Para quebrar, aperte o limite de passos."
+  },
+  "hints": {
+    "ui": [
+      "Marque as ferramentas e aperte Rodar.",
+      "\"Limite de passos\" é quantas vezes o modelo pode pedir uma ferramenta antes de desistir.",
+      "Limite de passos 1."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de agente.",
+      "--ferramentas consultar,calculadora; --passos de 1 a 8.",
+      "agente \"Quantos dias de férias a Ana ainda tem? E quanto valem 10 dias do salário dela?\" --passos 1"
+    ]
+  },
+  "errors": {
+    "notInEnum.tools": "\"{value}\" não é uma ferramenta daqui. Opções: {options}. Para nenhuma, use --ferramentas nenhuma.",
+    "aboveMax.maxSteps": "Até 8 passos neste exercício.",
+    "belowMin.maxSteps": "Pelo menos 1 passo."
+  },
+  "controls": {
+    "arg": "Pergunta",
+    "tools": "Ferramentas liberadas",
+    "maxSteps": "Limite de passos"
+  },
+  "scene": {
+    "label": "Rastro do assistente de RH",
+    "empty": "Rode para ver o rastro.",
+    "calls": "chamadas de ferramenta",
+    "maxSteps": "limite de passos",
+    "trace": "Rastro (pedido → resultado → resposta)",
+    "simNote": "Modo simulado: rastro roteirizado. Com um modelo real, apareçam ou não erros de formato, o rastro é o que ele fez de fato.",
+    "realLimitNote": "O modelo real não chegou a uma resposta no limite. Modelos pequenos costumam errar o formato: veja as linhas com \"?\"."
+  },
+  "data": {
+    "registros": {
+      "ana": "Ana Souza: analista de RH; 18 dias de férias disponíveis; salário mensal R$ 4.500,00",
+      "bruno": "Bruno Lima: desenvolvedor sênior; 6 dias de férias disponíveis"
+    },
+    "callLookup": "$ lookup({\"key\":\"ana\"})",
+    "resultLookup": "~ Ana Souza: analista de RH; 18 dias de férias disponíveis; salário mensal R$ 4.500,00",
+    "noLookup": "! sem a ferramenta lookup: não tenho acesso ao cadastro",
+    "callCalc": "$ calculator({\"expression\":\"4500/30*10\"})",
+    "resultCalc": "~ 1500",
+    "stopped": "! parei: limite de passos atingido sem resposta",
+    "answerFull": "A Ana tem 18 dias de férias disponíveis, e 10 dias do salário dela valem R$ 1.500,00.",
+    "answerGuess": "A Ana tem 18 dias de férias; 10 dias do salário dela dão uns R$ 1.400 (estimativa, sem calculadora).",
+    "answerNoData": "Não consigo ver o cadastro da Ana sem a ferramenta de consulta.",
+    "answerBruno": "O Bruno Lima é desenvolvedor sênior.",
+    "sysTools": "Você é o assistente de RH. Ferramentas: lookup(key) devolve o cadastro do funcionário pelo primeiro nome em minúsculas; calculator(expression) resolve contas com + - * /. Responda SEMPRE com um único JSON e nada mais: {\"tool\":\"lookup\",\"args\":{\"key\":\"ana\"}} ou {\"tool\":\"calculator\",\"args\":{\"expression\":\"4500/30*10\"}} ou, quando souber a resposta final, {\"answer\":\"...\"} em português.",
+    "nudge": "Responda só com um JSON: {\"tool\":...,\"args\":...} ou {\"answer\":...}."
+  },
+  "recipe": {
+    "steps": [
+      "Na documentação de tool calling do seu provedor, declare duas ferramentas em JSON Schema: lookup(key) e calculator(expression).",
+      "Implemente as duas no seu código (lookup lendo um JSON de teste, sem dados reais) e faça o loop: chamar o modelo, executar a ferramenta pedida, devolver o resultado.",
+      "Pergunte quanto valem 10 dias do salário da Ana e coloque um limite de 4 passos."
+    ],
+    "ok": "o rastro mostra lookup, depois calculator, e a resposta final traz R$ 1.500,00, em no máximo 3 passos."
+  }
+}

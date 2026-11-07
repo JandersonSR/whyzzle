@@ -79,6 +79,17 @@ Um passo oferece um executor real só se declarar em `step.json`:
 }
 ```
 
+Para lições só com dados, o adaptador `declarative` roda uma **operação real** (`src/runtime/realOps.ts`) e
+injeta o resultado na simulação da lição, que escolhe com `real ? realX : estimativa`:
+
+| op | O que faz | Nomes injetados |
+| --- | --- | --- |
+| `tokens` | conta tokens com o tokenizador real | `realTokens`, `realTokensPieces` |
+| `embed` | similaridade da pergunta com uma lista (prefixos E5 via `queryPrefix`/`passagePrefix`) | `realSims`, `realTop`, `realTopSim`, `realOrder` |
+| `chat` | gera N amostras com temperatura, top-p e máximo de tokens | `realOutputs`, `realOutput`, `realDistinct` |
+| `json` | pede JSON, extrai e valida contra um esquema simples | `realOutput`, `realJson`, `realValid`, `realProblems` |
+| `tools` | loop de ferramentas por protocolo JSON, com limite de passos | `realTrace`, `realAnswer`, `realCalls`, `realLimit` |
+
 O **adaptador** (`src/runtime/adapters.ts`) converte a saída do modelo real no mesmo formato que a cena do
 passo já desenha, então as cenas não mudam. Falhas reais (download, WebGPU, CORS, chave recusada, limite,
 modelo inválido) viram mensagens explicadas no painel "Quem responde". Enquanto um executor real está ativo,

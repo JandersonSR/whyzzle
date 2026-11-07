@@ -1,0 +1,147 @@
+{
+  "id": "p-embeddings-de-verdade",
+  "order": 2,
+  "track": "pratica",
+  "minutes": 12,
+  "tags": [
+    "embeddings",
+    "similaridade",
+    "semantica"
+  ],
+  "requires": [
+    "p-tokens-de-verdade",
+    "embeddings"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "comparar",
+      "en": "compare"
+    },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "ui": "examples",
+      "default": {
+        "pt": "Quero tirar uns dias de descanso",
+        "en": "I want to take a few days off"
+      },
+      "examples": [
+        {
+          "pt": "Quero tirar uns dias de descanso",
+          "en": "I want to take a few days off"
+        },
+        {
+          "pt": "Meu pagamento veio com valor errado",
+          "en": "My paycheck came in wrong"
+        },
+        {
+          "pt": "Não consigo entrar no sistema",
+          "en": "I can’t log into the system"
+        },
+        {
+          "pt": "Não quero tirar férias agora",
+          "en": "I don’t want to take vacation now"
+        }
+      ]
+    },
+    "flags": []
+  },
+  "predict": {
+    "options": [
+      "vacation",
+      "salary",
+      "none"
+    ],
+    "answer": "vacation"
+  },
+  "break": {
+    "flag": "negation"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realSims": [],
+        "realTop": -1
+      },
+      "compute": {
+        "simSims": "roundall(overlapall(text, phrases, stop), 2)",
+        "sims": "real ? realSims : simSims",
+        "top": "argmax(sims)",
+        "topSim": "sims[top]",
+        "negated": "includes(lower(text), 'não ') || includes(lower(text), 'don’t') || includes(lower(text), 'not ') || includes(lower(text), \"don't\")"
+      },
+      "cases": [
+        {
+          "when": "!real && topSim == 0",
+          "flags": [
+            "noOverlap"
+          ]
+        },
+        {
+          "when": "negated && top == 0 && topSim > 0",
+          "flags": [
+            "negation"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "best": "phrases[top]",
+            "pct": "round(topSim * 100)"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@phrase",
+            "@similarity"
+          ],
+          "rows": "=zip(phrases, roundall(scale(sims, 100), 0))",
+          "tones": "=mark(len(phrases), top, topSim > 0 ? 'ok' : 'neutral', 'neutral')",
+          "caption": "@caption"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real && topSim == 0",
+          "tone": "warn",
+          "text": "@noOverlapNote"
+        },
+        {
+          "type": "note",
+          "when": "=negated && top == 0 && topSim > 0",
+          "tone": "warn",
+          "text": "@negationNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Xenova/multilingual-e5-small",
+      "op": "embed",
+      "args": {
+        "against": "phrases",
+        "queryPrefix": "query: ",
+        "passagePrefix": "query: "
+      }
+    }
+  }
+}

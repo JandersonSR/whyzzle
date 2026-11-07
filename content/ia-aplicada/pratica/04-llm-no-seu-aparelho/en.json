@@ -1,0 +1,96 @@
+{
+  "title": "A real LLM on your device",
+  "subtitle": "Temperature, top-p and token limits on an open model",
+  "mission": "Generate slogans for the neighborhood bakery with an open model running on your device (or your key). Find out what each parameter changes and how to cut an answer off by accident.",
+  "predict": {
+    "question": "with temperature 0 and 3 samples, how many different answers does the model give?",
+    "options": {
+      "one": "One, repeated",
+      "three": "Three different ones",
+      "depends": "Depends on the model’s mood"
+    }
+  },
+  "feedback": {
+    "right": "right. At temperature 0 the choice becomes \"always the most likely token\", so samples repeat. Raise the temperature and watch variety appear.",
+    "wrong": "at temperature 0 there’s no sampling: the three samples come out equal (or nearly; the Expert level explains the \"nearly\").",
+    "skipped": "no guess? Run with --temp 0 and compare the three samples."
+  },
+  "coach": {
+    "ui": "guess noted. Set temperature to 0, keep 3 samples and run. For a real model, pick \"In the browser\" (~880 MB, needs WebGPU) or \"Your key\".",
+    "cmd": "guess noted. Run with --temp 0 --samples 3. For a real model, switch the executor in the scene."
+  },
+  "tryNext": {
+    "ui": "Now temperature 1.2 and top-p 1; then lower top-p to 0.3 keeping the temperature. What happens to variety?",
+    "cmd": "Run --temp 1.2 --top-p 1 then --temp 1.2 --top-p 0.3. Compare variety."
+  },
+  "why": {
+    "simples": "Temperature is how much the model gambles on each piece; top-p says how many options it may pick from (only the likeliest); the token limit is the answer’s maximum length.\nIf the limit is too short, the sentence stops halfway.",
+    "dev": "Top-p (nucleus sampling) keeps the smallest set of tokens whose probabilities add past p and samples only within it; temperature rescales probabilities before that. Both control variety in different ways: change one at a time.\nmax_tokens cuts generation with no warning in the text: the API returns a stop reason (finish_reason \"length\" on OpenAI, stop_reason \"max_tokens\" on Anthropic) that your code must check.",
+    "especialista": "1B-parameter models run on a phone or laptop and suit short, private tasks (classify, rewrite, extract), but they get facts wrong and follow complex instructions worse than large models. 4-bit quantization cuts memory with some quality loss.\nTemperature 0 reduces but doesn’t eliminate run-to-run variation (batching and floating point). For reproducibility, pin parameters and model version and evaluate on a fixed prompt set."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: lower \"Max tokens\" to 5 and run.",
+      "cmd": "time to break it: run with --max 5."
+    },
+    "success": "Cut off: with {maxTokens} tokens the model stopped before finishing. In production, always check the stop reason before showing the answer.",
+    "calm": "With {maxTokens} tokens the answer fit. Lower the max until it cuts."
+  },
+  "hints": {
+    "ui": [
+      "Adjust the controls and hit Run.",
+      "\"Samples\" generates several answers to the same request; compare variety.",
+      "Max tokens 5."
+    ],
+    "cmd": [
+      "The request goes in quotes, after generate.",
+      "--temp, --top-p, --max and --samples control generation.",
+      "generate \"Write a short slogan for a neighborhood bakery\" --max 5"
+    ]
+  },
+  "errors": {
+    "aboveMax.temp": "Temperature goes from 0 to 2.",
+    "belowMin.topP": "Top-p must be above 0.",
+    "aboveMax.topP": "Top-p goes up to 1 (100% of options).",
+    "aboveMax.samples": "Up to 5 samples, so your device doesn’t overheat.",
+    "aboveMax.maxTokens": "Up to 400 tokens in this exercise.",
+    "belowMin.maxTokens": "At least 1 token."
+  },
+  "controls": {
+    "arg": "Request",
+    "temp": "Temperature",
+    "topP": "Top-p",
+    "maxTokens": "Max tokens",
+    "samples": "Samples"
+  },
+  "scene": {
+    "label": "Generator",
+    "empty": "Run to generate.",
+    "distinct": "different answers",
+    "samples": "samples",
+    "max": "max tokens",
+    "outputs": "Answers",
+    "greedyNote": "Temperature 0: greedy decoding, samples tend to repeat.",
+    "cutNote": "Answer cut by the token limit.",
+    "simNote": "Simulated mode: canned answers to show parameter effects. Use \"In the browser\" or \"Your key\" to really generate."
+  },
+  "data": {
+    "canned": [
+      "Warm bread, happy neighbors.",
+      "The smell of the neighborhood starts here.",
+      "Yeast, care and fresh coffee.",
+      "Every morning starts at our counter.",
+      "From our oven to your table, no rush.",
+      "Grandma’s dough, neighbor’s price."
+    ],
+    "sysText": "Answer in English, in one short sentence."
+  },
+  "recipe": {
+    "steps": [
+      "Open WebLLM Chat (chat.webllm.ai) in a WebGPU browser and pick a 1B model.",
+      "Ask for the same slogan 3 times at temperature 0 and 3 more at 1.2.",
+      "Then cap the answer at a few tokens and see where it stops."
+    ],
+    "ok": "at 0 answers repeat; at 1.2 they vary; with few tokens the sentence stops halfway. All on your device, nothing sent to a server."
+  }
+}

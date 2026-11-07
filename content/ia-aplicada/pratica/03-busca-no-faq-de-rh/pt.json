@@ -1,0 +1,150 @@
+{
+  "title": "Busca semântica no FAQ de RH",
+  "subtitle": "Top-k, limite de confiança e a hora de passar para um humano",
+  "mission": "A Aurora quer responder dúvidas de RH com o próprio FAQ. Ajuste quantos resultados olhar e a partir de que pontuação responder, para acertar o que está no FAQ e encaminhar o que não está.",
+  "predict": {
+    "question": "alguém pergunta o placar do jogo de ontem. Com limite de 80%, o assistente…",
+    "options": {
+      "answers": "Responde com a pergunta mais parecida do FAQ",
+      "forwards": "Encaminha para o RH: nada passou do limite",
+      "random": "Inventa um placar"
+    }
+  },
+  "feedback": {
+    "right": "isso: com um limite bem calibrado, pergunta fora do assunto não passa e vai para um humano. Sem limite, a busca sempre devolve \"o mais parecido\", mesmo que não tenha nada a ver.",
+    "wrong": "olha a decisão: nada chegou ao limite, então o assistente encaminha. A busca sempre acha \"o mais parecido\"; quem decide se é bom o bastante é o limite.",
+    "skipped": "sem palpite? Repare no limite: é ele que separa resposta de encaminhamento."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode as perguntas de exemplo, de preferência com \"No navegador\" ligado para usar embeddings reais.",
+    "cmd": "palpite anotado. Rode buscar com as perguntas de exemplo; troque para \"No navegador\" na cena para usar embeddings reais."
+  },
+  "tryNext": {
+    "ui": "Pergunte do cachorro: a pontuação é alta, mas a resposta certa existe? Depois mude o top para 1 e para 5.",
+    "cmd": "Rode buscar \"Posso levar meu cachorro pro escritório?\" e depois mude --top para 1 e para 5."
+  },
+  "why": {
+    "simples": "A busca transforma a pergunta e cada item do FAQ em números de significado e pega os mais parecidos. Mas \"mais parecido\" não quer dizer \"certo\": é como procurar o livro mais próximo numa estante que não tem o livro que você quer.\nO limite é a regra \"se não for parecido o bastante, chame alguém\".",
+    "dev": "Fluxo: embedding da pergunta (com \"query: \"), embedding de cada documento (com \"passage: \"), similaridade, ordenação, top-k e um limite de corte. O top-k decide quantos trechos seguem para o próximo passo (o LLM, no RAG); o limite decide se há algo útil.\nCom E5, as similaridades ficam comprimidas numa faixa alta (perto de 0,7 a 0,9), então o limite precisa ser calibrado com exemplos reais, não chutado.",
+    "especialista": "Calibre o limite com um conjunto rotulado: perguntas que o FAQ responde e que não responde, medindo precisão e cobertura em cada corte. Um limite baixo responde demais (erro caro em RH: informação errada sobre salário ou benefício); alto demais encaminha tudo.\nEm produção, registre perguntas encaminhadas: elas mostram o que falta no FAQ. Combine com busca por palavra-chave para siglas e números (nomes de benefícios, códigos) e reavalie ao trocar de modelo."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: baixe o limite para 70% e pergunte o placar do jogo.",
+      "cmd": "hora de quebrar: rode buscar \"Qual foi o placar do jogo ontem?\" --limite 0.7"
+    },
+    "success": "Quebrou: com limite de {limitPct}%, o assistente respondeu sobre \"{question}\" ({score}%) a uma pergunta que nada tem a ver. Limite baixo demais = resposta confiante e errada.",
+    "calm": "Melhor resultado: {score}% contra limite de {limitPct}%. Para quebrar, baixe o limite e faça uma pergunta fora do assunto."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma pergunta e aperte Rodar.",
+      "\"Limite\" é a pontuação mínima para responder; abaixo dele, encaminha ao RH.",
+      "Limite 70% com a pergunta do jogo."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de buscar.",
+      "--top é quantos resultados mostrar; --limite é a pontuação mínima (0,5 a 0,99).",
+      "buscar \"Qual foi o placar do jogo ontem?\" --limite 0.7"
+    ]
+  },
+  "errors": {
+    "aboveMax.top": "Até 5 resultados; o FAQ é pequeno.",
+    "belowMin.top": "Pelo menos 1 resultado.",
+    "belowMin.limit": "Abaixo de 0,5 o assistente responderia quase qualquer coisa.",
+    "aboveMax.limit": "Acima de 0,99 nada passa."
+  },
+  "controls": {
+    "arg": "Pergunta",
+    "top": "Resultados (top-k)",
+    "limit": "Limite para responder"
+  },
+  "scene": {
+    "label": "Busca no FAQ da Aurora",
+    "empty": "Rode para buscar.",
+    "q": "Pergunta",
+    "embed": "Embedding",
+    "simShort": "simulado",
+    "rank": "Ordenar",
+    "decide": "Responder ou encaminhar",
+    "table": "Mais parecidas",
+    "faqQ": "Pergunta do FAQ",
+    "score": "pontuação %",
+    "bestScore": "melhor pontuação",
+    "limitLabel": "limite",
+    "simNote": "Modo simulado: pontuação por palavras em comum. Use \"No navegador\" para embeddings reais."
+  },
+  "data": {
+    "faqQuestions": [
+      "Como solicito férias?",
+      "Qual é o valor do vale-refeição?",
+      "Como funciona o trabalho remoto?",
+      "Quando o salário é pago?",
+      "Como troco minha senha do portal?",
+      "Posso levar animais ao escritório?",
+      "Como peço reembolso de despesas?",
+      "O plano de saúde cobre dependentes?"
+    ],
+    "faqAnswers": [
+      "Pelo portal do colaborador, com 30 dias de antecedência e aprovação do gestor.",
+      "R$ 45 por dia útil, creditado no primeiro dia útil do mês.",
+      "Até 2 dias por semana, combinados com o gestor.",
+      "No quinto dia útil de cada mês.",
+      "Em Meu perfil > Segurança, ou pelo ramal 4000 da TI.",
+      "Não são permitidos, exceto cães-guia.",
+      "Envie a nota fiscal no app de despesas em até 30 dias.",
+      "Sim: cônjuge e filhos até 24 anos, com coparticipação."
+    ],
+    "faqTexts": [
+      "Como solicito férias? Pelo portal do colaborador, com 30 dias de antecedência e aprovação do gestor.",
+      "Qual é o valor do vale-refeição? R$ 45 por dia útil, creditado no primeiro dia útil do mês.",
+      "Como funciona o trabalho remoto? Até 2 dias por semana, combinados com o gestor.",
+      "Quando o salário é pago? No quinto dia útil de cada mês.",
+      "Como troco minha senha do portal? Em Meu perfil > Segurança, ou pelo ramal 4000 da TI.",
+      "Posso levar animais ao escritório? Não são permitidos, exceto cães-guia.",
+      "Como peço reembolso de despesas? Envie a nota fiscal no app de despesas em até 30 dias.",
+      "O plano de saúde cobre dependentes? Sim: cônjuge e filhos até 24 anos, com coparticipação."
+    ],
+    "notFound": "Não encontrei isso no FAQ. Encaminhei sua pergunta para o RH.",
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "foi",
+      "uma",
+      "umas",
+      "uns",
+      "ontem",
+      "hoje",
+      "tem",
+      "faco",
+      "fazer",
+      "dia"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Junte 10 perguntas reais que o RH (ou o suporte) da sua empresa recebe e as respostas oficiais.",
+      "Gere embeddings com o multilingual-e5-small (prefixos \"query: \" e \"passage: \") e calcule a similaridade de 5 perguntas novas, incluindo 2 fora do assunto.",
+      "Escolha o limite que acerta as 3 do assunto e encaminha as 2 de fora."
+    ],
+    "ok": "existe um limite que separa as perguntas do assunto das de fora. Anote esse valor: ele é o ponto de partida do seu assistente."
+  }
+}

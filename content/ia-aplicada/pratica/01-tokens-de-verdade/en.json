@@ -1,0 +1,83 @@
+{
+  "title": "Real tokens: cost and context window",
+  "subtitle": "Counting with the GPT-4o tokenizer, not by eye",
+  "mission": "Count the real tokens of an email, the same sentence in Portuguese, a code snippet and an emoji-heavy message. Then work out what 100,000 calls cost.",
+  "predict": {
+    "question": "the same sentence in English and in Portuguese: which becomes more tokens in the GPT-4o tokenizer?",
+    "options": {
+      "pt": "The Portuguese one",
+      "en": "The English one",
+      "same": "About the same"
+    }
+  },
+  "feedback": {
+    "right": "right. Tokenizers are trained on far more English text, so Portuguese usually needs more pieces to say the same thing. More tokens = more cost and more of the window used.",
+    "wrong": "look at the numbers: Portuguese usually spends more tokens than English for the same idea, because the tokenizer saw much more English in training.",
+    "skipped": "no guess? Compare both sentences: Portuguese usually spends more tokens for the same idea."
+  },
+  "coach": {
+    "ui": "guess noted. Run the English sentence, then the Portuguese one from the examples. To count for real, pick \"In the browser\" in the scene panel (~8 MB download).",
+    "cmd": "guess noted. Run count with the English sentence, then with the Portuguese one. To count for real, pick \"In the browser\" in the scene."
+  },
+  "tryNext": {
+    "ui": "Now run the code snippet and raise \"Calls\" to 1,000,000. Watch the cost grow in a straight line.",
+    "cmd": "Now run the code with --calls 1000000 and watch the cost grow linearly."
+  },
+  "why": {
+    "simples": "The model doesn’t read letters or words: it reads pieces called tokens. Common English words are often one piece; Portuguese words, accents and emojis turn into several.\nYou pay per piece, and the model’s memory fills up per piece.",
+    "dev": "The GPT-4o tokenizer (o200k_base) is BPE: it starts from bytes and merges the most frequent pairs seen in training. Text that was rare in training (other languages, emojis, names) becomes more tokens.\nCost = input tokens × input price + output tokens × output price, usually quoted per million tokens. Each model has its own tokenizer: the same sentence gives different counts on GPT, Claude and Llama.",
+    "especialista": "Measure with the tokenizer of the model you’ll use (or the provider’s token-counting API) before budgeting; the \"4 characters per token\" rule fits English and misses badly on Portuguese, code and JSON.\nIn production most of the cost is usually repeated context (system prompt, RAG documents, history), not the question. Prompt caching, history trimming and summaries go after that. Remember output tokens usually cost several times more than input."
+  },
+  "formula": "cost = tokens × calls × price ÷ 1,000,000",
+  "break": {
+    "mission": {
+      "ui": "time to break the rule of thumb: run the emoji message. How many characters fit in each token now?",
+      "cmd": "time to break the rule of thumb: run count with the emoji-heavy message."
+    },
+    "success": "Broken: only {cpt} characters per token. Emojis and rare symbols become several tokens each; an emoji-filled support chat costs much more than it looks.",
+    "calm": "{cpt} characters per token: still normal. Try the emoji message."
+  },
+  "hints": {
+    "ui": [
+      "Pick an example and hit Run.",
+      "\"Price\" is dollars per million input tokens; use your provider’s price table.",
+      "The message with 🎉 and 🏆 breaks the 4-characters rule."
+    ],
+    "cmd": [
+      "The text goes in quotes, after count.",
+      "--price is US$ per million tokens; --calls is how many times the text goes to the model.",
+      "count \"Congrats!!! 🎉🎉🎉 You won 🏆🏆\""
+    ]
+  },
+  "errors": {
+    "aboveMax.price": "Above US$ 100 per million is unrealistic for text input; check your provider’s price table.",
+    "belowMin.price": "A negative price would be nice, but it doesn’t exist.",
+    "notInteger.calls": "Calls is a whole number, like --calls 100000.",
+    "belowMin.calls": "At least 1 call."
+  },
+  "controls": {
+    "arg": "Text",
+    "price": "Price (US$ per million input tokens)",
+    "calls": "Calls"
+  },
+  "scene": {
+    "label": "Token counter",
+    "empty": "Run to count.",
+    "tokens": "tokens",
+    "cpt": "characters per token",
+    "cost": "US$ for {calls} calls",
+    "window": "of a 128k window",
+    "pieces": "How the GPT-4o tokenizer split it (up to 60 pieces)",
+    "estimateNote": "Simulated mode: this is an estimate. Pick \"In the browser\" to count with the real tokenizer.",
+    "denseNote": "Under 2.5 characters per token: expensive text. Emojis, symbols and rare words weigh more."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Open OpenAI’s Tokenizer (platform.openai.com/tokenizer) and pick the GPT-4o model.",
+      "Paste the same sentence in English and Portuguese and note each token count.",
+      "Paste a code snippet from your project and an emoji text, and compare characters per token."
+    ],
+    "ok": "the Portuguese sentence has more tokens than the English one, and the emoji text has far fewer characters per token. The counts match Whyzzle’s \"In the browser\" mode."
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "title": "Real tools",
+  "subtitle": "A model asking the HR system for data and using a calculator",
+  "mission": "The HR assistant must answer with data from the HR system and do math without mistakes. Give it the right tools and a step limit, and watch a real model try to follow the protocol.",
+  "predict": {
+    "question": "to find out what 10 days of Ana’s salary are worth, the assistant with both tools…",
+    "options": {
+      "tools": "Looks up the record and uses the calculator",
+      "guess": "Guesses a round number",
+      "refuse": "Says it can’t see salaries"
+    }
+  },
+  "feedback": {
+    "right": "right: first look up (system data), then calculate (exact math). The model only decides and writes the requests; code executes them.",
+    "wrong": "look at the trace: lookup, then calculator, then answer. The model only asks; code executes.",
+    "skipped": "no guess? Follow the trace: tool request, result, next decision."
+  },
+  "coach": {
+    "ui": "guess noted. Run with both tools. For a real model, pick \"In the browser\" or \"Your key\" and compare the trace.",
+    "cmd": "guess noted. Run the command; then switch the executor in the scene and run again."
+  },
+  "tryNext": {
+    "ui": "Untick the calculator and run again. Is the amount still exact?",
+    "cmd": "Run with --tools lookup (no calculator) and compare the amount."
+  },
+  "why": {
+    "simples": "The model can’t see the company’s records and isn’t good at math. So it asks: \"look up Ana\", \"calculate 4500 ÷ 30 × 10\". A program performs the request and hands back the result, and the model continues.\nWithout the right tool, it guesses; without a step limit, it may keep asking forever.",
+    "dev": "Here the protocol is text-based: the model replies only with {\"tool\": …, \"args\": …} or {\"answer\": …}; code parses it, runs the allowed tool and returns the result as a message. It’s the same loop as the APIs’ native tool calling, which takes tools described in JSON Schema and returns structured calls with far fewer format errors.\nSmall models break the protocol often (loose text instead of JSON): code must tolerate it, nudge, and give up at the limit.",
+    "especialista": "Tools are permissions: each one exposes company data or actions. Grant the minimum (read-only lookup, not write), validate arguments server-side, log every call and require human confirmation for actions that change data or spend money.\nHR data is personal data (privacy law): the tool must apply the asker’s permissions, not the assistant’s. And every tool result goes back to the model as untrusted input."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: set the step limit to 1 and run.",
+      "cmd": "time to break it: run with --steps 1."
+    },
+    "success": "Broken: with {max} step(s) the assistant stopped before answering. Too short a limit cuts the work; too long lets the agent waste money. Calibrate on the worst real case.",
+    "calm": "The assistant finished using {calls} tool call(s). To break it, tighten the step limit."
+  },
+  "hints": {
+    "ui": [
+      "Tick the tools and hit Run.",
+      "\"Step limit\" is how many times the model may request a tool before giving up.",
+      "Step limit 1."
+    ],
+    "cmd": [
+      "The question goes in quotes, after agent.",
+      "--tools lookup,calculator; --steps from 1 to 8.",
+      "agent \"How many vacation days does Ana have left? And how much are 10 days of her salary worth?\" --steps 1"
+    ]
+  },
+  "errors": {
+    "notInEnum.tools": "\"{value}\" isn’t a tool here. Options: {options}. For none, use --tools none.",
+    "aboveMax.maxSteps": "Up to 8 steps in this exercise.",
+    "belowMin.maxSteps": "At least 1 step."
+  },
+  "controls": {
+    "arg": "Question",
+    "tools": "Allowed tools",
+    "maxSteps": "Step limit"
+  },
+  "scene": {
+    "label": "HR assistant trace",
+    "empty": "Run to see the trace.",
+    "calls": "tool calls",
+    "maxSteps": "step limit",
+    "trace": "Trace (request → result → answer)",
+    "simNote": "Simulated mode: a scripted trace. With a real model, format errors and all, the trace is what it actually did.",
+    "realLimitNote": "The real model didn’t reach an answer within the limit. Small models often get the format wrong: look at the \"?\" lines."
+  },
+  "data": {
+    "records": {
+      "ana": "Ana Souza: HR analyst; 18 vacation days available; monthly salary R$ 4,500.00",
+      "bruno": "Bruno Lima: senior developer; 6 vacation days available"
+    },
+    "callLookup": "$ lookup({\"key\":\"ana\"})",
+    "resultLookup": "~ Ana Souza: HR analyst; 18 vacation days available; monthly salary R$ 4,500.00",
+    "noLookup": "! no lookup tool: I can’t access the records",
+    "callCalc": "$ calculator({\"expression\":\"4500/30*10\"})",
+    "resultCalc": "~ 1500",
+    "stopped": "! stopped: step limit reached with no answer",
+    "answerFull": "Ana has 18 vacation days available, and 10 days of her salary are worth R$ 1,500.00.",
+    "answerGuess": "Ana has 18 vacation days; 10 days of her salary come to about R$ 1,400 (an estimate, no calculator).",
+    "answerNoData": "I can’t see Ana’s record without the lookup tool.",
+    "answerBruno": "Bruno Lima is a senior developer.",
+    "sysTools": "You are the HR assistant. Tools: lookup(key) returns the employee record by lowercase first name; calculator(expression) solves math with + - * /. ALWAYS reply with a single JSON and nothing else: {\"tool\":\"lookup\",\"args\":{\"key\":\"ana\"}} or {\"tool\":\"calculator\",\"args\":{\"expression\":\"4500/30*10\"}} or, when you know the final answer, {\"answer\":\"...\"} in English.",
+    "nudge": "Reply only with one JSON: {\"tool\":...,\"args\":...} or {\"answer\":...}."
+  },
+  "recipe": {
+    "steps": [
+      "In your provider’s tool-calling docs, declare two tools in JSON Schema: lookup(key) and calculator(expression).",
+      "Implement both in code (lookup reading a test JSON, no real data) and write the loop: call the model, run the requested tool, return the result.",
+      "Ask what 10 days of Ana’s salary are worth, with a 4-step limit."
+    ],
+    "ok": "the trace shows lookup, then calculator, and the final answer has R$ 1,500.00, in at most 3 steps."
+  }
+}

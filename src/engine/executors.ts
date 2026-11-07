@@ -57,6 +57,10 @@ async function loadReal(m: RealModel, onProgress?: (p: Progress) => void): Promi
 }
 
 const realDepsLocal = (model: string): RealDeps => ({
+  embed: async (texts) => {
+    const e = await (await import('../runtime/transformers')).loadEmbedder(model);
+    return (await e(texts, { pooling: 'mean', normalize: true })).tolist();
+  },
   tokenizer: async (id) => (await import('../runtime/transformers')).loadTokenizer(id),
   chat: async (messages, opts) => (await (await import('../runtime/webllm')).chatLocal(model, messages, opts)).text,
 });
@@ -87,7 +91,7 @@ const inBrowser: Executor = {
     const cfg = step.real!['no-navegador']!;
     const m = REAL_MODELS[cfg.model!];
     if (!loaded.has(m.id)) await loadReal(m);
-    return ADAPTERS[cfg.adapter].run(values, ctx, realDepsLocal(m.id), { executor: 'no-navegador', model: m.label });
+    return ADAPTERS[cfg.adapter].run(values, ctx, realDepsLocal(m.id), { executor: 'no-navegador', model: m.id }, cfg);
   },
 };
 
@@ -106,7 +110,8 @@ const ownKey: Executor = {
       tokenizer: () => Promise.reject(new Error('no tokenizer through an API')),
       chat: (messages, opts) => chatByok(k, messages, opts),
     };
-    return ADAPTERS[step.real!['sua-chave']!.adapter].run(values, ctx, deps, { executor: 'sua-chave', model: k.model });
+    const cfg = step.real!['sua-chave']!;
+    return ADAPTERS[cfg.adapter].run(values, ctx, deps, { executor: 'sua-chave', model: k.model }, cfg);
   },
 };
 

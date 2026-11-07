@@ -1,0 +1,113 @@
+{
+  "title": "Real embeddings",
+  "subtitle": "When \"days off\" finds \"vacation\" with no shared words",
+  "mission": "Compare employee requests with HR questions. First by shared words (simulated), then with a real embedding model running on your device.",
+  "predict": {
+    "question": "\"I want to take a few days off\": which HR question is it closest to, for a real embedding model?",
+    "options": {
+      "vacation": "\"How do I request vacation?\"",
+      "salary": "\"When does the salary come in?\"",
+      "none": "None: no shared words"
+    }
+  },
+  "feedback": {
+    "right": "good. In simulated mode (shared words) nothing matches, because \"days off\" and \"vacation\" are different words. Pick \"In the browser\" and run again: the real model connects them by meaning.",
+    "wrong": "a word search (simulated mode) indeed finds nothing. But an embedding model compares meaning: pick \"In the browser\" and see \"vacation\" on top.",
+    "skipped": "no guess? Simulated mode only sees shared words. Pick \"In the browser\" to see meaning at work."
+  },
+  "coach": {
+    "ui": "guess noted. Run in simulated mode, then pick \"In the browser\" (~120 MB, once) and run again.",
+    "cmd": "guess noted. Run the command, then pick \"In the browser\" in the scene and run again."
+  },
+  "tryNext": {
+    "ui": "Try \"My paycheck came in wrong\" and \"I can’t log into the system\". Does the model get the topic without matching words?",
+    "cmd": "Try compare \"My paycheck came in wrong\" and compare \"I can’t log into the system\"."
+  },
+  "why": {
+    "simples": "An embedding model turns each sentence into a list of numbers that stands for its meaning. Sentences that mean the same thing get similar lists, even with different words.\nWord search only finds what’s written the same way.",
+    "dev": "multilingual-e5-small produces 384-dimension vectors and was trained on about 100 languages. Vectors come out normalized (mean pooling), so cosine similarity becomes a dot product.\nE5-family models expect a prefix: \"query: \" for questions and \"passage: \" for documents. Forgetting the prefix quietly makes search worse.",
+    "especialista": "Similarity isn’t truth or business relevance: negated sentences (\"I don’t want vacation\") sit close to the topic they negate. That’s why semantic search is usually combined with keywords (hybrid) and a reranker.\nPick the model by language and domain, evaluate with your team’s real questions, and version it: switching models means re-embedding the whole index."
+  },
+  "formula": "cos(a, b) = a · b   (normalized vectors)",
+  "break": {
+    "mission": {
+      "ui": "time to break it: in \"In the browser\" mode, compare \"I don’t want to take vacation now\".",
+      "cmd": "time to break it: run compare \"I don’t want to take vacation now\" (ideally in the browser)."
+    },
+    "success": "Broken: \"{best}\" came out on top at {pct}%, even though the person says they DON’T want it. Embeddings capture the topic, not the intent or the negation.",
+    "calm": "The top match was \"{best}\". To break it, use a negated sentence about vacation."
+  },
+  "hints": {
+    "ui": [
+      "Pick an example and hit Run.",
+      "Simulated mode only sees equal words; the real one sees meaning.",
+      "The \"I don’t want to take vacation\" sentence fools the model."
+    ],
+    "cmd": [
+      "The sentence goes in quotes, after compare.",
+      "Switch the executor to \"In the browser\" in the scene panel.",
+      "compare \"I don’t want to take vacation now\""
+    ]
+  },
+  "errors": {},
+  "controls": {
+    "arg": "Employee request"
+  },
+  "scene": {
+    "label": "HR questions by closeness",
+    "empty": "Run to compare.",
+    "table": "Closeness to each question",
+    "phrase": "HR question",
+    "similarity": "similarity %",
+    "caption": "Highlight = closest",
+    "simNote": "Simulated mode: closeness by shared words. Pick \"In the browser\" for real embeddings (multilingual-e5-small).",
+    "noOverlapNote": "No shared words: word search finds nothing. An embedding model would find it by meaning.",
+    "negationNote": "The sentence negates the topic, yet the closest question is exactly that topic."
+  },
+  "data": {
+    "phrases": [
+      "How do I request vacation?",
+      "When does this month’s salary come in?",
+      "I forgot my system password",
+      "How much is the meal allowance?",
+      "Can I work from home on Fridays?",
+      "The air conditioning in room 3 is broken"
+    ],
+    "stop": [
+      "what",
+      "which",
+      "how",
+      "when",
+      "where",
+      "can",
+      "could",
+      "the",
+      "for",
+      "with",
+      "does",
+      "did",
+      "was",
+      "was",
+      "my",
+      "your",
+      "yours",
+      "that",
+      "this",
+      "last",
+      "night",
+      "get",
+      "have",
+      "has",
+      "and",
+      "you"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "In a Node project or the browser, install @huggingface/transformers.",
+      "Run: const e = await pipeline(\"feature-extraction\", \"Xenova/multilingual-e5-small\"); const v = await e([\"query: I want some rest\", \"query: how do I request vacation?\"], { pooling: \"mean\", normalize: true });",
+      "Compute the dot product of the two vectors (v.tolist())."
+    ],
+    "ok": "the dot product of the two rest/vacation sentences is clearly higher than either one with a password sentence."
+  }
+}

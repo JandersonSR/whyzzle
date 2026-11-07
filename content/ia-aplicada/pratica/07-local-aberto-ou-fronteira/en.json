@@ -1,0 +1,95 @@
+{
+  "title": "Local, open or frontier?",
+  "subtitle": "Picking a model by task, data and the monthly bill",
+  "mission": "For each use case, choose between a small local model, an open model you host, and a frontier model via API. Justify with quality, privacy and cost.",
+  "predict": {
+    "question": "50,000 tickets a month, 800 input and 200 output tokens, at US$ 1 and US$ 4 per million. What’s the monthly cost on a frontier model?",
+    "options": {
+      "80": "About US$ 80",
+      "800": "About US$ 800",
+      "8000": "About US$ 8,000"
+    }
+  },
+  "feedback": {
+    "right": "right: 50,000 × (800 × 1 + 200 × 4) ÷ 1 million = US$ 80. API cost is often lower than people think; quality and privacy weigh more.",
+    "wrong": "do the math: 50,000 × (800 × 1 + 200 × 4) ÷ 1 million = US$ 80 a month.",
+    "skipped": "no guess? The panel does the math: volume × (input tokens × price + output tokens × price) ÷ 1 million."
+  },
+  "coach": {
+    "ui": "guess noted. Run with the defaults and look at cost and criteria.",
+    "cmd": "guess noted. Run the command and look at cost and criteria."
+  },
+  "tryNext": {
+    "ui": "Now tick \"sensitive data\" and see what changes for frontier without a contract. Then switch to \"open\".",
+    "cmd": "Run with --sensitive yes, then with --choice open."
+  },
+  "why": {
+    "simples": "There’s no best model for everything. A small on-device model is cheap and private but makes more mistakes. A huge cloud model is more accurate, but data leaves the company and you pay per use.\nThe choice depends on what the task demands, how sensitive the data is and how much you can spend.",
+    "dev": "API cost ≈ volume × (input tokens × input price + output tokens × output price) ÷ 1,000,000. A self-hosted open model swaps that for GPUs, operations and scaling; a local model costs nothing per token but depends on the user’s device.\nMeasure quality with an evaluation on your task, not generic leaderboards: start with a large model to learn the ceiling, then see if a smaller one gets close.",
+    "especialista": "Personal and sensitive data need a legal basis and a contract (privacy law): with an API provider, require a data processing agreement, no training on your data, defined retention and a known region. Without it, prefer an open model on your own infrastructure.\nMixed architectures are common: a cheap router classifies and only hard cases go to the big model; prompt caching and batch processing cut cost. Prices change fast: keep the price table as versioned, dated data."
+  },
+  "formula": "cost/month = volume × (input × input_price + output × output_price) ÷ 1,000,000",
+  "break": {
+    "mission": {
+      "ui": "time to break it: choose \"local\" with \"high\" quality for the legal review.",
+      "cmd": "time to break it: run decide \"legal review of contracts\" --quality high --choice local"
+    },
+    "success": "It doesn’t add up: a small local model can’t deliver the quality a legal review needs. Cheap and private doesn’t help if the answer is unusable.",
+    "calm": "This choice meets the criteria (US$ {monthly}/month). To break it, ask for high quality with a local model."
+  },
+  "hints": {
+    "ui": [
+      "Adjust volume, tokens, prices and the choice, then hit Run.",
+      "Prices are examples: use your provider’s current table.",
+      "High quality + local choice."
+    ],
+    "cmd": [
+      "The use case goes in quotes, after decide.",
+      "--price-in and --price-out are US$ per million tokens.",
+      "decide \"legal review of contracts\" --quality high --choice local"
+    ]
+  },
+  "errors": {
+    "notInEnum.choice": "\"{value}\" isn’t an option. Options: {options}.",
+    "notInEnum.quality": "\"{value}\" isn’t an option. Options: {options}.",
+    "notBool.sensitive": "--sensitive takes yes or no.",
+    "notBool.contract": "--contract takes yes or no."
+  },
+  "controls": {
+    "arg": "Use case",
+    "volume": "Calls per month",
+    "inTokens": "Input tokens per call",
+    "outTokens": "Output tokens per call",
+    "priceIn": "Input price (US$/million)",
+    "priceOut": "Output price (US$/million)",
+    "budget": "Budget (US$/month)",
+    "quality": "Required quality",
+    "sensitive": "Personal or sensitive data",
+    "contract": "Data processing agreement with the provider",
+    "choice": "Your choice"
+  },
+  "scene": {
+    "label": "Model decision",
+    "empty": "Run to decide.",
+    "monthly": "US$ per month (frontier)",
+    "perCall": "US$ per thousand calls",
+    "checks": "Criteria",
+    "qualityOk": "Quality fits the task",
+    "qualityWhy": "A small local model doesn’t reach high quality.",
+    "privacyOk": "Data protected",
+    "privacyWhy": "Sensitive data going to an API with no data processing agreement.",
+    "budgetOk": "Fits the budget",
+    "budgetWhy": "US$ {monthly} a month is over budget.",
+    "infraNote": "Local and open models don’t pay per token, but have device, GPU and operations costs this panel doesn’t compute.",
+    "pricesNote": "Default prices are only examples for the math; check the provider’s current table."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Pick a real case from your team and measure, over 20 examples, how many input and output tokens it uses.",
+      "Get current prices from two providers and compute the monthly cost at your volume.",
+      "Run the same 20 examples on a small model (in the browser, for instance) and a big one, and compare quality against an answer key."
+    ],
+    "ok": "you have a table with each option’s monthly cost and accuracy, and the choice is justified by numbers, not preference."
+  }
+}

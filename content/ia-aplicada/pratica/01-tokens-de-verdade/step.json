@@ -1,0 +1,205 @@
+{
+  "id": "p-tokens-de-verdade",
+  "order": 1,
+  "track": "pratica",
+  "minutes": 12,
+  "tags": [
+    "tokens",
+    "custo",
+    "tokenizador"
+  ],
+  "requires": [
+    "tokens-e-contexto"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "contar",
+      "en": "count"
+    },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "ui": "examples",
+      "default": {
+        "pt": "Preciso reemitir a nota fiscal 4471 com urgência, por favor.",
+        "en": "I need to reissue invoice 4471 urgently, please."
+      },
+      "examples": [
+        {
+          "pt": "Preciso reemitir a nota fiscal 4471 com urgência, por favor.",
+          "en": "I need to reissue invoice 4471 urgently, please."
+        },
+        {
+          "pt": "I need to reissue invoice 4471 urgently, please.",
+          "en": "Preciso reemitir a nota fiscal 4471 com urgência, por favor."
+        },
+        {
+          "pt": "const total = itens.reduce((s, i) => s + i.preco, 0);",
+          "en": "const total = items.reduce((s, i) => s + i.price, 0);"
+        },
+        {
+          "pt": "Parabéns!!! 🎉🎉🎉 Você ganhou 🏆🏆",
+          "en": "Congrats!!! 🎉🎉🎉 You won 🏆🏆"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "price",
+        "alias": {
+          "pt": "preco",
+          "en": "price"
+        },
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "step": 0.5,
+        "uiMax": 20,
+        "default": 2.5,
+        "ui": "slider"
+      },
+      {
+        "name": "calls",
+        "alias": {
+          "pt": "chamadas",
+          "en": "calls"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 100000000,
+        "step": 10000,
+        "uiMin": 10000,
+        "uiMax": 1000000,
+        "default": 100000,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "pt",
+      "en",
+      "same"
+    ],
+    "answer": "pt"
+  },
+  "break": {
+    "flag": "dense"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "real": false,
+        "realTokens": 0,
+        "realTokensPieces": [],
+        "window": 128000
+      },
+      "compute": {
+        "chars": "len(text)",
+        "isCode": "includes(text, '{') || includes(text, ';') || includes(text, '=>')",
+        "isPt": "includes(lower(text), 'ção') || includes(lower(text), 'ê') || includes(lower(text), 'é') || includes(lower(text), 'ã') || includes(lower(text), ' com ')",
+        "estimate": "max(1, round(chars / (isCode ? 3.2 : (isPt ? 3.6 : 4.3)) + nonascii(text) * 1.2))",
+        "tokens": "real ? realTokens : estimate",
+        "cpt": "round(chars / max(tokens, 1), 2)",
+        "cost": "round(tokens * calls * price / 1000000, 2)",
+        "windowPct": "round(tokens / window * 100, 3)"
+      },
+      "cases": [
+        {
+          "when": "cpt < 2.5",
+          "flags": [
+            "dense"
+          ]
+        },
+        {
+          "when": "isCode",
+          "flags": [
+            "code"
+          ]
+        },
+        {
+          "when": "!real",
+          "flags": [
+            "estimate"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "tokens": "tokens",
+            "cpt": "cpt",
+            "cost": "cost"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@tokens",
+              "value": "=tokens",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@cpt",
+              "value": "=cpt",
+              "format": "num",
+              "tone": "=cpt < 2.5 ? 'bad' : (cpt < 3.5 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@cost",
+              "value": "=cost",
+              "format": "num",
+              "tone": "neutral"
+            },
+            {
+              "label": "@window",
+              "value": "=windowPct",
+              "format": "pct",
+              "tone": "dim"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@pieces",
+          "when": "=real",
+          "lines": "=concat(['$ tokenizer.encode(text)'], ['~' + join(realTokensPieces, ' | ')])"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@estimateNote"
+        },
+        {
+          "type": "note",
+          "when": "=cpt < 2.5",
+          "tone": "warn",
+          "text": "@denseNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Xenova/gpt-4o",
+      "op": "tokens",
+      "args": {
+        "texts": {
+          "realTokens": "text"
+        }
+      }
+    }
+  }
+}

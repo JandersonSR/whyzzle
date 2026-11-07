@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Ver a diferença entre busca por palavras e por significado.",
+      "Usar um modelo de embeddings real no navegador.",
+      "Reconhecer limites: negação e intenção."
+    ],
+    "minutes": 15,
+    "activity": "A turma escreve 5 jeitos diferentes de pedir a mesma coisa ao RH, sem repetir palavras, e testa quais o modelo reconhece.",
+    "discussion": [
+      "Por que a busca do site da empresa às vezes não acha o que você quer?",
+      "Que perguntas do RH confundiriam um modelo de embeddings?"
+    ],
+    "misconceptions": [
+      "\"Similaridade alta é resposta certa.\" É só proximidade de assunto.",
+      "\"Embeddings entendem negação.\" Na maioria das vezes, não."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "See the difference between word search and meaning search.",
+      "Use a real embedding model in the browser.",
+      "Recognize limits: negation and intent."
+    ],
+    "minutes": 15,
+    "activity": "The class writes 5 different ways to ask HR the same thing, without repeating words, and tests which ones the model recognizes.",
+    "discussion": [
+      "Why does the company site search sometimes miss what you want?",
+      "Which HR questions would confuse an embedding model?"
+    ],
+    "misconceptions": [
+      "\"High similarity means the right answer.\" It only means a close topic.",
+      "\"Embeddings understand negation.\" Mostly, they don’t."
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "title": "Tokens de verdade: custo e janela",
+  "subtitle": "Contar com o tokenizador do GPT-4o, não no olho",
+  "mission": "Conte os tokens reais de um e-mail, da mesma frase em inglês, de um trecho de código e de uma mensagem cheia de emojis. Depois calcule quanto custam 100 mil chamadas.",
+  "predict": {
+    "question": "a mesma frase em português e em inglês: qual vira mais tokens no tokenizador do GPT-4o?",
+    "options": {
+      "pt": "A em português",
+      "en": "A em inglês",
+      "same": "Dá igual"
+    }
+  },
+  "feedback": {
+    "right": "isso. Os tokenizadores são treinados com muito mais texto em inglês, então o português costuma precisar de mais pedaços para dizer a mesma coisa. Mais tokens = mais custo e mais janela gasta.",
+    "wrong": "repare nos números: o português costuma gastar mais tokens que o inglês para a mesma ideia, porque o tokenizador viu muito mais inglês no treino.",
+    "skipped": "sem palpite? Compare as duas frases: o português costuma gastar mais tokens para a mesma ideia."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode a frase em português e depois a versão em inglês nos exemplos. Para contar de verdade, escolha \"No navegador\" no painel da cena (baixa ~8 MB).",
+    "cmd": "palpite anotado. Rode contar com a frase em português e depois com a em inglês. Para contar de verdade, escolha \"No navegador\" na cena."
+  },
+  "tryNext": {
+    "ui": "Agora rode o trecho de código e suba \"Chamadas\" para 1.000.000. Veja o custo crescer em linha reta.",
+    "cmd": "Agora rode o código com --chamadas 1000000 e veja o custo crescer em linha reta."
+  },
+  "why": {
+    "simples": "O modelo não lê letras nem palavras: lê pedaços chamados tokens. Palavras comuns em inglês costumam ser um pedaço só; palavras em português, acentos e emojis viram vários pedaços.\nE é por pedaço que se paga e que a memória do modelo enche.",
+    "dev": "O tokenizador do GPT-4o (o200k_base) é um BPE: começa com bytes e funde os pares mais frequentes do treino. Texto raro no treino (outros idiomas, emojis, nomes próprios) vira mais tokens.\nCusto = tokens de entrada × preço de entrada + tokens de saída × preço de saída, em geral cotado por milhão de tokens. Cada modelo tem o próprio tokenizador: a mesma frase dá números diferentes no GPT, no Claude e no Llama.",
+    "especialista": "Meça com o tokenizador do modelo que vai usar (ou a API de contagem do provedor) antes de estimar orçamento; a regra \"4 caracteres por token\" vale para inglês e erra feio em português, código e JSON.\nEm produção, o grosso do custo costuma estar no contexto repetido (prompt de sistema, documentos de RAG, histórico), não na pergunta. Cache de prompt, cortes de histórico e resumos atacam isso. Lembre também que a saída costuma custar várias vezes mais por token que a entrada."
+  },
+  "formula": "custo = tokens × chamadas × preço ÷ 1.000.000",
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar a regra de bolso: rode a mensagem com emojis. Quantos caracteres cabem em cada token agora?",
+      "cmd": "hora de quebrar a regra de bolso: rode contar com a mensagem cheia de emojis."
+    },
+    "success": "Quebrou: só {cpt} caracteres por token. Emojis e símbolos raros viram vários tokens cada; um chat de atendimento cheio de emojis custa bem mais do que parece.",
+    "calm": "{cpt} caracteres por token: ainda dentro do normal. Tente a mensagem com emojis."
+  },
+  "hints": {
+    "ui": [
+      "Escolha um exemplo e aperte Rodar.",
+      "\"Preço\" é em dólares por milhão de tokens de entrada; use o da tabela do seu provedor.",
+      "A mensagem com 🎉 e 🏆 quebra a regra dos 4 caracteres."
+    ],
+    "cmd": [
+      "O texto vai entre aspas, depois de contar.",
+      "--preco é US$ por milhão de tokens; --chamadas é quantas vezes o texto vai ao modelo.",
+      "contar \"Parabéns!!! 🎉🎉🎉 Você ganhou 🏆🏆\""
+    ]
+  },
+  "errors": {
+    "aboveMax.price": "Acima de US$ 100 por milhão é fora da realidade para entrada de texto; confira a tabela do provedor.",
+    "belowMin.price": "Preço negativo seria ótimo, mas não existe.",
+    "notInteger.calls": "Chamadas é um número inteiro, tipo --chamadas 100000.",
+    "belowMin.calls": "Pelo menos 1 chamada."
+  },
+  "controls": {
+    "arg": "Texto",
+    "price": "Preço (US$ por milhão de tokens de entrada)",
+    "calls": "Chamadas"
+  },
+  "scene": {
+    "label": "Contador de tokens",
+    "empty": "Rode para contar.",
+    "tokens": "tokens",
+    "cpt": "caracteres por token",
+    "cost": "US$ para {calls} chamadas",
+    "window": "da janela de 128 mil",
+    "pieces": "Como o tokenizador do GPT-4o cortou (até 60 pedaços)",
+    "estimateNote": "Modo simulado: é uma estimativa. Escolha \"No navegador\" para contar com o tokenizador real.",
+    "denseNote": "Menos de 2,5 caracteres por token: texto caro. Emojis, símbolos e palavras raras pesam."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Abra o Tokenizer da OpenAI (platform.openai.com/tokenizer) e escolha o modelo GPT-4o.",
+      "Cole a mesma frase em português e em inglês e anote os tokens de cada uma.",
+      "Cole um trecho de código do seu projeto e um texto com emojis, e compare os caracteres por token."
+    ],
+    "ok": "a frase em português dá mais tokens que a em inglês, e o texto com emojis tem bem menos caracteres por token. Os números batem com os do Whyzzle no modo \"No navegador\"."
+  }
+}

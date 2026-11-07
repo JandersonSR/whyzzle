@@ -205,6 +205,61 @@ const FUNCS: Record<string, (args: Value[], rng: () => number) => Value> = {
   number: ([v]) => num(v),
   concat: (a) => a.flatMap((x) => (Array.isArray(x) ? x : [x])),
   slice: ([list, a, b]) => arr(list).slice(num(a), b === undefined ? undefined : num(b)),
+  /** Text helpers for data-driven lessons. */
+  words: ([s]) => String(s ?? '').trim().split(/\s+/).filter(Boolean).length,
+  nonascii: ([s]) => Array.from(String(s ?? '')).filter((c) => c.codePointAt(0)! > 127).length,
+  /** Jaccard overlap of the words (accents and case ignored, short words skipped): 0–1. */
+  overlap: ([a, b, stop]) => {
+    const norm = (x: Value) =>
+      String(x ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    const skip = new Set(arr(stop).map(norm));
+    const set = (x: Value) => new Set(norm(x).split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !skip.has(w)));
+    const A = set(a);
+    const B = set(b);
+    if (!A.size || !B.size) return 0;
+    let inter = 0;
+    for (const w of A) if (B.has(w)) inter++;
+    return inter / (A.size + B.size - inter);
+  },
+  overlapall: ([s, list, stop], rng) => arr(list).map((x) => FUNCS.overlap([s, x, stop], rng) as number),
+  argmax: ([list]) => {
+    const l = arr(list).map(num);
+    return l.length ? l.indexOf(Math.max(...l)) : -1;
+  },
+  /** Indices sorted by value, highest first. */
+  order: ([list]) =>
+    arr(list)
+      .map((v, i) => [num(v), i] as const)
+      .sort((a, b) => b[0] - a[0])
+      .map((x) => x[1]),
+  pickall: ([list, idxs]) => arr(idxs).map((i) => arr(list)[num(i)]),
+  zip: (lists) => {
+    const ls = lists.map(arr);
+    const n = Math.min(...ls.map((l) => l.length));
+    return Array.from({ length: n }, (_, i) => ls.map((l) => l[i]));
+  },
+  scale: ([list, k]) => arr(list).map((v) => num(v) * num(k)),
+  clampall: ([list, lo, hi]) => arr(list).map((v) => Math.min(num(hi), Math.max(num(lo), num(v)))),
+  affine: ([list, a, b]) => arr(list).map((v) => num(a) + num(b) * num(v)),
+  roundall: ([list, d]) => arr(list).map((v) => Math.round(num(v) * 10 ** num(d ?? 0)) / 10 ** num(d ?? 0)),
+  /** n items: `a` at index idx, `b` elsewhere (e.g. row tones). */
+  mark: ([n, idx, a, b]) => Array.from({ length: Math.max(0, num(n)) }, (_, i) => (i === num(idx) ? a : b)),
+  unique: ([list]) => Array.from(new Set(arr(list))),
+  /** n picks (with replacement) among the first k items. */
+  sample: ([list, n, k], rng) => {
+    const l = arr(list).slice(0, Math.max(1, num(k)));
+    return Array.from({ length: Math.max(0, num(n)) }, () => l[Math.floor(rng() * l.length)]);
+  },
+  /** Cuts each text to n words, adding "…" when cut. */
+  truncwords: ([list, n]) =>
+    arr(list).map((s) => {
+      const w = String(s ?? '').split(/\s+/);
+      return w.length > num(n) ? w.slice(0, Math.max(1, num(n))).join(' ') + '…' : String(s ?? '');
+    }),
+  endsany: ([s, list]) => arr(list).some((x) => String(s ?? '').trimEnd().endsWith(String(x))),
   /** Seeded random in [0, 1): deterministic in previews and tests. */
   rand: (_a, rng) => rng(),
   pick: ([list], rng) => {

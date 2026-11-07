@@ -1859,7 +1859,8 @@ textarea {
   font-size: 13px;
   line-height: 1.6;
   overflow-x: auto;
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .wz-wterm__line[data-tone='ok'] { color: #6ee7a0; }
 .wz-wterm__line[data-tone='bad'] { color: #ff9b9b; }

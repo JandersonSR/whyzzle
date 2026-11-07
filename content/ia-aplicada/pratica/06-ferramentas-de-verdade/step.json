@@ -1,0 +1,205 @@
+{
+  "id": "p-ferramentas-de-verdade",
+  "order": 6,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "agentes",
+    "ferramentas",
+    "tool-calling",
+    "rh"
+  ],
+  "requires": [
+    "p-json-que-o-sistema-aceita",
+    "ferramentas-e-agentes"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "agente",
+      "en": "agent"
+    },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "ui": "examples",
+      "default": {
+        "pt": "Quantos dias de férias a Ana ainda tem? E quanto valem 10 dias do salário dela?",
+        "en": "How many vacation days does Ana have left? And how much are 10 days of her salary worth?"
+      },
+      "examples": [
+        {
+          "pt": "Quantos dias de férias a Ana ainda tem? E quanto valem 10 dias do salário dela?",
+          "en": "How many vacation days does Ana have left? And how much are 10 days of her salary worth?"
+        },
+        {
+          "pt": "Qual é o cargo do Bruno?",
+          "en": "What is Bruno’s job title?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "tools",
+        "alias": {
+          "pt": "ferramentas",
+          "en": "tools"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "lookup",
+            "pt": "consultar",
+            "en": "lookup"
+          },
+          {
+            "id": "calculator",
+            "pt": "calculadora",
+            "en": "calculator"
+          }
+        ],
+        "default": [
+          "lookup",
+          "calculator"
+        ],
+        "ui": "checkboxes"
+      },
+      {
+        "name": "maxSteps",
+        "alias": {
+          "pt": "passos",
+          "en": "steps"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 8,
+        "default": 4,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "tools",
+      "guess",
+      "refuse"
+    ],
+    "answer": "tools"
+  },
+  "break": {
+    "flag": "limit"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realTrace": [],
+        "realAnswer": "",
+        "realCalls": 0,
+        "realLimit": false
+      },
+      "compute": {
+        "askCalc": "includes(lower(text), 'salário') || includes(lower(text), 'salary')",
+        "hasLookup": "includes(tools, 'lookup')",
+        "hasCalc": "includes(tools, 'calculator')",
+        "needed": "hasLookup ? ((askCalc && hasCalc) ? 3 : 2) : 1",
+        "simLimit": "maxSteps < needed",
+        "simTrace": "concat(hasLookup ? [callLookup, resultLookup] : [noLookup], (hasLookup && askCalc && hasCalc && maxSteps >= 2) ? [callCalc, resultCalc] : [], simLimit ? [stopped] : ['+' + (!hasLookup ? answerNoData : (askCalc ? (hasCalc ? answerFull : answerGuess) : answerBruno))])",
+        "trace": "real ? realTrace : simTrace",
+        "limitHit": "real ? realLimit : simLimit",
+        "calls": "real ? realCalls : ((hasLookup ? 1 : 0) + ((hasLookup && askCalc && hasCalc && maxSteps >= 2) ? 1 : 0))"
+      },
+      "cases": [
+        {
+          "when": "limitHit",
+          "flags": [
+            "limit"
+          ]
+        },
+        {
+          "when": "!limitHit && hasLookup && askCalc && !hasCalc && !real",
+          "flags": [
+            "guessed"
+          ]
+        },
+        {
+          "when": "!limitHit",
+          "flags": [
+            "answered"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "max": "maxSteps",
+            "calls": "calls"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@calls",
+              "value": "=calls",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@maxSteps",
+              "value": "=maxSteps",
+              "format": "int",
+              "tone": "=limitHit ? 'bad' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@trace",
+          "lines": "=concat(['$ ' + text], trace)"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        },
+        {
+          "type": "note",
+          "when": "=real && limitHit",
+          "tone": "warn",
+          "text": "@realLimitNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "tools",
+      "args": {
+        "system": "{sysTools}",
+        "user": "{text}",
+        "nudge": "{nudge}"
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "tools",
+      "args": {
+        "system": "{sysTools}",
+        "user": "{text}",
+        "nudge": "{nudge}"
+      }
+    }
+  }
+}

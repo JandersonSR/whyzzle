@@ -3,6 +3,7 @@ import { getModel, type ModelCtx, type ModelResult } from '../engine/registry';
 import type { Lang } from '../engine/schema';
 import type { PromptResult } from '../models/promptGrader';
 import type { Tok, TokenizerResult } from '../models/tokenizer';
+import { OPS } from './realOps';
 import type { ChatMessage, ChatOptions } from './webllm';
 
 /**
@@ -12,6 +13,7 @@ import type { ChatMessage, ChatOptions } from './webllm';
  */
 
 export interface RealDeps {
+  embed?(texts: string[]): Promise<number[][]>;
   tokenizer(model: string): Promise<{ encode(text: string, o?: { add_special_tokens?: boolean }): number[]; decode(ids: number[]): string }>;
   chat(messages: ChatMessage[], opts?: ChatOptions): Promise<string>;
 }
@@ -21,9 +23,14 @@ export interface RealInfo {
   model: string;
 }
 
+export interface RealConfig {
+  op?: string;
+  args?: Record<string, unknown>;
+}
+
 export interface RealAdapter {
   id: string;
-  run(values: Values, ctx: ModelCtx, deps: RealDeps, info: RealInfo): Promise<ModelResult & { real: RealInfo }>;
+  run(values: Values, ctx: ModelCtx, deps: RealDeps, info: RealInfo, cfg?: RealConfig): Promise<ModelResult & { real: RealInfo }>;
 }
 
 const isLetter = (s: string) => /\p{L}/u.test(s);
@@ -121,4 +128,17 @@ const chatPrompt: RealAdapter = {
   },
 };
 
-export const ADAPTERS: Record<string, RealAdapter> = { tokenize, 'chat-prompt': chatPrompt };
+/** Runs a real op, then the lesson's declarative sim with the real values injected. */
+const declarativeReal: RealAdapter = {
+  id: 'declarative',
+  async run(values, ctx, deps, info, cfg) {
+    const op = OPS[cfg?.op ?? ''];
+    if (!op) throw new Error(`unknown real op "${cfg?.op}"`);
+    const env = { ...ctx.data, ...ctx.text, ...values };
+    const injected = await op(env, { model: info.model, ...(cfg?.args ?? {}) }, deps, values);
+    const r = getModel('declarative').run({ ...values, ...injected, real: true } as Values, ctx);
+    return { ...r, real: info };
+  },
+};
+
+export const ADAPTERS: Record<string, RealAdapter> = { tokenize, 'chat-prompt': chatPrompt, declarative: declarativeReal };

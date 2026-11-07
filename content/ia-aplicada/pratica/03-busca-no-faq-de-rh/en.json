@@ -1,0 +1,146 @@
+{
+  "title": "Semantic search over an HR FAQ",
+  "subtitle": "Top-k, a confidence threshold and when to hand over to a human",
+  "mission": "Aurora wants to answer HR questions from its own FAQ. Tune how many results to look at and from which score to answer, so it gets what’s in the FAQ right and forwards what isn’t.",
+  "predict": {
+    "question": "someone asks last night’s game score. With an 80% threshold, the assistant…",
+    "options": {
+      "answers": "Answers with the most similar FAQ entry",
+      "forwards": "Forwards to HR: nothing passed the threshold",
+      "random": "Makes up a score"
+    }
+  },
+  "feedback": {
+    "right": "right: with a well-tuned threshold, off-topic questions don’t pass and go to a human. Without one, search always returns \"the closest\", even when it’s unrelated.",
+    "wrong": "look at the decision: nothing reached the threshold, so the assistant forwards. Search always finds \"the closest\"; the threshold decides if it’s good enough.",
+    "skipped": "no guess? Watch the threshold: it separates answering from forwarding."
+  },
+  "coach": {
+    "ui": "guess noted. Run the example questions, ideally with \"In the browser\" on for real embeddings.",
+    "cmd": "guess noted. Run search with the example questions; switch to \"In the browser\" in the scene for real embeddings."
+  },
+  "tryNext": {
+    "ui": "Ask about the dog: is the score high and does the right answer exist? Then set top to 1 and to 5.",
+    "cmd": "Run search \"Can I bring my dog to the office?\" then change --top to 1 and 5."
+  },
+  "why": {
+    "simples": "Search turns the question and each FAQ item into meaning-numbers and picks the closest. But \"closest\" doesn’t mean \"right\": it’s like grabbing the nearest book on a shelf that doesn’t have the book you want.\nThe threshold is the rule \"if it isn’t close enough, call someone\".",
+    "dev": "Flow: embed the question (with \"query: \"), embed each document (with \"passage: \"), similarity, sort, top-k and a cutoff. Top-k decides how many chunks move on (to the LLM, in RAG); the threshold decides whether anything is useful.\nWith E5, similarities sit in a compressed high range (around 0.7 to 0.9), so the threshold must be calibrated on real examples, not guessed.",
+    "especialista": "Calibrate the threshold on a labeled set: questions the FAQ answers and doesn’t, measuring precision and coverage at each cutoff. Too low answers too much (costly in HR: wrong salary or benefit info); too high forwards everything.\nIn production, log forwarded questions: they show what the FAQ is missing. Combine with keyword search for acronyms and numbers (benefit names, codes) and re-evaluate when switching models."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: lower the threshold to 70% and ask the game score.",
+      "cmd": "time to break it: run search \"What was the score of last night’s game?\" --threshold 0.7"
+    },
+    "success": "Broken: with a {limitPct}% threshold, the assistant answered about \"{question}\" ({score}%) to a totally unrelated question. Too low a threshold = a confident wrong answer.",
+    "calm": "Best result: {score}% against a {limitPct}% threshold. To break it, lower the threshold and ask something off-topic."
+  },
+  "hints": {
+    "ui": [
+      "Pick a question and hit Run.",
+      "\"Threshold\" is the minimum score to answer; below it, forward to HR.",
+      "Threshold 70% with the game question."
+    ],
+    "cmd": [
+      "The question goes in quotes, after search.",
+      "--top is how many results to show; --threshold is the minimum score (0.5 to 0.99).",
+      "search \"What was the score of last night’s game?\" --threshold 0.7"
+    ]
+  },
+  "errors": {
+    "aboveMax.top": "Up to 5 results; the FAQ is small.",
+    "belowMin.top": "At least 1 result.",
+    "belowMin.limit": "Below 0.5 the assistant would answer almost anything.",
+    "aboveMax.limit": "Above 0.99 nothing passes."
+  },
+  "controls": {
+    "arg": "Question",
+    "top": "Results (top-k)",
+    "limit": "Threshold to answer"
+  },
+  "scene": {
+    "label": "Aurora FAQ search",
+    "empty": "Run to search.",
+    "q": "Question",
+    "embed": "Embedding",
+    "simShort": "simulated",
+    "rank": "Rank",
+    "decide": "Answer or forward",
+    "table": "Closest matches",
+    "faqQ": "FAQ question",
+    "score": "score %",
+    "bestScore": "best score",
+    "limitLabel": "threshold",
+    "simNote": "Simulated mode: score by shared words. Use \"In the browser\" for real embeddings."
+  },
+  "data": {
+    "faqQuestions": [
+      "How do I request vacation?",
+      "How much is the meal allowance?",
+      "How does remote work work?",
+      "When is salary paid?",
+      "How do I change my portal password?",
+      "Can I bring pets to the office?",
+      "How do I claim expenses?",
+      "Does the health plan cover dependents?"
+    ],
+    "faqAnswers": [
+      "Through the employee portal, 30 days in advance, with your manager’s approval.",
+      "R$ 45 per working day, credited on the first working day of the month.",
+      "Up to 2 days a week, agreed with your manager.",
+      "On the fifth working day of each month.",
+      "In My profile > Security, or via IT extension 4000.",
+      "They aren’t allowed, except guide dogs.",
+      "Upload the invoice in the expenses app within 30 days.",
+      "Yes: spouse and children up to 24, with co-payment."
+    ],
+    "faqTexts": [
+      "How do I request vacation? Through the employee portal, 30 days in advance, with your manager’s approval.",
+      "How much is the meal allowance? R$ 45 per working day, credited on the first working day of the month.",
+      "How does remote work work? Up to 2 days a week, agreed with your manager.",
+      "When is salary paid? On the fifth working day of each month.",
+      "How do I change my portal password? In My profile > Security, or via IT extension 4000.",
+      "Can I bring pets to the office? They aren’t allowed, except guide dogs.",
+      "How do I claim expenses? Upload the invoice in the expenses app within 30 days.",
+      "Does the health plan cover dependents? Yes: spouse and children up to 24, with co-payment."
+    ],
+    "notFound": "I couldn’t find that in the FAQ. I’ve forwarded your question to HR.",
+    "stop": [
+      "what",
+      "which",
+      "how",
+      "when",
+      "where",
+      "can",
+      "could",
+      "the",
+      "for",
+      "with",
+      "does",
+      "did",
+      "was",
+      "was",
+      "my",
+      "your",
+      "yours",
+      "that",
+      "this",
+      "last",
+      "night",
+      "get",
+      "have",
+      "has",
+      "and",
+      "you"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Collect 10 real questions your company’s HR (or support) receives and the official answers.",
+      "Embed them with multilingual-e5-small (\"query: \" and \"passage: \" prefixes) and score 5 new questions, including 2 off-topic.",
+      "Pick the threshold that gets the 3 on-topic right and forwards the 2 off-topic."
+    ],
+    "ok": "there’s a threshold that separates on-topic from off-topic questions. Write it down: it’s your assistant’s starting point."
+  }
+}

@@ -30,6 +30,23 @@ describe('expression language', () => {
     expect(ev("'pedido-' + n")).toBe('pedido-5');
   });
 
+  it('has text helpers for lessons', () => {
+    expect(ev("words('o gato  subiu')")).toBe(3);
+    expect(ev("nonascii('ação 🙂')")).toBe(3);
+    expect(ev("overlap('Como peço férias?', 'pedir FERIAS como')")).toBeCloseTo(2 / 4);
+    expect(ev("endsany('Pão quente.', ['.', '!'])")).toBe(true);
+  });
+
+  it('has list helpers for tables and samples', () => {
+    expect(ev('argmax([0.2, 0.9, 0.5])')).toBe(1);
+    expect(ev('order([0.2, 0.9, 0.5])')).toEqual([1, 2, 0]);
+    expect(ev("zip(['a', 'b'], [1, 2])")).toEqual([['a', 1], ['b', 2]]);
+    expect(ev('roundall(affine([0, 0.5], 0.7, 0.3), 2)')).toEqual([0.7, 0.85]);
+    expect(ev("mark(3, 1, 'ok', 'neutral')")).toEqual(['neutral', 'ok', 'neutral']);
+    expect(ev("truncwords(['um dois três quatro'], 2)")).toEqual(['um dois…']);
+    expect(ev("len(unique(sample(['a','b','c'], 5, 1)))")).toBe(1);
+  });
+
   it('is deterministic with a seeded rng', () => {
     expect(evaluate('rand()', {}, makeRng(3))).toBe(evaluate('rand()', {}, makeRng(3)));
   });

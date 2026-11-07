@@ -1,0 +1,117 @@
+{
+  "title": "Embeddings de verdade",
+  "subtitle": "Quando \"descanso\" encontra \"férias\" sem nenhuma palavra em comum",
+  "mission": "Compare pedidos de funcionários com as perguntas do RH. Primeiro com palavras em comum (simulado), depois com um modelo de embeddings real rodando no seu aparelho.",
+  "predict": {
+    "question": "\"Quero tirar uns dias de descanso\" fica mais perto de qual pergunta do RH, para um modelo de embeddings real?",
+    "options": {
+      "vacation": "\"Como peço férias?\"",
+      "salary": "\"Quando cai o salário?\"",
+      "none": "Nenhuma: não tem palavra em comum"
+    }
+  },
+  "feedback": {
+    "right": "boa. No modo simulado (palavras em comum) nada combina, porque \"descanso\" e \"férias\" são palavras diferentes. Escolha \"No navegador\" e rode de novo: o modelo real junta as duas pelo significado.",
+    "wrong": "a busca por palavras (modo simulado) não acha nada mesmo. Mas um modelo de embeddings compara significado: escolha \"No navegador\" e veja \"férias\" no topo.",
+    "skipped": "sem palpite? O modo simulado só vê palavras em comum. Escolha \"No navegador\" para ver o significado em ação."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode no modo simulado e depois escolha \"No navegador\" (baixa ~120 MB, uma vez só) e rode de novo.",
+    "cmd": "palpite anotado. Rode o comando, depois escolha \"No navegador\" na cena e rode de novo."
+  },
+  "tryNext": {
+    "ui": "Teste \"Meu pagamento veio com valor errado\" e \"Não consigo entrar no sistema\". O modelo acerta o assunto sem palavras iguais?",
+    "cmd": "Teste comparar \"Meu pagamento veio com valor errado\" e comparar \"Não consigo entrar no sistema\"."
+  },
+  "why": {
+    "simples": "Um modelo de embeddings transforma cada frase numa lista de números que representa o significado. Frases que querem dizer a mesma coisa viram listas parecidas, mesmo com palavras diferentes.\nA busca por palavras só acha o que está escrito igual.",
+    "dev": "O multilingual-e5-small gera vetores de 384 dimensões e foi treinado em cerca de 100 idiomas. Os vetores saem normalizados (pooling médio), então a similaridade de cosseno vira um produto escalar.\nOs modelos da família E5 esperam um prefixo: \"query: \" para perguntas e \"passage: \" para documentos. Esquecer o prefixo piora a busca sem dar erro.",
+    "especialista": "Similaridade não é verdade nem relevância de negócio: frases com negação (\"não quero férias\") ficam perto do assunto que negam. Por isso busca semântica costuma ser combinada com palavra-chave (híbrida) e com um reranker.\nEscolha o modelo pelo idioma e pelo domínio, avalie com perguntas reais do seu time e versione: trocar de modelo exige recalcular todos os vetores do índice."
+  },
+  "formula": "cos(a, b) = a · b   (vetores normalizados)",
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: no modo \"No navegador\", compare \"Não quero tirar férias agora\".",
+      "cmd": "hora de quebrar: rode comparar \"Não quero tirar férias agora\" (de preferência no navegador)."
+    },
+    "success": "Quebrou: \"{best}\" ficou no topo com {pct}%, mesmo a pessoa dizendo que NÃO quer. Embeddings capturam o assunto, não a intenção nem a negação.",
+    "calm": "O topo foi \"{best}\". Para quebrar, use uma frase com negação sobre férias."
+  },
+  "hints": {
+    "ui": [
+      "Escolha um exemplo e aperte Rodar.",
+      "O modo simulado só enxerga palavras iguais; o real enxerga significado.",
+      "A frase com \"Não quero tirar férias\" engana o modelo."
+    ],
+    "cmd": [
+      "A frase vai entre aspas, depois de comparar.",
+      "Troque o executor para \"No navegador\" no painel da cena.",
+      "comparar \"Não quero tirar férias agora\""
+    ]
+  },
+  "errors": {},
+  "controls": {
+    "arg": "Pedido do funcionário"
+  },
+  "scene": {
+    "label": "Perguntas do RH por proximidade",
+    "empty": "Rode para comparar.",
+    "table": "Proximidade com cada pergunta",
+    "phrase": "Pergunta do RH",
+    "similarity": "similaridade %",
+    "caption": "Destaque = mais próxima",
+    "simNote": "Modo simulado: proximidade por palavras em comum. Escolha \"No navegador\" para usar embeddings reais (multilingual-e5-small).",
+    "noOverlapNote": "Nenhuma palavra em comum: a busca por palavras não acha nada. Um modelo de embeddings acharia pelo significado.",
+    "negationNote": "A frase nega o assunto, mas a pergunta mais próxima é justamente a dele."
+  },
+  "data": {
+    "phrases": [
+      "Como peço férias?",
+      "Quando cai o salário deste mês?",
+      "Esqueci minha senha do sistema",
+      "Qual é o valor do vale-refeição?",
+      "Posso trabalhar de casa às sextas?",
+      "O ar-condicionado da sala 3 quebrou"
+    ],
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "foi",
+      "uma",
+      "umas",
+      "uns",
+      "ontem",
+      "hoje",
+      "tem",
+      "faco",
+      "fazer",
+      "dia"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Num projeto Node ou no navegador, instale @huggingface/transformers.",
+      "Rode: const e = await pipeline(\"feature-extraction\", \"Xenova/multilingual-e5-small\"); const v = await e([\"query: quero descansar\", \"query: como peço férias?\"], { pooling: \"mean\", normalize: true });",
+      "Calcule o produto escalar dos dois vetores (v.tolist())."
+    ],
+    "ok": "o produto escalar das duas frases sobre descanso e férias é bem maior que o de uma delas com uma frase sobre senha."
+  }
+}

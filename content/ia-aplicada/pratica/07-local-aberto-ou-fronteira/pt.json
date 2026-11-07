@@ -1,0 +1,95 @@
+{
+  "title": "Local, aberto ou de fronteira?",
+  "subtitle": "Escolher o modelo pela tarefa, pelos dados e pela conta do mês",
+  "mission": "Para cada caso de uso, escolha entre um modelo pequeno local, um modelo aberto hospedado por você e um modelo de fronteira por API. Justifique com qualidade, privacidade e custo.",
+  "predict": {
+    "question": "50 mil tickets por mês, 800 tokens de entrada e 200 de saída, a US$ 1 e US$ 4 por milhão. Quanto custa por mês num modelo de fronteira?",
+    "options": {
+      "80": "Uns US$ 80",
+      "800": "Uns US$ 800",
+      "8000": "Uns US$ 8.000"
+    }
+  },
+  "feedback": {
+    "right": "isso: 50 mil × (800 × 1 + 200 × 4) ÷ 1 milhão = US$ 80. Muitas vezes o custo de API é menor do que se imagina; o que pesa é qualidade e privacidade.",
+    "wrong": "faça a conta: 50 mil × (800 × 1 + 200 × 4) ÷ 1 milhão = US$ 80 por mês.",
+    "skipped": "sem palpite? O painel faz a conta: volume × (tokens de entrada × preço + tokens de saída × preço) ÷ 1 milhão."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com os valores padrão e veja o custo e os critérios.",
+    "cmd": "palpite anotado. Rode o comando e veja o custo e os critérios."
+  },
+  "tryNext": {
+    "ui": "Agora marque \"dados sensíveis\" e veja o que muda para a fronteira sem contrato. Depois troque para \"aberto\".",
+    "cmd": "Rode com --sensivel sim e depois com --escolha aberto."
+  },
+  "why": {
+    "simples": "Não existe modelo melhor para tudo. Modelo pequeno no aparelho é barato e privado, mas erra mais. Modelo gigante na nuvem acerta mais, mas os dados saem da empresa e você paga por uso.\nA escolha depende do que a tarefa exige, de quão sensíveis são os dados e de quanto dá para gastar.",
+    "dev": "Custo de API ≈ volume × (tokens de entrada × preço de entrada + tokens de saída × preço de saída) ÷ 1.000.000. Modelo aberto hospedado troca esse custo por GPU, operação e escala; modelo local não custa por token, mas depende do aparelho de quem usa.\nQualidade se mede com avaliação na sua tarefa, não com rankings genéricos: comece com o modelo grande para saber o teto, depois veja se um menor chega perto.",
+    "especialista": "Dados pessoais e sensíveis pedem base legal e contrato (LGPD): com provedor de API, exija acordo de tratamento de dados, sem uso dos seus dados para treino, retenção definida e região conhecida. Sem isso, prefira modelo aberto em infraestrutura sua.\nArquiteturas mistas são comuns: roteador barato classifica e só os casos difíceis vão ao modelo grande; cache de prompt e lote (batch) baixam custo. Preços mudam rápido: mantenha a tabela de preços como dado versionado, com data."
+  },
+  "formula": "custo/mês = volume × (entrada × preço_entrada + saída × preço_saída) ÷ 1.000.000",
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha \"local\" com qualidade \"alta\" para o parecer jurídico.",
+      "cmd": "hora de quebrar: rode decidir \"parecer jurídico de contratos\" --qualidade alta --escolha local"
+    },
+    "success": "Não fecha: um modelo pequeno local não entrega a qualidade que um parecer jurídico exige. Barato e privado não adianta se a resposta não serve.",
+    "calm": "Essa escolha atende os critérios (custo de US$ {monthly}/mês). Para quebrar, peça qualidade alta com um modelo local."
+  },
+  "hints": {
+    "ui": [
+      "Ajuste volume, tokens, preços e a escolha, e aperte Rodar.",
+      "Os preços são exemplos: use a tabela atual do seu provedor.",
+      "Qualidade alta + escolha local."
+    ],
+    "cmd": [
+      "O caso de uso vai entre aspas, depois de decidir.",
+      "--preco-entrada e --preco-saida são US$ por milhão de tokens.",
+      "decidir \"parecer jurídico de contratos\" --qualidade alta --escolha local"
+    ]
+  },
+  "errors": {
+    "notInEnum.choice": "\"{value}\" não é uma opção. Opções: {options}.",
+    "notInEnum.quality": "\"{value}\" não é uma opção. Opções: {options}.",
+    "notBool.sensitive": "--sensivel aceita sim ou nao.",
+    "notBool.contract": "--contrato aceita sim ou nao."
+  },
+  "controls": {
+    "arg": "Caso de uso",
+    "volume": "Chamadas por mês",
+    "inTokens": "Tokens de entrada por chamada",
+    "outTokens": "Tokens de saída por chamada",
+    "priceIn": "Preço de entrada (US$/milhão)",
+    "priceOut": "Preço de saída (US$/milhão)",
+    "budget": "Orçamento (US$/mês)",
+    "quality": "Qualidade exigida",
+    "sensitive": "Dados pessoais ou sensíveis",
+    "contract": "Contrato de tratamento de dados com o provedor",
+    "choice": "Sua escolha"
+  },
+  "scene": {
+    "label": "Decisão de modelo",
+    "empty": "Rode para decidir.",
+    "monthly": "US$ por mês (fronteira)",
+    "perCall": "US$ por mil chamadas",
+    "checks": "Critérios",
+    "qualityOk": "Qualidade atende a tarefa",
+    "qualityWhy": "Modelo pequeno local não chega na qualidade alta.",
+    "privacyOk": "Dados protegidos",
+    "privacyWhy": "Dados sensíveis indo para API sem contrato de tratamento de dados.",
+    "budgetOk": "Cabe no orçamento",
+    "budgetWhy": "US$ {monthly} por mês passa do orçamento.",
+    "infraNote": "Local e aberto não pagam por token, mas têm custo de aparelho, GPU e operação que este painel não calcula.",
+    "pricesNote": "Os preços padrão são só exemplos para a conta; consulte a tabela atual do provedor."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Escolha um caso real do seu time e meça, em 20 exemplos, quantos tokens de entrada e de saída ele usa.",
+      "Pegue os preços atuais de dois provedores e calcule o custo mensal no seu volume.",
+      "Rode os mesmos 20 exemplos num modelo pequeno (no navegador, por exemplo) e num grande, e compare a qualidade com um gabarito."
+    ],
+    "ok": "você tem uma tabela com custo mensal e taxa de acerto de cada opção, e a escolha se justifica com números, não com preferência."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Contar tokens com o tokenizador real de um modelo.",
+      "Estimar custo por volume de chamadas.",
+      "Saber por que português, código e emojis custam mais."
+    ],
+    "minutes": 15,
+    "activity": "Cada dupla traz uma mensagem real do dia a dia (e-mail, chat de atendimento, trecho de código), conta os tokens e estima o custo de 100 mil chamadas. Comparem quem teve o texto mais \"caro\" por caractere.",
+    "discussion": [
+      "Onde a regra de 4 caracteres por token engana?",
+      "O que pesa mais no custo de um chatbot: a pergunta ou o contexto colado junto?"
+    ],
+    "misconceptions": [
+      "\"Token é palavra.\" É um pedaço, que pode ser parte de palavra, espaço ou símbolo.",
+      "\"Todo modelo conta igual.\" Cada modelo tem seu tokenizador."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Count tokens with a model’s real tokenizer.",
+      "Estimate cost by call volume.",
+      "Know why Portuguese, code and emojis cost more."
+    ],
+    "minutes": 15,
+    "activity": "Each pair brings a real everyday message (email, support chat, code snippet), counts its tokens and estimates the cost of 100,000 calls. Compare who had the most \"expensive\" text per character.",
+    "discussion": [
+      "Where does the 4-characters-per-token rule mislead?",
+      "What weighs more in a chatbot’s cost: the question or the context pasted with it?"
+    ],
+    "misconceptions": [
+      "\"A token is a word.\" It’s a piece, which can be part of a word, a space or a symbol.",
+      "\"Every model counts the same.\" Each model has its own tokenizer."
+    ]
+  }
+}

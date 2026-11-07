@@ -1,0 +1,96 @@
+{
+  "title": "Um LLM de verdade no seu aparelho",
+  "subtitle": "Temperatura, top-p e limite de tokens, mexendo num modelo aberto",
+  "mission": "Gere slogans para a padaria do bairro com um modelo aberto rodando no seu aparelho (ou com a sua chave). Descubra o que cada parâmetro muda e como cortar a resposta sem querer.",
+  "predict": {
+    "question": "com temperatura 0 e 3 amostras, quantas respostas diferentes o modelo dá?",
+    "options": {
+      "one": "Uma, repetida",
+      "three": "Três diferentes",
+      "depends": "Depende do humor do modelo"
+    }
+  },
+  "feedback": {
+    "right": "isso. Com temperatura 0 a escolha vira \"sempre o token mais provável\", então as amostras se repetem. Suba a temperatura e veja a variedade aparecer.",
+    "wrong": "com temperatura 0 não há sorteio: as três amostras saem iguais (ou quase; o nível Especialista explica o \"quase\").",
+    "skipped": "sem palpite? Rode com --temp 0 e compare as três amostras."
+  },
+  "coach": {
+    "ui": "palpite anotado. Leve a temperatura a 0, mantenha 3 amostras e rode. Para usar um modelo real, escolha \"No navegador\" (~880 MB, precisa de WebGPU) ou \"Sua chave\".",
+    "cmd": "palpite anotado. Rode com --temp 0 --amostras 3. Para modelo real, troque o executor na cena."
+  },
+  "tryNext": {
+    "ui": "Agora temperatura 1,2 e top-p 1; depois baixe o top-p para 0,3 mantendo a temperatura. O que acontece com a variedade?",
+    "cmd": "Rode --temp 1.2 --top-p 1 e depois --temp 1.2 --top-p 0.3. Compare a variedade."
+  },
+  "why": {
+    "simples": "A temperatura é o quanto o modelo arrisca na escolha de cada pedaço; o top-p diz de quantas opções ele pode escolher (só as mais prováveis); o limite de tokens é o tamanho máximo da resposta.\nSe o limite for curto demais, a frase para no meio.",
+    "dev": "Top-p (nucleus sampling) mantém o menor conjunto de tokens cuja probabilidade somada passa de p e sorteia só dentro dele; temperatura reescala as probabilidades antes disso. Os dois controlam variedade por caminhos diferentes: mexa em um de cada vez.\nmax_tokens corta a geração sem aviso no texto: a API devolve um motivo de parada (finish_reason \"length\" na OpenAI, stop_reason \"max_tokens\" na Anthropic) que seu código deve checar.",
+    "especialista": "Modelos de 1B parâmetros rodam no celular ou no notebook e servem para tarefas curtas e privadas (classificar, reescrever, extrair), mas erram fatos e seguem instruções complexas pior que modelos grandes. Quantização em 4 bits reduz memória com alguma perda de qualidade.\nTemperatura 0 reduz, mas não elimina, variação entre execuções (batching e ponto flutuante). Para reprodutibilidade, fixe parâmetros e versão do modelo e avalie com um conjunto fixo de prompts."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: baixe \"Máximo de tokens\" para 5 e rode.",
+      "cmd": "hora de quebrar: rode com --max 5."
+    },
+    "success": "Cortou no meio: com {maxTokens} tokens o modelo parou antes de terminar. Em produção, sempre cheque o motivo de parada antes de mostrar a resposta.",
+    "calm": "Com {maxTokens} tokens a resposta coube. Baixe o máximo até cortar."
+  },
+  "hints": {
+    "ui": [
+      "Ajuste os controles e aperte Rodar.",
+      "\"Amostras\" gera várias respostas para o mesmo pedido; compare a variedade.",
+      "Máximo de tokens 5."
+    ],
+    "cmd": [
+      "O pedido vai entre aspas, depois de gerar.",
+      "--temp, --top-p, --max e --amostras controlam a geração.",
+      "gerar \"Crie um slogan curto para uma padaria de bairro\" --max 5"
+    ]
+  },
+  "errors": {
+    "aboveMax.temp": "Temperatura vai de 0 a 2.",
+    "belowMin.topP": "Top-p precisa ser maior que 0.",
+    "aboveMax.topP": "Top-p vai até 1 (100% das opções).",
+    "aboveMax.samples": "Até 5 amostras, para não esquentar o seu aparelho.",
+    "aboveMax.maxTokens": "Até 400 tokens neste exercício.",
+    "belowMin.maxTokens": "Pelo menos 1 token."
+  },
+  "controls": {
+    "arg": "Pedido",
+    "temp": "Temperatura",
+    "topP": "Top-p",
+    "maxTokens": "Máximo de tokens",
+    "samples": "Amostras"
+  },
+  "scene": {
+    "label": "Gerador",
+    "empty": "Rode para gerar.",
+    "distinct": "respostas diferentes",
+    "samples": "amostras",
+    "max": "máximo de tokens",
+    "outputs": "Respostas",
+    "greedyNote": "Temperatura 0: decodificação gulosa, as amostras tendem a se repetir.",
+    "cutNote": "Resposta cortada pelo limite de tokens.",
+    "simNote": "Modo simulado: respostas prontas para mostrar o efeito dos parâmetros. Use \"No navegador\" ou \"Sua chave\" para gerar de verdade."
+  },
+  "data": {
+    "canned": [
+      "Pão quentinho, vizinhança feliz.",
+      "O cheiro do bairro sai daqui.",
+      "Fermento, carinho e café passado.",
+      "Toda manhã começa no nosso balcão.",
+      "Do forno para a sua mesa, sem pressa.",
+      "Massa de vó, preço de vizinho."
+    ],
+    "sysText": "Responda em português do Brasil, em uma frase curta."
+  },
+  "recipe": {
+    "steps": [
+      "Abra o WebLLM Chat (chat.webllm.ai) num navegador com WebGPU e escolha um modelo de 1B.",
+      "Peça o mesmo slogan 3 vezes com temperatura 0 e mais 3 com temperatura 1,2.",
+      "Depois limite a resposta a poucos tokens e veja onde ela para."
+    ],
+    "ok": "com 0 as respostas se repetem; com 1,2 variam; com poucos tokens a frase para no meio. Tudo rodando no seu aparelho, sem enviar nada para servidor."
+  }
+}

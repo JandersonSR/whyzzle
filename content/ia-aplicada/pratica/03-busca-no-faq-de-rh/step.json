@@ -1,0 +1,215 @@
+{
+  "id": "p-busca-no-faq-de-rh",
+  "order": 3,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "busca-semantica",
+    "embeddings",
+    "limite",
+    "rh"
+  ],
+  "requires": [
+    "p-embeddings-de-verdade"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "buscar",
+      "en": "search"
+    },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "ui": "examples",
+      "default": {
+        "pt": "Como faço para pedir minhas férias?",
+        "en": "How do I ask for my vacation?"
+      },
+      "examples": [
+        {
+          "pt": "Como faço para pedir minhas férias?",
+          "en": "How do I ask for my vacation?"
+        },
+        {
+          "pt": "Quanto recebo de vale-alimentação por dia?",
+          "en": "How much food allowance do I get per day?"
+        },
+        {
+          "pt": "Posso levar meu cachorro pro escritório?",
+          "en": "Can I bring my dog to the office?"
+        },
+        {
+          "pt": "Qual foi o placar do jogo ontem?",
+          "en": "What was the score of last night’s game?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "top",
+        "alias": {
+          "pt": "top",
+          "en": "top"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 5,
+        "default": 3,
+        "ui": "slider"
+      },
+      {
+        "name": "limit",
+        "alias": {
+          "pt": "limite",
+          "en": "threshold"
+        },
+        "type": "number",
+        "min": 0.5,
+        "max": 0.99,
+        "step": 0.01,
+        "default": 0.8,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "answers",
+      "forwards",
+      "random"
+    ],
+    "answer": "forwards"
+  },
+  "break": {
+    "flag": "wrongAnswer"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realSims": [],
+        "realTop": -1
+      },
+      "compute": {
+        "simScores": "roundall(affine(clampall(scale(overlapall(text, faqTexts, stop), 4), 0, 1), 0.7, 0.3), 3)",
+        "scores": "real ? realSims : simScores",
+        "idx": "slice(order(scores), 0, top)",
+        "best": "idx[0]",
+        "bestScore": "scores[best]",
+        "found": "bestScore >= limit",
+        "answer": "found ? faqAnswers[best] : notFound"
+      },
+      "cases": [
+        {
+          "when": "found",
+          "flags": [
+            "answered"
+          ]
+        },
+        {
+          "when": "!found",
+          "flags": [
+            "forwarded"
+          ]
+        },
+        {
+          "when": "found && bestScore < 0.8",
+          "flags": [
+            "wrongAnswer"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "score": "round(bestScore * 100)",
+            "limitPct": "round(limit * 100)",
+            "question": "faqQuestions[best]"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@q",
+              "tone": "info"
+            },
+            {
+              "label": "@embed",
+              "sub": "=real ? 'e5-small' : '@simShort'",
+              "tone": "neutral"
+            },
+            {
+              "label": "@rank",
+              "sub": "='top ' + top",
+              "tone": "neutral"
+            },
+            {
+              "label": "@decide",
+              "sub": "=found ? '≥ ' + round(limit * 100) + '%' : '< ' + round(limit * 100) + '%'",
+              "tone": "=found ? 'ok' : 'warn'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@faqQ",
+            "@score"
+          ],
+          "rows": "=zip(pickall(faqQuestions, idx), roundall(scale(pickall(scores, idx), 100), 0))",
+          "tones": "=mark(len(idx), 0, found ? (bestScore < 0.8 ? 'warn' : 'ok') : 'dim', 'neutral')"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@bestScore",
+              "value": "=round(bestScore * 100)",
+              "format": "pct",
+              "tone": "=found ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@limitLabel",
+              "value": "=round(limit * 100)",
+              "format": "pct",
+              "tone": "dim"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "=found ? (bestScore < 0.8 ? 'bad' : 'info') : 'warn'",
+          "text": "=answer"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Xenova/multilingual-e5-small",
+      "op": "embed",
+      "args": {
+        "against": "faqTexts",
+        "queryPrefix": "query: ",
+        "passagePrefix": "passage: "
+      }
+    }
+  }
+}

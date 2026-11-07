@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Calcular custo mensal de uma API.",
+      "Pesar qualidade, privacidade e custo juntos.",
+      "Saber quando exigir contrato de dados."
+    ],
+    "minutes": 20,
+    "activity": "Cada grupo recebe um caso (triagem, contrato, chat da escola, resumo de reunião) e defende uma escolha com os três critérios em 2 minutos.",
+    "discussion": [
+      "Que dados da escola ou da empresa nunca deveriam ir para uma API sem contrato?",
+      "Quando vale pagar mais por qualidade?"
+    ],
+    "misconceptions": [
+      "\"Modelo aberto é de graça.\" Não paga por token, mas paga GPU e operação."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Compute an API’s monthly cost.",
+      "Weigh quality, privacy and cost together.",
+      "Know when to require a data agreement."
+    ],
+    "minutes": 20,
+    "activity": "Each group gets a case (triage, contract, school chat, meeting summary) and defends a choice using the three criteria in 2 minutes.",
+    "discussion": [
+      "Which school or company data should never go to an API without a contract?",
+      "When is it worth paying more for quality?"
+    ],
+    "misconceptions": [
+      "\"Open models are free.\" No per-token fee, but you pay for GPUs and operations."
+    ]
+  }
+}

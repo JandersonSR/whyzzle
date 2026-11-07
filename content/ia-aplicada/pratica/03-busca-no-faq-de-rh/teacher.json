@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Montar busca semântica com top-k e limite.",
+      "Calibrar o limite com perguntas reais.",
+      "Decidir quando encaminhar para um humano."
+    ],
+    "minutes": 20,
+    "activity": "Em grupos, cada um escreve 3 perguntas para o FAQ (2 do assunto, 1 fora). Testem e votem no limite que melhor separa.",
+    "discussion": [
+      "Que erro custa mais no RH: responder errado ou encaminhar demais?",
+      "Que perguntas encaminhadas indicariam que falta algo no FAQ?"
+    ],
+    "misconceptions": [
+      "\"Busca semântica sempre acha a resposta.\" Ela sempre acha algo; o limite diz se presta."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Build semantic search with top-k and a threshold.",
+      "Calibrate the threshold with real questions.",
+      "Decide when to hand over to a human."
+    ],
+    "minutes": 20,
+    "activity": "In groups, each person writes 3 questions for the FAQ (2 on-topic, 1 off). Test them and vote on the threshold that separates best.",
+    "discussion": [
+      "Which mistake costs more in HR: a wrong answer or forwarding too much?",
+      "Which forwarded questions would show the FAQ is missing something?"
+    ],
+    "misconceptions": [
+      "\"Semantic search always finds the answer.\" It always finds something; the threshold says if it’s useful."
+    ]
+  }
+}

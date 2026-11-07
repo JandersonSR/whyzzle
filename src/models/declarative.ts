@@ -49,6 +49,12 @@ export function declIssues(sim: unknown, sceneTexts: Record<string, unknown>): s
   const issues: string[] = [];
   const exprs = [...Object.values(d.compute), ...d.cases.flatMap((c) => [c.when, ...Object.values(c.set), ...Object.values(c.vars)])];
   d.widgets.forEach((w, i) => {
+    // A one-item list holding an expression is almost always a mistake: "lines": ["=concat(…)"] nests the result.
+    for (const [k, v] of Object.entries(w)) {
+      if (Array.isArray(v) && v.length === 1 && typeof v[0] === 'string' && v[0].startsWith('=') && ['lines', 'rows', 'items', 'messages', 'steps'].includes(k)) {
+        issues.push(`widgets[${i}].${k}: a list with one expression nests its result; use the expression string directly`);
+      }
+    }
     if (!(WIDGET_KINDS as readonly string[]).includes(String(w.type))) issues.push(`widgets[${i}]: unknown type "${String(w.type)}"`);
     exprs.push(...expressionsIn(w));
     for (const m of JSON.stringify(w).match(/"@[\w.]+"/g) ?? []) {

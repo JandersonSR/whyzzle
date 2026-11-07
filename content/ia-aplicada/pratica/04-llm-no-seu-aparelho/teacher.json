@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Rodar um LLM aberto no próprio aparelho.",
+      "Diferenciar temperatura, top-p e limite de tokens.",
+      "Checar o motivo de parada."
+    ],
+    "minutes": 20,
+    "activity": "Cada grupo fica com um parâmetro e prepara uma demonstração de 2 minutos do que ele muda, com antes e depois.",
+    "discussion": [
+      "Quando um modelo pequeno no aparelho é melhor que um grande na nuvem?",
+      "Que tipo de tarefa pede temperatura baixa?"
+    ],
+    "misconceptions": [
+      "\"Top-p e temperatura são a mesma coisa.\" Os dois controlam variedade por caminhos diferentes.",
+      "\"Modelo local é sempre pior.\" Para tarefas curtas e dados sensíveis, pode ser a melhor escolha."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Run an open LLM on your own device.",
+      "Tell temperature, top-p and token limits apart.",
+      "Check the stop reason."
+    ],
+    "minutes": 20,
+    "activity": "Each group takes one parameter and prepares a 2-minute before/after demo of what it changes.",
+    "discussion": [
+      "When is a small on-device model better than a big cloud one?",
+      "Which tasks call for low temperature?"
+    ],
+    "misconceptions": [
+      "\"Top-p and temperature are the same.\" Both control variety in different ways.",
+      "\"Local models are always worse.\" For short tasks and sensitive data they can be the best choice."
+    ]
+  }
+}

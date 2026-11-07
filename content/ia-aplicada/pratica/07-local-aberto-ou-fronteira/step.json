@@ -1,0 +1,298 @@
+{
+  "id": "p-local-aberto-ou-fronteira",
+  "order": 7,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "custo",
+    "privacidade",
+    "escolha-de-modelo",
+    "lgpd"
+  ],
+  "requires": [
+    "p-llm-no-seu-aparelho"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "decidir",
+      "en": "decide"
+    },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "ui": "examples",
+      "default": {
+        "pt": "triagem de tickets de suporte",
+        "en": "support ticket triage"
+      },
+      "examples": [
+        {
+          "pt": "triagem de tickets de suporte",
+          "en": "support ticket triage"
+        },
+        {
+          "pt": "parecer jurídico de contratos",
+          "en": "legal review of contracts"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "volume",
+        "alias": {
+          "pt": "volume",
+          "en": "volume"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 100000000,
+        "step": 1000,
+        "uiMin": 1000,
+        "uiMax": 1000000,
+        "default": 50000,
+        "ui": "slider"
+      },
+      {
+        "name": "inTokens",
+        "alias": {
+          "pt": "entrada",
+          "en": "input"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 200000,
+        "step": 100,
+        "uiMin": 100,
+        "uiMax": 20000,
+        "default": 800,
+        "ui": "slider"
+      },
+      {
+        "name": "outTokens",
+        "alias": {
+          "pt": "saida",
+          "en": "output"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 50000,
+        "step": 50,
+        "uiMin": 50,
+        "uiMax": 4000,
+        "default": 200,
+        "ui": "slider"
+      },
+      {
+        "name": "priceIn",
+        "alias": {
+          "pt": "preco-entrada",
+          "en": "price-in"
+        },
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "step": 0.1,
+        "uiMax": 20,
+        "default": 1,
+        "ui": "slider"
+      },
+      {
+        "name": "priceOut",
+        "alias": {
+          "pt": "preco-saida",
+          "en": "price-out"
+        },
+        "type": "number",
+        "min": 0,
+        "max": 200,
+        "step": 0.5,
+        "uiMax": 80,
+        "default": 4,
+        "ui": "slider"
+      },
+      {
+        "name": "budget",
+        "alias": {
+          "pt": "orcamento",
+          "en": "budget"
+        },
+        "type": "number",
+        "min": 0,
+        "max": 1000000,
+        "step": 10,
+        "uiMax": 5000,
+        "default": 500,
+        "ui": "slider"
+      },
+      {
+        "name": "quality",
+        "alias": {
+          "pt": "qualidade",
+          "en": "quality"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "basic",
+            "pt": "basica",
+            "en": "basic"
+          },
+          {
+            "id": "high",
+            "pt": "alta",
+            "en": "high"
+          }
+        ],
+        "default": "basic",
+        "ui": "select"
+      },
+      {
+        "name": "sensitive",
+        "alias": {
+          "pt": "sensivel",
+          "en": "sensitive"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "contract",
+        "alias": {
+          "pt": "contrato",
+          "en": "contract"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "choice",
+        "alias": {
+          "pt": "escolha",
+          "en": "choice"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "local",
+            "pt": "local",
+            "en": "local"
+          },
+          {
+            "id": "open",
+            "pt": "aberto",
+            "en": "open"
+          },
+          {
+            "id": "frontier",
+            "pt": "fronteira",
+            "en": "frontier"
+          }
+        ],
+        "default": "frontier",
+        "ui": "select"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "80",
+      "800",
+      "8000"
+    ],
+    "answer": "80"
+  },
+  "break": {
+    "flag": "mismatch"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {},
+      "compute": {
+        "monthly": "round(volume * (inTokens * priceIn + outTokens * priceOut) / 1000000, 2)",
+        "qualityOk": "!(quality == 'high' && choice == 'local')",
+        "privacyOk": "!sensitive || choice != 'frontier' || contract",
+        "budgetOk": "choice != 'frontier' || monthly <= budget",
+        "allOk": "qualityOk && privacyOk && budgetOk"
+      },
+      "cases": [
+        {
+          "when": "allOk",
+          "flags": [
+            "fits"
+          ]
+        },
+        {
+          "when": "!allOk",
+          "flags": [
+            "mismatch"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "monthly": "monthly"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@monthly",
+              "value": "=monthly",
+              "format": "num",
+              "tone": "=budgetOk ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@perCall",
+              "value": "=round(monthly / max(volume, 1) * 1000, 3)",
+              "format": "num",
+              "tone": "dim"
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "label": "@checks",
+          "items": [
+            {
+              "label": "@qualityOk",
+              "ok": "=qualityOk",
+              "why": "@qualityWhy"
+            },
+            {
+              "label": "@privacyOk",
+              "ok": "=privacyOk",
+              "why": "@privacyWhy"
+            },
+            {
+              "label": "@budgetOk",
+              "ok": "=budgetOk",
+              "why": "@budgetWhy"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=choice != 'frontier'",
+          "tone": "info",
+          "text": "@infraNote"
+        },
+        {
+          "type": "note",
+          "tone": "dim",
+          "text": "@pricesNote"
+        }
+      ]
+    }
+  }
+}

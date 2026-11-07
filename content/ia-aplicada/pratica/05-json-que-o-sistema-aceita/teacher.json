@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Pedir saída em formato exato.",
+      "Validar antes de usar.",
+      "Reconhecer injeção de instruções em dados de entrada."
+    ],
+    "minutes": 20,
+    "activity": "Cada dupla escreve um e-mail \"difícil\" (dados faltando, valores ambíguos, instrução escondida) e troca com outra dupla para tentar quebrar o extrator.",
+    "discussion": [
+      "O que o sistema deve fazer quando um campo vem vazio?",
+      "Por que um e-mail pode conter instruções contra você?"
+    ],
+    "misconceptions": [
+      "\"Se veio JSON, está certo.\" Formato certo não garante conteúdo certo."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Ask for output in an exact format.",
+      "Validate before using.",
+      "Recognize instruction injection in input data."
+    ],
+    "minutes": 20,
+    "activity": "Each pair writes a \"hard\" email (missing data, ambiguous amounts, hidden instruction) and swaps with another pair to try to break the extractor.",
+    "discussion": [
+      "What should the system do when a field comes back empty?",
+      "Why can an email contain instructions against you?"
+    ],
+    "misconceptions": [
+      "\"If it’s JSON, it’s right.\" The right format doesn’t guarantee the right content."
+    ]
+  }
+}
