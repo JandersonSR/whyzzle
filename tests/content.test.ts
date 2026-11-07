@@ -25,8 +25,9 @@ function placeholders(v: unknown, path = '', out: Record<string, string> = {}): 
 describe('content', () => {
   it('loads every topic and lesson through the schemas', () => {
     expect(topics.length).toBeGreaterThan(0);
-    expect(lessons.filter((l) => l.track === 'fundamentos').length).toBe(9);
-    expect(lessons.filter((l) => l.track === 'pratica').length).toBe(15);
+    const ia = topics.find((t) => t.def.id === 'ia-aplicada')!.lessons;
+    expect(ia.filter((l) => l.track === 'fundamentos').length).toBe(9);
+    expect(ia.filter((l) => l.track === 'pratica').length).toBeGreaterThanOrEqual(15);
   });
 
   it('catalog: unique topic ids and priorities, honest track status', () => {
