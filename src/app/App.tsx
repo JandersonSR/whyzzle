@@ -1,5 +1,6 @@
 import { GalleryPage } from '../pages/GalleryPage';
 import { Home } from '../pages/Home';
+import { KeyPage } from '../pages/KeyPage';
 import { StepPage } from '../pages/StepPage';
 import { TopicPage } from '../pages/TopicPage';
 import { RecipesPage, TeacherPage, TrackPage } from '../pages/TrackPage';
@@ -17,6 +18,7 @@ export function App() {
 
   if (parts.length === 0) page = <Home />;
   else if (parts.length === 1 && parts[0] === 'galeria') page = <GalleryPage />;
+  else if (parts.length === 1 && parts[0] === 'sua-chave') page = <KeyPage />;
   else {
     const topic = topics.find((t) => t.def.id === parts[0]);
     if (topic && parts.length === 1) page = <TopicPage topic={topic} />;

@@ -156,5 +156,49 @@
     "tracksLabel": "Tracks",
     "backHome": "All topics",
     "order": "Priority {n}"
+  },
+  "real": {
+    "label": "Who answers",
+    "realBadge": "Answer from a real model: {model}",
+    "simNote": "Toy model: hand-made numbers to show the mechanism.",
+    "download": "This downloads {model} (~{size}). It stays cached in this browser for next time.",
+    "downloadBtn": "Download and use",
+    "downloading": "Downloading… {pct}",
+    "ready": "Ready: {model} running on this device.",
+    "needsKey": "Set up your API key to use a frontier model.",
+    "keyLink": "Set up my key",
+    "keyReady": "Using your key · model {model}",
+    "resisted": "The real model ignored the pasted text this time. It isn’t always so: run again or try another sentence.",
+    "privacy": "Everything runs on your device; nothing you type leaves it.",
+    "errors": {
+      "needsDownload": "First download the model in the \"Who answers\" panel.",
+      "needsKey": "Set up your key before running.",
+      "unsupported": "This device doesn’t support this mode. Switch back to \"Simulated\".",
+      "webgpu": "This device has no WebGPU, which the model needs. Use the \"Your key\" option or a recent desktop browser.",
+      "download": "The download failed. Check your connection and try again.",
+      "blocked": "The provider refused a direct browser call (CORS). Try another provider or an OpenAI-compatible one such as OpenRouter.",
+      "auth": "The provider rejected the key. Check you copied all of it and that it is active.",
+      "quota": "Your account hit a limit or ran out of credit. Check the provider’s dashboard.",
+      "model": "The provider didn’t accept the model or the request. Pick another model on the key page.",
+      "other": "The real model failed: {value}"
+    }
+  },
+  "key": {
+    "title": "Your API key",
+    "intro": "Use your own frontier model in the lessons that allow it. The call goes straight from your browser to the provider; Whyzzle has no server and never sees the key.",
+    "warn": "Use a key just for this, with a low spending limit. Anyone with access to this browser can read the key.",
+    "provider": "Provider",
+    "baseUrl": "Base URL (OpenAI-compatible)",
+    "key": "Key",
+    "remember": "Remember on this device (otherwise it’s gone when the tab closes)",
+    "test": "Test and list models",
+    "testing": "Testing…",
+    "model": "Model",
+    "save": "Save",
+    "saved": "Key saved. Go back to the lesson and choose \"Your key\".",
+    "forget": "Delete the key from this device",
+    "forgotten": "Key deleted.",
+    "found": "{n} models found.",
+    "current": "Set up: {provider} · {model}"
   }
 }

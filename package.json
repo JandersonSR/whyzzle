@@ -14,6 +14,8 @@
     "validate": "vitest run tests/content.test.ts"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.2",
+    "@mlc-ai/web-llm": "^0.2.87",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "zod": "^4.1.0"

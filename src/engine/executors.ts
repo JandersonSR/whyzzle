@@ -1,63 +1,112 @@
 import type { Values } from './command';
 import { getModel, type ModelCtx, type ModelResult } from './registry';
 import type { ExecutorId, Loc, StepDef } from './schema';
+import { ADAPTERS, type RealDeps } from '../runtime/adapters';
+import { chatByok, getKeyConfig } from '../runtime/byok';
+import { REAL_MODELS, type RealModel } from '../runtime/catalog';
+import type { Progress } from '../runtime/transformers';
 
 /**
- * Executors are "who produces the answer". Fundamentos uses only the simulated
- * toy models; the other two are declared now so Prática can plug in without
- * changing lessons:
- *  - no-navegador: Transformers.js / WebLLM, downloaded on demand (needs WebGPU for chat).
- *  - sua-chave: the person's own API key, kept only in their browser.
+ * Executors are "who produces the answer":
+ *  - simulado: the toy models, always available.
+ *  - no-navegador: a real model downloaded into the browser (Transformers.js / WebLLM).
+ *  - sua-chave: the person's own API key, called straight from the browser.
+ * A step offers a real executor only if step.json → real names an adapter for it.
  */
 
-export interface Availability {
-  ok: boolean;
-  reason?: Loc;
-}
+export type ExecStatus =
+  | { state: 'ready'; model?: RealModel; label?: string }
+  | { state: 'needsDownload'; model: RealModel }
+  | { state: 'needsKey' }
+  | { state: 'unsupported'; reason: Loc };
 
 export interface Executor {
   id: ExecutorId;
   label: Loc;
-  available(): Availability;
+  supports(step: StepDef): boolean;
+  status(step: StepDef): ExecStatus;
+  prepare?(step: StepDef, onProgress: (p: Progress) => void): Promise<void>;
   run(step: StepDef, values: Values, ctx: ModelCtx): Promise<ModelResult>;
 }
 
 const simulated: Executor = {
   id: 'simulado',
-  label: { pt: 'Simulado · modelo de brinquedo', en: 'Simulated · toy model' },
-  available: () => ({ ok: true }),
+  label: { pt: 'Simulado', en: 'Simulated' },
+  supports: () => true,
+  status: () => ({ state: 'ready' }),
   run: async (step, values, ctx) => getModel(step.model).run(values, ctx),
 };
 
+const loaded = new Set<string>();
+const hasGpuApi = () => typeof navigator !== 'undefined' && 'gpu' in navigator;
+
+async function loadReal(m: RealModel, onProgress?: (p: Progress) => void): Promise<void> {
+  if (m.lib === 'webllm') {
+    const { hasWebGPU } = await import('../runtime/transformers');
+    if (!(await hasWebGPU())) throw new Error('webgpu');
+    const { loadChat } = await import('../runtime/webllm');
+    await loadChat(m.id, onProgress);
+  } else if (m.kind === 'tokenizer') {
+    const { loadTokenizer } = await import('../runtime/transformers');
+    await loadTokenizer(m.id, onProgress);
+  } else {
+    const { loadEmbedder } = await import('../runtime/transformers');
+    await loadEmbedder(m.id, onProgress);
+  }
+  loaded.add(m.id);
+}
+
+const realDepsLocal = (model: string): RealDeps => ({
+  tokenizer: async (id) => (await import('../runtime/transformers')).loadTokenizer(id),
+  chat: async (messages, opts) => (await (await import('../runtime/webllm')).chatLocal(model, messages, opts)).text,
+});
+
 const inBrowser: Executor = {
   id: 'no-navegador',
-  label: { pt: 'Modelo real no navegador', en: 'Real model in the browser' },
-  available: () => {
-    const hasGpu = typeof navigator !== 'undefined' && 'gpu' in navigator;
-    return {
-      ok: false,
-      reason: hasGpu
-        ? { pt: 'Chega com a trilha Prática.', en: 'Arrives with the Practice track.' }
-        : {
-            pt: 'Este aparelho não tem WebGPU. Na trilha Prática ele usa o modo simulado.',
-            en: 'This device has no WebGPU. In the Practice track it falls back to simulated mode.',
-          },
-    };
+  label: { pt: 'No navegador', en: 'In the browser' },
+  supports: (step) => Boolean(step.real?.['no-navegador']),
+  status(step) {
+    const m = REAL_MODELS[step.real?.['no-navegador']?.model ?? ''];
+    if (!m) return { state: 'unsupported', reason: { pt: 'Este passo não tem modelo real.', en: 'This step has no real model.' } };
+    if (m.needsWebGPU && !hasGpuApi()) {
+      return {
+        state: 'unsupported',
+        reason: {
+          pt: 'Este navegador não tem WebGPU. Use Chrome, Edge ou Safari recentes, ou a opção "Sua chave".',
+          en: 'This browser has no WebGPU. Use a recent Chrome, Edge or Safari, or the "Your key" option.',
+        },
+      };
+    }
+    return loaded.has(m.id) ? { state: 'ready', model: m, label: m.label } : { state: 'needsDownload', model: m };
   },
-  run: async () => {
-    throw new Error('no-navegador executor not implemented yet');
+  async prepare(step, onProgress) {
+    const m = REAL_MODELS[step.real!['no-navegador']!.model!];
+    await loadReal(m, onProgress);
+  },
+  async run(step, values, ctx) {
+    const cfg = step.real!['no-navegador']!;
+    const m = REAL_MODELS[cfg.model!];
+    if (!loaded.has(m.id)) await loadReal(m);
+    return ADAPTERS[cfg.adapter].run(values, ctx, realDepsLocal(m.id), { executor: 'no-navegador', model: m.label });
   },
 };
 
 const ownKey: Executor = {
   id: 'sua-chave',
-  label: { pt: 'Sua chave de API', en: 'Your API key' },
-  available: () => ({
-    ok: false,
-    reason: { pt: 'Chega com a trilha Prática.', en: 'Arrives with the Practice track.' },
-  }),
-  run: async () => {
-    throw new Error('sua-chave executor not implemented yet');
+  label: { pt: 'Sua chave', en: 'Your key' },
+  supports: (step) => Boolean(step.real?.['sua-chave']),
+  status() {
+    const k = getKeyConfig();
+    return k && k.model ? { state: 'ready', label: k.model } : { state: 'needsKey' };
+  },
+  async run(step, values, ctx) {
+    const k = getKeyConfig();
+    if (!k) throw new Error('needsKey');
+    const deps: RealDeps = {
+      tokenizer: () => Promise.reject(new Error('no tokenizer through an API')),
+      chat: (messages, opts) => chatByok(k, messages, opts),
+    };
+    return ADAPTERS[step.real!['sua-chave']!.adapter].run(values, ctx, deps, { executor: 'sua-chave', model: k.model });
   },
 };
 
@@ -67,11 +116,8 @@ export const executors: Record<ExecutorId, Executor> = {
   'sua-chave': ownKey,
 };
 
-/** First executor the step accepts that can run here; falls back to simulated. */
-export function pickExecutor(step: StepDef, preferred?: ExecutorId): Executor {
-  const order = preferred ? [preferred, ...step.executors] : step.executors;
-  for (const id of order) {
-    if (step.executors.includes(id) && executors[id].available().ok) return executors[id];
-  }
-  return simulated;
+/** Executors this step offers, in the order the lesson prefers. */
+export function offeredExecutors(step: StepDef): Executor[] {
+  const ids: ExecutorId[] = ['simulado', ...step.executors.filter((id) => id !== 'simulado')];
+  return ids.map((id) => executors[id]).filter((e) => e.supports(step));
 }

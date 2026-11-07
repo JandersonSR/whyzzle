@@ -156,5 +156,49 @@
     "tracksLabel": "Trilhas",
     "backHome": "Todos os tópicos",
     "order": "Prioridade {n}"
+  },
+  "real": {
+    "label": "Quem responde",
+    "realBadge": "Resposta de um modelo real: {model}",
+    "simNote": "Modelo de brinquedo: números feitos à mão para mostrar o mecanismo.",
+    "download": "Vai baixar o {model} (~{size}). Fica guardado neste navegador para as próximas vezes.",
+    "downloadBtn": "Baixar e usar",
+    "downloading": "Baixando… {pct}",
+    "ready": "Pronto: {model} rodando neste aparelho.",
+    "needsKey": "Configure a sua chave de API para usar um modelo de fronteira.",
+    "keyLink": "Configurar minha chave",
+    "keyReady": "Usando sua chave · modelo {model}",
+    "resisted": "O modelo real ignorou o texto colado desta vez. Nem sempre é assim: rode de novo ou tente outra frase.",
+    "privacy": "Tudo roda no seu aparelho; nada do que você digita sai daqui.",
+    "errors": {
+      "needsDownload": "Antes, baixe o modelo no painel \"Quem responde\".",
+      "needsKey": "Configure a sua chave antes de rodar.",
+      "unsupported": "Este aparelho não suporta este modo. Volte para \"Simulado\".",
+      "webgpu": "Este aparelho não tem WebGPU, que o modelo precisa para rodar. Use a opção \"Sua chave\" ou um navegador recente no computador.",
+      "download": "O download falhou. Verifique a conexão e tente de novo.",
+      "blocked": "O provedor recusou a chamada direta do navegador (CORS). Tente outro provedor ou um compatível com OpenAI, como o OpenRouter.",
+      "auth": "Chave recusada pelo provedor. Confira se copiou a chave inteira e se ela está ativa.",
+      "quota": "Limite ou crédito da sua conta atingido. Veja o painel do provedor.",
+      "model": "O provedor não aceitou o modelo ou o pedido. Escolha outro modelo na página da chave.",
+      "other": "O modelo real falhou: {value}"
+    }
+  },
+  "key": {
+    "title": "Sua chave de API",
+    "intro": "Use o seu próprio modelo de fronteira nas lições que permitem. A chamada sai direto do seu navegador para o provedor; o Whyzzle não tem servidor e nunca vê a chave.",
+    "warn": "Use uma chave só para isto, com limite de gasto baixo. Qualquer pessoa com acesso a este navegador pode ler a chave.",
+    "provider": "Provedor",
+    "baseUrl": "URL base (compatível com OpenAI)",
+    "key": "Chave",
+    "remember": "Lembrar neste aparelho (senão, some ao fechar a aba)",
+    "test": "Testar e listar modelos",
+    "testing": "Testando…",
+    "model": "Modelo",
+    "save": "Salvar",
+    "saved": "Chave salva. Volte para a lição e escolha \"Sua chave\".",
+    "forget": "Apagar a chave deste aparelho",
+    "forgotten": "Chave apagada.",
+    "found": "{n} modelos encontrados.",
+    "current": "Configurada: {provider} · {model}"
   }
 }

@@ -2,10 +2,10 @@ import type { ReactNode } from 'react';
 import { Link } from '../app/router';
 import { useApp } from '../app/state';
 import type { Lesson } from '../content';
-import { executors } from '../engine/executors';
 import { feedbackKey, type Phase } from '../engine/stepMachine';
 import { interpolate } from '../engine/text';
 import { Check, RecipeIcon, Whyz } from '../ui/Art';
+import { Segmented } from '../ui/Chrome';
 import type { StepApi } from './useStep';
 
 export function Stepper({ step }: { step: StepApi }) {
@@ -194,18 +194,67 @@ export function RecipeCard({ lesson, n }: { lesson: Lesson; n?: number }) {
   );
 }
 
-export function ExecutorBadge({ step }: { step: StepApi }) {
+function fmtSize(mb: number, lang: 'pt' | 'en'): string {
+  return mb >= 1000 ? `${(mb / 1000).toFixed(1).replace('.', lang === 'pt' ? ',' : '.')} GB` : `${mb} MB`;
+}
+
+/** "Who answers": simulated, a real model in the browser, or the person's own key. */
+export function ExecutorPanel({ step }: { step: StepApi }) {
   const { ui, lang, t } = useApp();
-  const others = step.def.executors.filter((id) => id !== step.executor.id);
+  const { status, prep } = step;
+  const realInfo = (step.last as { real?: { model: string } } | null)?.real;
+  if (step.offered.length < 2) {
+    return (
+      <div className="wz-exec">
+        <span className="wz-exec__dot" aria-hidden="true" />
+        <span>{ui.real.simNote}</span>
+      </div>
+    );
+  }
   return (
-    <div className="wz-exec">
-      <span className="wz-exec__dot" aria-hidden="true" />
-      <span>{t(ui.executor, { name: step.executor.label[lang] })}</span>
-      {others.map((id) => (
-        <span key={id} className="wz-exec__soon" title={executors[id].available().reason?.[lang]}>
-          {executors[id].label[lang]} · {ui.executorSoon}
+    <div className="wz-exec wz-exec--panel">
+      <div className="wz-row wz-wrap wz-between">
+        <span className="wz-strong">{ui.real.label}</span>
+        <Segmented small label={ui.real.label} value={step.execId} onChange={step.setExecutor} options={step.offered.map((e) => ({ id: e.id, label: e.label[lang] }))} />
+      </div>
+      {step.execId === 'simulado' && <span>{ui.real.simNote}</span>}
+      {status.state === 'needsDownload' && !prep.loading && (
+        <div className="wz-stack wz-stack--tight">
+          <span>{t(ui.real.download, { model: status.model.label, size: fmtSize(status.model.sizeMB, lang) })}</span>
+          <span className="wz-muted">{status.model.note[lang]}</span>
+          <button type="button" className="wz-btn wz-cta" onClick={step.prepare}>
+            {ui.real.downloadBtn}
+          </button>
+        </div>
+      )}
+      {prep.loading && (
+        <div className="wz-stack wz-stack--tight" aria-live="polite">
+          <span>{t(ui.real.downloading, { pct: prep.progress?.ratio != null ? `${Math.round(prep.progress.ratio * 100)}%` : '' })}</span>
+          <div className="wz-meter">
+            <span className="wz-bar" style={{ width: `${(prep.progress?.ratio ?? 0.05) * 100}%`, background: 'var(--blue)' }} />
+          </div>
+        </div>
+      )}
+      {prep.error && <span className="wz-red">{(ui.real.errors as Record<string, string>)[prep.error]}</span>}
+      {status.state === 'unsupported' && <span className="wz-red">{status.reason[lang]}</span>}
+      {status.state === 'needsKey' && (
+        <span>
+          {ui.real.needsKey}{' '}
+          <Link href="/sua-chave">{ui.real.keyLink}</Link>
         </span>
-      ))}
+      )}
+      {status.state === 'ready' && step.execId === 'no-navegador' && (
+        <span>
+          {t(ui.real.ready, { model: status.label })} {ui.real.privacy}
+        </span>
+      )}
+      {status.state === 'ready' && step.execId === 'sua-chave' && (
+        <span>
+          {t(ui.real.keyReady, { model: status.label })} · <Link href="/sua-chave">{ui.real.keyLink}</Link>
+        </span>
+      )}
+      {realInfo && <span className="wz-badge wz-badge--green">{t(ui.real.realBadge, { model: realInfo.model })}</span>}
+      {step.last?.flags.includes('resisted') && <span className="wz-note">{ui.real.resisted}</span>}
     </div>
   );
 }

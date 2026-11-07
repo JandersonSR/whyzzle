@@ -85,7 +85,7 @@ Etapas de motor e interface. Não têm lições, mas seguem a mesma regra de pro
 
 - [x] **PL1 · Tema escuro e catálogo de tópicos**: tema claro/escuro (segue o sistema, com botão de troca); página inicial com busca e filtro por área; página de cada tópico com as três trilhas; todos os 28 tópicos listados, com o que já está disponível e o que vem em breve.
 - [x] **PL2 · Cenas reutilizáveis configuradas por dados**: terminal, fila/mensagens, cluster/pods, tabela de banco, fluxo de requisição e gráfico; mais um modelo declarativo (casos e fórmulas no `step.json`), para que a maioria das lições novas seja só `step.json` + textos, sem cena e modelo novos.
-- [ ] → **PL3 · Executores reais**: `no-navegador` (Transformers.js para tokenizador, embeddings e modelos pequenos; WebLLM para chat), com download sob demanda, aviso de tamanho e volta para o simulado sem WebGPU; e `sua-chave`, com a chave guardada só no aparelho.
+- [x] **PL3 · Executores reais**: `no-navegador` (Transformers.js para tokenizador, embeddings e modelos pequenos; WebLLM para chat), com download sob demanda, aviso de tamanho e volta para o simulado sem WebGPU; e `sua-chave`, com a chave guardada só no aparelho.
 
 ---
 
@@ -99,7 +99,7 @@ Etapas de motor e interface. Não têm lições, mas seguem a mesma regra de pro
 
 Depende das etapas de plataforma PL1 a PL3.
 
-- [ ] **Etapa P1 · Modelos reais no navegador** (7 lições)
+- [ ] → **Etapa P1 · Modelos reais no navegador** (7 lições)
   1. Tokenizador real: contar tokens de PT × EN e de código (custo e janela de verdade).
   2. Embeddings reais: similaridade entre frases do seu domínio.
   3. Busca semântica sobre um FAQ real de RH.
@@ -402,5 +402,6 @@ Depende das etapas de plataforma PL1 a PL3.
 | nov/2026 | IA aplicada · Fundamentos F1 + missão | Publicada |
 | nov/2026 | Plataforma · PL1 · tema escuro e catálogo de 28 tópicos | Publicada |
 | nov/2026 | Plataforma · PL2 · modelo declarativo + 9 peças de cena reutilizáveis (galeria em /galeria) | Publicada |
+| nov/2026 | Plataforma · PL3 · executores no navegador (Transformers.js 4.3.2, WebLLM 0.2.87) e sua chave (Anthropic, OpenAI, Gemini, compatível); ativos nos passos 2 e 4 dos Fundamentos | Publicada |
 
-**Próxima etapa:** Plataforma · PL3 (executores no navegador e sua chave). Depois IA aplicada · Prática · P1.
+**Próxima etapa:** IA aplicada · Prática · P1 (Modelos reais no navegador).

@@ -6,7 +6,7 @@ import { interpolate } from '../engine/text';
 import { scenes } from '../scenes';
 import { str } from '../scenes/types';
 import { ControlsPanel, Terminal } from '../step/Controls';
-import { Coach, ExecutorBadge, Hints, RecipeCard, Stepper, Why } from '../step/Parts';
+import { Coach, ExecutorPanel, Hints, RecipeCard, Stepper, Why } from '../step/Parts';
 import { useStep, type StepApi } from '../step/useStep';
 import { Check, Whyz } from '../ui/Art';
 
@@ -95,7 +95,7 @@ function SceneCard({ step }: { step: StepApi }) {
       ) : (
         <p className="wz-muted">scene “{step.def.scene}” missing</p>
       )}
-      <ExecutorBadge step={step} />
+      <ExecutorPanel step={step} />
     </section>
   );
 }

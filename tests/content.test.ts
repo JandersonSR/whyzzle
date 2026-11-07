@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { buildCommand, defaultCommand, defaultValues, parseCommand } from '../src/engine/command';
 import { hasModel } from '../src/engine/registry';
 import { scenes } from '../src/scenes';
+import { ADAPTERS } from '../src/runtime/adapters';
+import { REAL_MODELS } from '../src/runtime/catalog';
 import { LANGS } from '../src/engine/schema';
 import { lessons, topics } from './helpers';
 
@@ -56,8 +58,18 @@ describe('content', () => {
     }
   });
 
+  it('real executors point at existing adapters and catalog models', () => {
+    for (const l of lessons) {
+      for (const [ex, cfg] of Object.entries(l.def.real ?? {})) {
+        expect(l.def.executors, `${l.def.id} lists ${ex}`).toContain(ex);
+        expect(ADAPTERS[cfg.adapter], `${l.def.id} adapter ${cfg.adapter}`).toBeTruthy();
+        if ('model' in cfg) expect(REAL_MODELS[cfg.model], `${l.def.id} model ${cfg.model}`).toBeTruthy();
+      }
+    }
+  });
+
   it('no topic id collides with an app route', () => {
-    for (const t of topics) expect(['galeria', 'professor', 'receitas']).not.toContain(t.def.id);
+    for (const t of topics) expect(['galeria', 'professor', 'receitas', 'sua-chave']).not.toContain(t.def.id);
   });
 
   for (const l of lessons) {

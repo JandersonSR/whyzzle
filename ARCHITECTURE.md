@@ -62,15 +62,27 @@ O nome da pasta sem o número vira a URL: `/ia-aplicada/fundamentos/temperatura`
 ### Executores
 
 - `simulado` — modelos de brinquedo determinísticos (com sorteio controlado). Funciona em qualquer celular.
-  É o único da trilha Fundamentos.
-- `no-navegador` — Transformers.js (embeddings, modelos pequenos) e WebLLM (chat, precisa de WebGPU).
-  Baixado sob demanda. Sem WebGPU, volta para o simulado e avisa. **Fase 2.**
-- `sua-chave` — chamada direta do navegador à API do provedor com a chave da própria pessoa, guardada
-  só no aparelho dela. **Fase 2.**
+- `no-navegador` — modelo real baixado para o navegador sob demanda (`src/runtime/`): Transformers.js
+  (tokenizadores, embeddings; usa WebGPU se houver, senão WASM) e WebLLM (chat; exige WebGPU). Antes de baixar,
+  a pessoa vê o tamanho e confirma; o arquivo fica no cache do navegador. Sem WebGPU, o painel explica e
+  sugere "Sua chave". Os modelos ficam em `src/runtime/catalog.ts`.
+- `sua-chave` — a chave de API da própria pessoa (Anthropic, OpenAI, Gemini ou compatível com OpenAI, como o
+  OpenRouter), chamada direto do navegador. A chave fica só na memória da aba, ou no aparelho se a pessoa marcar
+  "lembrar". A lista de modelos vem da API do provedor, para não ficar desatualizada. Configuração em `/sua-chave`.
 
-Todo executor recebe os mesmos valores já validados pelo comando e devolve um `ModelResult`
-(`flags`, `vars` e os dados que a cena desenha). Por isso as cenas e as checagens não mudam quando o
-executor muda.
+Um passo oferece um executor real só se declarar em `step.json`:
+
+```json
+"real": {
+  "no-navegador": { "adapter": "chat-prompt", "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC" },
+  "sua-chave": { "adapter": "chat-prompt" }
+}
+```
+
+O **adaptador** (`src/runtime/adapters.ts`) converte a saída do modelo real no mesmo formato que a cena do
+passo já desenha, então as cenas não mudam. Falhas reais (download, WebGPU, CORS, chave recusada, limite,
+modelo inválido) viram mensagens explicadas no painel "Quem responde". Enquanto um executor real está ativo,
+a cena não faz prévia ao digitar: a resposta vem só quando a pessoa roda.
 
 ### Eventos e progresso
 
@@ -160,7 +172,7 @@ cada push.
 
 | Fase | O que muda | O que não muda |
 | --- | --- | --- |
-| 2 · Prática | implementar `no-navegador` e `sua-chave`; lições em `pratica/` | esquema, cenas existentes, comandos |
+| 2 · Prática | lições em `pratica/` com adaptadores reais (executores já existem) | esquema, cenas existentes, comandos |
 | 3 · Produção | casos reais com dados de exemplo em `producao/`; arquivo de preços datado; missões finais | motor |
 | 4 · Professor e turma | página do professor já existe (`/…/professor`); turma = novo `ProgressStore` + painel | lições |
 | Aprendizado direcionado | usar `requires`, `tags` e o histórico de eventos para recomendar o próximo passo | lições |

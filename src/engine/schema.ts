@@ -91,6 +91,13 @@ export const StepDef = z.object({
   break: z.object({ flag: z.string().min(1) }),
   /** Language-neutral model data (numbers, coordinates, logits...). */
   data: z.record(z.string(), z.unknown()).default({}),
+  /** Real executors this step supports: which adapter, and for the browser which model. */
+  real: z
+    .object({
+      'no-navegador': z.object({ adapter: z.string().min(1), model: z.string().min(1) }).optional(),
+      'sua-chave': z.object({ adapter: z.string().min(1) }).optional(),
+    })
+    .optional(),
 })
   .superRefine((s, ctx) => {
     if (s.kind === 'step' && !s.predict) ctx.addIssue({ code: 'custom', message: `step ${s.id}: needs "predict"` });

@@ -3,21 +3,43 @@
   "order": 2,
   "track": "fundamentos",
   "minutes": 12,
-  "tags": ["tokens", "janela-de-contexto", "custo"],
-  "requires": ["o-que-um-llm-faz"],
-  "executors": ["simulado", "no-navegador", "sua-chave"],
+  "tags": [
+    "tokens",
+    "janela-de-contexto",
+    "custo"
+  ],
+  "requires": [
+    "o-que-um-llm-faz"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
   "model": "tokenizer",
   "scene": "tokenizer",
   "command": {
-    "verb": { "pt": "tokenizar", "en": "tokenize" },
+    "verb": {
+      "pt": "tokenizar",
+      "en": "tokenize"
+    },
     "arg": {
       "name": "text",
       "required": true,
-      "default": { "pt": "Paralelepípedo é uma palavra comprida.", "en": "Antidisestablishmentarianism is a long word." },
+      "default": {
+        "pt": "Paralelepípedo é uma palavra comprida.",
+        "en": "Antidisestablishmentarianism is a long word."
+      },
       "ui": "examples",
       "examples": [
-        { "pt": "Paralelepípedo é uma palavra comprida.", "en": "Antidisestablishmentarianism is a long word." },
-        { "pt": "Oi, tudo bem?", "en": "Hi, how are you?" },
+        {
+          "pt": "Paralelepípedo é uma palavra comprida.",
+          "en": "Antidisestablishmentarianism is a long word."
+        },
+        {
+          "pt": "Oi, tudo bem?",
+          "en": "Hi, how are you?"
+        },
         {
           "pt": "Era uma vez uma escola onde todo mundo perguntava por quê. A professora respondia com outra pergunta, e a turma ia descobrindo sozinha. No fim do ano, ninguém lembrava das respostas decoradas, mas todo mundo lembrava do porquê.",
           "en": "Once upon a time there was a school where everyone asked why. The teacher answered with another question, and the class kept discovering things alone. At the end of the year, nobody remembered the memorized answers, but everyone remembered the why."
@@ -27,7 +49,10 @@
     "flags": [
       {
         "name": "window",
-        "alias": { "pt": "janela", "en": "window" },
+        "alias": {
+          "pt": "janela",
+          "en": "window"
+        },
         "type": "int",
         "min": 4,
         "max": 64,
@@ -38,6 +63,21 @@
       }
     ]
   },
-  "predict": { "options": ["one", "many", "letters"], "answer": "many" },
-  "break": { "flag": "overflow" }
+  "predict": {
+    "options": [
+      "one",
+      "many",
+      "letters"
+    ],
+    "answer": "many"
+  },
+  "break": {
+    "flag": "overflow"
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "tokenize",
+      "model": "Xenova/gpt-4o"
+    }
+  }
 }
