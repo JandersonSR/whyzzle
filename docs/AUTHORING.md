@@ -26,6 +26,7 @@ Lições são **só dados**: modelo `declarative` + cena `widgets`. Leia antes d
 Regras do modelo declarativo, na prática:
 - String que começa com `=` é expressão; com `@chave` é texto da cena (`scene.chave` no pt/en), com `{vars}` preenchidas.
 - Um valor de `compute` não pode ter o mesmo nome de uma flag (ele sobrescreve a flag).
+- `@chave` só é trocada quando é o resultado inteiro de uma expressão (`=x ? '@a' : '@b'`); `'@a' + ' + ' + '@b'` aparece literal. Para combinações, crie uma chave por combinação.
 - `cases` aplicam todos os que batem, em ordem: `flags`, `vars` (usadas em `{…}` nos textos), `error` (texto em `errors["model.<codigo>"]`).
 - Erros do parser: `errors["aboveMax.<flag>"]`, `belowMin`, `notInEnum`, `notBool`, `missingArg`.
 - Funções úteis para listas: `mul`, `cumsum`, `maxall`, `geall`, `ltall`, `pickrows`, `lookupall`, `containsany`, `memberall`, `tagmatching`, `topk`, `blend`, `zip`, `mark`, `fill`.

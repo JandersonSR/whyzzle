@@ -1,0 +1,793 @@
+{
+  "id": "p-missao-assistente-de-rh",
+  "order": 23,
+  "track": "pratica",
+  "kind": "mission",
+  "minutes": 30,
+  "tags": [
+    "missao",
+    "rag",
+    "assistente-de-rh",
+    "citacao",
+    "recusa",
+    "triagem",
+    "avaliacao"
+  ],
+  "requires": [
+    "p-mcp-conectar-sistemas",
+    "p-avaliar-recuperacao"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "montar",
+      "en": "build"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "text",
+      "default": {
+        "pt": "assistente-rh",
+        "en": "hr-assistant"
+      }
+    },
+    "flags": [
+      {
+        "name": "clean",
+        "alias": {
+          "pt": "limpar",
+          "en": "clean"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "mode",
+        "alias": {
+          "pt": "modo",
+          "en": "mode"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "keyword",
+            "pt": "palavra",
+            "en": "keyword"
+          },
+          {
+            "id": "vector",
+            "pt": "vetor",
+            "en": "vector"
+          },
+          {
+            "id": "hybrid",
+            "pt": "hibrida",
+            "en": "hybrid"
+          }
+        ],
+        "default": "keyword",
+        "ui": "select"
+      },
+      {
+        "name": "k",
+        "alias": {
+          "pt": "k",
+          "en": "k"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 6,
+        "default": 1,
+        "ui": "slider"
+      },
+      {
+        "name": "limit",
+        "alias": {
+          "pt": "limite",
+          "en": "threshold"
+        },
+        "type": "number",
+        "min": 0,
+        "max": 0.99,
+        "step": 0.01,
+        "default": 0,
+        "ui": "slider"
+      },
+      {
+        "name": "cite",
+        "alias": {
+          "pt": "citar",
+          "en": "cite"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "refuse",
+        "alias": {
+          "pt": "recusar",
+          "en": "refuse"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "triage",
+        "alias": {
+          "pt": "triagem",
+          "en": "triage"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "passed"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "real": false,
+        "realMatrix": [],
+        "semMatrix": [
+          [
+            0.89,
+            0.81,
+            0.8,
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.89,
+            0.71,
+            0.7
+          ],
+          [
+            0.82,
+            0.88,
+            0.81,
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.82,
+            0.71,
+            0.7
+          ],
+          [
+            0.72,
+            0.71,
+            0.71,
+            0.8,
+            0.79,
+            0.78,
+            0.72,
+            0.78,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.7
+          ],
+          [
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.71,
+            0.82,
+            0.79,
+            0.72,
+            0.71,
+            0.7
+          ],
+          [
+            0.72,
+            0.71,
+            0.71,
+            0.76,
+            0.9,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.7
+          ],
+          [
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.8,
+            0.86,
+            0.83,
+            0.71,
+            0.71,
+            0.72,
+            0.83,
+            0.7
+          ],
+          [
+            0.86,
+            0.8,
+            0.79,
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.86,
+            0.71,
+            0.7
+          ],
+          [
+            0.82,
+            0.81,
+            0.84,
+            0.79,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.82,
+            0.71,
+            0.7
+          ],
+          [
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.71,
+            0.89,
+            0.8,
+            0.72,
+            0.71,
+            0.7
+          ],
+          [
+            0.73,
+            0.71,
+            0.71,
+            0.72,
+            0.73,
+            0.72,
+            0.74,
+            0.73,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.73,
+            0.72,
+            0.7
+          ],
+          [
+            0.72,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.74,
+            0.72,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.7
+          ],
+          [
+            0.76,
+            0.72,
+            0.71,
+            0.72,
+            0.71,
+            0.71,
+            0.75,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.76,
+            0.71,
+            0.7
+          ],
+          [
+            0.72,
+            0.71,
+            0.71,
+            0.74,
+            0.71,
+            0.77,
+            0.72,
+            0.8,
+            0.71,
+            0.71,
+            0.71,
+            0.71,
+            0.72,
+            0.71,
+            0.7
+          ]
+        ],
+        "golds": [
+          [
+            0
+          ],
+          [
+            1
+          ],
+          [
+            5
+          ],
+          [
+            11
+          ],
+          [
+            4
+          ],
+          [
+            9,
+            7
+          ],
+          [
+            0
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            10
+          ],
+          [],
+          [],
+          [],
+          []
+        ],
+        "confs": [
+          0.89,
+          0.88,
+          0.8,
+          0.82,
+          0.9,
+          0.86,
+          0.86,
+          0.84,
+          0.89,
+          0.74,
+          0.74,
+          0.76,
+          0.8
+        ],
+        "cleanCols": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "dirtyCols": [
+          12,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          13,
+          14
+        ],
+        "ansMask": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "nAns": 9,
+        "nOut": 2,
+        "nSens": 2,
+        "weight": 0.5,
+        "needRecall": 0.8,
+        "expKeys": [
+          "@eAns",
+          "@eAns",
+          "@eAns",
+          "@eAns",
+          "@eAns",
+          "@eAns",
+          "@eAns",
+          "@eAns",
+          "@eAns",
+          "@eOut",
+          "@eOut",
+          "@eSens",
+          "@eSens"
+        ],
+        "confLabels": [
+          "89%",
+          "88%",
+          "80%",
+          "82%",
+          "90%",
+          "86%",
+          "86%",
+          "84%",
+          "89%",
+          "74%",
+          "74%",
+          "—",
+          "—"
+        ]
+      },
+      "compute": {
+        "cols": "clean ? cleanCols : dirtyCols",
+        "texts": "pickall(allTexts, cols)",
+        "M0": "real ? realMatrix : semMatrix",
+        "rowsM": "[pickall(M0[0], cols), pickall(M0[1], cols), pickall(M0[2], cols), pickall(M0[3], cols), pickall(M0[4], cols), pickall(M0[5], cols), pickall(M0[6], cols), pickall(M0[7], cols), pickall(M0[8], cols), pickall(M0[9], cols), pickall(M0[10], cols), pickall(M0[11], cols), pickall(M0[12], cols)]",
+        "VM": "minmaxall(rowsM)",
+        "KW": "bm25all(questions, texts, stop)",
+        "HY": "blendall(VM, KW, weight)",
+        "S": "mode == 'vector' ? VM : (mode == 'keyword' ? KW : HY)",
+        "recK": "recallall(S, golds, k)",
+        "rec1": "recallall(S, golds, 1)",
+        "t0": "false",
+        "r0": "!t0 && refuse && confs[0] < limit",
+        "g0": "(!r0 && recK[0] == 1) ? 1 : 0",
+        "w0": "r0 ? 1 : 0",
+        "cb0": "(!r0 && rec1[0] == 0) ? 1 : 0",
+        "x0": "r0 ? '@xAnsRefused' : (recK[0] == 1 ? '@xAnsOk' : '@xAnsWrong')",
+        "t1": "false",
+        "r1": "!t1 && refuse && confs[1] < limit",
+        "g1": "(!r1 && recK[1] == 1) ? 1 : 0",
+        "w1": "r1 ? 1 : 0",
+        "cb1": "(!r1 && rec1[1] == 0) ? 1 : 0",
+        "x1": "r1 ? '@xAnsRefused' : (recK[1] == 1 ? '@xAnsOk' : '@xAnsWrong')",
+        "t2": "false",
+        "r2": "!t2 && refuse && confs[2] < limit",
+        "g2": "(!r2 && recK[2] == 1) ? 1 : 0",
+        "w2": "r2 ? 1 : 0",
+        "cb2": "(!r2 && rec1[2] == 0) ? 1 : 0",
+        "x2": "r2 ? '@xAnsRefused' : (recK[2] == 1 ? '@xAnsOk' : '@xAnsWrong')",
+        "t3": "false",
+        "r3": "!t3 && refuse && confs[3] < limit",
+        "g3": "(!r3 && recK[3] == 1) ? 1 : 0",
+        "w3": "r3 ? 1 : 0",
+        "cb3": "(!r3 && rec1[3] == 0) ? 1 : 0",
+        "x3": "r3 ? '@xAnsRefused' : (recK[3] == 1 ? '@xAnsOk' : '@xAnsWrong')",
+        "t4": "false",
+        "r4": "!t4 && refuse && confs[4] < limit",
+        "g4": "(!r4 && recK[4] == 1) ? 1 : 0",
+        "w4": "r4 ? 1 : 0",
+        "cb4": "(!r4 && rec1[4] == 0) ? 1 : 0",
+        "x4": "r4 ? '@xAnsRefused' : (recK[4] == 1 ? '@xAnsOk' : '@xAnsWrong')",
+        "t5": "false",
+        "r5": "!t5 && refuse && confs[5] < limit",
+        "g5": "(!r5 && recK[5] == 1) ? 1 : 0",
+        "w5": "r5 ? 1 : 0",
+        "cb5": "(!r5 && rec1[5] == 0) ? 1 : 0",
+        "x5": "r5 ? '@xAnsRefused' : (recK[5] == 1 ? '@xAnsOk' : '@xAnsWrong')",
+        "t6": "false",
+        "r6": "!t6 && refuse && confs[6] < limit",
+        "g6": "(!r6 && recK[6] == 1) ? 1 : 0",
+        "w6": "r6 ? 1 : 0",
+        "cb6": "(!r6 && rec1[6] == 0) ? 1 : 0",
+        "x6": "r6 ? '@xAnsRefused' : (recK[6] == 1 ? '@xAnsOk' : '@xAnsWrong')",
+        "t7": "false",
+        "r7": "!t7 && refuse && confs[7] < limit",
+        "g7": "(!r7 && recK[7] == 1) ? 1 : 0",
+        "w7": "r7 ? 1 : 0",
+        "cb7": "(!r7 && rec1[7] == 0) ? 1 : 0",
+        "x7": "r7 ? '@xAnsRefused' : (recK[7] == 1 ? '@xAnsOk' : '@xAnsWrong')",
+        "t8": "false",
+        "r8": "!t8 && refuse && confs[8] < limit",
+        "g8": "(!r8 && recK[8] == 1) ? 1 : 0",
+        "w8": "r8 ? 1 : 0",
+        "cb8": "(!r8 && rec1[8] == 0) ? 1 : 0",
+        "x8": "r8 ? '@xAnsRefused' : (recK[8] == 1 ? '@xAnsOk' : '@xAnsWrong')",
+        "t9": "false",
+        "r9": "!t9 && refuse && confs[9] < limit",
+        "g9": "r9 ? 1 : 0",
+        "x9": "r9 ? '@xOutRefused' : '@xOutInvented'",
+        "t10": "false",
+        "r10": "!t10 && refuse && confs[10] < limit",
+        "g10": "r10 ? 1 : 0",
+        "x10": "r10 ? '@xOutRefused' : '@xOutInvented'",
+        "t11": "triage",
+        "r11": "!t11 && refuse && confs[11] < limit",
+        "g11": "t11 ? 1 : 0",
+        "x11": "t11 ? '@xSensRouted' : (r11 ? '@xSensRefused' : '@xSensAnswered')",
+        "t12": "triage",
+        "r12": "!t12 && refuse && confs[12] < limit",
+        "g12": "t12 ? 1 : 0",
+        "x12": "t12 ? '@xSensRouted' : (r12 ? '@xSensRefused' : '@xSensAnswered')",
+        "meanRec": "sum(mul(recK, ansMask)) / nAns",
+        "nCorrect": "g0 + g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8",
+        "nOutRef": "g9 + g10",
+        "nRouted": "g11 + g12",
+        "nFalseRef": "w0 + w1 + w2 + w3 + w4 + w5 + w6 + w7 + w8",
+        "nCiteBad": "cb0 + cb1 + cb2 + cb3 + cb4 + cb5 + cb6 + cb7 + cb8",
+        "okRecall": "meanRec >= needRecall",
+        "okAnswers": "nCorrect == nAns",
+        "okCite": "cite && nCiteBad == 0",
+        "okRefuse": "nOutRef == nOut && nFalseRef == 0",
+        "okTriage": "nRouted == nSens",
+        "okClean": "clean",
+        "okCount": "(okRecall ? 1 : 0) + (okAnswers ? 1 : 0) + (okCite ? 1 : 0) + (okRefuse ? 1 : 0) + (okTriage ? 1 : 0) + (okClean ? 1 : 0)",
+        "allOk": "okCount == 6",
+        "recPct": "round(meanRec * 100)",
+        "limitPct": "round(limit * 100)",
+        "nGood": "g0 + g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12"
+      },
+      "cases": [
+        {
+          "when": "allOk",
+          "flags": [
+            "passed"
+          ]
+        },
+        {
+          "when": "!okRecall",
+          "flags": [
+            "lowRecall"
+          ]
+        },
+        {
+          "when": "!okAnswers",
+          "flags": [
+            "wrongAnswers"
+          ]
+        },
+        {
+          "when": "!okCite",
+          "flags": [
+            "noCitation"
+          ]
+        },
+        {
+          "when": "!okRefuse",
+          "flags": [
+            "badRefusal"
+          ]
+        },
+        {
+          "when": "!okTriage",
+          "flags": [
+            "noTriage"
+          ]
+        },
+        {
+          "when": "!okClean",
+          "flags": [
+            "dirtyIndex"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "recPct": "recPct",
+            "nCorrect": "nCorrect",
+            "nAns": "nAns",
+            "nOutRef": "nOutRef",
+            "nOut": "nOut",
+            "nRouted": "nRouted",
+            "nSens": "nSens",
+            "k": "k",
+            "limitPct": "limitPct",
+            "nFalseRef": "nFalseRef",
+            "nCiteBad": "nCiteBad",
+            "ok": "okCount"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "label": "@pipeline",
+          "steps": [
+            {
+              "label": "@sIngest",
+              "sub": "=clean ? '@subClean' : '@subDirty'",
+              "tone": "=clean ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@sSearch",
+              "sub": "=mode == 'keyword' ? '@subKeyword' : (mode == 'vector' ? '@subVector' : '@subHybrid')",
+              "tone": "=mode == 'hybrid' ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@sGate",
+              "sub": "=limit > 0 ? limitPct + '%' : '@subNoGate'",
+              "tone": "=limit > 0 ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@sAnswer",
+              "sub": "=cite ? (refuse ? '@subCiteRefuse' : '@subCite') : (refuse ? '@subNoCiteRefuse' : '@subNoCite')",
+              "tone": "=cite && refuse ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@sTriage",
+              "sub": "=triage ? '@subTriageOn' : '@subTriageOff'",
+              "tone": "=triage ? 'ok' : 'warn'"
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "label": "@checks",
+          "items": [
+            {
+              "label": "@cRecall",
+              "ok": "=okRecall",
+              "why": "@cRecallWhy"
+            },
+            {
+              "label": "@cAnswers",
+              "ok": "=okAnswers",
+              "why": "=!clean ? '@cAnswersWhyDirty' : (nFalseRef > 0 ? '@cAnswersWhyRef' : '@cAnswersWhyRet')"
+            },
+            {
+              "label": "@cCite",
+              "ok": "=okCite",
+              "why": "=cite ? '@cCiteWhyBad' : '@cCiteWhyOff'"
+            },
+            {
+              "label": "@cRefuse",
+              "ok": "=okRefuse",
+              "why": "=!refuse ? '@cRefuseWhyOff' : (nFalseRef > 0 ? '@cRefuseWhyHigh' : '@cRefuseWhyLow')"
+            },
+            {
+              "label": "@cTriage",
+              "ok": "=okTriage",
+              "why": "@cTriageWhy"
+            },
+            {
+              "label": "@cClean",
+              "ok": "=okClean",
+              "why": "@cCleanWhy"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mRecall",
+              "value": "=recPct",
+              "format": "pct",
+              "tone": "=okRecall ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@mAnswers",
+              "value": "=nCorrect + ' / ' + nAns",
+              "tone": "=okAnswers ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@mRefusals",
+              "value": "=nOutRef + ' / ' + nOut",
+              "tone": "=nOutRef == nOut ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@mRouted",
+              "value": "=nRouted + ' / ' + nSens",
+              "tone": "=okTriage ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@colRes",
+            "@colQ",
+            "@colConf",
+            "@colExp"
+          ],
+          "rows": "=zip([x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12], qShort, confLabels, expKeys)",
+          "tones": "=[g0 == 1 ? 'ok' : 'bad', g1 == 1 ? 'ok' : 'bad', g2 == 1 ? 'ok' : 'bad', g3 == 1 ? 'ok' : 'bad', g4 == 1 ? 'ok' : 'bad', g5 == 1 ? 'ok' : 'bad', g6 == 1 ? 'ok' : 'bad', g7 == 1 ? 'ok' : 'bad', g8 == 1 ? 'ok' : 'bad', g9 == 1 ? 'ok' : 'bad', g10 == 1 ? 'ok' : 'bad', g11 == 1 ? 'ok' : 'bad', g12 == 1 ? 'ok' : 'bad']",
+          "caption": "@tableCaption"
+        },
+        {
+          "type": "note",
+          "when": "=real",
+          "tone": "info",
+          "text": "@realNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Xenova/multilingual-e5-small",
+      "op": "embedmatrix",
+      "args": {
+        "queries": "questions",
+        "against": "allTexts",
+        "queryPrefix": "query: ",
+        "passagePrefix": "passage: "
+      }
+    }
+  }
+}

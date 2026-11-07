@@ -1,0 +1,40 @@
+{
+  "pt": {
+    "objectives": [
+      "Montar de ponta a ponta um assistente de RH com busca híbrida, limite de confiança, citação [n], recusa e triagem.",
+      "Medir o assistente com um conjunto fixo de perguntas (recall@k, respostas, recusas e encaminhamentos certos).",
+      "Perceber que cada defesa cobre um erro diferente e que o limite precisa ser calibrado."
+    ],
+    "minutes": 30,
+    "activity": "Em grupos, cada um recebe uma configuração ruim diferente (só palavra, sem limite, sem citação, sem triagem) e descobre pelos critérios o que está errado, sem ler a dica. Depois cada grupo escreve 5 perguntas novas para a Aurora (2 que o manual responde, 1 fora do manual, 1 delicada e 1 ambígua), prevê o que o assistente faria e testa.",
+    "discussion": [
+      "Quais assuntos da sua escola ou empresa nunca deveriam ser respondidos por uma máquina, e por quê?",
+      "O que é pior: o assistente recusar uma pergunta que o manual responde ou responder uma que o manual não cobre?",
+      "Quem deve ler o log de recusas e encaminhamentos, e o que ele guarda?"
+    ],
+    "misconceptions": [
+      "\"Se o assistente cita [n], a resposta está certa.\" A citação só diz de onde veio; a frase pode não estar sustentada pelo trecho.",
+      "\"Um limite de confiança serve para qualquer modelo.\" Ele é calibrado para um modelo de embeddings e perguntas reais.",
+      "\"Se passou nas 13 perguntas, está pronto.\" É um teste de fumaça; falta volume, perguntas reais e avaliação da fidelidade."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Build an HR assistant end to end with hybrid search, a confidence threshold, [n] citation, refusal and triage.",
+      "Measure the assistant with a fixed question set (recall@k, right answers, refusals and handoffs).",
+      "See that each defense covers a different mistake and that the threshold must be calibrated."
+    ],
+    "minutes": 30,
+    "activity": "In groups, each gets a different bad setup (words only, no threshold, no citation, no triage) and finds what is wrong from the criteria alone, without reading the hints. Then each group writes 5 new questions for Aurora (2 the handbook answers, 1 outside it, 1 delicate and 1 ambiguous), predicts what the assistant would do and tests it.",
+    "discussion": [
+      "Which topics at your school or company should never be answered by a machine, and why?",
+      "Which is worse: the assistant refusing a question the handbook answers or answering one the handbook doesn’t cover?",
+      "Who should read the log of refusals and handoffs, and what does it hold?"
+    ],
+    "misconceptions": [
+      "\"If the assistant cites [n], the answer is right.\" The citation only says where it came from; the sentence may not be supported by the chunk.",
+      "\"A confidence threshold works for any model.\" It is calibrated for one embedding model and real questions.",
+      "\"If it passed the 13 questions, it’s ready.\" It’s a smoke test; it lacks volume, real questions and a faithfulness evaluation."
+    ]
+  }
+}
