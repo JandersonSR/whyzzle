@@ -111,8 +111,8 @@ Depende das etapas de plataforma PL1 a PL3.
   Lições: ingestão e limpeza; fatiar sem cortar a resposta; índice vetorial no navegador; busca híbrida; reranking; citar e recusar; perguntas com duas partes; medir a busca com recall@k.
 
 - [ ] → **Etapa P3 · Prompts e agentes para o trabalho** (7 lições): prompt de sistema e papéis; exemplos (few-shot) e formato; extração de dados de e-mails e notas fiscais; classificação e triagem de tickets de atendimento; agente com ferramentas e limites; memória de conversa e resumo; MCP para conectar sistemas da empresa.
-  - Em andamento: escrita das 7 lições começou (subagente); falta revisão, testes finais e publicação.
-- [ ] **Missão final da Prática**: assistente de RH que responde dúvidas a partir das políticas da empresa (fonte citada, recusa quando não sabe, triagem para humano), rodando no navegador.
+  - Em andamento: lições 1 a 7 escritas e revisadas; correções da revisão sendo aplicadas; falta publicar.
+- [ ] **Missão final da Prática** (em andamento: escrita começou): assistente de RH que responde dúvidas a partir das políticas da empresa (fonte citada, recusa quando não sabe, triagem para humano), rodando no navegador.
 
 ### Produção (empresas e times)
 - [ ] **Etapa R1 · Avaliação e qualidade** (7 lições): conjunto de avaliação versionado; métricas de RAG (fidelidade, relevância); LLM como juiz e sua calibração; testes de regressão no CI; testes A/B de prompt; casos difíceis e perguntas sem resposta; ciclo de feedback de usuários.
@@ -150,7 +150,8 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 4. Contêineres e Kubernetes
 - **Fundamentos**
-  - [ ] F1 · Do programa ao contêiner (6): processo × contêiner × VM; imagem e camadas; Dockerfile; registro; por que orquestrar; o que é um cluster.
+  - [ ] → F1 · Do programa ao contêiner (6): processo × contêiner × VM; imagem e camadas; Dockerfile; registro; por que orquestrar; o que é um cluster.
+    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão independente e publicação.
   - [ ] Missão: empacotar uma API e explicar cada linha do Dockerfile.
 - **Prática**
   - [ ] P1 · Kubernetes com `kubectl` (8): pods e deployments; services e ingress; configmaps e secrets; probes; requests e limits; rolling update e rollback; HPA; troubleshooting (CrashLoopBackOff, ImagePullBackOff, OOMKilled).
