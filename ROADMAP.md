@@ -115,6 +115,7 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ### Produção (empresas e times)
 - [ ] → **Etapa R1 · Avaliação e qualidade** (7 lições): conjunto de avaliação versionado; métricas de RAG (fidelidade, relevância); LLM como juiz e sua calibração; testes de regressão no CI; testes A/B de prompt; casos difíceis e perguntas sem resposta; ciclo de feedback de usuários.
+  - Em andamento: escrita das 7 lições começou (subagente); falta revisão independente e publicação.
 - [ ] **Etapa R2 · Segurança, privacidade e governança** (7 lições): prompt injection direta e indireta; guardrails de entrada e saída; vazamento de dados e permissões por documento; dados pessoais e LGPD (minimização, retenção, base legal); jailbreak e red teaming; auditoria e rastreabilidade; política de uso de IA na empresa.
 - [ ] **Etapa R3 · Custo, latência e operação** (7 lições): custo por token e por conversa; cache de prompt e de respostas; roteamento entre modelos; streaming e latência percebida; limites de taxa e filas; observabilidade de LLM (traces, custo, qualidade); incidentes e rollback de prompt.
 - [ ] **Etapa R4 · Casos reais de empresa** (8 lições): FAQ de RH; atendimento com triagem e passagem para humano; triagem de documentos; revisão de PR assistida; assistente de tech lead (reuniões, status, riscos); skills e regras para o LLM consultar a documentação e os sistemas internos; IA para análise de logs; plano de implantação e ROI.
