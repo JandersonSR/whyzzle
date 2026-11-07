@@ -125,7 +125,7 @@ Depende das etapas de plataforma PL1 a PL3.
 ## 2. Desenvolvimento assistido por IA
 - **Fundamentos**
   - [ ] → F1 · IA no editor (6): autocompletar × chat × agente; contexto que o modelo enxerga; pedir com especificação; revisar o que a IA escreveu; quando não usar; ética e autoria.
-    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão, testes finais e publicação.
+    - Em andamento: lições 1 a 6 e missão escritas (branch wip/fundamentos-dai-msg), falta revisão independente, correções e publicação.
   - [ ] Missão: corrigir um bug pequeno com ajuda da IA, provando com teste.
 - **Prática**
   - [ ] P1 · Fluxo com agentes de código (7): especificação antes do código; arquivos de regras do repositório; tarefas pequenas e verificáveis; testes como contrato; refatoração assistida; legado e código desconhecido; vários agentes em paralelo.
@@ -138,7 +138,7 @@ Depende das etapas de plataforma PL1 a PL3.
 ## 3. Mensageria e streaming
 - **Fundamentos**
   - [ ] → F1 · Por que filas existem (7): síncrono × assíncrono; comando × evento; garantias de entrega e ack; consumidor idempotente; ordem, DLQ e prefetch; pub/sub; quando não usar fila.
-    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão, testes finais e publicação.
+    - Em andamento: lições 1 a 7 e missão escritas (branch wip/fundamentos-dai-msg), falta revisão independente, correções e publicação.
   - [ ] Missão: pagamentos na Black Friday sem venda perdida nem cobrança duplicada.
 - **Prática**
   - [ ] P1 · RabbitMQ no trabalho (6): exchanges e bindings; filas duráveis e quorum; publisher confirms; retry com atraso e DLX; prefetch e escala de consumidores; RabbitMQ × Kafka.
