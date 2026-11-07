@@ -157,7 +157,7 @@ export const OPS: Record<string, RealOp> = {
     const text = (await deps.chat(messages(env, args), { temperature: Number(values.temp ?? 0), max_tokens: 300 })).trim();
     const obj = extractJson(text);
     const problems = validate(obj, (args.schema as Record<string, string>) ?? {});
-    return { realOutput: text, realJson: obj ? JSON.stringify(obj, null, 1) : '', realValid: problems.length === 0, realProblems: problems };
+    return { realOutput: text, realJson: obj ? JSON.stringify(obj, null, 1) : '', realFields: obj ?? {}, realValid: problems.length === 0, realProblems: problems };
   },
 
   async tools(env, args, deps, values) {
