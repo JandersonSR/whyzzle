@@ -1,0 +1,277 @@
+{
+  "id": "dai-contexto",
+  "order": 2,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "contexto",
+    "janela-de-contexto",
+    "agents-md",
+    "tokens"
+  ],
+  "requires": [
+    "dai-autocompletar-chat-agente"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "perguntar",
+      "en": "ask"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Por que o total do pedido sai errado?",
+        "en": "Why is the order total wrong?"
+      },
+      "examples": [
+        {
+          "pt": "Por que o total do pedido sai errado?",
+          "en": "Why is the order total wrong?"
+        },
+        {
+          "pt": "Onde está a regra da taxa de entrega?",
+          "en": "Where is the delivery fee rule?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "files",
+        "alias": {
+          "pt": "arquivos",
+          "en": "files"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "rules",
+            "pt": "regras",
+            "en": "rules"
+          },
+          {
+            "id": "discount",
+            "pt": "desconto",
+            "en": "discount"
+          },
+          {
+            "id": "order",
+            "pt": "pedido",
+            "en": "order"
+          },
+          {
+            "id": "log",
+            "pt": "log",
+            "en": "log"
+          },
+          {
+            "id": "bundle",
+            "pt": "bundle",
+            "en": "bundle"
+          }
+        ],
+        "default": [
+          "order"
+        ],
+        "ui": "checkboxes"
+      }
+    ]
+  },
+  "break": {
+    "flag": "lost"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "window": 8000,
+        "sR": 600,
+        "sD": 900,
+        "sO": 1200,
+        "sL": 400,
+        "sB": 9000
+      },
+      "compute": {
+        "need": "lookup(needs, text, ['discount', 'rules'])",
+        "hasR": "includes(files, 'rules')",
+        "hasD": "includes(files, 'discount')",
+        "hasO": "includes(files, 'order')",
+        "hasL": "includes(files, 'log')",
+        "hasB": "includes(files, 'bundle')",
+        "total": "(hasR ? sR : 0) + (hasD ? sD : 0) + (hasO ? sO : 0) + (hasL ? sL : 0) + (hasB ? sB : 0)",
+        "over0": "total - window",
+        "dropR": "hasR && over0 > 0",
+        "over1": "over0 - (dropR ? sR : 0)",
+        "dropD": "hasD && over1 > 0",
+        "over2": "over1 - (dropD ? sD : 0)",
+        "dropO": "hasO && over2 > 0",
+        "over3": "over2 - (dropO ? sO : 0)",
+        "dropL": "hasL && over3 > 0",
+        "over4": "over3 - (dropL ? sL : 0)",
+        "cutB": "hasB && over4 > 0",
+        "seenR": "hasR && !dropR",
+        "seenD": "hasD && !dropD",
+        "needR": "includes(need, 'rules')",
+        "needD": "includes(need, 'discount')",
+        "gotAll": "(!needR || seenR) && (!needD || seenD)",
+        "gotSome": "(needR && seenR) || (needD && seenD)",
+        "overflow": "over0 > 0",
+        "used": "min(total, window)",
+        "nDropped": "(dropR ? 1 : 0) + (dropD ? 1 : 0) + (dropO ? 1 : 0) + (dropL ? 1 : 0)",
+        "outcome": "gotAll ? 'right' : (gotSome ? 'partial' : 'guessed')",
+        "answer": "lookup(lookup(answers, text, answersFallback), outcome, '')"
+      },
+      "cases": [
+        {
+          "when": "gotAll",
+          "flags": [
+            "right"
+          ]
+        },
+        {
+          "when": "!gotAll && gotSome",
+          "flags": [
+            "partial"
+          ]
+        },
+        {
+          "when": "!gotAll && !gotSome",
+          "flags": [
+            "guessed"
+          ]
+        },
+        {
+          "when": "overflow",
+          "flags": [
+            "overflowed"
+          ]
+        },
+        {
+          "when": "overflow && ((needR && dropR) || (needD && dropD))",
+          "flags": [
+            "lost"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "used": "used",
+            "total": "total",
+            "window": "window",
+            "dropped": "nDropped"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@used",
+              "value": "=used",
+              "format": "int",
+              "tone": "=overflow ? 'bad' : 'info'"
+            },
+            {
+              "label": "@full",
+              "value": "=round(used / window * 100)",
+              "format": "pct",
+              "tone": "=overflow ? 'bad' : (used > window * 0.8 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@dropped",
+              "value": "=nDropped",
+              "format": "int",
+              "tone": "=nDropped > 0 ? 'bad' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@file",
+            "@tokens",
+            "@status"
+          ],
+          "rows": [
+            [
+              "@fR",
+              "=sR",
+              "=!hasR ? '@notIn' : (dropR ? '@droppedOut' : '@seen')"
+            ],
+            [
+              "@fD",
+              "=sD",
+              "=!hasD ? '@notIn' : (dropD ? '@droppedOut' : '@seen')"
+            ],
+            [
+              "@fO",
+              "=sO",
+              "=!hasO ? '@notIn' : (dropO ? '@droppedOut' : '@seen')"
+            ],
+            [
+              "@fL",
+              "=sL",
+              "=!hasL ? '@notIn' : (dropL ? '@droppedOut' : '@seen')"
+            ],
+            [
+              "@fB",
+              "=sB",
+              "=!hasB ? '@notIn' : (cutB ? '@cut' : '@seen')"
+            ]
+          ],
+          "tones": [
+            "=!hasR ? 'dim' : (dropR ? 'bad' : 'ok')",
+            "=!hasD ? 'dim' : (dropD ? 'bad' : 'ok')",
+            "=!hasO ? 'dim' : (dropO ? 'bad' : 'ok')",
+            "=!hasL ? 'dim' : (dropL ? 'bad' : 'ok')",
+            "=!hasB ? 'dim' : (cutB ? 'warn' : 'ok')"
+          ],
+          "caption": "@caption"
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@q",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "@model",
+              "sub": "='@o_' + outcome",
+              "tone": "=gotAll ? 'ok' : (gotSome ? 'warn' : 'bad')"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "=gotAll ? 'ok' : (gotSome ? 'warn' : 'bad')",
+          "text": "=answer"
+        },
+        {
+          "type": "note",
+          "when": "=overflow",
+          "tone": "bad",
+          "text": "@overflowNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "right",
+      "guess",
+      "refuse"
+    ],
+    "answer": "guess"
+  }
+}

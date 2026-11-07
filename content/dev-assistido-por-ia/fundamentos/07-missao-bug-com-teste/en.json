@@ -1,0 +1,74 @@
+{
+  "title": "Mission: a small bug, proven with a test",
+  "subtitle": "Bring the whole track together: context, spec, review and tests",
+  "mission": "A customer bought 3 rolls at R$ 0.10 and the receipt showed R$ 0.30000000000000004. Bia will fix it with AI help, but her workflow is all wrong: vague request, whole project pasted, no tests and no review. Adjust it until all 5 criteria are green.",
+  "coach": {
+    "ui": "Change the controls and press Run. Each failing criterion says why.",
+    "cmd": "Edit the command and run it. Each failing criterion says why."
+  },
+  "why": {
+    "simples": "You did what good teams do: first proved the bug exists with a failing test, gave the AI just the right files, said exactly what result you expected, read what it changed and ran every test at the end.\nThe AI wrote the fix quickly; you were the one who made sure it was right.",
+    "dev": "The bug is the classic floating-point one: 0.1 has no exact binary representation, so 0.1 * 3 is 0.30000000000000004 in JavaScript. The real fix is to store money in cents (integers) and only format it on screen.\nThe flow: failing test (red) → request with the expected result and the right files → reviewed diff (the test must not have been loosened to pass) → whole suite green. Without the red at the start, you don’t know whether the test proves anything.",
+    "especialista": "In a team, this flow becomes a rule: the agent gets an issue with acceptance criteria, CI requires a new test that failed before (you can check by running the test against the previous commit), review looks especially at changes to tests and assertions, and the whole suite runs on every PR.\nAgents sometimes \"fix\" things by making the test accept the wrong value (toBeCloseTo, a removed assertion, a skipped test). A rule in AGENTS.md or CLAUDE.md (\"never change existing assertions without asking\") helps, but only review and CI guarantee it. That’s Practice track material (coming soon)."
+  },
+  "success": "Mission accomplished! The receipt shows R$ 0.30, the new test failed before and passes now, nobody loosened any assertion and the whole suite is green. {done} of 5 criteria: bug fixed and proven.",
+  "errors": {
+    "notBool.testFirst": "--test-first takes yes or no.",
+    "notBool.review": "--review takes yes or no.",
+    "notInEnum.ctx": "“{value}” isn’t a file here. Options: {options}.",
+    "notInEnum.run": "“{value}” isn’t an option. Use: {options}.",
+    "missingArg": "The request to the AI is missing, in quotes. Example: fix \"3 rolls at R$ 0.10 must total R$ 0.30\""
+  },
+  "controls": {
+    "arg": "Request to the AI",
+    "testFirst": "Write the failing test first",
+    "ctx": "Files in context",
+    "review": "Review the diff before accepting",
+    "run": "Which tests to run at the end"
+  },
+  "scene": {
+    "label": "Mission panel",
+    "empty": "Run to see how Bia does.",
+    "receipt": "receipt for 3 × R$ 0.10",
+    "ok030": "R$ 0.30",
+    "bad030": "R$ 0.30000000000000004",
+    "criteria": "criteria",
+    "term": "Terminal",
+    "redFirst": "!FAIL 3 rolls at 0.10 add up to 0.30 (expected 0.3, received 0.30000000000000004)",
+    "noRepro": "~(no test reproduces the bug: the fix can’t be proven)",
+    "notRun": "~(no tests run after the fix)",
+    "greenNew": "+PASS 3 rolls at 0.10 add up to 0.30",
+    "greenWeak": "?PASS 3 rolls at 0.10 add up to 0.30 (but the AI swapped toBe for toBeCloseTo in the test: it no longer proves the exact value)",
+    "stillRed": "!FAIL the total is still 0.30000000000000004",
+    "greenOld": "+PASS 10% discount · PASS delivery fee · PASS free delivery",
+    "redOld": "!FAIL 10% discount (switching to cents broke rounding and nobody checked the diff)",
+    "checksLabel": "Criteria ({done} of 5)",
+    "k1": "Bug reproduced with a test that fails before the fix",
+    "k2": "Right context: preco.ts and the test, not the whole project",
+    "k3": "Request states the expected result",
+    "k4": "Diff reviewed: no test loosened",
+    "k5": "Whole suite run and green",
+    "w1": "Without a red test at the start, nothing proves the fix fixes anything (lessons 3 and 4).",
+    "w2": "Tick price and test and remove \"all\": the whole project overflows the window and dilutes what matters (lesson 2).",
+    "w3": "State the expected result in the request: 0.30, or compute in cents (lesson 3).",
+    "w4": "Without review, the AI may \"fix\" it by loosening the test, and side effects slip through (lesson 4).",
+    "w5": "Run all the tests, not just the new one, and they must be green: the fix may break something else (so the code must be right and reviewed).",
+    "trackDone": "You completed the Foundations track of AI-assisted development."
+  },
+  "data": {
+    "kw": [
+      "0.30",
+      "cent",
+      "0,30",
+      "0.3 "
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "In the terminal, run node -e \"console.log(0.1 * 3)\" and see 0.30000000000000004 with your own eyes.",
+      "In a project with tests (Vitest or Jest), write a test expecting sum(3, 0.10) to equal 0.30 and confirm it fails.",
+      "Ask the agent or chat, showing only the function file and the test: \"make this test pass by storing amounts in cents; don’t change the test\". Read the diff and run the whole suite."
+    ],
+    "ok": "the test that was red turns green without being changed, the rest of the suite stays green and the value shown is 0.30."
+  }
+}

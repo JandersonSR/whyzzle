@@ -1,0 +1,109 @@
+{
+  "title": "Ethics and authorship",
+  "subtitle": "Whose code it is, where it came from and who answers for it",
+  "mission": "The AI suggested 30 lines for the bakery’s order calendar, and the tool warned the snippet matches a public repository under the GPL-3.0 license. Before delivering, fill in the sheet: declare the AI use, check the origin and license, and be able to explain every line.",
+  "predict": {
+    "question": "who answers for the code the AI suggested and Bia delivered?",
+    "options": {
+      "ai": "The AI (or the tool’s company)",
+      "you": "Bia, who accepted and delivered it",
+      "nobody": "Nobody: the machine did it"
+    }
+  },
+  "feedback": {
+    "right": "right: on the sheet, the one responsible is whoever delivers. The tool suggests; whoever accepts, adapts and sends it to the client (or the teacher) answers for the result.",
+    "wrong": "look at the first row of the sheet: the one responsible is whoever delivers. A tool doesn’t sign work, doesn’t go to the client meeting and doesn’t answer to the teacher.",
+    "skipped": "no guess? The first row of the sheet answers it."
+  },
+  "coach": {
+    "ui": "guess noted. Run with everything on, then switch one off at a time.",
+    "cmd": "guess noted. Run it as is, then try --declare no, --license no and --explain no, one at a time."
+  },
+  "tryNext": {
+    "ui": "Switch to the science fair project and turn off \"Check origin and license\": there the problem becomes credit, not license.",
+    "cmd": "Run deliver \"Science fair project: quiz app\" --license no and compare."
+  },
+  "why": {
+    "simples": "Three honest questions before delivering something made with AI: did I say I used it? Do I know where this snippet came from? Can I explain every line?\nIf the answer to any of them is \"no\", it isn’t ready. And whoever delivers answers for it, like signing a group project.",
+    "dev": "Suggested code can match public code. GitHub Copilot checks suggestions (above a certain length) against public code and, depending on the account’s or organization’s policy, discards matches or shows the suggestion with a reference (repository and license). If a reference shows up, read the license: GPL in a closed product that you distribute brings obligations the bakery doesn’t want; the way out is to rewrite or not use it.\nDeclaring AI use follows the local rule: schools and journals usually ask for it; companies have their own policy. One line in the PR or report (\"I used AI for X, reviewed Y\") does it.",
+    "especialista": "Authorship and copyright are still adjusting to AI, and they vary by country. In the US, the Copyright Office’s 2025 report on AI concluded that prompts alone don’t give enough human control: what’s protected is the human contribution (selection, arrangement, creative modifications). In Brazil, Law 9.610/98 defines an author as a natural person, and software has its own law (9.609/98). This isn’t legal advice: on a serious project, ask your legal team.\nIn team practice: note in the PR what came from AI, keep the public-code filter per policy, run license scanning on dependencies and read the terms of the tool your company signed up for (they say who owns the suggestions and how data is used)."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: on the bakery calendar (closed source), turn off \"Check origin and license\".",
+      "cmd": "time to break it: run deliver with --license no on the bakery app."
+    },
+    "success": "Broken: 30 lines matching GPL-3.0 code went into a closed app without anyone reading the license. Now the bakery has a license problem no test catches, and Bia is the one who delivered it.",
+    "calm": "Sheet with {ok} of 3 items in order. To break it, deliver the closed app without checking where the snippet came from."
+  },
+  "hints": {
+    "ui": [
+      "Pick the work and flip the switches; the scene updates by itself.",
+      "The sheet shows what’s in order and what’s missing.",
+      "Bakery app + \"Check origin and license\" off."
+    ],
+    "cmd": [
+      "The work goes in quotes after deliver.",
+      "--declare, --license and --explain take yes or no.",
+      "deliver \"Order calendar for the bakery app (closed source)\" --license no"
+    ]
+  },
+  "errors": {
+    "notBool.declare": "Use yes or no.",
+    "notBool.license": "Use yes or no.",
+    "notBool.explain": "Use yes or no."
+  },
+  "controls": {
+    "arg": "What’s being delivered",
+    "declare": "Declare AI use",
+    "license": "Check the snippet’s origin and license",
+    "explain": "Can explain every line"
+  },
+  "scene": {
+    "label": "Delivery sheet",
+    "empty": "Run to fill in the sheet.",
+    "sugg": "AI suggestion",
+    "suggSub": "30 lines for the calendar",
+    "match": "Matches public code",
+    "matchSub": "repository agenda-js · GPL-3.0",
+    "decision": "What Bia did",
+    "rewrote": "read the license and rewrote it",
+    "credited": "read the license and gave credit",
+    "pasted": "pasted without looking",
+    "sheet": "Sheet",
+    "item": "item",
+    "value": "status",
+    "rowOwner": "Who answers for the code",
+    "you": "whoever delivered (Bia)",
+    "rowDeclared": "AI use declared",
+    "declaredYes": "yes, in the PR",
+    "declaredNo": "no",
+    "rowMatch": "Snippet matching public code",
+    "matchRewrote": "license read; snippet rewritten",
+    "matchCredited": "license read; source cited in the project",
+    "matchNo": "nobody checked",
+    "rowExplain": "Can explain every line",
+    "yes": "yes",
+    "no": "no",
+    "licenseNote": "Code matching GPL-3.0 in a closed app, without anyone reading the license: a legal problem no test catches.",
+    "creditNote": "In a school project, using someone else’s snippet without citing the source is plagiarism, even if the AI brought it.",
+    "undeclaredWork": "The bakery’s policy asks for one line in the PR saying where AI helped. Without it, review doesn’t know where to look more carefully.",
+    "undeclaredSchool": "The school asks you to declare AI use. Hiding it becomes an honesty problem, not a technology one.",
+    "explainNote": "If you can’t explain a line, you can’t maintain, fix or defend it. Go back and understand it before delivering.",
+    "honestNote": "Sheet complete: use declared, origin checked and code you can explain. Deliver with your head held high."
+  },
+  "data": {
+    "kinds": {
+      "Order calendar for the bakery app (closed source)": "closed",
+      "Science fair project: quiz app": "school"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "If you use GitHub Copilot, open your GitHub account’s Copilot settings and find the option about suggestions matching public code; see whether it’s set to block or to allow with references (if your account belongs to an organization, the organization decides).",
+      "Take a recent assignment or PR made with AI help and write one declaration line: \"I used AI for [what]; I reviewed and tested [what]\".",
+      "Pick 5 lines the AI wrote and explain each one out loud (or to a colleague) without looking at the AI’s answer."
+    ],
+    "ok": "you know how the public-code filter is set in your tool, have a declaration line ready and explained the 5 lines in your own words."
+  }
+}

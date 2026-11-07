@@ -1,0 +1,105 @@
+{
+  "title": "When not to use AI",
+  "subtitle": "Learning, secrets, tiny jobs and security code",
+  "mission": "Caio is the bakery’s intern and studies programming at night. He wants to use AI for everything. Help Caio decide, job by job, whether the AI should do it for him, explain so he does it, or stay out.",
+  "predict": {
+    "question": "if the AI solves the logic exercise for him, how does Caio do in next week’s exam?",
+    "options": {
+      "same": "Same: the exercise got handed in",
+      "worse": "Worse: he didn’t practice",
+      "better": "Better: he saw the right answer"
+    }
+  },
+  "feedback": {
+    "right": "right. A study with high-school students (Bastani and colleagues) saw exactly that: with open AI access, practice scores went up, but in the exam without AI those who used it to get answers did worse. With the AI set up as a tutor, the harm mostly went away.",
+    "wrong": "worse. Exercises exist to train your brain; if the AI trains in your place, it’s the one getting stronger. A study with high-school students (Bastani and colleagues) saw that in the exam taken without AI.",
+    "skipped": "no guess? Look at \"how much you learned\" with the AI doing everything."
+  },
+  "coach": {
+    "ui": "guess noted. Run with \"AI does it for you\", then switch to tutor.",
+    "cmd": "guess noted. Run it as is, then switch to --mode tutor."
+  },
+  "tryNext": {
+    "ui": "Now the button job: with AI it takes longer than by hand. And the password one: best is tutor + known library + review.",
+    "cmd": "Run decide \"Change the button text from Send to Order\" --mode none and compare with --mode do."
+  },
+  "why": {
+    "simples": "AI is a tool, not life’s autopilot. Four \"stop and think\" signs: (1) when the goal is for you to learn; (2) when you’d have to paste a password, key or customer data; (3) when doing it by hand is faster than explaining; (4) when a mistake could hurt someone (money, passwords, health).\nIn those cases, use the AI as a teacher, with fake data, or don’t use it.",
+    "dev": "Secrets: never paste .env files, keys or personal data into a tool your company hasn’t approved; mask the values and, if it leaked, rotate the key (deleting the chat doesn’t undo it). Security code (passwords, crypto, permissions): use well-established libraries and review by someone who knows; the AI helps explain, not invent.\nTiny jobs: explaining and reviewing has a cost. Domains you don’t master: if you can’t judge the answer, you can’t review the code, so learn first.",
+    "especialista": "The right question isn’t \"AI yes or no\", it’s \"who needs to know how to do this six months from now?\" and \"what happens if it’s wrong?\". Mature teams write this in a policy: which tools are approved, what data can go in, which areas need specialist review.\nFor learners, tutor mode has evidence behind it: in Bastani and colleagues’ high-school study, an AI that gave hints instead of answers avoided much of the learning loss. Set it up in the request itself (\"don’t give me the answer, ask me questions\") or in custom instructions."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick the .env job and \"AI does it for you\".",
+      "cmd": "time to break it: run the .env job with --mode do."
+    },
+    "success": "Broken: the whole .env, with the database password and API key, was pasted into an unapproved tool. Solved in {mins} minutes, and now the bakery has to rotate every key. Speed doesn’t make up for a leaked secret.",
+    "calm": "Nothing leaked. To break it, paste the file with secrets and let the AI do everything."
+  },
+  "hints": {
+    "ui": [
+      "Pick a job and a mode; the scene updates by itself.",
+      "The highlighted row in the table is the best mode for that job.",
+      ".env job + \"AI does it for you\"."
+    ],
+    "cmd": [
+      "The job goes in quotes after decide.",
+      "--mode takes do, tutor or none.",
+      "decide \"Paste the production .env to find the connection error\" --mode do"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "“{value}” isn’t a mode here. Options: {options}."
+  },
+  "controls": {
+    "arg": "Caio’s job",
+    "mode": "Mode"
+  },
+  "scene": {
+    "label": "To use or not to use",
+    "empty": "Run to decide.",
+    "mins": "minutes",
+    "learn": "how much you learned",
+    "risk": "risk",
+    "r0": "low",
+    "r1": "medium",
+    "r2": "high",
+    "r3": "secret leaked",
+    "table": "The three modes on this job",
+    "mode": "mode",
+    "m_do": "AI does it for you",
+    "m_tutor": "AI explains, you do it",
+    "m_none": "no AI",
+    "best_do": "Best here: let the AI do it.",
+    "best_tutor": "Best here: AI as a tutor, you in control.",
+    "best_none": "Best here: do it without AI.",
+    "n_learn_do": "The AI solved it, you copied it and handed it in within 5 minutes. In the exam, without AI, your head is empty: the exercise was there to train you, not to produce an answer.",
+    "n_learn_tutor": "You asked: \"don’t give me the answer, ask me questions and give hints\". It took longer, and you were the one who learned.",
+    "n_learn_none": "Alone works too, it just takes longer when you get stuck. A hint now and then (tutor mode) is usually the best of both worlds.",
+    "n_secret_do": "You pasted the database password and an API key into a tool that wasn’t approved for that. The secret has left your machine, and the only safe fix is to rotate the keys.",
+    "n_secret_tutor": "You described the error and the config format with fake values (PASSWORD=xxx). The AI helped and no secret left.",
+    "n_secret_none": "Safe but slow. Masking the values and asking for help usually solves it faster with no risk.",
+    "n_tiny_do": "Explaining the job, waiting and reviewing took 3 minutes. Changing one word by hand takes 1.",
+    "n_tiny_tutor": "Asking for an explanation to change one word is overkill. Sometimes the fastest thing is to just do it.",
+    "n_tiny_none": "Found the text, changed it, checked the screen. One minute. Not every job needs AI.",
+    "n_critical_do": "The AI wrote a home-made password comparison and you accepted it. Security code that \"seems to work\" is the most dangerous kind: it fails silently.",
+    "n_critical_tutor": "You used the AI to understand the options, chose a well-known password-hashing library and asked someone experienced to review. Slower, and that’s how it’s done.",
+    "n_critical_none": "Alone, with no security experience, the risk remains. The way is a known library + review, with or without AI."
+  },
+  "data": {
+    "kinds": {
+      "Do today’s logic class exercise": "learn",
+      "Paste the production .env to find the connection error": "secret",
+      "Change the button text from Send to Order": "tiny",
+      "Write the function that checks the cashier password": "critical"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Open an AI chat and paste a programming exercise from your course with the request: don’t give me the answer; ask me one question at a time and give me a hint only when I ask.",
+      "Solve the exercise talking this way to the end, without asking for the solution.",
+      "Look up your school’s or company’s AI usage policy (or ask whoever owns it) and write down: which tools are approved and what data can’t go in."
+    ],
+    "ok": "you finished the exercise able to explain each step in your own words, and can name one thing you must never paste into an AI at your work or school."
+  }
+}

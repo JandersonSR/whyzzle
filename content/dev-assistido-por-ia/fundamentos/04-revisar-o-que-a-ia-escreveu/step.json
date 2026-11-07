@@ -1,0 +1,220 @@
+{
+  "id": "dai-revisar-o-que-a-ia-escreveu",
+  "order": 4,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "revisao",
+    "diff",
+    "dependencias",
+    "dados-pessoais",
+    "testes"
+  ],
+  "requires": [
+    "dai-pedir-com-especificacao"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "revisar",
+      "en": "review"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "text",
+      "default": {
+        "pt": "PR da IA: aplicar cupom de desconto",
+        "en": "AI PR: apply discount coupon"
+      },
+      "examples": []
+    },
+    "flags": [
+      {
+        "name": "checks",
+        "alias": {
+          "pt": "checar",
+          "en": "checks"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "run",
+            "pt": "rodar",
+            "en": "run"
+          },
+          {
+            "id": "read",
+            "pt": "ler",
+            "en": "read"
+          },
+          {
+            "id": "deps",
+            "pt": "pacotes",
+            "en": "deps"
+          },
+          {
+            "id": "data",
+            "pt": "dados",
+            "en": "data"
+          },
+          {
+            "id": "edges",
+            "pt": "bordas",
+            "en": "edges"
+          }
+        ],
+        "default": [
+          "run"
+        ],
+        "ui": "checkboxes"
+      },
+      {
+        "name": "approve",
+        "alias": {
+          "pt": "aprovar",
+          "en": "approve"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "shipped"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "compute": {
+        "c1": "includes(checks, 'deps')",
+        "c2": "includes(checks, 'edges')",
+        "c3": "includes(checks, 'data') || includes(checks, 'read')",
+        "c4": "includes(checks, 'read')",
+        "ranTests": "includes(checks, 'run')",
+        "caught": "(c1 ? 1 : 0) + (c2 ? 1 : 0) + (c3 ? 1 : 0) + (c4 ? 1 : 0)",
+        "missing": "4 - caught"
+      },
+      "cases": [
+        {
+          "when": "caught == 4",
+          "flags": [
+            "allCaught"
+          ]
+        },
+        {
+          "when": "approve && missing > 0",
+          "flags": [
+            "shipped"
+          ]
+        },
+        {
+          "when": "approve && missing == 0",
+          "flags": [
+            "merged"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "caught": "caught",
+            "missing": "missing"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@caught",
+              "value": "=caught + ' / 4'",
+              "tone": "=caught == 4 ? 'ok' : (caught > 0 ? 'warn' : 'bad')"
+            },
+            {
+              "label": "@green",
+              "value": "=ranTests ? (c2 ? '3 / 4' : '3 / 3') : '@notRun'",
+              "tone": "=ranTests ? (c2 ? 'warn' : 'ok') : 'dim'"
+            },
+            {
+              "label": "@decision",
+              "value": "=approve ? '@approved' : '@waiting'",
+              "tone": "=approve ? (missing > 0 ? 'bad' : 'ok') : 'info'"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@diff",
+          "lines": [
+            "@d0",
+            "=c1 ? '@d1bad' : '@d1'",
+            "@dFn",
+            "=c2 ? '@d2bad' : '@d2'",
+            "=c3 ? '@d3bad' : '@d3'",
+            "@dEnd",
+            "=c4 ? '@d4bad' : '@d4'"
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@run",
+          "when": "=ranTests || c1 || c2",
+          "lines": "=concat(ranTests || c2 ? ['$ npm test', '@pass1', '@pass2', '@pass3'] : [], c2 ? ['@failEdge'] : [], c1 ? ['$ npm view cupom-valida-br', '@npmView'] : [])"
+        },
+        {
+          "type": "checks",
+          "label": "@problems",
+          "items": [
+            {
+              "label": "=c1 ? '@p1' : '@hidden1'",
+              "ok": "=c1",
+              "why": "@h1"
+            },
+            {
+              "label": "=c2 ? '@p2' : '@hidden2'",
+              "ok": "=c2",
+              "why": "@h2"
+            },
+            {
+              "label": "=c3 ? '@p3' : '@hidden3'",
+              "ok": "=c3",
+              "why": "@h3"
+            },
+            {
+              "label": "=c4 ? '@p4' : '@hidden4'",
+              "ok": "=c4",
+              "why": "@h4"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=approve && missing > 0",
+          "tone": "bad",
+          "text": "@shippedNote"
+        },
+        {
+          "type": "note",
+          "when": "=!approve && caught == 0",
+          "tone": "warn",
+          "text": "@greenNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "zero",
+      "two",
+      "four"
+    ],
+    "answer": "zero"
+  }
+}

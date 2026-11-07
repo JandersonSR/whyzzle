@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Escrever uma especificação curta com entradas, regras, exemplos e limites.",
+      "Entender por que exemplos sem regra levam a \"decoreba\".",
+      "Usar testes como contrato do pedido."
+    ],
+    "minutes": 20,
+    "activity": "Em duplas: uma pessoa escreve a especificação de uma função do cotidiano (calcular a mesada, o troco da cantina) e a outra \"faz o papel da IA\", seguindo ao pé da letra só o que está escrito. Depois trocam.",
+    "discussion": [
+      "Qual parte da especificação mais mudou o resultado?",
+      "Como saber se a IA entendeu a regra ou só decorou os exemplos?"
+    ],
+    "misconceptions": [
+      "\"A IA é esperta, ela deduz o que eu quero.\" Ela deduz o que é comum; o que é específico do seu negócio precisa estar escrito."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Write a short spec with inputs, rules, examples and edge cases.",
+      "Understand why examples without rules lead to \"memorizing\".",
+      "Use tests as the contract of the request."
+    ],
+    "minutes": 20,
+    "activity": "In pairs: one person writes the spec of an everyday function (pocket money, canteen change) and the other \"plays the AI\", following only what’s written, literally. Then they swap.",
+    "discussion": [
+      "Which spec part changed the result the most?",
+      "How can you tell whether the AI understood the rule or just memorized the examples?"
+    ],
+    "misconceptions": [
+      "\"The AI is smart, it figures out what I want.\" It figures out what’s common; what’s specific to your business has to be written down."
+    ]
+  }
+}

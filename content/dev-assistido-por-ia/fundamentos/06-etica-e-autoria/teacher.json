@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Declarar o uso de IA de forma simples.",
+      "Entender que trecho sugerido pode ter licença e dono.",
+      "Assumir a responsabilidade pelo que entrega."
+    ],
+    "minutes": 20,
+    "activity": "Debate em três grupos: escola, empresa de software e projeto open source. Cada grupo escreve as 3 regras de uso de IA que adotaria e apresenta. Depois comparam o que é igual e o que muda.",
+    "discussion": [
+      "Por que declarar o uso de IA se o código funciona?",
+      "Qual a diferença entre se inspirar num código e copiá-lo?"
+    ],
+    "misconceptions": [
+      "\"Se a IA escreveu, não é plágio.\" O trecho pode ter vindo de alguém, e quem entrega responde.",
+      "\"Código de IA não tem licença.\" Pode coincidir com código público que tem."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Declare AI use in a simple way.",
+      "Understand that a suggested snippet may have a license and an owner.",
+      "Take responsibility for what you deliver."
+    ],
+    "minutes": 20,
+    "activity": "Debate in three groups: school, software company and open-source project. Each group writes the 3 AI-use rules it would adopt and presents them. Then they compare what’s the same and what changes.",
+    "discussion": [
+      "Why declare AI use if the code works?",
+      "What’s the difference between being inspired by code and copying it?"
+    ],
+    "misconceptions": [
+      "\"If the AI wrote it, it isn’t plagiarism.\" The snippet may have come from someone, and whoever delivers answers for it.",
+      "\"AI code has no license.\" It can match public code that does."
+    ]
+  }
+}

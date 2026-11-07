@@ -1,0 +1,221 @@
+{
+  "id": "dai-etica-e-autoria",
+  "order": 6,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 12,
+  "tags": [
+    "etica",
+    "autoria",
+    "licenca",
+    "transparencia"
+  ],
+  "requires": [
+    "dai-quando-nao-usar"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "entregar",
+      "en": "deliver"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Agenda de encomendas do app da padaria (código fechado)",
+        "en": "Order calendar for the bakery app (closed source)"
+      },
+      "examples": [
+        {
+          "pt": "Agenda de encomendas do app da padaria (código fechado)",
+          "en": "Order calendar for the bakery app (closed source)"
+        },
+        {
+          "pt": "Trabalho da feira de ciências: app de quiz",
+          "en": "Science fair project: quiz app"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "declare",
+        "alias": {
+          "pt": "declarar",
+          "en": "declare"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "license",
+        "alias": {
+          "pt": "licenca",
+          "en": "license"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "explain",
+        "alias": {
+          "pt": "explicar",
+          "en": "explain"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "licenseRisk"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "compute": {
+        "kind": "lookup(kinds, text, 'closed')",
+        "closed": "kind == 'closed'",
+        "okCount": "(declare ? 1 : 0) + (license ? 1 : 0) + (explain ? 1 : 0)"
+      },
+      "cases": [
+        {
+          "when": "okCount == 3",
+          "flags": [
+            "honest"
+          ]
+        },
+        {
+          "when": "!license && closed",
+          "flags": [
+            "licenseRisk"
+          ]
+        },
+        {
+          "when": "!license && !closed",
+          "flags": [
+            "noCredit"
+          ]
+        },
+        {
+          "when": "!declare",
+          "flags": [
+            "undeclared"
+          ]
+        },
+        {
+          "when": "!explain",
+          "flags": [
+            "cantExplain"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "ok": "okCount"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@sugg",
+              "sub": "@suggSub",
+              "tone": "info"
+            },
+            {
+              "label": "@match",
+              "sub": "@matchSub",
+              "tone": "warn"
+            },
+            {
+              "label": "@decision",
+              "sub": "=license ? (closed ? '@rewrote' : '@credited') : '@pasted'",
+              "tone": "=license ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@sheet",
+          "columns": [
+            "@item",
+            "@value"
+          ],
+          "rows": [
+            [
+              "@rowOwner",
+              "@you"
+            ],
+            [
+              "@rowDeclared",
+              "=declare ? '@declaredYes' : '@declaredNo'"
+            ],
+            [
+              "@rowMatch",
+              "=license ? (closed ? '@matchRewrote' : '@matchCredited') : '@matchNo'"
+            ],
+            [
+              "@rowExplain",
+              "=explain ? '@yes' : '@no'"
+            ]
+          ],
+          "tones": [
+            "info",
+            "=declare ? 'ok' : 'warn'",
+            "=license ? 'ok' : (closed ? 'bad' : 'warn')",
+            "=explain ? 'ok' : 'warn'"
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!license && closed",
+          "tone": "bad",
+          "text": "@licenseNote"
+        },
+        {
+          "type": "note",
+          "when": "=!license && !closed",
+          "tone": "warn",
+          "text": "@creditNote"
+        },
+        {
+          "type": "note",
+          "when": "=!declare",
+          "tone": "warn",
+          "text": "=closed ? '@undeclaredWork' : '@undeclaredSchool'"
+        },
+        {
+          "type": "note",
+          "when": "=!explain",
+          "tone": "warn",
+          "text": "@explainNote"
+        },
+        {
+          "type": "note",
+          "when": "=okCount == 3",
+          "tone": "ok",
+          "text": "@honestNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "ai",
+      "you",
+      "nobody"
+    ],
+    "answer": "you"
+  }
+}

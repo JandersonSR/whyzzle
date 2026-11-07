@@ -1,0 +1,236 @@
+{
+  "id": "dai-pedir-com-especificacao",
+  "order": 3,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "especificacao",
+    "prompt",
+    "testes",
+    "exemplos"
+  ],
+  "requires": [
+    "dai-contexto"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "pedir",
+      "en": "request"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "text",
+      "default": {
+        "pt": "faz a função do preço do bolo (R$ 45 o kg)",
+        "en": "write the cake price function (R$ 45 per kg)"
+      },
+      "examples": []
+    },
+    "flags": [
+      {
+        "name": "inputs",
+        "alias": {
+          "pt": "entradas",
+          "en": "inputs"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "rules",
+        "alias": {
+          "pt": "regras",
+          "en": "rules"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "examples",
+        "alias": {
+          "pt": "exemplos",
+          "en": "examples"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "edges",
+        "alias": {
+          "pt": "limites",
+          "en": "edges"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "constraints",
+        "alias": {
+          "pt": "restricoes",
+          "en": "constraints"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "hardcoded"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "compute": {
+        "hard": "examples && !rules",
+        "typeOk": "inputs || examples",
+        "p1": "typeOk",
+        "p2": "typeOk && rules && !hard",
+        "p3": "hard || (typeOk && rules && examples)",
+        "p4": "typeOk && !hard && (rules || edges)",
+        "p5": "edges && !hard",
+        "passed": "(p1 ? 1 : 0) + (p2 ? 1 : 0) + (p3 ? 1 : 0) + (p4 ? 1 : 0) + (p5 ? 1 : 0)",
+        "specItems": "(inputs ? 1 : 0) + (rules ? 1 : 0) + (examples ? 1 : 0) + (edges ? 1 : 0) + (constraints ? 1 : 0)",
+        "newDep": "!constraints"
+      },
+      "cases": [
+        {
+          "when": "passed == 5 && !newDep",
+          "flags": [
+            "allPass"
+          ]
+        },
+        {
+          "when": "passed <= 1",
+          "flags": [
+            "vague"
+          ]
+        },
+        {
+          "when": "hard",
+          "flags": [
+            "hardcoded"
+          ]
+        },
+        {
+          "when": "newDep",
+          "flags": [
+            "addedDep"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "passed": "passed",
+            "items": "specItems"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@passed",
+              "value": "=passed + ' / 5'",
+              "tone": "=passed == 5 ? 'ok' : (passed >= 3 ? 'warn' : 'bad')"
+            },
+            {
+              "label": "@items",
+              "value": "=specItems + ' / 5'",
+              "tone": "info"
+            },
+            {
+              "label": "@deps",
+              "value": "=newDep ? '@depYes' : '@depNo'",
+              "tone": "=newDep ? 'warn' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@code",
+          "lines": [
+            "=newDep ? '@cDep' : '@cNoDep'",
+            "@cSig",
+            "=hard ? '@cHard1' : (edges ? '@cEdge' : '@cNoEdge')",
+            "=hard ? '@cHard2' : ((rules || edges) ? '@cMin' : '@cNoMin')",
+            "=hard ? '@cHard3' : '@cBase'",
+            "=hard ? '@cEmpty' : (rules ? (examples ? '@cDiscOk' : '@cDiscBad') : '@cNoDisc')",
+            "=hard ? '@cEmpty' : (rules ? (examples ? '@cFee' : '@cEmpty') : '@cNoFee')",
+            "=hard ? '@cEmpty' : (typeOk ? '@cRet' : '@cRetStr')",
+            "}"
+          ]
+        },
+        {
+          "type": "checks",
+          "label": "@tests",
+          "items": [
+            {
+              "label": "@t1",
+              "ok": "=p1",
+              "why": "@w1"
+            },
+            {
+              "label": "@t2",
+              "ok": "=p2",
+              "why": "@w2"
+            },
+            {
+              "label": "@t3",
+              "ok": "=p3",
+              "why": "@w3"
+            },
+            {
+              "label": "@t4",
+              "ok": "=p4",
+              "why": "@w4"
+            },
+            {
+              "label": "@t5",
+              "ok": "=p5",
+              "why": "@w5"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=hard",
+          "tone": "bad",
+          "text": "@hardNote"
+        },
+        {
+          "type": "note",
+          "when": "=passed == 5 && !newDep",
+          "tone": "ok",
+          "text": "@allNote"
+        },
+        {
+          "type": "note",
+          "when": "=passed == 5 && newDep",
+          "tone": "warn",
+          "text": "@depNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "none",
+      "some",
+      "all"
+    ],
+    "answer": "none"
+  }
+}

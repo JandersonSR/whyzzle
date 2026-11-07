@@ -1,0 +1,105 @@
+{
+  "title": "Quando não usar IA",
+  "subtitle": "Aprender, segredos, tarefas minúsculas e código de segurança",
+  "mission": "O Caio é estagiário da padaria e estuda programação à noite. Ele quer usar IA em tudo. Ajude o Caio a decidir, tarefa por tarefa, se a IA deve fazer por ele, explicar para ele fazer, ou ficar de fora.",
+  "predict": {
+    "question": "se a IA resolve o exercício de lógica por ele, como o Caio chega na prova da semana que vem?",
+    "options": {
+      "same": "Igual: o exercício foi entregue",
+      "worse": "Pior: ele não treinou",
+      "better": "Melhor: viu a resposta certa"
+    }
+  },
+  "feedback": {
+    "right": "isso. Um estudo com alunos de ensino médio (Bastani e colegas) viu exatamente isso: com IA liberada, os exercícios melhoraram, mas na prova sem IA quem usou para pegar respostas foi pior. Com a IA configurada como tutora, o prejuízo praticamente sumiu.",
+    "wrong": "pior. Exercício existe para treinar o cérebro; se a IA treina no seu lugar, quem fica forte é ela. Um estudo com alunos de ensino médio (Bastani e colegas) viu isso na prova feita sem IA.",
+    "skipped": "sem palpite? Olha o \"quanto você aprendeu\" com a IA fazendo tudo."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com \"IA faz por você\" e depois troque para tutor.",
+    "cmd": "palpite anotado. Rode como está e depois troque para --modo tutor."
+  },
+  "tryNext": {
+    "ui": "Agora a tarefa do botão: com IA demora mais do que na mão. E a da senha: o melhor é tutor + biblioteca conhecida + revisão.",
+    "cmd": "Rode decidir \"Trocar o texto do botão de Enviar para Encomendar\" --modo sem e compare com --modo fazer."
+  },
+  "why": {
+    "simples": "IA é ferramenta, não piloto automático da vida. Quatro sinais de \"pare e pense\": (1) quando o objetivo é você aprender; (2) quando teria que colar senha, chave ou dado de cliente; (3) quando fazer na mão é mais rápido do que explicar; (4) quando um erro pode machucar alguém (dinheiro, senha, saúde).\nNesses casos, use a IA como professora, com dados de mentira, ou não use.",
+    "dev": "Segredos: nunca cole .env, chaves ou dados pessoais em ferramenta que sua empresa não aprovou; mascare os valores e, se vazou, troque a chave (apagar a conversa não desfaz). Código de segurança (senha, criptografia, permissão): use bibliotecas consagradas e revisão de quem entende; a IA ajuda a explicar, não a inventar.\nTarefa minúscula: o custo de explicar e revisar existe. Domínio que você não domina: se não consegue avaliar a resposta, não consegue revisar o código, então aprenda primeiro.",
+    "especialista": "A pergunta certa não é \"IA sim ou não\", é \"quem precisa saber fazer isso daqui a 6 meses?\" e \"o que acontece se estiver errado?\". Times maduros escrevem isso numa política: quais ferramentas são aprovadas, que dados podem entrar, quais áreas exigem revisão especializada.\nPara quem está aprendendo, o modo tutor tem evidência a favor: no estudo de Bastani e colegas com alunos de ensino médio, a IA que dava dicas em vez de respostas evitou boa parte da perda de aprendizado. Configure isso no próprio pedido (\"não me dê a resposta, me faça perguntas\") ou em instruções personalizadas."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha a tarefa do .env e \"IA faz por você\".",
+      "cmd": "hora de quebrar: rode a tarefa do .env com --modo fazer."
+    },
+    "success": "Quebrou: o .env inteiro, com senha do banco e chave de API, foi colado numa ferramenta não aprovada. Resolveu em {mins} minutos, e agora a padaria precisa trocar todas as chaves. Rapidez não compensa segredo vazado.",
+    "calm": "Nada vazou. Para quebrar, cole o arquivo com segredos e deixe a IA fazer tudo."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma tarefa e um modo; a cena atualiza sozinha.",
+      "A linha destacada da tabela é o melhor modo para aquela tarefa.",
+      "Tarefa do .env + \"IA faz por você\"."
+    ],
+    "cmd": [
+      "A tarefa vai entre aspas depois de decidir.",
+      "--modo aceita fazer, tutor ou sem.",
+      "decidir \"Colar o .env de produção para achar o erro de conexão\" --modo fazer"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "“{value}” não é um modo daqui. Opções: {options}."
+  },
+  "controls": {
+    "arg": "Tarefa do Caio",
+    "mode": "Modo"
+  },
+  "scene": {
+    "label": "Usar ou não usar",
+    "empty": "Rode para decidir.",
+    "mins": "minutos",
+    "learn": "o quanto você aprendeu",
+    "risk": "risco",
+    "r0": "baixo",
+    "r1": "médio",
+    "r2": "alto",
+    "r3": "vazou segredo",
+    "table": "Os três modos nesta tarefa",
+    "mode": "modo",
+    "m_do": "IA faz por você",
+    "m_tutor": "IA explica, você faz",
+    "m_none": "sem IA",
+    "best_do": "Melhor aqui: deixar a IA fazer.",
+    "best_tutor": "Melhor aqui: IA como tutora, você no controle.",
+    "best_none": "Melhor aqui: fazer sem IA.",
+    "n_learn_do": "A IA resolveu, você copiou e entregou em 5 minutos. Na prova, sem IA, a cabeça está vazia: o exercício existia para treinar você, não para produzir uma resposta.",
+    "n_learn_tutor": "Você pediu: \"não me dê a resposta, me faça perguntas e me dê dicas\". Demorou mais, e quem aprendeu foi você.",
+    "n_learn_none": "Sozinho também funciona, só demora mais quando você empaca. Uma dica de vez em quando (modo tutor) costuma ser o melhor dos dois mundos.",
+    "n_secret_do": "Você colou senha do banco e chave de API numa ferramenta que não foi aprovada para isso. Agora o segredo saiu da sua máquina, e a única correção segura é trocar as chaves.",
+    "n_secret_tutor": "Você descreveu o erro e o formato da configuração com valores falsos (SENHA=xxx). A IA ajudou e nenhum segredo saiu.",
+    "n_secret_none": "Seguro, mas lento. Mascarar os valores e pedir ajuda costuma resolver mais rápido sem risco.",
+    "n_tiny_do": "Explicar a tarefa, esperar e revisar levou 3 minutos. Trocar uma palavra na mão leva 1.",
+    "n_tiny_tutor": "Pedir explicação para trocar uma palavra é exagero. Às vezes o mais rápido é só fazer.",
+    "n_tiny_none": "Achou o texto, trocou, conferiu na tela. Um minuto. Nem toda tarefa precisa de IA.",
+    "n_critical_do": "A IA escreveu uma comparação de senha caseira e você aceitou. Código de segurança \"que parece funcionar\" é o mais perigoso: falha em silêncio.",
+    "n_critical_tutor": "Você usou a IA para entender as opções, escolheu uma biblioteca conhecida de hash de senha e pediu revisão de alguém experiente. Mais lento, e é assim que se faz.",
+    "n_critical_none": "Sozinho, sem experiência em segurança, o risco continua. O caminho é biblioteca conhecida + revisão, com ou sem IA."
+  },
+  "data": {
+    "kinds": {
+      "Fazer o exercício de lógica da aula de hoje": "learn",
+      "Colar o .env de produção para achar o erro de conexão": "secret",
+      "Trocar o texto do botão de Enviar para Encomendar": "tiny",
+      "Escrever a função que confere a senha do caixa": "critical"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Abra um chat de IA e cole um exercício de programação do seu curso com o pedido: não me dê a resposta; me faça uma pergunta de cada vez e me dê uma dica só quando eu pedir.",
+      "Resolva o exercício conversando assim até o fim, sem pedir a solução.",
+      "Procure a política de uso de IA da sua escola ou empresa (ou peça para quem cuida disso) e anote: quais ferramentas são aprovadas e que dados não podem entrar."
+    ],
+    "ok": "você terminou o exercício sabendo explicar cada passo com as suas palavras, e sabe dizer uma coisa que nunca deve colar numa IA no seu trabalho ou escola."
+  }
+}

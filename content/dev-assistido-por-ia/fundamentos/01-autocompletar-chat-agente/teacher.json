@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Distinguir autocompletar, chat e agente.",
+      "Escolher a ferramenta pelo tamanho da tarefa.",
+      "Perceber que mais autonomia pede mais conferência."
+    ],
+    "minutes": 20,
+    "activity": "Escreva 6 tarefas de programação no quadro (de \"fechar um parêntese\" a \"trocar o nome de um campo no sistema todo\"). Em grupos, a turma decide qual modo usar em cada uma e justifica.",
+    "discussion": [
+      "Por que não usar o agente para tudo?",
+      "O que você confere depois que um agente diz \"terminei\"?"
+    ],
+    "misconceptions": [
+      "\"O agente é a versão melhor do autocompletar.\" São ferramentas para tamanhos diferentes de tarefa; agente em tarefa pequena só gasta tempo."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell autocomplete, chat and agent apart.",
+      "Pick the tool by the size of the job.",
+      "Notice that more autonomy needs more checking."
+    ],
+    "minutes": 20,
+    "activity": "Write 6 programming jobs on the board (from \"close a parenthesis\" to \"rename a field across the whole system\"). In groups, the class decides which mode fits each one and explains why.",
+    "discussion": [
+      "Why not use the agent for everything?",
+      "What do you check after an agent says \"done\"?"
+    ],
+    "misconceptions": [
+      "\"The agent is a better autocomplete.\" They are tools for different job sizes; an agent on a tiny job just wastes time."
+    ]
+  }
+}

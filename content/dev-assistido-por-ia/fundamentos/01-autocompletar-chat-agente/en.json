@@ -1,0 +1,117 @@
+{
+  "title": "Autocomplete × chat × agent",
+  "subtitle": "Three ways to have AI in the editor, each sized for a different job",
+  "mission": "Bia looks after the order app of Pão de Mel Bakery. Today she has three jobs: finish one line, understand a mysterious NaN and rename a field across 12 files. Pick the right tool for each and see what’s left for her to do by hand.",
+  "predict": {
+    "question": "job: rename preco to valor across 12 files and run the tests. Which mode does it without Bia hunting files one by one?",
+    "options": {
+      "autocomplete": "Autocomplete (the grey text that shows up as you type)",
+      "chat": "Chat (you ask, it answers in the side panel)",
+      "agent": "Agent (it edits files and runs commands)"
+    }
+  },
+  "feedback": {
+    "right": "right! The agent edited all 12 files and ran the tests. Autocomplete only sees the code near your cursor, and chat suggests but you do the pasting.",
+    "wrong": "look at the table: only the agent reaches 12 files and runs the tests. Autocomplete touches the code near your cursor; chat talks and suggests, but doesn’t open files for you.",
+    "skipped": "no guess, that’s fine. Look at the table: each mode has a reach, and only one gets to 12 files."
+  },
+  "coach": {
+    "ui": "guess noted. Run it with the agent, then switch to autocomplete and chat on the same job.",
+    "cmd": "guess noted. Run the command as it is, then switch --tool to autocomplete and chat."
+  },
+  "tryNext": {
+    "ui": "Now pick \"Finish the line...\" and use the agent. It works, but it’s a cannon for a mosquito: look at the minutes.",
+    "cmd": "Run use \"Finish the line that computes the discounted price\" --tool agent and compare with autocomplete."
+  },
+  "why": {
+    "simples": "Think of three kitchen helpers. Autocomplete finishes your sentence (\"…and a pinch of salt\"). Chat is the colleague you call to ask \"why did my cake sink?\". The agent gets the whole job: \"bake the 12 batches and tell me when they pass the taste test\".\nNone is better than the others: each fits a job size. And the more the AI does on its own, the more you need to check at the end.",
+    "dev": "Autocomplete (GitHub Copilot calls it inline suggestions; Cursor calls it Tab) predicts the next piece from the code around your cursor. It’s fast and cheap, but it doesn’t plan or run anything.\nChat (Copilot Chat, Cursor’s chat panel, Claude.ai) answers questions and proposes snippets using what you showed it. An agent (Copilot agent mode, Cursor’s Agent, Claude Code) reads the project, edits several files and runs commands such as the tests, asking for your confirmation depending on settings. Rule of thumb: one-line job → autocomplete; question → chat; multi-file change with verification → agent.",
+    "especialista": "All three use language models; what changes is the loop around them. The agent runs a plan → use a tool (read a file, edit, run a command) → observe the result → repeat cycle until it thinks it’s done. That’s why it handles bigger jobs and also makes bigger mistakes: one wrong step becomes ten wrong files.\nThere are also agents that work outside your editor: GitHub has a cloud agent that researches the repository, makes a plan and changes code on a branch for you to review. The more autonomy, the more least-privilege permissions, tests that prove the result and diff review before accepting matter."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick the 12-file rename and use autocomplete.",
+      "cmd": "time to break it: run the rename job with --tool autocomplete."
+    },
+    "success": "Broken: autocomplete changed {done} file and left {left} for Bia to hunt by hand, with no tests run. A small tool for a big job turns into grunt work (and the forgotten file shows up in production).",
+    "calm": "The tool handled this job. To break it, give a big job to a small tool."
+  },
+  "hints": {
+    "ui": [
+      "Pick a job and a tool; the scene updates by itself.",
+      "The table shows each mode’s reach and whether it fits the chosen job.",
+      "12-file rename job + autocomplete tool."
+    ],
+    "cmd": [
+      "The job goes in quotes after use.",
+      "--tool takes autocomplete, chat or agent.",
+      "use \"Rename preco to valor across the 12 files and run the tests\" --tool autocomplete"
+    ]
+  },
+  "errors": {
+    "notInEnum.tool": "“{value}” isn’t a tool here. Options: {options}."
+  },
+  "controls": {
+    "arg": "Bia’s job",
+    "tool": "Tool"
+  },
+  "scene": {
+    "label": "Who does what",
+    "empty": "Run to see who does what.",
+    "you": "Bia asks",
+    "result": "Result",
+    "t_autocomplete": "Autocomplete",
+    "t_chat": "Chat",
+    "t_agent": "Agent",
+    "r_autocomplete": "the code near the cursor",
+    "r_chat": "talks and suggests snippets",
+    "r_agent": "many files + runs commands",
+    "resShort": "can’t reach it",
+    "resOver": "works, but overkill",
+    "resFit": "right size",
+    "done": "files the AI changed",
+    "left": "files left for you",
+    "mins": "Bia’s minutes (estimate)",
+    "tests": "tests run?",
+    "yes": "yes",
+    "no": "no",
+    "table": "The three modes on this job",
+    "mode": "mode",
+    "reach": "reach",
+    "forThis": "for this job",
+    "v_short": "too small",
+    "v_over": "too big",
+    "v_fit": "fits",
+    "missedNote": "The tool can’t reach the job: {left} file(s) left to do by hand, and nobody ran the tests.",
+    "overNote": "It works, but explaining the job and reviewing the result takes longer than the job itself ({mins} min).",
+    "fitNote": "Tool sized to the job: about {mins} min of Bia’s time, including checking the result."
+  },
+  "data": {
+    "tasks": {
+      "Finish the line that computes the discounted price": {
+        "need": 1,
+        "files": 1
+      },
+      "Understand why the cart total shows NaN": {
+        "need": 2,
+        "files": 0
+      },
+      "Rename preco to valor across the 12 files and run the tests": {
+        "need": 3,
+        "files": 12
+      }
+    },
+    "fallbackTask": {
+      "need": 2,
+      "files": 0
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Open a project in VS Code with GitHub Copilot (or in Cursor). In a file, type the comment // sum the price of the cart items and wait: the grey text that shows up is autocomplete. Accept it with Tab.",
+      "Open the tool’s chat and ask: why can this function return NaN? Notice it answers but doesn’t change any file on its own.",
+      "Switch to agent mode and ask: rename the variable total to orderTotal in every file and run the tests. Read the list of files and the commands it wants to run before approving."
+    ],
+    "ok": "you saw all three behaviors: grey text on the line, an answer in the panel and an agent that lists the changed files and asks to run the tests."
+  }
+}

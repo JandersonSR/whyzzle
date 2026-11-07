@@ -1,0 +1,288 @@
+{
+  "id": "dai-quando-nao-usar",
+  "order": 5,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 12,
+  "tags": [
+    "quando-nao-usar",
+    "aprendizado",
+    "segredos",
+    "seguranca"
+  ],
+  "requires": [
+    "dai-revisar-o-que-a-ia-escreveu"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "decidir",
+      "en": "decide"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Fazer o exercício de lógica da aula de hoje",
+        "en": "Do today’s logic class exercise"
+      },
+      "examples": [
+        {
+          "pt": "Fazer o exercício de lógica da aula de hoje",
+          "en": "Do today’s logic class exercise"
+        },
+        {
+          "pt": "Colar o .env de produção para achar o erro de conexão",
+          "en": "Paste the production .env to find the connection error"
+        },
+        {
+          "pt": "Trocar o texto do botão de Enviar para Encomendar",
+          "en": "Change the button text from Send to Order"
+        },
+        {
+          "pt": "Escrever a função que confere a senha do caixa",
+          "en": "Write the function that checks the cashier password"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "mode",
+        "alias": {
+          "pt": "modo",
+          "en": "mode"
+        },
+        "type": "enum",
+        "default": "do",
+        "ui": "select",
+        "options": [
+          {
+            "id": "do",
+            "pt": "fazer",
+            "en": "do"
+          },
+          {
+            "id": "tutor",
+            "pt": "tutor",
+            "en": "tutor"
+          },
+          {
+            "id": "none",
+            "pt": "sem",
+            "en": "none"
+          }
+        ]
+      }
+    ]
+  },
+  "break": {
+    "flag": "leak"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "outcomes": {
+          "learn": {
+            "do": {
+              "min": 5,
+              "learn": 5,
+              "risk": 0
+            },
+            "tutor": {
+              "min": 25,
+              "learn": 80,
+              "risk": 0
+            },
+            "none": {
+              "min": 40,
+              "learn": 70,
+              "risk": 0
+            }
+          },
+          "secret": {
+            "do": {
+              "min": 3,
+              "learn": 10,
+              "risk": 3
+            },
+            "tutor": {
+              "min": 10,
+              "learn": 50,
+              "risk": 0
+            },
+            "none": {
+              "min": 30,
+              "learn": 40,
+              "risk": 0
+            }
+          },
+          "tiny": {
+            "do": {
+              "min": 3,
+              "learn": 0,
+              "risk": 0
+            },
+            "tutor": {
+              "min": 4,
+              "learn": 5,
+              "risk": 0
+            },
+            "none": {
+              "min": 1,
+              "learn": 0,
+              "risk": 0
+            }
+          },
+          "critical": {
+            "do": {
+              "min": 10,
+              "learn": 10,
+              "risk": 2
+            },
+            "tutor": {
+              "min": 50,
+              "learn": 60,
+              "risk": 1
+            },
+            "none": {
+              "min": 120,
+              "learn": 50,
+              "risk": 1
+            }
+          }
+        },
+        "bestOf": {
+          "learn": "tutor",
+          "secret": "tutor",
+          "tiny": "none",
+          "critical": "tutor"
+        }
+      },
+      "compute": {
+        "kind": "lookup(kinds, text, 'learn')",
+        "row": "lookup(outcomes, kind, outcomes.learn)",
+        "sel": "lookup(row, mode, row.do)",
+        "best": "lookup(bestOf, kind, 'tutor')",
+        "isBest": "mode == best"
+      },
+      "cases": [
+        {
+          "when": "kind == 'secret' && mode == 'do'",
+          "flags": [
+            "leak"
+          ]
+        },
+        {
+          "when": "kind == 'learn' && mode == 'do'",
+          "flags": [
+            "noLearning"
+          ]
+        },
+        {
+          "when": "kind == 'tiny' && mode != 'none'",
+          "flags": [
+            "slower"
+          ]
+        },
+        {
+          "when": "kind == 'critical' && mode == 'do'",
+          "flags": [
+            "risky"
+          ]
+        },
+        {
+          "when": "isBest",
+          "flags": [
+            "bestPick"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "mins": "sel.min",
+            "learnPct": "sel.learn"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mins",
+              "value": "=sel.min",
+              "format": "min",
+              "tone": "info"
+            },
+            {
+              "label": "@learn",
+              "value": "=sel.learn",
+              "format": "pct",
+              "tone": "=kind == 'learn' ? (sel.learn < 30 ? 'bad' : 'ok') : 'neutral'"
+            },
+            {
+              "label": "@risk",
+              "value": "='@r' + sel.risk",
+              "tone": "=sel.risk >= 2 ? 'bad' : (sel.risk == 1 ? 'warn' : 'ok')"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@mode",
+            "@mins",
+            "@learn",
+            "@risk"
+          ],
+          "rows": [
+            [
+              "@m_do",
+              "=row.do.min + ' min'",
+              "=row.do.learn + '%'",
+              "='@r' + row.do.risk"
+            ],
+            [
+              "@m_tutor",
+              "=row.tutor.min + ' min'",
+              "=row.tutor.learn + '%'",
+              "='@r' + row.tutor.risk"
+            ],
+            [
+              "@m_none",
+              "=row.none.min + ' min'",
+              "=row.none.learn + '%'",
+              "='@r' + row.none.risk"
+            ]
+          ],
+          "tones": [
+            "=mode == 'do' ? (best == 'do' ? 'ok' : 'warn') : (best == 'do' ? 'info' : 'dim')",
+            "=mode == 'tutor' ? (best == 'tutor' ? 'ok' : 'warn') : (best == 'tutor' ? 'info' : 'dim')",
+            "=mode == 'none' ? (best == 'none' ? 'ok' : 'warn') : (best == 'none' ? 'info' : 'dim')"
+          ],
+          "caption": "='@best_' + best"
+        },
+        {
+          "type": "note",
+          "tone": "=isBest ? 'ok' : ((kind == 'secret' && mode == 'do') || sel.risk >= 2 ? 'bad' : 'warn')",
+          "text": "='@n_' + kind + '_' + mode"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "same",
+      "worse",
+      "better"
+    ],
+    "answer": "worse"
+  }
+}

@@ -124,11 +124,10 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 2. Desenvolvimento assistido por IA
 - **Fundamentos**
-  - [ ] → F1 · IA no editor (6): autocompletar × chat × agente; contexto que o modelo enxerga; pedir com especificação; revisar o que a IA escreveu; quando não usar; ética e autoria.
-    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão, testes finais e publicação.
-  - [ ] Missão: corrigir um bug pequeno com ajuda da IA, provando com teste.
+  - [x] F1 · IA no editor (6): autocompletar × chat × agente; contexto que o modelo enxerga; pedir com especificação; revisar o que a IA escreveu; quando não usar; ética e autoria.
+  - [x] Missão: corrigir um bug pequeno com ajuda da IA, provando com teste.
 - **Prática**
-  - [ ] P1 · Fluxo com agentes de código (7): especificação antes do código; arquivos de regras do repositório; tarefas pequenas e verificáveis; testes como contrato; refatoração assistida; legado e código desconhecido; vários agentes em paralelo.
+  - [ ] → P1 · Fluxo com agentes de código (7): especificação antes do código; arquivos de regras do repositório; tarefas pequenas e verificáveis; testes como contrato; refatoração assistida; legado e código desconhecido; vários agentes em paralelo.
   - [ ] P2 · Revisão e qualidade (6): revisão de PR com IA; checklists de segurança; testes gerados e seus limites; documentação viva; medição de retrabalho; prompts do time versionados.
   - [ ] Missão: entregar uma feature num repositório real com spec, testes e PR revisado.
 - **Produção**
@@ -409,6 +408,7 @@ Depende das etapas de plataforma PL1 a PL3.
 | nov/2026 | Plataforma · PL2 · modelo declarativo + 9 peças de cena reutilizáveis (galeria em /galeria) | Publicada |
 | nov/2026 | Plataforma · PL3 · executores no navegador (Transformers.js 4.3.2, WebLLM 0.2.87) e sua chave (Anthropic, OpenAI, Gemini, compatível); ativos nos passos 2 e 4 dos Fundamentos | Publicada |
 | nov/2026 | IA aplicada · Prática · P1 · 7 lições com modelos reais (tokenizador do GPT-4o, multilingual-e5-small, Llama 3.2 1B ou sua chave), todas só com dados | Publicada |
+| nov/2026 | Desenvolvimento assistido por IA · Fundamentos F1 + missão (padaria Pão de Mel: autocompletar × chat × agente, contexto, especificação, revisão, quando não usar, ética e autoria; missão do bug 0,1 × 3) | Publicada |
 | nov/2026 | IA aplicada · Prática · P2 · RAG de verdade: 8 lições sobre o manual da Aurora (BM25 real, embeddings e5 no navegador, reranker por LLM, citação e recusa, recall@k) | Publicada |
 
 **Próxima etapa:** IA aplicada · Prática · P3 (Prompts e agentes para o trabalho).

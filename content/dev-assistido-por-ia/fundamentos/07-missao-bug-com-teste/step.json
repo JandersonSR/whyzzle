@@ -1,0 +1,220 @@
+{
+  "id": "dai-missao-bug-com-teste",
+  "order": 7,
+  "track": "fundamentos",
+  "kind": "mission",
+  "minutes": 20,
+  "tags": [
+    "missao",
+    "bug",
+    "testes",
+    "revisao",
+    "contexto",
+    "especificacao"
+  ],
+  "requires": [
+    "dai-contexto",
+    "dai-pedir-com-especificacao",
+    "dai-revisar-o-que-a-ia-escreveu"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "consertar",
+      "en": "fix"
+    },
+    "arg": {
+      "name": "text",
+      "required": true,
+      "ui": "examples",
+      "default": {
+        "pt": "conserta o preço aí",
+        "en": "fix the price thing"
+      },
+      "examples": [
+        {
+          "pt": "conserta o preço aí",
+          "en": "fix the price thing"
+        },
+        {
+          "pt": "3 pães de R$ 0,10 devem dar R$ 0,30; calcule em centavos",
+          "en": "3 rolls at R$ 0.10 must total R$ 0.30; compute in cents"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "testFirst",
+        "alias": {
+          "pt": "teste-primeiro",
+          "en": "test-first"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "ctx",
+        "alias": {
+          "pt": "contexto",
+          "en": "context"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "price",
+            "pt": "preco",
+            "en": "price"
+          },
+          {
+            "id": "test",
+            "pt": "teste",
+            "en": "test"
+          },
+          {
+            "id": "all",
+            "pt": "tudo",
+            "en": "all"
+          }
+        ],
+        "default": [
+          "all"
+        ],
+        "ui": "checkboxes"
+      },
+      {
+        "name": "review",
+        "alias": {
+          "pt": "revisar",
+          "en": "review"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "run",
+        "alias": {
+          "pt": "rodar",
+          "en": "run"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "none",
+            "pt": "nenhum",
+            "en": "none"
+          },
+          {
+            "id": "new",
+            "pt": "novo",
+            "en": "new"
+          },
+          {
+            "id": "suite",
+            "pt": "todos",
+            "en": "suite"
+          }
+        ],
+        "default": "none",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "fixed"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "compute": {
+        "low": "lower(text) + ' '",
+        "k1": "includes(low, kw[0]) || includes(low, kw[1]) || includes(low, kw[2]) || includes(low, kw[3])",
+        "c1": "testFirst",
+        "c2": "includes(ctx, 'price') && includes(ctx, 'test') && !includes(ctx, 'all')",
+        "c3": "k1",
+        "c4": "review",
+        "c5": "run == 'suite' && c2 && c3 && review",
+        "codeOk": "c2 && c3",
+        "done": "(c1 ? 1 : 0) + (c2 ? 1 : 0) + (c3 ? 1 : 0) + (c4 ? 1 : 0) + (c5 ? 1 : 0)"
+      },
+      "cases": [
+        {
+          "when": "done == 5",
+          "flags": [
+            "fixed"
+          ]
+        },
+        {
+          "when": "codeOk",
+          "flags": [
+            "receiptFixed"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "done": "done"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@receipt",
+              "value": "=codeOk ? '@ok030' : '@bad030'",
+              "tone": "=codeOk ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@criteria",
+              "value": "=done + ' / 5'",
+              "tone": "=done == 5 ? 'ok' : (done >= 3 ? 'warn' : 'bad')"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@term",
+          "lines": "=concat(c1 ? ['$ npm test preco.test.ts', '@redFirst'] : ['@noRepro'], run == 'none' ? ['@notRun'] : ['$ npm test' + (run == 'new' ? ' preco.test.ts' : '')], run == 'none' ? [] : [codeOk ? (c4 ? '@greenNew' : '@greenWeak') : '@stillRed'], run == 'suite' && codeOk ? [c4 ? '@greenOld' : '@redOld'] : [])"
+        },
+        {
+          "type": "checks",
+          "label": "@checksLabel",
+          "items": [
+            {
+              "label": "@k1",
+              "ok": "=c1",
+              "why": "@w1"
+            },
+            {
+              "label": "@k2",
+              "ok": "=c2",
+              "why": "@w2"
+            },
+            {
+              "label": "@k3",
+              "ok": "=c3",
+              "why": "@w3"
+            },
+            {
+              "label": "@k4",
+              "ok": "=c4",
+              "why": "@w4"
+            },
+            {
+              "label": "@k5",
+              "ok": "=c5",
+              "why": "@w5"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

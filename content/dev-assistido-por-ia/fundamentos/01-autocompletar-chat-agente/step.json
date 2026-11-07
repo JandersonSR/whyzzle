@@ -1,0 +1,260 @@
+{
+  "id": "dai-autocompletar-chat-agente",
+  "order": 1,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 12,
+  "tags": [
+    "editor",
+    "autocompletar",
+    "chat",
+    "agente"
+  ],
+  "requires": [],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "usar",
+      "en": "use"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Renomear preco para valor nos 12 arquivos e rodar os testes",
+        "en": "Rename preco to valor across the 12 files and run the tests"
+      },
+      "examples": [
+        {
+          "pt": "Completar a linha que calcula o preço com desconto",
+          "en": "Finish the line that computes the discounted price"
+        },
+        {
+          "pt": "Entender por que o total do carrinho dá NaN",
+          "en": "Understand why the cart total shows NaN"
+        },
+        {
+          "pt": "Renomear preco para valor nos 12 arquivos e rodar os testes",
+          "en": "Rename preco to valor across the 12 files and run the tests"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "tool",
+        "alias": {
+          "pt": "ferramenta",
+          "en": "tool"
+        },
+        "type": "enum",
+        "default": "agent",
+        "ui": "select",
+        "options": [
+          {
+            "id": "autocomplete",
+            "pt": "autocompletar",
+            "en": "autocomplete"
+          },
+          {
+            "id": "chat",
+            "pt": "chat",
+            "en": "chat"
+          },
+          {
+            "id": "agent",
+            "pt": "agente",
+            "en": "agent"
+          }
+        ]
+      }
+    ]
+  },
+  "break": {
+    "flag": "missed"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "reachOf": {
+          "autocomplete": 1,
+          "chat": 2,
+          "agent": 3
+        },
+        "minutesOf": {
+          "autocomplete": [
+            1,
+            20,
+            45
+          ],
+          "chat": [
+            3,
+            4,
+            30
+          ],
+          "agent": [
+            4,
+            6,
+            8
+          ]
+        }
+      },
+      "compute": {
+        "task": "lookup(tasks, text, fallbackTask)",
+        "need": "task.need",
+        "nFiles": "task.files",
+        "reach": "lookup(reachOf, tool, 1)",
+        "short": "reach < need",
+        "over": "reach > need",
+        "done": "tool == 'agent' ? nFiles : (tool == 'autocomplete' ? min(1, nFiles) : 0)",
+        "left": "nFiles - done",
+        "mins": "lookup(minutesOf, tool, [0, 0, 0])[need - 1]",
+        "ranTests": "tool == 'agent' && need == 3",
+        "vA": "1 < need ? 'short' : (1 > need ? 'over' : 'fit')",
+        "vC": "2 < need ? 'short' : (2 > need ? 'over' : 'fit')",
+        "vG": "3 < need ? 'short' : (3 > need ? 'over' : 'fit')"
+      },
+      "cases": [
+        {
+          "when": "short",
+          "flags": [
+            "missed"
+          ]
+        },
+        {
+          "when": "over",
+          "flags": [
+            "overkill"
+          ]
+        },
+        {
+          "when": "!short && !over",
+          "flags": [
+            "fit"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "done": "done",
+            "left": "left",
+            "files": "nFiles",
+            "mins": "mins"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@you",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "='@t_' + tool",
+              "sub": "='@r_' + tool",
+              "tone": "neutral"
+            },
+            {
+              "label": "@result",
+              "sub": "=short ? '@resShort' : (over ? '@resOver' : '@resFit')",
+              "tone": "=short ? 'bad' : (over ? 'warn' : 'ok')"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@done",
+              "value": "=done",
+              "format": "int",
+              "tone": "=done > 0 ? 'ok' : 'dim'"
+            },
+            {
+              "label": "@left",
+              "value": "=left",
+              "format": "int",
+              "tone": "=left > 0 ? 'bad' : 'dim'"
+            },
+            {
+              "label": "@mins",
+              "value": "=mins",
+              "format": "min",
+              "tone": "=mins > 15 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@tests",
+              "value": "=ranTests ? '@yes' : '@no'",
+              "tone": "=ranTests ? 'ok' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@mode",
+            "@reach",
+            "@forThis"
+          ],
+          "rows": [
+            [
+              "@t_autocomplete",
+              "@r_autocomplete",
+              "='@v_' + vA"
+            ],
+            [
+              "@t_chat",
+              "@r_chat",
+              "='@v_' + vC"
+            ],
+            [
+              "@t_agent",
+              "@r_agent",
+              "='@v_' + vG"
+            ]
+          ],
+          "tones": [
+            "=tool == 'autocomplete' ? (vA == 'fit' ? 'ok' : (vA == 'short' ? 'bad' : 'warn')) : 'dim'",
+            "=tool == 'chat' ? (vC == 'fit' ? 'ok' : (vC == 'short' ? 'bad' : 'warn')) : 'dim'",
+            "=tool == 'agent' ? (vG == 'fit' ? 'ok' : (vG == 'short' ? 'bad' : 'warn')) : 'dim'"
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=short",
+          "tone": "bad",
+          "text": "@missedNote"
+        },
+        {
+          "type": "note",
+          "when": "=over",
+          "tone": "warn",
+          "text": "@overNote"
+        },
+        {
+          "type": "note",
+          "when": "=!short && !over",
+          "tone": "ok",
+          "text": "@fitNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "autocomplete",
+      "chat",
+      "agent"
+    ],
+    "answer": "agent"
+  }
+}
