@@ -1,0 +1,157 @@
+{
+  "title": "Agente com ferramentas e limites",
+  "subtitle": "O modelo propõe, o código executa e uma pessoa aprova o que é caro",
+  "mission": "O atendimento da Aurora quer um agente que resolva pedidos de reembolso: consultar o pedido, calcular o valor e devolver o dinheiro. Dê a ele só as ferramentas necessárias, um limite de passos e uma regra de aprovação humana, e descubra o que acontece quando você tira o freio.",
+  "predict": {
+    "question": "o pedido 8812 pede R$ 1.125,00 de reembolso e a política da Aurora exige aprovação humana acima de R$ 500. Com a ferramenta de reembolso liberada, o agente…",
+    "options": {
+      "refund": "Reembolsa sozinho, afinal tem a ferramenta",
+      "ask": "Monta um pedido de aprovação e espera uma pessoa",
+      "refuse": "Recusa: reembolso nunca é com agente"
+    }
+  },
+  "feedback": {
+    "right": "isso: ter a ferramenta não é ter carta branca. O código do portal confere o valor contra o limite, vê que passa de R$ 500 e para para pedir aprovação; nada é reembolsado até alguém dizer sim.",
+    "wrong": "o agente prepara o pedido e para: R$ 1.125,00 passa do limite de R$ 500, então o portal pede aprovação humana antes de mexer em dinheiro. Ele não recusa nem reembolsa sozinho.",
+    "skipped": "sem palpite? Rode o comando padrão e leia o rastro até a linha do portal."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com as três ferramentas e a aprovação em R$ 500 e leia o rastro, do pedido até o portal.",
+    "cmd": "palpite anotado. Rode o comando padrão e leia o rastro até a linha do portal."
+  },
+  "tryNext": {
+    "ui": "Agora o pedido 9001, de R$ 180,00: abaixo do limite, o reembolso sai sozinho. Autonomia onde o risco é pequeno, pessoa onde é grande.",
+    "cmd": "Rode agir \"O pedido 9001 chegou com defeito. Reembolse 90% do valor, como manda a política.\" e compare com o pedido 8812."
+  },
+  "why": {
+    "simples": "Um agente é um modelo que pode usar ferramentas em vários passos: consultar, calcular, agir. Dar uma ferramenta a ele é como dar o cartão da empresa a um estagiário: funciona, desde que haja um limite de gasto e alguém que aprove as compras grandes.\nOs limites são três: quais ferramentas existem, quantos passos ele pode dar e a partir de que valor uma pessoa precisa dizer sim.",
+    "dev": "O ciclo é sempre o mesmo: o modelo pede uma ferramenta (na API da Anthropic, a resposta vem com stop_reason \"tool_use\" e blocos de uso de ferramenta; outros provedores têm equivalentes, como finish_reason \"tool_calls\" na OpenAI), o seu código executa e devolve o resultado num tool_result, e o modelo continua até responder. Quem escreve o pedido é o modelo; quem executa é o seu código, e é lá que ficam os limites: lista de ferramentas liberadas, máximo de passos, validação dos argumentos e aprovação humana.\nSepare ferramentas de leitura (baratas, sem efeito) das de escrita (reembolsar, enviar e-mail, apagar). Escrita com dinheiro ou dados passa por confirmação, e cada chamada vai para um registro de auditoria. O parâmetro tool_choice das APIs permite forçar ou proibir ferramentas quando o fluxo exige.",
+    "especialista": "Pense em permissões mínimas: o agente age em nome de alguém e deve ter, no máximo, a permissão dessa pessoa, nunca uma credencial ampla. Resultados de ferramentas são entrada não confiável (um pedido pode trazer texto com instruções), então o limite precisa estar no código, não no prompt. Use idempotência (chave única por reembolso) para repetições não duplicarem o dinheiro, e orçamento de passos e de custo por tarefa para um laço não gastar sem fim.\nMeça o agente como sistema: taxa de tarefas concluídas, passos por tarefa, erros de ferramenta e aprovações negadas. Aprovação humana só funciona se o pedido for claro (o quê, quanto, por quê); senão vira um \"ok\" automático."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: leve \"Aprovação acima de\" até o fim da barra (R$ 2.000) e rode o pedido 8812.",
+      "cmd": "hora de quebrar: rode agir \"O pedido 8812 chegou com defeito. Reembolse 90% do valor, como manda a política.\" --aprovacao 10000"
+    },
+    "success": "Quebrou: com a aprovação só acima de R$ {approval}, o agente reembolsou R$ {amountP} sozinho, acima dos R$ {policyLimit} a partir dos quais a política exige aprovação. Nenhuma pessoa viu o pedido antes de o dinheiro sair.",
+    "calm": "{calls} chamada(s); valor R$ {amountP}; aprovação humana acima de R$ {approval}. Para quebrar, suba o limite de aprovação acima do valor do reembolso."
+  },
+  "hints": {
+    "ui": [
+      "Escolha um pedido, marque as ferramentas (consultar = lookup, calculadora = calculator, reembolsar = refund) e aperte Rodar.",
+      "\"Aprovação acima de\" é o valor a partir do qual o portal para e espera uma pessoa; \"Limite de passos\" é quantas vezes o modelo pode agir antes de desistir.",
+      "Aprovação no fim da barra (R$ 2.000) com o pedido 8812."
+    ],
+    "cmd": [
+      "O pedido vai entre aspas, depois de agir.",
+      "--ferramentas consultar (lookup), calculadora (calculator) e reembolsar (refund), separadas por vírgula e sem os parênteses (ou nenhuma); --aprovacao de 0 a 10000; --passos de 1 a 8.",
+      "agir \"O pedido 8812 chegou com defeito. Reembolse 90% do valor, como manda a política.\" --aprovacao 10000"
+    ]
+  },
+  "errors": {
+    "notInEnum.tools": "\"{value}\" não é uma ferramenta daqui. Opções: {options}. Para nenhuma, use --ferramentas nenhuma.",
+    "aboveMax.approval": "Até R$ 10.000 neste exercício.",
+    "belowMin.approval": "Use 0 para exigir aprovação em tudo.",
+    "notInteger.approval": "Use um valor inteiro em reais.",
+    "aboveMax.maxSteps": "Até 8 passos neste exercício.",
+    "belowMin.maxSteps": "Pelo menos 1 passo.",
+    "notInteger.maxSteps": "Use um número inteiro de passos."
+  },
+  "controls": {
+    "arg": "Pedido de reembolso",
+    "tools": "Ferramentas liberadas",
+    "approval": "Aprovação humana acima de (R$)",
+    "maxSteps": "Limite de passos do modelo"
+  },
+  "scene": {
+    "label": "Agente de reembolsos",
+    "empty": "Rode para ver o rastro.",
+    "trace": "Rastro (modelo → portal)",
+    "calls": "chamadas de ferramenta",
+    "amount": "reembolso proposto (R$)",
+    "approval": "aprovação acima de (R$)",
+    "chkSteps": "Terminou dentro do limite de passos",
+    "whySteps": "o limite de passos acabou antes da resposta",
+    "chkAmount": "Valor calculado com a calculadora (calculator)",
+    "whyAmount": "sem a calculadora (calculator), usou o valor cheio em vez de 90%",
+    "chkGate": "Valor alto passou por uma pessoa",
+    "whyGate": "reembolso acima de R$ {policyLimit} saiu sem aprovação humana",
+    "simNote": "Modo simulado: rastro roteirizado. Com um modelo real, o modelo faz consultas e contas de verdade (a ferramenta de reembolso é do portal, não do modelo: ele só propõe) e modelos pequenos erram o formato com frequência.",
+    "noteProposedAnyway": "O modelo propôs reembolsar um pedido fora do prazo em vez de negar. O portal barrou porque a regra está no código, mas o modelo não seguiu a política.",
+    "realLimitNote": "O modelo real não chegou a uma resposta no limite. Veja as linhas com \"?\": modelos pequenos costumam errar o formato."
+  },
+  "data": {
+    "tsep": ".",
+    "dsep": ",",
+    "denyMark": "NEGAR",
+    "policyBlockText": "portal: reembolso barrado, pedido fora do prazo da política",
+    "noLookup": "sem a ferramenta consultar (lookup): não consigo ver o pedido",
+    "stoppedText": "parei: limite de passos atingido sem resposta",
+    "proposeText": "Proposta: reembolsar ",
+    "wordOrder": "pedido",
+    "waitText": "aguardando aprovação de uma pessoa; nada foi reembolsado",
+    "doneText": "reembolso executado e registrado",
+    "noRefundText": "sem a ferramenta reembolsar (refund): proposta enviada ao financeiro",
+    "apprPrefix": "Pedido de aprovação:",
+    "requests": {
+      "O pedido 8812 chegou com defeito. Reembolse 90% do valor, como manda a política.": {
+        "id": "8812",
+        "value": 1250,
+        "amount": 1125,
+        "amountBr": "1.125,00",
+        "calcExpr": "1250*0.9",
+        "lookupResult": "Pedido 8812: 1 item, R$ 1.250,00, entregue há 12 dias, cliente Marina.",
+        "reason": "defeito, dentro do prazo de 30 dias",
+        "refundable": true,
+        "deny": ""
+      },
+      "O pedido 9001 chegou com defeito. Reembolse 90% do valor, como manda a política.": {
+        "id": "9001",
+        "value": 200,
+        "amount": 180,
+        "amountBr": "180,00",
+        "calcExpr": "200*0.9",
+        "lookupResult": "Pedido 9001: 1 item, R$ 200,00, entregue há 5 dias, cliente Paulo.",
+        "reason": "defeito, dentro do prazo de 30 dias",
+        "refundable": true,
+        "deny": ""
+      },
+      "O pedido 7700 não serviu. Reembolse o valor todo.": {
+        "id": "7700",
+        "value": 300,
+        "amount": 300,
+        "amountBr": "300,00",
+        "calcExpr": "300*1",
+        "lookupResult": "Pedido 7700: 1 item, R$ 300,00, entregue há 95 dias, cliente Bia.",
+        "reason": "fora do prazo",
+        "refundable": false,
+        "deny": "Não posso reembolsar o pedido 7700: foi entregue há 95 dias e a política só cobre até 30 dias. Encaminhei para o atendimento."
+      }
+    },
+    "unknownReq": {
+      "id": "0000",
+      "value": 0,
+      "amount": 0,
+      "amountBr": "0,00",
+      "calcExpr": "0*1",
+      "lookupResult": "pedido não encontrado",
+      "reason": "pedido não encontrado",
+      "refundable": false,
+      "deny": "Não encontrei esse pedido."
+    },
+    "registros": {
+      "8812": "Pedido 8812: 1 item, R$ 1.250,00, entregue há 12 dias, cliente Marina.",
+      "9001": "Pedido 9001: 1 item, R$ 200,00, entregue há 5 dias, cliente Paulo.",
+      "7700": "Pedido 7700: 1 item, R$ 300,00, entregue há 95 dias, cliente Bia."
+    },
+    "sysTools": "Você é o assistente de reembolsos da Aurora. Ferramentas: lookup(key) devolve os dados do pedido pelo número; calculator(expression) resolve contas com + - * /. A política só reembolsa até 30 dias após a entrega. Responda SEMPRE com um único JSON e nada mais: {\"tool\":\"lookup\",\"args\":{\"key\":\"8812\"}} ou {\"tool\":\"calculator\",\"args\":{\"expression\":\"1250*0.9\"}} ou, ao terminar, {\"answer\":\"REEMBOLSAR 8812 1125\"} (número do pedido e valor) ou {\"answer\":\"NEGAR 7700 fora do prazo\"}. Se a entrega passou de 30 dias, a resposta tem de começar com NEGAR e você não propõe reembolso. Quem executa o reembolso é o portal, não você."
+  },
+  "recipe": {
+    "steps": [
+      "Escolha um fluxo seu com ação que muda dados (reembolso, cancelamento) e liste as ferramentas em duas colunas: leitura e escrita.",
+      "Escreva o laço do agente com o SDK do seu provedor: chamar o modelo, executar só as ferramentas da lista, devolver o tool_result e parar em um máximo de passos.",
+      "Ponha a regra no código: acima de um valor, a ação de escrita não executa e gera um pedido de aprovação com o quê, quanto e por quê."
+    ],
+    "ok": "com um pedido pequeno o agente conclui sozinho; com um pedido grande ele para no pedido de aprovação, e nenhuma ação de escrita acontece sem passar pela regra."
+  }
+}

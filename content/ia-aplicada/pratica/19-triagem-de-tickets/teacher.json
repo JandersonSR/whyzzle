@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Classificar com lista fechada e categoria \"outro\".",
+      "Usar confiança como portão para uma pessoa.",
+      "Reconhecer que o limite não pega erro com muita confiança."
+    ],
+    "minutes": 20,
+    "activity": "A turma etiqueta 10 mensagens de um grupo fictício em 4 categorias; duas pessoas \"são o modelo\" e dizem a categoria e quanto têm de certeza. A turma decide o limite que manda para a professora.",
+    "discussion": [
+      "Que erro de fila é mais caro na sua empresa?",
+      "Quem revisa os tickets que passam sozinhos?"
+    ],
+    "misconceptions": [
+      "\"Confiança alta quer dizer que está certo.\" É só uma pista; modelos também erram confiantes."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Classify with a closed list and an \"other\" category.",
+      "Use confidence as a gate to a person.",
+      "Recognize that the threshold misses high-confidence errors."
+    ],
+    "minutes": 20,
+    "activity": "The class tags 10 messages from a fictional group in 4 categories; two people \"are the model\" and say the category and how sure they are. The class decides the threshold that sends to the teacher.",
+    "discussion": [
+      "Which queue mistake is the most expensive at your company?",
+      "Who reviews the tickets that go through alone?"
+    ],
+    "misconceptions": [
+      "\"High confidence means it’s right.\" It’s only a hint; models are also wrong with confidence."
+    ]
+  }
+}

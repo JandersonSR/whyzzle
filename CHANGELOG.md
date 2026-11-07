@@ -2,6 +2,7 @@
 
 Uma linha por etapa publicada, da mais recente para a mais antiga.
 
+- 2026-11-07 · IA aplicada · Prática · P3 · Prompts e agentes: 7 lições (prompt de sistema e papéis, few-shot, extração de e-mails e notas, triagem de tickets, agente com ferramentas e limites, memória e resumo, MCP), revisadas por um revisor independente; pontos de progresso quebram linha no celular.
 - 2026-11-07 · Mensageria e streaming · Fundamentos F1 + missão: 7 lições e a missão "Black Friday sem venda perdida nem cobrança duplicada", revisadas por um revisor independente; receitas com RabbitMQ em Docker; passos de receita quebram linha no celular.
 - 2026-11-07 · Desenvolvimento assistido por IA · Fundamentos F1 + missão: 6 lições e a missão "consertar um bug provando com teste", revisadas por um revisor independente; helpers `mul`, `cumsum`, `lookupall`, `containsany` no motor.
 - 2026-11-07 · IA aplicada · Prática · P2 · RAG de verdade: 8 lições (ingestão e limpeza, fatiamento, índice vetorial, busca híbrida, reranking, citar e recusar, perguntas compostas, recall@k), novas ops reais `embedmatrix` e `rerank` e helpers de busca na linguagem de expressões.

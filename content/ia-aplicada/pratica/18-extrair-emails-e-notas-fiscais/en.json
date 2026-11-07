@@ -1,0 +1,155 @@
+{
+  "title": "Extract data from emails and invoices",
+  "subtitle": "Valid JSON is not correct data: validate the shape and check the sums",
+  "mission": "Aurora’s finance team receives invoices and supplier emails and types everything by hand. Make the model extract number, provider, date, items and total into the system, and find out how a wrong amount slips through shape validation unnoticed.",
+  "predict": {
+    "question": "the prompt doesn’t explain that \"R$ 1.250,00\" is the Brazilian way to write one thousand two hundred fifty, but the sum check is on. What happens to the invoice?",
+    "options": {
+      "saved": "Goes into the system with the wrong total",
+      "review": "Goes to human review, because the sum doesn’t add up",
+      "crash": "Errors out and vanishes"
+    }
+  },
+  "feedback": {
+    "right": "right: the model read 1.250,00 as 1.25 and the items add up to 251. The JSON is valid, but the sum check notices something is off and sends it to a person.",
+    "wrong": "it goes to review: the JSON is valid, but the items add up to 251 and the total read is 1.25. Without the check, that total would go straight into the system.",
+    "skipped": "no guess? Run with format off and look at the invoice’s route."
+  },
+  "coach": {
+    "ui": "guess noted. Turn off \"Explain Brazilian format\" (leave the check on) and run.",
+    "cmd": "guess noted. Run import --format no and watch the invoice’s route."
+  },
+  "tryNext": {
+    "ui": "Now the supplier email, which has no items. With format off and the check on, can the error still be caught?",
+    "cmd": "Run import \"Hi, Marina from Gráfica Boa Vista here. Here is the charge for contract 31/2026: R$ 3.480,00, due on 15/04/2026. Any questions, just ask!\" --format no and compare with the invoice."
+  },
+  "why": {
+    "simples": "Teaching a computer to read an invoice is only half the job; the other half is doubting what it read. \"1.250,00\" is one thousand two hundred fifty for us; in an American format it would be just over one.\nSo the system checks what it can (do the items add up to the total?) and, if something is off, calls a person instead of saving.",
+    "dev": "Two layers: (1) shape, with JSON Schema (required fields, types, ISO dates); providers offer structured output, such as the Anthropic API’s output_config.format, which makes the response follow the schema, with exceptions like refusals or cut-off at max_tokens; (2) values, with business rules: items sum = total, CNPJ check digits, date not in the future, supplier on file.\nA schema guarantees the total is a number, not that it is the right number. Values like \"1.250,00\" need explicit normalization (in the prompt and, better, in deterministic code after extraction).",
+    "especialista": "Silent errors are the worst: valid JSON, right type, wrong value. Defend in depth: validate against the document (the sum, the total in words), use a second independent extraction and compare, and send anything that fails or has low confidence to human review, with the invoice image beside it so the person checks in seconds.\nMeasure on real samples: per-field accuracy, review rate and errors that got through. Invoices and emails hold personal and financial data (LGPD): minimize what goes to the model, record who approved and avoid leaving raw text in logs."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: turn off both \"Explain Brazilian format\" and \"Check the item sum\".",
+      "cmd": "time to break it: run import --format no --reconcile no"
+    },
+    "success": "Broken: the total went into the system as R$ {total} instead of R$ {goldTotal}, with perfect JSON and no alarm, and no check able to verify that value (turned off, or no items to add up). The error only shows up when the supplier chases the payment.",
+    "calm": "Total R$ {total} (expected R$ {goldTotal}); items sum R$ {sumItems}. To break it, turn off Brazilian format and the check."
+  },
+  "hints": {
+    "ui": [
+      "Pick a document and flip the two switches.",
+      "\"Reconcile\" adds the items and compares with the total; if they differ, the invoice goes to a person. \"Format\" tells the model that the dot separates thousands.",
+      "Turn both switches off with the invoice."
+    ],
+    "cmd": [
+      "The text goes in quotes, after import.",
+      "--format and --reconcile take yes or no.",
+      "import --format no --reconcile no"
+    ]
+  },
+  "errors": {
+    "notBool.brFormat": "Use yes or no.",
+    "notBool.reconcile": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Invoice or email",
+    "brFormat": "Explain Brazilian format to the model",
+    "reconcile": "Check the item sum"
+  },
+  "scene": {
+    "label": "Finance entry",
+    "empty": "Run to extract.",
+    "json": "What the model returned",
+    "sumItems": "items sum (R$)",
+    "total": "total read (R$)",
+    "chkSchema": "JSON in the expected shape (fields and types)",
+    "whySchema": "a required field is missing: {problems}",
+    "chkValue": "Value read matches the document",
+    "whyValue": "the total read isn’t what the document says",
+    "chkRoute": "Nothing wrong went into the system",
+    "whyRoute": "a wrong value was saved without review",
+    "noteSaved": "Saved to the system: shape and values check out.",
+    "noteReview": "Sent to human review: something didn’t add up and nothing was saved.",
+    "noteSilent": "Saved with a wrong value. The JSON was valid, so no shape rule complained.",
+    "simNote": "Simulated mode: scripted reading (the model \"gets\" Brazilian format wrong when you don’t explain it). With a real model, the check compares the total read with the invoice’s. Use \"Your key\" or \"In the browser\" to try."
+  },
+  "data": {
+    "tsep": ",",
+    "dsep": ".",
+    "importLabel": "import invoice",
+    "systems": {
+      "br": "Extract the data from the document and answer only with JSON, no extra text: {\"number\":\"text\",\"provider\":\"text\",\"date\":\"YYYY-MM-DD\",\"items\":[numbers],\"total\":number}. Use null for any field that is not in the document. Amounts are in Brazilian format: the dot separates thousands and the comma separates decimals (R$ 1.250,00 is one thousand two hundred fifty reais, write 1250). Dates are day/month/year.",
+      "plain": "Extract the data from the document and answer only with JSON, no extra text: {\"number\":\"text\",\"provider\":\"text\",\"date\":\"YYYY-MM-DD\",\"items\":[numbers],\"total\":number}. Use null for any field that is not in the document."
+    },
+    "docs": {
+      "SERVICE INVOICE No. 4471 | Provider: Gráfica Boa Vista Ltda | Issued: 12/03/2026 | Items: 200 A4 flyers R$ 1.000,00; shipping R$ 250,00 | Total: R$ 1.250,00": {
+        "numero": "4471",
+        "prestador": "Gráfica Boa Vista Ltda",
+        "data": "2026-03-12",
+        "itens": [
+          1000,
+          250
+        ],
+        "itensBad": [
+          1,
+          250
+        ],
+        "total": 1250,
+        "totalBad": 1.25,
+        "big": true,
+        "problems": []
+      },
+      "Hi, Marina from Gráfica Boa Vista here. Here is the charge for contract 31/2026: R$ 3.480,00, due on 15/04/2026. Any questions, just ask!": {
+        "numero": "31/2026",
+        "prestador": "Gráfica Boa Vista",
+        "data": "2026-04-15",
+        "itens": [],
+        "itensBad": [],
+        "total": 3480,
+        "totalBad": 3.48,
+        "big": true,
+        "problems": []
+      },
+      "SERVICE INVOICE No. 4472 | Provider: Gráfica Boa Vista Ltda | Items: final artwork R$ 350,00 | Total: R$ 350,00": {
+        "numero": "4472",
+        "prestador": "Gráfica Boa Vista Ltda",
+        "data": "",
+        "itens": [
+          350
+        ],
+        "itensBad": [
+          350
+        ],
+        "total": 350,
+        "totalBad": 350,
+        "big": false,
+        "problems": [
+          "missing:date"
+        ]
+      }
+    },
+    "unknownDoc": {
+      "numero": "",
+      "prestador": "",
+      "data": "",
+      "itens": [],
+      "itensBad": [],
+      "total": 0,
+      "totalBad": 0,
+      "big": false,
+      "problems": [
+        "missing:number",
+        "missing:total"
+      ]
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Take 5 real invoices or supplier emails (strip personal data) and hand-write the fields: number, provider, date, items and total.",
+      "Define a JSON Schema with those fields and use your provider’s structured output (in the Anthropic API: output_config: {format: {type: \"json_schema\", schema: …}}) or ask for JSON only and validate with a library like jsonschema or zod. Explain Brazilian amount and date format in the prompt.",
+      "Write two rules in code: items sum = total and date not in the future. Send anything that fails to review."
+    ],
+    "ok": "all 5 extractions pass the schema and the sum; when you remove the format explanation, at least one total comes out wrong and the sum rule sends it to review."
+  }
+}

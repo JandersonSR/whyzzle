@@ -1,0 +1,129 @@
+{
+  "title": "Examples show the format",
+  "subtitle": "Few-shot: three good examples beat a paragraph of rules",
+  "mission": "Aurora’s support wants every ticket to have a subject in the format [Category] summary (#order). Instead of explaining the format, show the model examples. Find out how many are enough and why examples that are all alike become a habit.",
+  "predict": {
+    "question": "the prompt only says \"write the subject of this email\", with no examples. Does the model answer in the [Category] summary (#order) format?",
+    "options": {
+      "free": "No: writes free text, a different way each time",
+      "format": "Yes: it already comes out in the format",
+      "error": "Errors out, the format is missing"
+    }
+  },
+  "feedback": {
+    "right": "right: nobody told it the format, so the model picks one. With examples it copies the pattern without you describing it.",
+    "wrong": "with neither an example nor a description, the model writes free text; there’s no error, just an answer the system can’t read. The examples are the specification.",
+    "skipped": "no guess? Run with 0 examples and look at the answer."
+  },
+  "coach": {
+    "ui": "guess noted. Set \"Examples\" to 0 and run; then to 3.",
+    "cmd": "guess noted. Run subject --examples 0 and then --examples 3."
+  },
+  "tryNext": {
+    "ui": "Now the password email, which has no order number. With varied examples the subject comes out without the (#…): the example without a number taught that.",
+    "cmd": "Run subject \"I can’t change my portal password: the email link never arrives.\" and see that it doesn’t invent a number."
+  },
+  "why": {
+    "simples": "Explaining a format in words is hard; showing it is easy. You give the model a few solved \"email → subject\" pairs and it continues the pattern, like seeing three rows of a filled spreadsheet and completing the fourth.\nThe risk: if the examples all look alike, it learns the habit too (every subject becomes \"Billing\").",
+    "dev": "Few-shot means putting input → output pairs in the prompt. Anthropic’s docs recommend 3 to 5 examples that are relevant (like the real use), diverse (covering edge cases so the model doesn’t pick up an unintended pattern) and wrapped in tags like <example>, so the model can tell them from instructions.\nExamples steer format, tone and structure very reliably, but don’t guarantee it: for a strict output contract, combine with structured output (next lesson). Examples also cost tokens on every call.",
+    "especialista": "Each example is in-context training data: order may matter (there are reports that the last ones weigh more; test in your case), class proportions bias the output (five \"Billing\" examples push the answer to \"Billing\") and an error in one example gets copied. Treat examples like code: review, version and run the test set at every change.\nWhen examples pile up, select them by similarity to the input (dynamic few-shot, using the same vector search as RAG) or, with volume and stability, move to fine-tuning. Here the model is simulated: real behavior varies by model and prompt, and only evaluation tells what works."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: turn \"Variety\" off (all billing examples) and run the late order email.",
+      "cmd": "time to break it: run subject \"Order 8812 still hasn’t arrived and it’s past the promised date. Can you check?\" --variety no"
+    },
+    "success": "Broken: with {count} examples from a single category, the model copied the habit and answered \"{out}\". The email was about {cat}, but it only ever saw billing.",
+    "calm": "{count} example(s) in the prompt; distinct categories in the examples: {distinct}. Answer: \"{out}\". To break it, make all the examples alike."
+  },
+  "hints": {
+    "ui": [
+      "Pick an email and move \"Examples\" and \"Variety\".",
+      "\"Variety\" turns on examples from different categories; off, all examples are about billing.",
+      "Variety off, with 3 examples, on the late order email."
+    ],
+    "cmd": [
+      "The email goes in quotes, after subject.",
+      "--examples 0 to 5; --variety yes or no.",
+      "subject \"Order 8812 still hasn’t arrived and it’s past the promised date. Can you check?\" --variety no"
+    ]
+  },
+  "errors": {
+    "aboveMax.count": "Up to 5 examples in this exercise.",
+    "belowMin.count": "Use 0 for no examples.",
+    "notInteger.count": "Use a whole number of examples.",
+    "notBool.varied": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Customer email",
+    "count": "Examples in the prompt",
+    "varied": "Category variety"
+  },
+  "scene": {
+    "label": "Ticket subject",
+    "empty": "Run to write the subject.",
+    "prompt": "What the model receives",
+    "count": "examples",
+    "distinct": "categories in the examples",
+    "chkFormat": "Is in the [Category] summary format",
+    "whyFormat": "free text: the system can’t read the category",
+    "chkCat": "Correct category",
+    "whyCat": "wrong category, copied from the examples",
+    "chkNum": "Order number kept (or absent when the email has none)",
+    "whyNum": "the order number got lost",
+    "simNote": "Simulated mode: simplified rule (with at least 2 categories in the examples the model gets it right; with 1, it copies). Real models vary: use \"Your key\" or \"In the browser\" to see a real one."
+  },
+  "data": {
+    "noShots": "(no examples: the format was never shown)",
+    "exCat": "Billing",
+    "sysBase": "Write the subject of a support ticket for the customer’s email. Answer with the subject only.",
+    "shotsVaried": [
+      "<example>Email: My bill came with the wrong amount, order 6120. → Subject: [Billing] Wrong bill amount (#6120)</example>",
+      "<example>Email: I forgot my password and can’t get into the portal. → Subject: [Access] Can’t log in to the portal</example>",
+      "<example>Email: I got order 5544 with a cracked screen. → Subject: [Product] Defective item (#5544)</example>",
+      "<example>Email: Tracking for order 4902 hasn’t moved in a week. → Subject: [Delivery] Tracking stuck (#4902)</example>",
+      "<example>Email: What is the warranty period for the products? → Subject: [Question] Warranty period</example>"
+    ],
+    "shotsSame": [
+      "<example>Email: My bill came with the wrong amount, order 6120. → Subject: [Billing] Wrong bill amount (#6120)</example>",
+      "<example>Email: I was charged twice on order 3377. → Subject: [Billing] Duplicate charge (#3377)</example>",
+      "<example>Email: My card was declined but the money left my account, order 2210. → Subject: [Billing] Amount debited without approval (#2210)</example>",
+      "<example>Email: I want a copy of the bill for order 1988. → Subject: [Billing] Bill copy (#1988)</example>",
+      "<example>Email: The discount didn’t show on the invoice for order 1203. → Subject: [Billing] Discount not applied (#1203)</example>"
+    ],
+    "emails": {
+      "Order 8812 still hasn’t arrived and it’s past the promised date. Can you check?": {
+        "cat": "Delivery",
+        "summary": "Late order",
+        "num": "8812",
+        "free": "Customer complaining that the order still hasn’t arrived."
+      },
+      "I was charged twice for order 7301 on my card.": {
+        "cat": "Billing",
+        "summary": "Duplicate charge",
+        "num": "7301",
+        "free": "Customer was charged twice on the card."
+      },
+      "I can’t change my portal password: the email link never arrives.": {
+        "cat": "Access",
+        "summary": "Reset link never arrives",
+        "num": "",
+        "free": "Person unable to change the portal password."
+      }
+    },
+    "unknownEmail": {
+      "cat": "Question",
+      "summary": "Customer question",
+      "num": "",
+      "free": "Customer message."
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Gather 5 real emails (without personal data) of one kind of ticket and hand-write the ideal subject for each, in the format your system expects.",
+      "Build the prompt with a short instruction and 3 of those pairs inside <examples> tags, each pair inside <example>. Test the other 2 emails.",
+      "Repeat with 3 pairs from a single category and compare the categories returned."
+    ],
+    "ok": "with varied examples, the 2 test emails come out in the right format and category; with single-category examples, at least one comes out with the examples’ category."
+  }
+}

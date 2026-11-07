@@ -1,0 +1,155 @@
+{
+  "title": "Extrair dados de e-mails e notas fiscais",
+  "subtitle": "JSON válido não é dado correto: valide o formato e confira a conta",
+  "mission": "O financeiro da Aurora recebe notas fiscais e e-mails de fornecedores e digita tudo à mão. Faça o modelo extrair número, prestador, data, itens e total para o sistema, e descubra como um valor errado atravessa a validação de formato sem ninguém perceber.",
+  "predict": {
+    "question": "o prompt não explica que \"R$ 1.250,00\" é o jeito brasileiro de escrever mil duzentos e cinquenta, mas a conferência da soma está ligada. O que acontece com a nota?",
+    "options": {
+      "saved": "Entra no sistema com o total errado",
+      "review": "Vai para revisão humana, porque a soma não fecha",
+      "crash": "Dá erro e some"
+    }
+  },
+  "feedback": {
+    "right": "isso: o modelo leu 1.250,00 como 1,25 e os itens somam 251. O JSON é válido, mas a conferência de soma percebe que algo não bate e manda para uma pessoa.",
+    "wrong": "vai para revisão: o JSON é válido, mas os itens somam 251 e o total lido é 1,25. Sem a conferência, esse total entraria direto no sistema.",
+    "skipped": "sem palpite? Rode com o formato desligado e olhe o caminho da nota."
+  },
+  "coach": {
+    "ui": "palpite anotado. Desligue \"Explicar formato brasileiro\" (deixe a conferência ligada) e rode.",
+    "cmd": "palpite anotado. Rode importar --formato nao e veja o caminho da nota."
+  },
+  "tryNext": {
+    "ui": "Agora o e-mail do fornecedor, que não tem itens. Com o formato desligado e a conferência ligada, ainda dá para pegar o erro?",
+    "cmd": "Rode importar \"Oi, aqui é a Marina da Gráfica Boa Vista. Segue a cobrança do contrato 31/2026: R$ 3.480,00, com vencimento em 15/04/2026. Qualquer dúvida é só chamar!\" --formato nao e compare com a nota fiscal."
+  },
+  "why": {
+    "simples": "Ensinar o computador a ler uma nota é só metade do trabalho; a outra metade é desconfiar do que ele leu. \"1.250,00\" para nós é mil duzentos e cinquenta; num formato americano, seria um e pouco.\nPor isso o sistema confere o que dá para conferir (os itens somam o total?) e, se algo não fecha, chama uma pessoa em vez de gravar.",
+    "dev": "Duas camadas: (1) formato, com JSON Schema (campos obrigatórios, tipos, datas em ISO); provedores têm saída estruturada, como o output_config.format da API da Anthropic, que faz a resposta seguir o esquema, com exceções como recusa ou corte por max_tokens; (2) valores, com regras de negócio: soma dos itens = total, CNPJ com dígito verificador, data não futura, fornecedor cadastrado.\nSchema garante que o total é um número, não que é o número certo. Valores como \"1.250,00\" pedem normalização explícita (no prompt e, melhor, em código determinístico depois da extração).",
+    "especialista": "Erro silencioso é o pior: JSON válido, tipo certo, valor errado. Defenda em profundidade: validar contra o documento (a soma, o total por extenso), usar uma segunda extração independente e comparar, e mandar para revisão humana tudo que falha ou tem baixa confiança, com a imagem da nota ao lado para a pessoa conferir em segundos.\nMeça em amostras reais: taxa de campos corretos por campo, taxa de revisão e erros que passaram. Notas e e-mails têm dados pessoais e financeiros (LGPD): minimize o que vai para o modelo, registre quem aprovou e evite deixar o texto bruto em log."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: desligue \"Explicar formato brasileiro\" e também \"Conferir a soma dos itens\".",
+      "cmd": "hora de quebrar: rode importar --formato nao --conferir nao"
+    },
+    "success": "Quebrou: o total entrou no sistema como R$ {total} em vez de R$ {goldTotal}, com JSON perfeito e nenhum alarme, sem nenhuma conferência que conseguisse checar esse valor (desligada, ou sem itens para somar). O erro só aparece quando o fornecedor cobrar.",
+    "calm": "Total R$ {total} (esperado R$ {goldTotal}); soma dos itens R$ {sumItems}. Para quebrar, desligue o formato brasileiro e a conferência."
+  },
+  "hints": {
+    "ui": [
+      "Escolha um documento e mexa nas duas chaves.",
+      "\"Conferir\" soma os itens e compara com o total; se não bate, a nota vai para uma pessoa. \"Formato\" explica ao modelo que o ponto separa milhares.",
+      "Desligue as duas chaves com a nota fiscal."
+    ],
+    "cmd": [
+      "O texto vai entre aspas, depois de importar.",
+      "--formato e --conferir aceitam sim ou nao.",
+      "importar --formato nao --conferir nao"
+    ]
+  },
+  "errors": {
+    "notBool.brFormat": "Use sim ou nao.",
+    "notBool.reconcile": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Nota fiscal ou e-mail",
+    "brFormat": "Explicar formato brasileiro ao modelo",
+    "reconcile": "Conferir a soma dos itens"
+  },
+  "scene": {
+    "label": "Lançamento no financeiro",
+    "empty": "Rode para extrair.",
+    "json": "O que o modelo devolveu",
+    "sumItems": "soma dos itens (R$)",
+    "total": "total lido (R$)",
+    "chkSchema": "JSON no formato esperado (campos e tipos)",
+    "whySchema": "falta campo obrigatório: {problems}",
+    "chkValue": "Valor lido bate com o documento",
+    "whyValue": "o total lido não é o que está no documento",
+    "chkRoute": "Nada errado entrou no sistema",
+    "whyRoute": "um valor errado foi gravado sem revisão",
+    "noteSaved": "Gravado no sistema: formato e valores conferem.",
+    "noteReview": "Enviado para revisão humana: algo não fechou e ninguém gravou nada.",
+    "noteSilent": "Gravado com valor errado. O JSON era válido, por isso nenhuma regra de formato reclamou.",
+    "simNote": "Modo simulado: leitura roteirizada (o modelo \"erra\" o formato brasileiro quando você não explica). Com um modelo real, a conferência compara o total lido com o da nota. Use \"Sua chave\" ou \"No navegador\" para tentar."
+  },
+  "data": {
+    "tsep": ".",
+    "dsep": ",",
+    "importLabel": "importar nota",
+    "systems": {
+      "br": "Extraia os dados do documento e responda só com JSON, sem texto extra: {\"number\":\"texto\",\"provider\":\"texto\",\"date\":\"AAAA-MM-DD\",\"items\":[números],\"total\":número}. Use null no campo que não existir no documento. Os valores estão no formato brasileiro: o ponto separa os milhares e a vírgula separa os decimais (R$ 1.250,00 é mil duzentos e cinquenta reais, escreva 1250). As datas estão em dia/mês/ano.",
+      "plain": "Extraia os dados do documento e responda só com JSON, sem texto extra: {\"number\":\"texto\",\"provider\":\"texto\",\"date\":\"AAAA-MM-DD\",\"items\":[números],\"total\":número}. Use null no campo que não existir no documento."
+    },
+    "docs": {
+      "NOTA FISCAL DE SERVIÇO Nº 4471 | Prestador: Gráfica Boa Vista Ltda | Emissão: 12/03/2026 | Itens: 200 folhetos A4 R$ 1.000,00; frete R$ 250,00 | Total: R$ 1.250,00": {
+        "numero": "4471",
+        "prestador": "Gráfica Boa Vista Ltda",
+        "data": "2026-03-12",
+        "itens": [
+          1000,
+          250
+        ],
+        "itensBad": [
+          1,
+          250
+        ],
+        "total": 1250,
+        "totalBad": 1.25,
+        "big": true,
+        "problems": []
+      },
+      "Oi, aqui é a Marina da Gráfica Boa Vista. Segue a cobrança do contrato 31/2026: R$ 3.480,00, com vencimento em 15/04/2026. Qualquer dúvida é só chamar!": {
+        "numero": "31/2026",
+        "prestador": "Gráfica Boa Vista",
+        "data": "2026-04-15",
+        "itens": [],
+        "itensBad": [],
+        "total": 3480,
+        "totalBad": 3.48,
+        "big": true,
+        "problems": []
+      },
+      "NOTA FISCAL DE SERVIÇO Nº 4472 | Prestador: Gráfica Boa Vista Ltda | Itens: arte final R$ 350,00 | Total: R$ 350,00": {
+        "numero": "4472",
+        "prestador": "Gráfica Boa Vista Ltda",
+        "data": "",
+        "itens": [
+          350
+        ],
+        "itensBad": [
+          350
+        ],
+        "total": 350,
+        "totalBad": 350,
+        "big": false,
+        "problems": [
+          "missing:date"
+        ]
+      }
+    },
+    "unknownDoc": {
+      "numero": "",
+      "prestador": "",
+      "data": "",
+      "itens": [],
+      "itensBad": [],
+      "total": 0,
+      "totalBad": 0,
+      "big": false,
+      "problems": [
+        "missing:number",
+        "missing:total"
+      ]
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Pegue 5 notas ou e-mails reais de fornecedores (apague dados pessoais) e anote à mão os campos: número, prestador, data, itens e total.",
+      "Defina um JSON Schema com esses campos e use a saída estruturada do seu provedor (na API da Anthropic: output_config: {format: {type: \"json_schema\", schema: …}}) ou peça só JSON e valide com uma biblioteca como jsonschema ou zod. Explique no prompt o formato brasileiro de valores e datas.",
+      "Escreva duas regras em código: soma dos itens = total e data não futura. Mande para revisão tudo que falhar."
+    ],
+    "ok": "as 5 extrações passam no schema e na soma; ao tirar a explicação do formato, pelo menos um total sai errado e a regra de soma o manda para revisão."
+  }
+}

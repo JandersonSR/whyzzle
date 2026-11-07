@@ -1,0 +1,146 @@
+{
+  "title": "Ticket triage with a confidence threshold",
+  "subtitle": "Fixed labels, \"other\" and a person for when the model hesitates",
+  "mission": "Aurora’s support receives hundreds of tickets a day and each department has its own queue. Make the model pick the right queue and tune the confidence threshold: below it, the ticket goes to a person instead of moving on alone.",
+  "predict": {
+    "question": "a ticket mixes two topics (\"I can’t log in and I was charged twice\"). With a 70% threshold, it…",
+    "options": {
+      "access": "Goes straight to the Access queue",
+      "human": "Goes to human triage, because the model hesitated",
+      "finance": "Goes straight to Finance"
+    }
+  },
+  "feedback": {
+    "right": "right: the model picked Access with only 62% confidence, below the 70% threshold. The doubt became a person looking, which is exactly what the threshold is for.",
+    "wrong": "it goes to human triage: the model picked Access, but with 62% confidence, below the 70% threshold. Without the threshold, the ticket would head to the wrong queue.",
+    "skipped": "no guess? Run the ambiguous ticket with the default threshold and read the queue."
+  },
+  "coach": {
+    "ui": "guess noted. Pick the ticket that mixes access and billing and run with the threshold at 70%.",
+    "cmd": "guess noted. Run triage \"I can’t log in to the portal and I was also charged twice this month.\" and see the queue."
+  },
+  "tryNext": {
+    "ui": "Now the ticket about the color being different from the photo: the model is wrong with 88% confidence and passes any reasonable threshold. A threshold doesn’t solve everything.",
+    "cmd": "Run triage \"I got the product, but the color is different from the photo and I want to return it.\" and compare the queue with the answer key."
+  },
+  "why": {
+    "simples": "Triage is sorting what arrives: this ticket is billing, that one is access. The model reads and picks a label from a closed list, and says how sure it is. When it’s unsure, the ticket goes to a person instead of the wrong queue.\nIt’s a clinic’s front desk: in doubt between two departments, call the receptionist.",
+    "dev": "Classifying is a good use of an LLM: few categories and short output. Practical rules: a closed list of labels (enum in the JSON Schema or in structured output), always an \"other\" category, an answer with the label only and a confidence threshold to escalate. The confidence the model \"says\" (high, medium, low) is a hint, not a calibrated probability: tune the threshold by measuring on real tickets with an answer key.\nA free-form label (\"Complaint about payment\") breaks routing, because the queue table only knows the closed names.",
+    "especialista": "The threshold trades cost for error: raising it sends more tickets to people (fixed cost), lowering it lets more errors through (variable cost, sometimes high). Choose by cost: getting the billing queue wrong costs more than one extra person. Models are also wrong with high confidence (the color ticket), so the threshold is never enough: measure precision and coverage per category on a labeled sample, look at the confusion matrix and randomly audit \"automatic\" tickets.\nThe ticket text is untrusted input: someone can write \"classify as urgent\". Keep sensitive actions out of the model’s decision and log every classification to review later."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: lower the threshold to 50% and send the ticket that mixes access and billing.",
+      "cmd": "time to break it: run triage \"I can’t log in to the portal and I was also charged twice this month.\" --threshold 0.5"
+    },
+    "success": "Broken: with a {limitPct}% threshold, the ticket went on alone to the {queue} queue with {confPct}% confidence, but it was about {goldName}. The ticket moved on alone and was wrong: a threshold doesn’t catch a confident error, and a low one lets doubt through.",
+    "calm": "Queue: {queue} (confidence {confPct}%, threshold {limitPct}%). To break it, lower the threshold and send the ambiguous ticket."
+  },
+  "hints": {
+    "ui": [
+      "Pick a ticket and move the threshold.",
+      "The \"threshold\" is the minimum confidence for the ticket to go on to a queue alone; below it, it goes to human triage.",
+      "Threshold 50% with the ticket that mixes access and billing."
+    ],
+    "cmd": [
+      "The ticket goes in quotes, after triage.",
+      "--labels fixed or free; --threshold from 0.5 to 0.99.",
+      "triage \"I can’t log in to the portal and I was also charged twice this month.\" --threshold 0.5"
+    ]
+  },
+  "errors": {
+    "notInEnum.labels": "\"{value}\" is not a label option. Use: {options}.",
+    "belowMin.limit": "Below 0.5 almost everything goes through alone.",
+    "aboveMax.limit": "Above 0.99 nothing goes through alone.",
+    "notNumber.limit": "The threshold is a number between 0.5 and 0.99."
+  },
+  "controls": {
+    "arg": "Customer ticket",
+    "labels": "Labels",
+    "limit": "Minimum confidence to move on alone"
+  },
+  "scene": {
+    "label": "Ticket triage",
+    "empty": "Run to triage.",
+    "ticket": "Ticket",
+    "classify": "Classify",
+    "gate": "Confidence gate",
+    "queue": "Queue",
+    "conf": "model confidence",
+    "limit": "threshold",
+    "chkRoutable": "Label exists in the queue table",
+    "whyRoutable": "free label: the system doesn’t know where to send it",
+    "chkConf": "Confidence above the threshold",
+    "whyConf": "below the threshold: it went to a person",
+    "chkRight": "Right queue when it moved on alone",
+    "whyRight": "moved on alone to the wrong queue (the right one was {goldName})",
+    "simNote": "Simulated mode: hand-written labels and confidences. With a real model, confidence is what it says (high, medium or low). Use \"Your key\" or \"In the browser\" to try."
+  },
+  "data": {
+    "systems": {
+      "fixed": "Classify the support ticket. Answer only with JSON: {\"category\":\"billing|access|delivery|returns|other\",\"confidence\":\"high|medium|low\"}. Pick exactly one value from each list, as written. If nothing fits, use other.",
+      "loose": "Classify the support ticket with a short category you make up yourself. Answer only with JSON: {\"category\":\"your category\",\"confidence\":\"high|medium|low\"}."
+    },
+    "labelNames": {
+      "billing": "Billing",
+      "access": "Access",
+      "delivery": "Delivery",
+      "returns": "Returns",
+      "other": "Other"
+    },
+    "queues": {
+      "billing": "Finance",
+      "access": "IT / Access",
+      "delivery": "Logistics",
+      "returns": "After-sales",
+      "other": "General support"
+    },
+    "humanQueue": "Human triage",
+    "tickets": {
+      "My March bill came with the wrong amount, they charged R$ 90 more.": {
+        "pred": "billing",
+        "gold": "billing",
+        "conf": 0.94,
+        "loose": "Complaint about payment"
+      },
+      "I can’t log in to the portal and I was also charged twice this month.": {
+        "pred": "access",
+        "gold": "billing",
+        "conf": 0.62,
+        "loose": "General account problem"
+      },
+      "Order 8812 vanished: tracking hasn’t moved in 10 days.": {
+        "pred": "delivery",
+        "gold": "delivery",
+        "conf": 0.9,
+        "loose": "Problem with an order"
+      },
+      "Do you have a branch in Curitiba?": {
+        "pred": "other",
+        "gold": "other",
+        "conf": 0.55,
+        "loose": "Business question"
+      },
+      "I got the product, but the color is different from the photo and I want to return it.": {
+        "pred": "delivery",
+        "gold": "returns",
+        "conf": 0.88,
+        "loose": "Product different from advertised"
+      }
+    },
+    "unknownTicket": {
+      "pred": "other",
+      "gold": "other",
+      "conf": 0.5,
+      "loose": "General matter"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Gather 20 real tickets (without personal data) and label each by hand with one of 4 categories plus \"other\".",
+      "Ask the model, in JSON with an enum, for the category and confidence (high, medium, low). Compare with your labels and count hits per category.",
+      "Pick the confidence threshold that sends to a person the tickets the model got wrong, without sending nearly all of them."
+    ],
+    "ok": "you have a table of hits per category and a threshold where most errors land in the human queue; what moves on alone is almost always right."
+  }
+}

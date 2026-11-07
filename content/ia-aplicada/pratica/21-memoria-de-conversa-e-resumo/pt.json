@@ -1,0 +1,152 @@
+{
+  "title": "Memória de conversa e resumo",
+  "subtitle": "O modelo não lembra de nada: você escolhe o que reenviar a cada mensagem",
+  "mission": "A Aurinha atende um cliente por oito mensagens e, no fim, ele pergunta algo que disse no começo. Escolha como montar a memória (nenhuma, janela, resumo ou tudo) e ache o ponto em que ela esquece, sem gastar tokens à toa.",
+  "predict": {
+    "question": "mandar o resumo do começo mais as 2 últimas mensagens, em vez da conversa inteira, gasta…",
+    "options": {
+      "less": "Bem menos tokens: o resumo cabe em poucas linhas",
+      "same": "Igual: o resumo repete tudo",
+      "more": "Mais: o resumo se soma ao histórico"
+    }
+  },
+  "feedback": {
+    "right": "isso: o resumo troca seis mensagens por duas linhas e só as duas últimas seguem literais. É por isso que resumir permite conversas longas sem estourar a janela de contexto.",
+    "wrong": "gasta bem menos: o resumo substitui as mensagens antigas (não se soma a elas) e só as duas últimas seguem literais. Compare a economia na cena.",
+    "skipped": "sem palpite? Rode com resumo e depois com a conversa completa e compare os tokens."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com memória \"resumo\" e depois com \"completa\", e compare os tokens enviados.",
+    "cmd": "palpite anotado. Rode continuar --memoria resumo e depois --memoria completa."
+  },
+  "tryNext": {
+    "ui": "Agora pergunte do cupom com memória \"resumo\": ele foi dito no meio da conversa e o resumo não guardou. Resumo perde detalhe.",
+    "cmd": "Rode continuar \"Qual cupom eu usei na compra?\" --memoria resumo e veja se lembra."
+  },
+  "why": {
+    "simples": "Um modelo de linguagem não lembra nada entre uma mensagem e outra: a cada pergunta, o sistema precisa reenviar a conversa. É como falar com alguém que esquece tudo a cada cinco minutos, e você entrega um bilhete com o que importa antes de cada frase.\nHá três jeitos de montar o bilhete: mandar tudo (caro), só as últimas mensagens (barato, mas esquece o começo) ou um resumo do começo mais as últimas mensagens.",
+    "dev": "A API de Mensagens da Anthropic e o Chat Completions da OpenAI não guardam estado: cada requisição leva todo o histórico, e isso conta tokens e ocupa a janela de contexto (algumas APIs guardam o histórico no servidor, como a Responses API da OpenAI, mas ele continua contando tokens a cada chamada). Estratégias comuns: janela deslizante (últimas N mensagens), resumo das mensagens antigas (feito pelo próprio modelo) mais as recentes, e fatos fixos extraídos para um bloco separado (pedido, preferências).\nMandar contexto demais também não é de graça: a documentação da Anthropic observa que a precisão e a lembrança caem conforme o contexto cresce (\"context rot\") e que curar o que entra importa tanto quanto o espaço disponível. Alguns provedores oferecem compactação automática no servidor (na API da Anthropic, em beta quando este texto foi escrito, nov/2026).",
+    "especialista": "O resumo tem perda: o que não entra nele deixa de existir para o modelo, e um erro no resumo vira \"fato\". Proteja o que não pode ser esquecido guardando campos estruturados (número do pedido, consentimentos, decisões) fora do resumo e reinjetando sempre. Resuma por gatilho (ao passar de X tokens), mantenha as mensagens recentes literais e registre qual resumo foi usado, para reproduzir uma resposta ruim depois.\nMemória entre conversas é outro problema, com privacidade (LGPD): guarde só o necessário, com consentimento e prazo, e deixe a pessoa ver e apagar. Meça com perguntas que voltam ao começo da conversa, como esta lição, e não só pela fluidez da resposta."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha a memória \"janela\" e pergunte o número do pedido.",
+      "cmd": "hora de quebrar: rode continuar \"Qual era o número do meu pedido mesmo?\" --memoria janela"
+    },
+    "success": "Quebrou: com a memória \"{strategy}\", {fact} (dito na {pos}ª mensagem) ficou de fora do que foi enviado e o assistente respondeu \"{out}\". O que não é reenviado deixa de existir para o modelo, sem aviso.",
+    "calm": "Enviadas {msgs} mensagem(ns), cerca de {sentTok} tokens ({savedPct}% a menos que a conversa inteira). Para quebrar, use só a janela e pergunte algo do começo."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma pergunta e a estratégia de memória.",
+      "\"Janela\" manda só as últimas mensagens; \"resumo\" manda um resumo do começo mais as últimas; \"completa\" manda tudo.",
+      "Memória \"janela\" com a pergunta do número do pedido."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de continuar.",
+      "--memoria nenhuma, janela, resumo ou completa; --recentes de 1 a 8.",
+      "continuar \"Qual era o número do meu pedido mesmo?\" --memoria janela"
+    ]
+  },
+  "errors": {
+    "notInEnum.memory": "\"{value}\" não é uma estratégia de memória. Use: {options}.",
+    "aboveMax.keep": "A conversa só tem 8 mensagens.",
+    "belowMin.keep": "Pelo menos 1 mensagem recente.",
+    "notInteger.keep": "Use um número inteiro de mensagens."
+  },
+  "controls": {
+    "arg": "Nova pergunta do cliente",
+    "memory": "Estratégia de memória",
+    "keep": "Mensagens recentes mantidas"
+  },
+  "scene": {
+    "label": "Memória da conversa",
+    "empty": "Rode para continuar a conversa.",
+    "ctx": "O que o modelo recebe",
+    "sent": "tokens enviados (≈)",
+    "full": "conversa inteira (≈)",
+    "saved": "economia",
+    "table": "As quatro estratégias, para esta pergunta",
+    "colStrategy": "estratégia",
+    "colTokens": "tokens (≈)",
+    "colRemember": "lembra?",
+    "sNone": "Nenhuma",
+    "sWindow": "Janela",
+    "sSummary": "Resumo + recentes",
+    "sFull": "Completa",
+    "yes": "sim",
+    "no": "não",
+    "chkRemember": "Lembrou do que o cliente já tinha dito",
+    "whyRemember": "a informação ficou fora do que foi enviado",
+    "chkCheap": "Enviou menos tokens que a conversa inteira",
+    "whyCheap": "mandou tudo, sem economia",
+    "simNote": "Modo simulado: respostas prontas; os tokens são uma estimativa (cerca de 1,5 por palavra). Use \"Sua chave\" ou \"No navegador\" para um modelo de verdade responder com o que recebeu."
+  },
+  "data": {
+    "emptyCtx": "(nada: o modelo só vê a pergunta)",
+    "hist": [
+      "Cliente: Oi! Estou com um problema no pedido 8812, ele chegou com a tela trincada.",
+      "Aurinha: Sinto muito! Vou abrir um chamado. Prefere ser avisado por e-mail ou WhatsApp?",
+      "Cliente: WhatsApp, por favor.",
+      "Aurinha: Anotado. Tem algum cupom de desconto usado nessa compra?",
+      "Cliente: Sim, usei o cupom ALFA10.",
+      "Aurinha: Obrigada. Pode me enviar uma foto da tela?",
+      "Cliente: Mandei agora. A propósito, o endereço de entrega mudou para Rua das Flores, 120.",
+      "Aurinha: Perfeito, atualizei o endereço no chamado."
+    ],
+    "custLabel": "Cliente",
+    "summaryLabel": "Resumo da conversa até aqui",
+    "summaryText": "cliente com o pedido 8812 (tela trincada); chamado aberto; prefere contato por WhatsApp.",
+    "summaryKeys": [
+      "order",
+      "contact"
+    ],
+    "factNames": {
+      "order": "o pedido",
+      "contact": "a preferência de contato",
+      "coupon": "o cupom",
+      "address": "o endereço de entrega"
+    },
+    "strategyNames": {
+      "none": "nenhuma",
+      "window": "janela",
+      "summary": "resumo",
+      "full": "completa"
+    },
+    "factIdx": {
+      "Qual era o número do meu pedido mesmo?": 0,
+      "Como eu prefiro ser avisado?": 2,
+      "Qual cupom eu usei na compra?": 4,
+      "Para onde vai a entrega agora?": 6
+    },
+    "factKeys": {
+      "Qual era o número do meu pedido mesmo?": "order",
+      "Como eu prefiro ser avisado?": "contact",
+      "Qual cupom eu usei na compra?": "coupon",
+      "Para onde vai a entrega agora?": "address"
+    },
+    "answers": {
+      "Qual era o número do meu pedido mesmo?": "8812",
+      "Como eu prefiro ser avisado?": "WhatsApp",
+      "Qual cupom eu usei na compra?": "ALFA10",
+      "Para onde vai a entrega agora?": "Flores"
+    },
+    "replies": {
+      "Qual era o número do meu pedido mesmo?": "Seu pedido é o 8812.",
+      "Como eu prefiro ser avisado?": "Você prefere ser avisado por WhatsApp.",
+      "Qual cupom eu usei na compra?": "Você usou o cupom ALFA10.",
+      "Para onde vai a entrega agora?": "A entrega vai para a Rua das Flores, 120."
+    },
+    "forgetText": "Desculpe, não tenho essa informação aqui. Pode me lembrar?",
+    "genericOut": "Claro! Em que mais posso ajudar?",
+    "sysChat": "Você é a Aurinha, assistente de suporte da Aurora. Responda em uma frase, usando só o que está na conversa abaixo. Se a informação não estiver lá, diga que não tem e peça para a pessoa lembrar."
+  },
+  "recipe": {
+    "steps": [
+      "Monte uma conversa de teste com 10 mensagens em que o cliente dá 3 informações (pedido, preferência, endereço) em momentos diferentes.",
+      "No fim, pergunte cada informação com três memórias: só as 4 últimas mensagens, resumo feito por um LLM mais as 4 últimas, e conversa inteira. Conte os tokens enviados em cada uma.",
+      "Anote o que o resumo deixou de fora e passe esses campos para um bloco fixo, sempre reenviado."
+    ],
+    "ok": "só as 4 últimas esquece a informação do começo, o resumo guarda parte e gasta bem menos que a conversa inteira, e com o bloco fixo as 3 informações voltam."
+  }
+}

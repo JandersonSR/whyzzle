@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Usar exemplos para ensinar um formato.",
+      "Perceber o efeito de exemplos todos iguais.",
+      "Escolher exemplos relevantes e diversos."
+    ],
+    "minutes": 20,
+    "activity": "Cada grupo escreve 3 exemplos de \"pergunta → resposta no formato da turma\" e testa com a pergunta de outro grupo. Depois trocam um exemplo por um caso de borda e comparam.",
+    "discussion": [
+      "Que caso de borda faltou nos seus exemplos?",
+      "Quando vale explicar com palavras em vez de mostrar?"
+    ],
+    "misconceptions": [
+      "\"Mais exemplos é sempre melhor.\" Exemplos todos iguais ensinam também o vício, e custam tokens."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Use examples to teach a format.",
+      "Notice the effect of examples that are all alike.",
+      "Choose relevant and diverse examples."
+    ],
+    "minutes": 20,
+    "activity": "Each group writes 3 \"question → answer in the class format\" examples and tests with another group’s question. Then swap one example for an edge case and compare.",
+    "discussion": [
+      "Which edge case was missing from your examples?",
+      "When is it better to explain in words instead of showing?"
+    ],
+    "misconceptions": [
+      "\"More examples is always better.\" Examples that are all alike also teach the habit, and cost tokens."
+    ]
+  }
+}

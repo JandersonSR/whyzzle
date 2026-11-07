@@ -1,0 +1,157 @@
+{
+  "title": "Agent with tools and limits",
+  "subtitle": "The model proposes, the code executes and a person approves what’s expensive",
+  "mission": "Aurora’s support wants an agent that handles refund requests: look up the order, work out the amount and return the money. Give it only the tools it needs, a step limit and a human approval rule, and find out what happens when you take the brake off.",
+  "predict": {
+    "question": "order 8812 asks for a R$ 1.125,00 refund and Aurora’s policy requires human approval above R$ 500. With the refund tool enabled, the agent…",
+    "options": {
+      "refund": "Refunds on its own, it has the tool after all",
+      "ask": "Builds an approval request and waits for a person",
+      "refuse": "Refuses: refunds are never for an agent"
+    }
+  },
+  "feedback": {
+    "right": "right: having the tool is not a blank check. The portal’s code checks the amount against the limit, sees it exceeds R$ 500 and stops to ask for approval; nothing is refunded until someone says yes.",
+    "wrong": "the agent prepares the request and stops: R$ 1.125,00 is over the R$ 500 limit, so the portal asks for human approval before touching money. It neither refuses nor refunds on its own.",
+    "skipped": "no guess? Run the default command and read the trace down to the portal line."
+  },
+  "coach": {
+    "ui": "guess noted. Run with all three tools and approval at R$ 500 and read the trace, from the request to the portal.",
+    "cmd": "guess noted. Run the default command and read the trace down to the portal line."
+  },
+  "tryNext": {
+    "ui": "Now order 9001, for R$ 180,00: under the limit, the refund goes out on its own. Autonomy where risk is small, a person where it’s big.",
+    "cmd": "Run act \"Order 9001 arrived defective. Refund 90% of the value, as the policy says.\" and compare with order 8812."
+  },
+  "why": {
+    "simples": "An agent is a model that can use tools over several steps: look up, calculate, act. Giving it a tool is like handing the company card to an intern: it works, as long as there’s a spending limit and someone approves the big purchases.\nThere are three limits: which tools exist, how many steps it may take and from what amount a person must say yes.",
+    "dev": "The cycle is always the same: the model asks for a tool (in the Anthropic API the response comes with stop_reason \"tool_use\" and tool-use blocks; other providers have equivalents, such as finish_reason \"tool_calls\" at OpenAI), your code runs it and returns the result in a tool_result, and the model continues until it answers. The model writes the request; your code executes it, and that’s where the limits live: allowed-tool list, step maximum, argument validation and human approval.\nSeparate read tools (cheap, no side effects) from write tools (refund, send email, delete). Writes involving money or data go through confirmation, and every call goes to an audit log. The APIs’ tool_choice parameter lets you force or forbid tools when the flow needs it.",
+    "especialista": "Think minimal permissions: the agent acts on someone’s behalf and should have, at most, that person’s permission, never a broad credential. Tool results are untrusted input (an order can carry text with instructions), so the limit must live in code, not in the prompt. Use idempotency (a unique key per refund) so retries don’t duplicate money, and step and cost budgets per task so a loop can’t spend forever.\nMeasure the agent as a system: tasks completed, steps per task, tool errors and denied approvals. Human approval only works if the request is clear (what, how much, why); otherwise it turns into an automatic \"ok\"."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: slide \"Approval above\" to the end of the bar (R$ 2,000) and run order 8812.",
+      "cmd": "time to break it: run act \"Order 8812 arrived defective. Refund 90% of the value, as the policy says.\" --approval 10000"
+    },
+    "success": "Broken: with approval only above R$ {approval}, the agent refunded R$ {amountP} on its own, above the R$ {policyLimit} the policy says needs approval. No person saw the request before the money left.",
+    "calm": "{calls} call(s); amount R$ {amountP}; human approval above R$ {approval}. To break it, raise the approval limit above the refund amount."
+  },
+  "hints": {
+    "ui": [
+      "Pick an order, check the tools and hit Run.",
+      "\"Approval above\" is the amount from which the portal stops and waits for a person; \"Step limit\" is how many times the model may act before giving up.",
+      "Approval at the end of the bar (R$ 2,000) with order 8812."
+    ],
+    "cmd": [
+      "The request goes in quotes, after act.",
+      "--tools lookup,calculator,refund (or none); --approval 0 to 10000; --steps 1 to 8.",
+      "act \"Order 8812 arrived defective. Refund 90% of the value, as the policy says.\" --approval 10000"
+    ]
+  },
+  "errors": {
+    "notInEnum.tools": "\"{value}\" is not a tool here. Options: {options}. For none, use --tools none.",
+    "aboveMax.approval": "Up to R$ 10,000 in this exercise.",
+    "belowMin.approval": "Use 0 to require approval for everything.",
+    "notInteger.approval": "Use a whole amount in reais.",
+    "aboveMax.maxSteps": "Up to 8 steps in this exercise.",
+    "belowMin.maxSteps": "At least 1 step.",
+    "notInteger.maxSteps": "Use a whole number of steps."
+  },
+  "controls": {
+    "arg": "Refund request",
+    "tools": "Tools enabled",
+    "approval": "Human approval above (R$)",
+    "maxSteps": "Model step limit"
+  },
+  "scene": {
+    "label": "Refund agent",
+    "empty": "Run to see the trace.",
+    "trace": "Trace (model → portal)",
+    "calls": "tool calls",
+    "amount": "proposed refund (R$)",
+    "approval": "approval above (R$)",
+    "chkSteps": "Finished within the step limit",
+    "whySteps": "the step limit ran out before the answer",
+    "chkAmount": "Amount worked out with the calculator",
+    "whyAmount": "without the calculator, it used the full value instead of 90%",
+    "chkGate": "High amount went through a person",
+    "whyGate": "refund above R$ {policyLimit} went out without human approval",
+    "simNote": "Simulated mode: scripted trace. With a real model, it really does the lookups and sums (the refund tool belongs to the portal, not the model: it only proposes) and small models often get the format wrong.",
+    "noteProposedAnyway": "The model proposed refunding an out-of-window order instead of denying it. The portal blocked it because the rule lives in code, but the model did not follow the policy.",
+    "realLimitNote": "The real model didn’t reach an answer within the limit. See the lines with \"?\": small models often get the format wrong."
+  },
+  "data": {
+    "tsep": ",",
+    "dsep": ".",
+    "denyMark": "DENY",
+    "policyBlockText": "portal: refund blocked, order outside the policy window",
+    "noLookup": "without the lookup tool: I can’t see the order",
+    "stoppedText": "stopped: step limit reached with no answer",
+    "proposeText": "Proposal: refund ",
+    "wordOrder": "order",
+    "waitText": "waiting for a person’s approval; nothing was refunded",
+    "doneText": "refund executed and logged",
+    "noRefundText": "without the refund tool: proposal sent to finance",
+    "apprPrefix": "Approval request:",
+    "requests": {
+      "Order 8812 arrived defective. Refund 90% of the value, as the policy says.": {
+        "id": "8812",
+        "value": 1250,
+        "amount": 1125,
+        "amountBr": "1.125,00",
+        "calcExpr": "1250*0.9",
+        "lookupResult": "Order 8812: 1 item, R$ 1.250,00, delivered 12 days ago, customer Marina.",
+        "reason": "defect, within the 30-day window",
+        "refundable": true,
+        "deny": ""
+      },
+      "Order 9001 arrived defective. Refund 90% of the value, as the policy says.": {
+        "id": "9001",
+        "value": 200,
+        "amount": 180,
+        "amountBr": "180,00",
+        "calcExpr": "200*0.9",
+        "lookupResult": "Order 9001: 1 item, R$ 200,00, delivered 5 days ago, customer Paulo.",
+        "reason": "defect, within the 30-day window",
+        "refundable": true,
+        "deny": ""
+      },
+      "Order 7700 didn’t fit. Refund the whole amount.": {
+        "id": "7700",
+        "value": 300,
+        "amount": 300,
+        "amountBr": "300,00",
+        "calcExpr": "300*1",
+        "lookupResult": "Order 7700: 1 item, R$ 300,00, delivered 95 days ago, customer Bia.",
+        "reason": "outside the window",
+        "refundable": false,
+        "deny": "I can’t refund order 7700: it was delivered 95 days ago and the policy only covers up to 30 days. I forwarded it to support."
+      }
+    },
+    "unknownReq": {
+      "id": "0000",
+      "value": 0,
+      "amount": 0,
+      "amountBr": "0,00",
+      "calcExpr": "0*1",
+      "lookupResult": "order not found",
+      "reason": "order not found",
+      "refundable": false,
+      "deny": "I couldn’t find that order."
+    },
+    "registros": {
+      "8812": "Order 8812: 1 item, R$ 1.250,00, delivered 12 days ago, customer Marina.",
+      "9001": "Order 9001: 1 item, R$ 200,00, delivered 5 days ago, customer Paulo.",
+      "7700": "Order 7700: 1 item, R$ 300,00, delivered 95 days ago, customer Bia."
+    },
+    "sysTools": "You are Aurora’s refund assistant. Tools: lookup(key) returns the order data by number; calculator(expression) solves sums with + - * /. The policy only refunds up to 30 days after delivery. ALWAYS reply with a single JSON and nothing else: {\"tool\":\"lookup\",\"args\":{\"key\":\"8812\"}} or {\"tool\":\"calculator\",\"args\":{\"expression\":\"1250*0.9\"}} or, when done, {\"answer\":\"REFUND 8812 1125\"} (order number and amount) or {\"answer\":\"DENY 7700 outside the window\"}. If delivery was more than 30 days ago, the answer must start with DENY and you do not propose a refund. The portal runs the refund, not you."
+  },
+  "recipe": {
+    "steps": [
+      "Pick a flow of yours with an action that changes data (refund, cancellation) and list the tools in two columns: read and write.",
+      "Write the agent loop with your provider’s SDK: call the model, run only the tools on the list, return the tool_result and stop at a maximum number of steps.",
+      "Put the rule in code: above a value, the write action doesn’t run and produces an approval request with what, how much and why."
+    ],
+    "ok": "with a small request the agent finishes on its own; with a big one it stops at the approval request, and no write action happens without going through the rule."
+  }
+}

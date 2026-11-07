@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Separar o prompt de sistema em papel, escopo, tom e formato.",
+      "Ver que só o escopo segura perguntas fora do assunto.",
+      "Entender que prompt de sistema não é segurança."
+    ],
+    "minutes": 20,
+    "activity": "Em duplas: uma pessoa escreve o prompt de sistema de um assistente para a escola ou empresa; a outra tenta fazê-lo sair do assunto com três perguntas. Troquem e melhorem o prompt.",
+    "discussion": [
+      "Que frase de recusa soa útil, e não só educada?",
+      "O que não deve depender do prompt, e sim de permissão no sistema?"
+    ],
+    "misconceptions": [
+      "\"Se está no prompt de sistema, o modelo sempre obedece.\" Ele tende a seguir, mas não é garantia."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Split the system prompt into role, scope, tone and format.",
+      "See that only scope holds back off-topic questions.",
+      "Understand that a system prompt is not security."
+    ],
+    "minutes": 20,
+    "activity": "In pairs: one person writes the system prompt of an assistant for a school or company; the other tries to pull it off topic with three questions. Swap and improve the prompt.",
+    "discussion": [
+      "Which refusal sentence is useful, not just polite?",
+      "What should depend on system permissions rather than on the prompt?"
+    ],
+    "misconceptions": [
+      "\"If it’s in the system prompt, the model always obeys.\" It tends to follow it, but there’s no guarantee."
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Distinguir ferramentas de leitura e de escrita.",
+      "Definir limites: ferramentas, passos e aprovação humana.",
+      "Entender que quem executa é o código, não o modelo."
+    ],
+    "minutes": 25,
+    "activity": "Teatro de agente: um aluno é o modelo e só pode escrever bilhetes de pedido; outro é o código e executa só o que está na lista; um terceiro é a gerência e aprova acima de um valor combinado.",
+    "discussion": [
+      "Que ações na sua empresa jamais deveriam ser automáticas?",
+      "Como saber se quem aprova lê o pedido ou só clica \"ok\"?"
+    ],
+    "misconceptions": [
+      "\"Se o agente tem a ferramenta, ele deve poder usá-la sem limite.\" O limite é do código e da política, não da ferramenta."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell read tools from write tools.",
+      "Set limits: tools, steps and human approval.",
+      "Understand that the code executes, not the model."
+    ],
+    "minutes": 25,
+    "activity": "Agent theater: one student is the model and may only write request notes; another is the code and runs only what is on the list; a third is management and approves above an agreed amount.",
+    "discussion": [
+      "Which actions at your company should never be automatic?",
+      "How do you know the approver reads the request instead of just clicking \"ok\"?"
+    ],
+    "misconceptions": [
+      "\"If the agent has the tool, it should be able to use it without limit.\" The limit belongs to the code and the policy, not to the tool."
+    ]
+  }
+}

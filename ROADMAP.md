@@ -110,9 +110,8 @@ Depende das etapas de plataforma PL1 a PL3.
 - [x] **Etapa P2 · RAG de verdade** (8 lições): ingestão e limpeza de documentos; chunking (tamanho e sobreposição); embeddings e banco vetorial no navegador; busca híbrida (palavra-chave + vetor); reranking; citação de fonte e recusa; perguntas multi-documento; avaliação de recuperação (recall@k).
   Lições: ingestão e limpeza; fatiar sem cortar a resposta; índice vetorial no navegador; busca híbrida; reranking; citar e recusar; perguntas com duas partes; medir a busca com recall@k.
 
-- [ ] → **Etapa P3 · Prompts e agentes para o trabalho** (7 lições): prompt de sistema e papéis; exemplos (few-shot) e formato; extração de dados de e-mails e notas fiscais; classificação e triagem de tickets de atendimento; agente com ferramentas e limites; memória de conversa e resumo; MCP para conectar sistemas da empresa.
-  - Em andamento: lições 1 a 7 escritas e revisadas; correções da revisão sendo aplicadas; falta publicar.
-- [ ] **Missão final da Prática** (em andamento: escrita começou): assistente de RH que responde dúvidas a partir das políticas da empresa (fonte citada, recusa quando não sabe, triagem para humano), rodando no navegador.
+- [x] **Etapa P3 · Prompts e agentes para o trabalho** (7 lições): prompt de sistema e papéis; exemplos (few-shot) e formato; extração de dados de e-mails e notas fiscais; classificação e triagem de tickets de atendimento; agente com ferramentas e limites; memória de conversa e resumo; MCP para conectar sistemas da empresa.
+- [ ] → **Missão final da Prática** (em andamento: escrita começou): assistente de RH que responde dúvidas a partir das políticas da empresa (fonte citada, recusa quando não sabe, triagem para humano), rodando no navegador.
 
 ### Produção (empresas e times)
 - [ ] **Etapa R1 · Avaliação e qualidade** (7 lições): conjunto de avaliação versionado; métricas de RAG (fidelidade, relevância); LLM como juiz e sua calibração; testes de regressão no CI; testes A/B de prompt; casos difíceis e perguntas sem resposta; ciclo de feedback de usuários.
@@ -408,8 +407,9 @@ Depende das etapas de plataforma PL1 a PL3.
 | nov/2026 | Plataforma · PL2 · modelo declarativo + 9 peças de cena reutilizáveis (galeria em /galeria) | Publicada |
 | nov/2026 | Plataforma · PL3 · executores no navegador (Transformers.js 4.3.2, WebLLM 0.2.87) e sua chave (Anthropic, OpenAI, Gemini, compatível); ativos nos passos 2 e 4 dos Fundamentos | Publicada |
 | nov/2026 | IA aplicada · Prática · P1 · 7 lições com modelos reais (tokenizador do GPT-4o, multilingual-e5-small, Llama 3.2 1B ou sua chave), todas só com dados | Publicada |
+| nov/2026 | IA aplicada · Prática · P3 · Prompts e agentes: 7 lições (prompt de sistema, few-shot, extração de notas, triagem, agente com limites, memória, MCP), com modo real por Llama 1B ou sua chave | Publicada |
 | nov/2026 | Mensageria e streaming · Fundamentos F1 + missão (pizzaria: síncrono × assíncrono, comando × evento, ack, idempotência, ordem/DLQ/prefetch, pub/sub, quando não usar fila; missão Black Friday) | Publicada |
 | nov/2026 | Desenvolvimento assistido por IA · Fundamentos F1 + missão (padaria Pão de Mel: autocompletar × chat × agente, contexto, especificação, revisão, quando não usar, ética e autoria; missão do bug 0,1 × 3) | Publicada |
 | nov/2026 | IA aplicada · Prática · P2 · RAG de verdade: 8 lições sobre o manual da Aurora (BM25 real, embeddings e5 no navegador, reranker por LLM, citação e recusa, recall@k) | Publicada |
 
-**Próxima etapa:** IA aplicada · Prática · P3 (Prompts e agentes para o trabalho).
+**Próxima etapa:** IA aplicada · Missão final da Prática (assistente de RH).

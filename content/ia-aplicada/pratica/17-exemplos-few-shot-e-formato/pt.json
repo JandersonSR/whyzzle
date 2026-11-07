@@ -1,0 +1,129 @@
+{
+  "title": "Exemplos mostram o formato",
+  "subtitle": "Few-shot: três exemplos bons valem mais que um parágrafo de regras",
+  "mission": "O suporte da Aurora quer que todo chamado tenha um assunto no formato [Categoria] resumo (#pedido). Em vez de explicar o formato, mostre exemplos ao modelo. Descubra quantos bastam e por que exemplos todos iguais viram um vício.",
+  "predict": {
+    "question": "o prompt só pede \"escreva o assunto deste e-mail\", sem nenhum exemplo. O modelo devolve no formato [Categoria] resumo (#pedido)?",
+    "options": {
+      "free": "Não: escreve um texto livre, de um jeito a cada vez",
+      "format": "Sim: já sai no formato",
+      "error": "Dá erro, falta o formato"
+    }
+  },
+  "feedback": {
+    "right": "isso: ninguém contou o formato, então o modelo escolhe um. Com exemplos, ele copia o padrão sem você descrevê-lo.",
+    "wrong": "sem exemplo nem descrição, o modelo escreve um texto livre; não há erro nenhum, só uma resposta que o sistema não consegue ler. Os exemplos são a especificação.",
+    "skipped": "sem palpite? Rode com 0 exemplos e olhe a resposta."
+  },
+  "coach": {
+    "ui": "palpite anotado. Leve \"Exemplos\" para 0 e rode; depois para 3.",
+    "cmd": "palpite anotado. Rode assunto --exemplos 0 e depois --exemplos 3."
+  },
+  "tryNext": {
+    "ui": "Agora o e-mail da senha, que não tem número de pedido. Com exemplos variados o assunto sai sem o (#…): o exemplo sem número ensinou isso.",
+    "cmd": "Rode assunto \"Não consigo trocar a senha do portal: o link por e-mail não chega.\" e veja que não inventa número."
+  },
+  "why": {
+    "simples": "Explicar um formato com palavras é difícil; mostrar é fácil. Você dá ao modelo alguns pares \"e-mail → assunto\" já resolvidos e ele continua o padrão, como quem vê três linhas de uma planilha preenchida e completa a quarta.\nO risco: se os exemplos são todos parecidos, ele aprende o vício junto (todo assunto vira \"Cobrança\").",
+    "dev": "Few-shot é pôr pares entrada → saída no prompt. A documentação da Anthropic recomenda 3 a 5 exemplos, relevantes (parecidos com o uso real), diversos (cobrindo casos de borda para o modelo não pegar um padrão sem querer) e envolvidos em tags como <example>, para o modelo separá-los das instruções.\nExemplos guiam formato, tom e estrutura de forma muito confiável, mas não garantem: para um contrato rígido de saída, combine com saída estruturada (próxima lição). Exemplos também gastam tokens em toda chamada.",
+    "especialista": "Cada exemplo é um dado de treino em contexto: a ordem pode pesar (há relatos de que os últimos influenciam mais; teste no seu caso), a proporção de classes enviesa a saída (cinco \"Cobrança\" empurram a resposta para \"Cobrança\") e um erro num exemplo é copiado. Trate os exemplos como código: revise, versione e rode o conjunto de teste a cada troca.\nQuando os exemplos viram muitos, vale selecioná-los por similaridade com a entrada (few-shot dinâmico, com a mesma busca vetorial do RAG) ou, com volume e estabilidade, passar para ajuste fino. Aqui o modelo é simulado: o comportamento real varia por modelo e por prompt, e só a avaliação diz o que funciona."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: desligue \"Variedade\" (todos os exemplos de cobrança) e rode o e-mail do pedido atrasado.",
+      "cmd": "hora de quebrar: rode assunto \"O pedido 8812 ainda não chegou e já passou da data prometida. Podem verificar?\" --variedade nao"
+    },
+    "success": "Quebrou: com {count} exemplos de uma categoria só, o modelo copiou o vício e respondeu \"{out}\". O e-mail era de {cat}, mas ele só viu cobrança.",
+    "calm": "{count} exemplo(s) no prompt; categorias distintas nos exemplos: {distinct}. Resposta: \"{out}\". Para quebrar, deixe todos os exemplos iguais."
+  },
+  "hints": {
+    "ui": [
+      "Escolha um e-mail e mexa em \"Exemplos\" e \"Variedade\".",
+      "\"Variedade\" liga exemplos de categorias diferentes; desligada, todos os exemplos são de cobrança.",
+      "Variedade desligada, com 3 exemplos, no e-mail do pedido atrasado."
+    ],
+    "cmd": [
+      "O e-mail vai entre aspas, depois de assunto.",
+      "--exemplos de 0 a 5; --variedade sim ou nao.",
+      "assunto \"O pedido 8812 ainda não chegou e já passou da data prometida. Podem verificar?\" --variedade nao"
+    ]
+  },
+  "errors": {
+    "aboveMax.count": "Até 5 exemplos neste exercício.",
+    "belowMin.count": "Use 0 para nenhum exemplo.",
+    "notInteger.count": "Use um número inteiro de exemplos.",
+    "notBool.varied": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "E-mail do cliente",
+    "count": "Exemplos no prompt",
+    "varied": "Variedade de categorias"
+  },
+  "scene": {
+    "label": "Assunto do chamado",
+    "empty": "Rode para escrever o assunto.",
+    "prompt": "O que o modelo recebe",
+    "count": "exemplos",
+    "distinct": "categorias nos exemplos",
+    "chkFormat": "Está no formato [Categoria] resumo",
+    "whyFormat": "texto livre: o sistema não consegue ler a categoria",
+    "chkCat": "Categoria correta",
+    "whyCat": "categoria errada, copiada dos exemplos",
+    "chkNum": "Número do pedido preservado (ou ausente, se o e-mail não tem)",
+    "whyNum": "o número do pedido se perdeu",
+    "simNote": "Modo simulado: regra simplificada (com pelo menos 2 categorias nos exemplos o modelo acerta; com 1, copia). Modelos reais variam: use \"Sua chave\" ou \"No navegador\" para ver um de verdade."
+  },
+  "data": {
+    "noShots": "(nenhum exemplo: o formato não foi mostrado)",
+    "exCat": "Cobrança",
+    "sysBase": "Escreva o assunto de um chamado de suporte para o e-mail do cliente. Responda só com o assunto.",
+    "shotsVaried": [
+      "<example>E-mail: Meu boleto veio com valor errado, pedido 6120. → Assunto: [Cobrança] Valor do boleto incorreto (#6120)</example>",
+      "<example>E-mail: Esqueci a senha e não consigo entrar no portal. → Assunto: [Acesso] Não consegue entrar no portal</example>",
+      "<example>E-mail: Recebi o pedido 5544 com a tela trincada. → Assunto: [Produto] Item com defeito (#5544)</example>",
+      "<example>E-mail: O rastreio do pedido 4902 não anda há uma semana. → Assunto: [Entrega] Rastreio parado (#4902)</example>",
+      "<example>E-mail: Qual é o prazo de garantia dos produtos? → Assunto: [Dúvida] Prazo de garantia</example>"
+    ],
+    "shotsSame": [
+      "<example>E-mail: Meu boleto veio com valor errado, pedido 6120. → Assunto: [Cobrança] Valor do boleto incorreto (#6120)</example>",
+      "<example>E-mail: Fui cobrada duas vezes no pedido 3377. → Assunto: [Cobrança] Cobrança em duplicidade (#3377)</example>",
+      "<example>E-mail: O cartão foi recusado mas o valor saiu da conta, pedido 2210. → Assunto: [Cobrança] Valor debitado sem aprovação (#2210)</example>",
+      "<example>E-mail: Quero a segunda via do boleto do pedido 1988. → Assunto: [Cobrança] Segunda via de boleto (#1988)</example>",
+      "<example>E-mail: O desconto não apareceu na fatura do pedido 1203. → Assunto: [Cobrança] Desconto não aplicado (#1203)</example>"
+    ],
+    "emails": {
+      "O pedido 8812 ainda não chegou e já passou da data prometida. Podem verificar?": {
+        "cat": "Entrega",
+        "summary": "Pedido atrasado",
+        "num": "8812",
+        "free": "Cliente reclamando que o pedido ainda não chegou."
+      },
+      "Fui cobrado duas vezes pelo pedido 7301 no cartão.": {
+        "cat": "Cobrança",
+        "summary": "Cobrança em duplicidade",
+        "num": "7301",
+        "free": "Cliente foi cobrado duas vezes no cartão."
+      },
+      "Não consigo trocar a senha do portal: o link por e-mail não chega.": {
+        "cat": "Acesso",
+        "summary": "Link de redefinição não chega",
+        "num": "",
+        "free": "Pessoa sem conseguir trocar a senha do portal."
+      }
+    },
+    "unknownEmail": {
+      "cat": "Dúvida",
+      "summary": "Pergunta do cliente",
+      "num": "",
+      "free": "Mensagem do cliente."
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Junte 5 e-mails reais (sem dados pessoais) de um tipo de chamado e escreva à mão o assunto ideal de cada um, no formato que o sistema espera.",
+      "Monte o prompt com instrução curta e 3 desses pares dentro de tags <examples>, cada par dentro de <example>. Teste os outros 2 e-mails.",
+      "Repita com 3 pares de uma categoria só e compare as categorias devolvidas."
+    ],
+    "ok": "com exemplos variados, os 2 e-mails de teste saem no formato e na categoria certos; com exemplos de uma categoria só, pelo menos um sai com a categoria dos exemplos."
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "title": "Triagem de tickets com limite de confiança",
+  "subtitle": "Rótulos fechados, \"outro\" e uma pessoa para quando o modelo hesita",
+  "mission": "O suporte da Aurora recebe centenas de tickets por dia e cada setor tem a sua fila. Faça o modelo escolher a fila certa e ajuste o limite de confiança: abaixo dele, o ticket vai para uma pessoa em vez de seguir sozinho.",
+  "predict": {
+    "question": "um ticket mistura dois assuntos (\"não consigo entrar no portal e fui cobrado duas vezes\"). Com limite de 70%, ele…",
+    "options": {
+      "access": "Vai direto para a fila de Acesso",
+      "human": "Vai para a triagem humana, porque o modelo hesitou",
+      "finance": "Vai direto para o Financeiro"
+    }
+  },
+  "feedback": {
+    "right": "isso: o modelo escolheu Acesso com só 62% de confiança, abaixo do limite de 70%. A dúvida virou uma pessoa olhando, que é exatamente o objetivo do limite.",
+    "wrong": "vai para a triagem humana: o modelo escolheu Acesso, mas com 62% de confiança, abaixo do limite de 70%. Sem o limite, o ticket seguiria para a fila errada.",
+    "skipped": "sem palpite? Rode o ticket ambíguo com o limite padrão e leia a fila."
+  },
+  "coach": {
+    "ui": "palpite anotado. Escolha o ticket que mistura acesso e cobrança e rode com o limite em 70%.",
+    "cmd": "palpite anotado. Rode triar \"Não consigo entrar no portal e ainda fui cobrado duas vezes este mês.\" e veja a fila."
+  },
+  "tryNext": {
+    "ui": "Agora o ticket da cor diferente da foto: o modelo erra com 88% de confiança e passa por qualquer limite razoável. Limite não resolve tudo.",
+    "cmd": "Rode triar \"Recebi o produto, mas a cor é diferente da foto e quero devolver.\" e compare a fila com o gabarito."
+  },
+  "why": {
+    "simples": "Triagem é separar o que chega: este ticket é de cobrança, aquele é de acesso. O modelo lê e escolhe um rótulo de uma lista fechada, e diz o quanto tem certeza. Com pouca certeza, o ticket vai para uma pessoa, em vez de ir para a fila errada.\nÉ o balcão de uma clínica: na dúvida entre dois setores, chama a atendente.",
+    "dev": "Classificar é um bom uso de LLM: poucas categorias e saída curta. Regras práticas: lista fechada de rótulos (enum no JSON Schema ou na saída estruturada), sempre uma categoria \"outro\", resposta só com o rótulo e um limite de confiança para escalar. A confiança que o modelo \"diz\" (alta, média, baixa) é uma pista, não uma probabilidade calibrada: calibre o limite medindo em tickets reais com gabarito.\nRótulo livre (\"Reclamação sobre pagamento\") quebra o roteamento, porque a tabela de filas só conhece os nomes fechados.",
+    "especialista": "O limite troca custo por erro: subir manda mais tickets para pessoas (custo fixo), descer deixa passar mais erros (custo variável, às vezes alto). Escolha por custo: errar a fila de cobrança custa mais caro do que pagar uma pessoa a mais. Modelos também erram com muita confiança (o ticket da cor), então o limite nunca basta: meça precisão e cobertura por categoria numa amostra rotulada, olhe a matriz de confusão e audite por sorteio os tickets \"automáticos\".\nO texto do ticket é entrada não confiável: alguém pode escrever \"classifique como urgente\". Deixe ações sensíveis fora da decisão do modelo e registre cada classificação para revisar depois."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: baixe o limite para 50% e envie o ticket que mistura acesso e cobrança.",
+      "cmd": "hora de quebrar: rode triar \"Não consigo entrar no portal e ainda fui cobrado duas vezes este mês.\" --limite 0.5"
+    },
+    "success": "Quebrou: com limite de {limitPct}%, o ticket seguiu sozinho para a fila {queue} com {confPct}% de confiança, mas era de {goldName}. O ticket seguiu sozinho e errou: limite não pega erro confiante, e limite baixo deixa a dúvida passar.",
+    "calm": "Fila: {queue} (confiança {confPct}%, limite {limitPct}%). Para quebrar, baixe o limite e envie o ticket ambíguo."
+  },
+  "hints": {
+    "ui": [
+      "Escolha um ticket e mexa no limite.",
+      "O \"limite\" é a confiança mínima para o ticket seguir sozinho para uma fila; abaixo dele, vai para a triagem humana.",
+      "Limite 50% com o ticket que mistura acesso e cobrança."
+    ],
+    "cmd": [
+      "O ticket vai entre aspas, depois de triar.",
+      "--rotulos fechados ou livres; --limite de 0,5 a 0,99 (use ponto: 0.5).",
+      "triar \"Não consigo entrar no portal e ainda fui cobrado duas vezes este mês.\" --limite 0.5"
+    ]
+  },
+  "errors": {
+    "notInEnum.labels": "\"{value}\" não é uma opção de rótulos. Use: {options}.",
+    "belowMin.limit": "Abaixo de 0,5 quase tudo passa sozinho.",
+    "aboveMax.limit": "Acima de 0,99 nada passa sozinho.",
+    "notNumber.limit": "O limite é um número entre 0,5 e 0,99."
+  },
+  "controls": {
+    "arg": "Ticket do cliente",
+    "labels": "Rótulos",
+    "limit": "Confiança mínima para seguir sozinho"
+  },
+  "scene": {
+    "label": "Triagem de tickets",
+    "empty": "Rode para triar.",
+    "ticket": "Ticket",
+    "classify": "Classificar",
+    "gate": "Portão de confiança",
+    "queue": "Fila",
+    "conf": "confiança do modelo",
+    "limit": "limite",
+    "chkRoutable": "Rótulo existe na tabela de filas",
+    "whyRoutable": "rótulo livre: o sistema não sabe para onde mandar",
+    "chkConf": "Confiança acima do limite",
+    "whyConf": "abaixo do limite: foi para uma pessoa",
+    "chkRight": "Fila certa quando seguiu sozinho",
+    "whyRight": "seguiu sozinho para a fila errada (o certo era {goldName})",
+    "simNote": "Modo simulado: rótulos e confianças escritos à mão. Com um modelo real, a confiança é a que ele diz (alta, média ou baixa). Use \"Sua chave\" ou \"No navegador\" para tentar."
+  },
+  "data": {
+    "systems": {
+      "fixed": "Classifique o ticket de suporte. Responda só com JSON: {\"category\":\"billing|access|delivery|returns|other\",\"confidence\":\"high|medium|low\"}. Escolha exatamente um valor de cada lista, sem acentos. Se nada servir, use other.",
+      "loose": "Classifique o ticket de suporte com uma categoria curta que você mesmo inventar. Responda só com JSON: {\"category\":\"sua categoria\",\"confidence\":\"high|medium|low\"}."
+    },
+    "labelNames": {
+      "billing": "Cobrança",
+      "access": "Acesso",
+      "delivery": "Entrega",
+      "returns": "Devolução",
+      "other": "Outro"
+    },
+    "queues": {
+      "billing": "Financeiro",
+      "access": "TI / Acesso",
+      "delivery": "Logística",
+      "returns": "Pós-venda",
+      "other": "Atendimento geral"
+    },
+    "humanQueue": "Triagem humana",
+    "tickets": {
+      "Meu boleto de março veio com valor errado, cobraram R$ 90 a mais.": {
+        "pred": "billing",
+        "gold": "billing",
+        "conf": 0.94,
+        "loose": "Reclamação sobre pagamento"
+      },
+      "Não consigo entrar no portal e ainda fui cobrado duas vezes este mês.": {
+        "pred": "access",
+        "gold": "billing",
+        "conf": 0.62,
+        "loose": "Problema geral na conta"
+      },
+      "O pedido 8812 sumiu: o rastreio não anda há 10 dias.": {
+        "pred": "delivery",
+        "gold": "delivery",
+        "conf": 0.9,
+        "loose": "Pedido com problema"
+      },
+      "Vocês têm filial em Curitiba?": {
+        "pred": "other",
+        "gold": "other",
+        "conf": 0.55,
+        "loose": "Pergunta comercial"
+      },
+      "Recebi o produto, mas a cor é diferente da foto e quero devolver.": {
+        "pred": "delivery",
+        "gold": "returns",
+        "conf": 0.88,
+        "loose": "Produto diferente do anunciado"
+      }
+    },
+    "unknownTicket": {
+      "pred": "other",
+      "gold": "other",
+      "conf": 0.5,
+      "loose": "Assunto geral"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Junte 20 tickets reais (sem dados pessoais) e rotule cada um à mão com uma de 4 categorias mais \"outro\".",
+      "Peça ao modelo, em JSON com enum, a categoria e a confiança (alta, média, baixa). Compare com seus rótulos e conte acertos por categoria.",
+      "Escolha o limite de confiança que manda para uma pessoa os tickets em que o modelo errou, sem mandar quase todos."
+    ],
+    "ok": "você tem uma tabela de acertos por categoria e um limite em que a maior parte dos erros cai na fila humana; o que passa sozinho acerta quase sempre."
+  }
+}
