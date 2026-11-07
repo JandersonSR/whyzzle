@@ -163,7 +163,8 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 5. C# e ASP.NET Core
 - **Fundamentos**
-  - [ ] F1 · C# do zero (7): tipos e variáveis; controle de fluxo; coleções e LINQ; classes e records; nulabilidade; exceções; async/await.
+  - [ ] → F1 · C# do zero (7): tipos e variáveis; controle de fluxo; coleções e LINQ; classes e records; nulabilidade; exceções; async/await.
+    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão independente e publicação.
   - [ ] Missão: calculadora de empréstimo com testes.
 - **Prática**
   - [ ] P1 · Web APIs com ASP.NET Core (8): minimal APIs × controllers; injeção de dependência e ciclos de vida; validação e ProblemDetails; EF Core e migrations; autenticação JWT; configuração e options; logging; testes de integração.
