@@ -1,0 +1,93 @@
+{
+  "title": "Delivery guarantees and acks",
+  "subtitle": "The \"ok, done\" that decides whether an order vanishes or goes back to the queue",
+  "mission": "Kitchen worker-1 grabbed 10 tickets at once and crashed mid-shift (someone tripped over the cable). Find out what happens to the tickets in its hands when the \"ok\" (ack) is automatic and when it’s manual.",
+  "predict": {
+    "question": "with manual ack, worker-1 crashes right after finishing pizza 4. What happens to the tickets it had taken and not confirmed?",
+    "options": {
+      "lost": "They vanish with the worker",
+      "back": "They go back to the queue, and one may be made twice",
+      "stuck": "They’re stuck forever"
+    }
+  },
+  "feedback": {
+    "right": "spot on: the broker only deletes a message when it gets the ack. The worker crashed, the connection closed, and the 7 unacked ones went back to the queue. Pizza 4 had left the oven but its \"ok\" never arrived: it will be made again.",
+    "wrong": "they go back: with manual ack, an unconfirmed message still belongs to the broker. When the worker’s connection drops, RabbitMQ requeues them all, flagged as redelivered. Nothing is lost, but pizza 4 is made twice.",
+    "skipped": "no guess? Run it and look at the queue: tickets marked ↺ are the ones that came back."
+  },
+  "coach": {
+    "ui": "guess noted. Run with manual ack, then switch to automatic and compare \"lost tickets\".",
+    "cmd": "guess noted. Run cook and then cook --ack auto. Compare \"lost tickets\"."
+  },
+  "tryNext": {
+    "ui": "Move the crash to 10 (the worker doesn’t crash): both modes tie. The difference only shows when something goes wrong, which is why it fools people.",
+    "cmd": "Run cook --ack auto --crash 10 and compare with --crash 4."
+  },
+  "why": {
+    "simples": "When the kitchen takes a ticket, it can say \"got it\" right away (automatic ack) or \"done\" only when the pizza is out (manual ack).\nIf the cook faints with 10 tickets in their pocket: with automatic, the counter thinks everything was fine and those orders vanish. With manual, the counter notices nobody said \"done\" and puts the tickets back on the rail. The side effect: the pizza that was finished right at the moment of fainting gets made again.",
+    "dev": "In RabbitMQ (AMQP 0-9-1) the consumer picks the mode. Automatic: the message counts as delivered as soon as it leaves the broker; the docs call this unsafe, because if the connection drops before you process it, it’s gone. Manual: you call basic.ack after processing; basic.nack or basic.reject either requeue (requeue=true) or discard/dead-letter (requeue=false).\nIf the channel or connection closes with unacked messages, they go back to the queue and are redelivered with the redelivered flag. That gives the famous guarantees: ack before processing (or automatic) = at-most-once (may lose); ack after processing = at-least-once (may repeat).",
+    "especialista": "Consumer acks are half the story. The other half is the producer: without publisher confirms, a persistent message can be lost if the broker fails before writing it; with confirms, the broker replies basic.ack once all target queues accepted it (for quorum queues, once a majority of replicas did). And a durable queue doesn’t make messages persistent: that’s per message.\nRabbitMQ also has an ack timeout (consumer_timeout, 30 minutes by default): a consumer that holds a message unacked longer than that gets its channel closed. In Kafka the same choice shows up as \"when to commit the offset\": before processing gives at-most-once, after gives at-least-once, and the docs say Kafka’s default is at-least-once. End-to-end \"exactly-once\" requires the effect and the progress to be stored together, the subject of the next lessons."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch the ack to automatic with the crash at 4.",
+      "cmd": "time to break it: run cook --ack auto"
+    },
+    "success": "Broken: with automatic ack the broker had already marked all 10 tickets as delivered. The worker crashed after pizza {k} and {lost} orders vanished without a trace: not in the queue, not anywhere.",
+    "calm": "No ticket lost: {back} went back to the queue and {dup} will be made twice. That’s at-least-once. To break it, use automatic ack."
+  },
+  "hints": {
+    "ui": [
+      "Pick the ack mode and at which pizza the worker crashes.",
+      "\"Lost tickets\" only goes above zero in one of the modes.",
+      "Automatic ack, crash at 4."
+    ],
+    "cmd": [
+      "The queue name goes in quotes; --ack and --crash are optional.",
+      "--ack takes manual or auto; --crash goes from 1 to 10 (10 = no crash).",
+      "cook --ack auto"
+    ]
+  },
+  "errors": {
+    "notInEnum.ack": "Use manual or auto.",
+    "belowMin.crash": "The worker finishes at least the first pizza before crashing. Use 1 to 10.",
+    "aboveMax.crash": "It only took 10 tickets. Use 10 for \"no crash\"."
+  },
+  "controls": {
+    "arg": "Queue",
+    "ack": "Ack mode",
+    "crash": "Worker crashes after pizza no. (10 = no crash)"
+  },
+  "scene": {
+    "label": "Kitchen with 2 workers",
+    "empty": "Run to open the kitchen.",
+    "lostM": "lost tickets",
+    "backM": "back in the queue",
+    "dupM": "pizzas made twice",
+    "ackedM": "acks recorded",
+    "queueLabel": "Queue after the crash (↺ = redelivery)",
+    "counter": "counter",
+    "crashedNote": "crashed after pizza {k}",
+    "fineNote": "made all 10 and acked",
+    "takesOver": "picks up the returned ones",
+    "waiting": "waiting",
+    "lostLabel": "lost",
+    "terminal": "What the broker shows",
+    "before": "~# with worker-1 holding 10 tickets",
+    "after": "~# after worker-1 crashed",
+    "noCrash": "~# after worker-1 finished",
+    "lostNote": "With automatic ack the broker keeps nothing it delivered: {lost} orders vanished. Nobody will notice until an angry customer calls.",
+    "dupNote": "Pizza {k} left the oven, but the worker crashed before saying \"done\". It goes back to the queue and will be made again. Next lesson we fix that."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "With Docker installed, start RabbitMQ with the management UI: docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management",
+      "Open http://localhost:15672 in your browser and log in with guest / guest (that user only works from your own machine, and is for study only).",
+      "Create the pedidos queue and publish 10 messages from the UI. Install the Python client: pip install pika",
+      "Create a file worker.py with exactly this content (the callback body is indented 4 spaces; basic_consume sits outside it, unindented):\nimport pika, time\nconn = pika.BlockingConnection(pika.ConnectionParameters(\"localhost\"))\nch = conn.channel()\nch.basic_qos(prefetch_count=10)\ndef work(ch, m, p, body):\n    print(\"making\", body)\n    time.sleep(3)\n    ch.basic_ack(delivery_tag=m.delivery_tag)\nch.basic_consume(queue=\"pedidos\", on_message_callback=work, auto_ack=False)\nch.start_consuming()",
+      "Run python worker.py and press Ctrl+C halfway. Look at the queue in the UI. Then repeat with auto_ack=True (removing the basic_ack line)."
+    ],
+    "ok": "with auto_ack=False, the messages in \"Unacked\" go back to \"Ready\" when the worker dies; with auto_ack=True, they disappear from the queue."
+  }
+}

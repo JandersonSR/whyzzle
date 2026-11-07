@@ -1,0 +1,379 @@
+{
+  "id": "msg-ordem-dlq-prefetch",
+  "order": 5,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "mensageria",
+    "prefetch",
+    "dlq",
+    "ordem",
+    "rabbitmq"
+  ],
+  "requires": [
+    "msg-ack-e-garantias"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "distribuir",
+      "en": "dispatch"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "pedidos",
+        "en": "pedidos"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "prefetch",
+        "alias": {
+          "pt": "prefetch",
+          "en": "prefetch"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 1000,
+        "uiMax": 12,
+        "default": 1,
+        "ui": "slider"
+      },
+      {
+        "name": "dlq",
+        "alias": {
+          "pt": "dlq",
+          "en": "dlq"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "sac",
+        "alias": {
+          "pt": "unico",
+          "en": "single"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "poisonLoop"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "rrTab": {
+          "0": [
+            18,
+            6,
+            6,
+            5
+          ],
+          "1": [
+            9,
+            9,
+            3,
+            3
+          ],
+          "2": [
+            12,
+            8,
+            4,
+            7
+          ],
+          "3": [
+            12,
+            8,
+            4,
+            7
+          ],
+          "4": [
+            15,
+            7,
+            5,
+            6
+          ],
+          "5": [
+            15,
+            7,
+            5,
+            6
+          ],
+          "6": [
+            18,
+            6,
+            6,
+            5
+          ],
+          "7": [
+            18,
+            6,
+            6,
+            5
+          ],
+          "8": [
+            18,
+            6,
+            6,
+            5
+          ],
+          "9": [
+            18,
+            6,
+            6,
+            5
+          ],
+          "10": [
+            18,
+            6,
+            6,
+            5
+          ],
+          "11": [
+            18,
+            6,
+            6,
+            5
+          ],
+          "12": [
+            18,
+            6,
+            6,
+            5
+          ]
+        },
+        "sacTab": {
+          "0": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "1": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "2": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "3": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "4": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "5": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "6": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "7": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "8": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "9": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "10": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "11": [
+            12,
+            12,
+            0,
+            0
+          ],
+          "12": [
+            12,
+            12,
+            0,
+            0
+          ]
+        },
+        "limit": 3
+      },
+      "compute": {
+        "pk": "prefetch == 0 || prefetch > 12 ? '0' : str(prefetch)",
+        "row": "lookup(sac ? sacTab : rrTab, pk, [0, 0, 0, 0])",
+        "finishMin": "row[0]",
+        "fastN": "row[1]",
+        "slowN": "row[2]",
+        "oooN": "row[3]",
+        "triesText": "dlq ? str(limit) : '∞'"
+      },
+      "cases": [
+        {
+          "when": "!dlq",
+          "flags": [
+            "poisonLoop"
+          ]
+        },
+        {
+          "when": "dlq",
+          "flags": [
+            "parked"
+          ]
+        },
+        {
+          "when": "oooN > 0",
+          "flags": [
+            "outOfOrder"
+          ]
+        },
+        {
+          "when": "!sac && slowN >= fastN",
+          "flags": [
+            "hoarding"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "finish": "finishMin",
+            "fast": "fastN",
+            "slow": "slowN",
+            "ooo": "oooN",
+            "p": "prefetch"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@finishM",
+              "value": "=finishMin",
+              "format": "min",
+              "tone": "=finishMin > 12 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@oooM",
+              "value": "=oooN",
+              "format": "int",
+              "tone": "=oooN > 0 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@triesM",
+              "value": "=triesText",
+              "tone": "=dlq ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "queue",
+          "label": "@queueLabel",
+          "producer": "@counter",
+          "empty": "@emptyQueue",
+          "messages": "=dlq ? [] : ['!☠ #13']",
+          "consumers": [
+            {
+              "label": "@fastW",
+              "note": "@fastNote",
+              "tone": "=dlq ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@slowW",
+              "note": "=sac ? '@standby' : '@slowNote'",
+              "tone": "=sac ? 'dim' : 'ok'"
+            }
+          ],
+          "dlq": "=dlq ? ['☠ #13'] : []",
+          "dlqLabel": "DLQ"
+        },
+        {
+          "type": "chart",
+          "label": "@chart",
+          "kind": "bar",
+          "labels": [
+            "@fastW",
+            "@slowW"
+          ],
+          "series": [
+            {
+              "label": "@ordersS",
+              "values": "=[fastN, slowN]"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@terminal",
+          "lines": "=dlq ? ['@t1', '@t2', '@t3', '@tDlq'] : ['@t1', '@t2', '@t3', '@tLoop1', '@tLoop2']"
+        },
+        {
+          "type": "note",
+          "when": "=!dlq",
+          "tone": "bad",
+          "text": "@loopNote"
+        },
+        {
+          "type": "note",
+          "when": "=!sac && slowN >= fastN",
+          "tone": "warn",
+          "text": "@hoardNote"
+        },
+        {
+          "type": "note",
+          "when": "=oooN > 0",
+          "tone": "info",
+          "text": "@oooNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "faster",
+      "same",
+      "slower"
+    ],
+    "answer": "slower"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "title": "Garantias de entrega e ack",
+  "subtitle": "O \"ok, terminei\" que decide se um pedido some ou volta para a fila",
+  "mission": "O worker-1 da cozinha pegou 10 comandas de uma vez e caiu no meio do serviço (alguém tropeçou no cabo). Descubra o que acontece com as comandas que estavam na mão dele quando o \"ok\" (ack) é automático e quando é manual.",
+  "predict": {
+    "question": "com ack manual, o worker-1 cai depois de terminar a pizza 4. O que acontece com as comandas que ele tinha pegado e não confirmou?",
+    "options": {
+      "lost": "Somem junto com o worker",
+      "back": "Voltam para a fila, e uma pode sair repetida",
+      "stuck": "Ficam presas para sempre"
+    }
+  },
+  "feedback": {
+    "right": "na mosca: o broker só apaga a mensagem quando recebe o ack. O worker caiu, a conexão fechou, e as 7 sem ack voltaram para a fila. A pizza 4 já tinha saído do forno mas o \"ok\" não chegou: ela vai ser feita de novo.",
+    "wrong": "elas voltam: com ack manual, mensagem sem confirmação continua sendo do broker. Quando a conexão do worker cai, o RabbitMQ devolve todas para a fila, marcadas como reentrega. Nada se perde, mas a pizza 4 sai em dobro.",
+    "skipped": "sem palpite? Rode e olhe a fila: as comandas com ↺ são as que voltaram."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com ack manual, depois troque para automático e compare \"comandas perdidas\".",
+    "cmd": "palpite anotado. Rode cozinhar e depois cozinhar --ack auto. Compare \"comandas perdidas\"."
+  },
+  "tryNext": {
+    "ui": "Leve a falha para 10 (o worker não cai): os dois modos empatam. A diferença só aparece quando algo dá errado, e é por isso que ela engana.",
+    "cmd": "Rode cozinhar --ack auto --falha 10 e compare com --falha 4."
+  },
+  "why": {
+    "simples": "Quando a cozinha pega uma comanda, ela pode avisar \"peguei\" na hora (ack automático) ou só \"terminei\" quando a pizza sai (ack manual).\nSe o pizzaiolo desmaia com 10 comandas no bolso: no automático, o balcão acha que estava tudo certo e esses pedidos somem. No manual, o balcão percebe que ninguém disse \"terminei\" e devolve as comandas para o varal. O efeito colateral: a pizza que ficou pronta bem na hora do desmaio vai ser feita de novo.",
+    "dev": "No RabbitMQ (AMQP 0-9-1), o consumidor escolhe o modo. Automático: a mensagem conta como entregue assim que sai do broker; a documentação chama isso de inseguro, porque se a conexão cair antes de você processar, perdeu. Manual: você chama basic.ack depois de processar; basic.nack ou basic.reject devolvem (requeue=true) ou descartam/mandam para DLX (requeue=false).\nSe o canal ou a conexão fecham com mensagens sem ack, elas voltam para a fila e são reentregues com a marca redelivered. Isso dá as famosas garantias: ack antes de processar (ou automático) = no máximo uma vez (at-most-once, pode perder); ack depois de processar = pelo menos uma vez (at-least-once, pode repetir).",
+    "especialista": "Ack do consumidor é metade da história. A outra é o produtor: sem publisher confirms, uma mensagem persistente pode se perder se o broker cair antes de gravá-la; com confirms, o broker responde basic.ack quando todas as filas de destino aceitaram (para quorum queues, quando a maioria das réplicas aceitou). E fila durável não torna a mensagem persistente: isso é por mensagem.\nO RabbitMQ também tem um tempo limite de ack (consumer_timeout, 30 minutos por padrão): um consumidor que segura uma mensagem sem confirmar por mais que isso tem o canal fechado. No Kafka a mesma escolha aparece como \"quando fazer commit do offset\": antes de processar dá at-most-once, depois dá at-least-once, e a documentação diz que o padrão do Kafka é at-least-once. \"Exactly-once\" de ponta a ponta exige que o efeito e o progresso sejam gravados juntos, assunto das próximas lições."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: troque o ack para automático com a falha em 4.",
+      "cmd": "hora de quebrar: rode cozinhar --ack auto"
+    },
+    "success": "Quebrou: no ack automático o broker já tinha dado as 10 comandas como entregues. O worker caiu depois da pizza {k} e {lost} pedidos sumiram sem deixar rastro: nem na fila, nem em lugar nenhum.",
+    "calm": "Nenhuma comanda perdida: {back} voltaram para a fila e {dup} vai sair repetida. Isso é at-least-once. Para quebrar, use ack automático."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o modo de ack e em que pizza o worker cai.",
+      "\"Comandas perdidas\" só passa de zero num dos modos.",
+      "Ack automático, falha em 4."
+    ],
+    "cmd": [
+      "O nome da fila vai entre aspas; --ack e --falha são opcionais.",
+      "--ack aceita manual ou auto; --falha vai de 1 a 10 (10 = não cai).",
+      "cozinhar --ack auto"
+    ]
+  },
+  "errors": {
+    "notInEnum.ack": "Use manual ou auto.",
+    "belowMin.crash": "O worker termina pelo menos a primeira pizza antes de cair. Use de 1 a 10.",
+    "aboveMax.crash": "Ele só pegou 10 comandas. Use 10 para \"não cai\"."
+  },
+  "controls": {
+    "arg": "Fila",
+    "ack": "Modo de ack",
+    "crash": "Worker cai depois da pizza nº (10 = não cai)"
+  },
+  "scene": {
+    "label": "Cozinha com 2 workers",
+    "empty": "Rode para abrir a cozinha.",
+    "lostM": "comandas perdidas",
+    "backM": "voltaram para a fila",
+    "dupM": "pizzas que saem em dobro",
+    "ackedM": "acks registrados",
+    "queueLabel": "Fila depois da queda (↺ = reentrega)",
+    "counter": "balcão",
+    "crashedNote": "caiu depois da pizza {k}",
+    "fineNote": "fez as 10 e confirmou",
+    "takesOver": "pega as devolvidas",
+    "waiting": "esperando",
+    "lostLabel": "perdidas",
+    "terminal": "O que o broker mostra",
+    "before": "~# com o worker-1 segurando 10 comandas",
+    "after": "~# depois da queda do worker-1",
+    "noCrash": "~# depois que o worker-1 terminou",
+    "lostNote": "No ack automático o broker não guarda nada do que entregou: {lost} pedidos sumiram. Ninguém vai perceber até o cliente ligar bravo.",
+    "dupNote": "A pizza {k} saiu do forno, mas o worker caiu antes de dizer \"terminei\". Ela volta para a fila e vai ser feita de novo. Na próxima lição a gente resolve isso."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Com o Docker instalado, suba um RabbitMQ com o painel de gestão: docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management",
+      "Abra http://localhost:15672 no navegador e entre com guest / guest (esse usuário só funciona a partir da sua própria máquina, e é só para estudo).",
+      "Crie a fila pedidos e publique 10 mensagens pelo painel. Instale o cliente Python: pip install pika",
+      "Crie o arquivo worker.py com exatamente este conteúdo (o corpo do callback tem 4 espaços de indentação; o basic_consume fica fora dele, sem indentação):\nimport pika, time\nconn = pika.BlockingConnection(pika.ConnectionParameters(\"localhost\"))\nch = conn.channel()\nch.basic_qos(prefetch_count=10)\ndef faz(ch, m, p, body):\n    print(\"fazendo\", body)\n    time.sleep(3)\n    ch.basic_ack(delivery_tag=m.delivery_tag)\nch.basic_consume(queue=\"pedidos\", on_message_callback=faz, auto_ack=False)\nch.start_consuming()",
+      "Rode python worker.py e, no meio, aperte Ctrl+C. Olhe a fila no painel. Depois repita com auto_ack=True (tirando a linha do basic_ack)."
+    ],
+    "ok": "com auto_ack=False, as mensagens que estavam em \"Unacked\" voltam para \"Ready\" quando o worker morre; com auto_ack=True, elas somem da fila."
+  }
+}

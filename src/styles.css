@@ -1070,7 +1070,13 @@ textarea {
   font-size: 15px;
   line-height: 1.5;
 }
+.wz-recipe__steps li {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
 .wz-recipe__ok {
+  overflow-wrap: anywhere;
   display: flex;
   gap: 10px;
   align-items: flex-start;

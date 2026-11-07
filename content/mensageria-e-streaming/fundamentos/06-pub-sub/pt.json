@@ -1,0 +1,106 @@
+{
+  "title": "Pub/sub",
+  "subtitle": "Uma fila para dividir trabalho, uma fila por interessado para todo mundo ouvir",
+  "mission": "O caixa publicou 9 eventos \"PedidoPago\". Cozinha, nota fiscal e fidelidade precisam de todos. O analytics só chegou depois do 6º. Ligue os serviços numa fila compartilhada ou numa fila por serviço, e veja quem recebeu o quê. Depois teste o modo log, que guarda o histórico.",
+  "predict": {
+    "question": "se cozinha, nota e fidelidade lerem da MESMA fila, cada um recebe quantos dos 9 eventos?",
+    "options": {
+      "nine": "Todos os 9",
+      "three": "Uns 3 cada",
+      "zero": "Nenhum"
+    }
+  },
+  "feedback": {
+    "right": "isso: numa fila, cada mensagem vai para um consumidor só. Os serviços viram \"concorrentes\" e dividem os eventos como se fossem pizzaiolos repartindo comandas. Ótimo para dividir trabalho, péssimo para avisar todo mundo.",
+    "wrong": "cada um recebe uns 3: numa fila, cada mensagem é entregue a um consumidor só. Para cada serviço receber tudo, cada um precisa da sua fila ligada a uma exchange fanout (ou, no Kafka, do seu consumer group).",
+    "skipped": "sem palpite? Rode publicar --filas compartilhada e olhe a tabela."
+  },
+  "coach": {
+    "ui": "palpite anotado. Troque para fila compartilhada e compare a tabela.",
+    "cmd": "palpite anotado. Rode publicar e depois publicar --filas compartilhada."
+  },
+  "tryNext": {
+    "ui": "Volte para \"uma por serviço\" e ligue o modo log: o analytics, que chegou atrasado, lê desde o começo. (No Kafka, um grupo novo começa no fim por padrão, com auto.offset.reset=latest; para ler do offset 0 é preciso auto.offset.reset=earliest.)",
+    "cmd": "Rode publicar --log sim e olhe a linha do analytics (no Kafka, ler do offset 0 exige auto.offset.reset=earliest; o padrão é latest)."
+  },
+  "why": {
+    "simples": "Fila compartilhada é a pilha de comandas da cozinha: cada comanda vai para um pizzaiolo só. Serve para dividir trabalho.\nPub/sub é o grupo da família no celular: uma mensagem, e cada um recebe a sua cópia. Quem publica não sabe quantos estão ouvindo.\nE tem a diferença entre caixa de correio e mural: na fila, a carta lida sai da caixa; no log (como o Kafka), o recado fica no mural e quem chega depois ainda pode ler.",
+    "dev": "No RabbitMQ (AMQP 0-9-1), o produtor publica numa exchange, e bindings decidem para quais filas vai. Tipos: direct (chave exata), fanout (copia para todas as filas ligadas), topic (padrão na chave, como pedido.*) e headers. Pub/sub = uma exchange fanout ou topic, com uma fila por serviço; vários consumidores na mesma fila = competing consumers.\nNo Kafka a ideia aparece como consumer groups: cada grupo recebe todas as mensagens do tópico, e dentro do grupo as partições são repartidas entre os consumidores. Mesmo grupo divide; grupos diferentes copiam.",
+    "especialista": "Fila e log têm modelos de retenção diferentes. Numa fila, a mensagem confirmada é apagada; um serviço novo só vê o que chegar depois de a fila dele existir. Num log (Kafka, ou streams do RabbitMQ), as mensagens ficam pelo tempo ou tamanho de retenção, e cada leitor guarda seu offset: dá para reprocessar e para um serviço novo ler o histórico. Atenção: um consumer group novo do Kafka começa no fim do tópico por padrão (auto.offset.reset=latest); para ler desde o offset 0 é preciso auto.offset.reset=earliest.\nIsso muda decisões de arquitetura: reconstruir um read model a partir de eventos, auditar, depurar um bug reprocessando. Em troca, você cuida de retenção, compactação, partições e lag por grupo. Uma fila por assinante também multiplica armazenamento: muitos assinantes em fanout grande é um sinal para considerar um stream."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: ligue todo mundo na fila compartilhada.",
+      "cmd": "hora de quebrar: rode publicar --filas compartilhada"
+    },
+    "success": "Quebrou: na mesma fila, cada evento foi para um serviço só. A cozinha viu {kitchen} de 9, a nota {invoice} e a fidelidade {loyalty}. Teve pizza paga que não foi feita e pedido sem nota fiscal.",
+    "calm": "Cada serviço com a sua fila recebeu os 9 eventos. O analytics recebeu {analytics}. Para quebrar, coloque todos na mesma fila."
+  },
+  "hints": {
+    "ui": [
+      "Escolha como ligar os serviços e se o histórico fica guardado.",
+      "Na mesma fila, cada mensagem tem um único destino.",
+      "Escolha \"compartilhada\"."
+    ],
+    "cmd": [
+      "O nome do evento vai entre aspas; --filas e --log são opcionais.",
+      "--filas aceita por-servico ou compartilhada.",
+      "publicar --filas compartilhada"
+    ]
+  },
+  "errors": {
+    "notInEnum.queues": "Use por-servico ou compartilhada.",
+    "notBool.log": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Evento",
+    "queues": "Como ligar os serviços",
+    "log": "Modo log (guarda histórico, como Kafka)"
+  },
+  "scene": {
+    "label": "Quem recebeu os 9 eventos",
+    "empty": "Rode para publicar.",
+    "kitchen": "cozinha",
+    "invoice": "nota fiscal",
+    "loyalty": "fidelidade",
+    "analytics": "analytics (chegou depois)",
+    "cashier": "caixa",
+    "oneQueue": "uma fila só",
+    "oneQueueSub": "consumidores competem",
+    "fanout": "exchange fanout",
+    "fanoutSub": "uma cópia por fila",
+    "topic": "tópico (log)",
+    "topicSub": "cada grupo com seu offset",
+    "services": "serviços",
+    "splitSub": "cada evento para um só",
+    "copySub": "todo mundo recebe",
+    "tableLabel": "Entregas por serviço",
+    "service": "serviço",
+    "where": "lê de",
+    "got": "recebeu",
+    "sharedName": "fila pedidos (compartilhada)",
+    "gKitchen": "grupo cozinha",
+    "gInvoice": "grupo nota",
+    "gLoyalty": "grupo fidelidade",
+    "gAnalytics": "grupo analytics, desde o início",
+    "qKitchen": "cozinha.pedidos",
+    "qInvoice": "nota.pedidos",
+    "qLoyalty": "fidelidade.pedidos",
+    "qAnalytics": "analytics.pedidos",
+    "caption": "9 eventos publicados; o analytics se inscreveu depois do 6º.",
+    "sharedNote": "Fila compartilhada é para dividir trabalho entre cópias do MESMO serviço, não para avisar serviços diferentes.",
+    "lateNote": "Com filas, quem chega atrasado só vê o que veio depois: o analytics recebeu {analytics} de 9. O histórico já tinha sido apagado.",
+    "replayNote": "No log, as mensagens ficam guardadas pelo tempo de retenção. O analytics começou do offset 0 e leu os 9. (No Kafka isso exige auto.offset.reset=earliest: por padrão, um consumer group novo começa no fim, com latest.)"
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Com o Docker instalado, suba um RabbitMQ com o painel de gestão: docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management",
+      "Abra http://localhost:15672 no navegador e entre com guest / guest (esse usuário só funciona a partir da sua própria máquina, e é só para estudo).",
+      "Crie uma exchange eventos do tipo fanout e duas filas, cozinha e nota. Em cada fila, faça o binding com a exchange eventos.",
+      "Na página da exchange eventos, publique 3 mensagens. Depois olhe a contagem das duas filas.",
+      "Para ver o outro lado, publique 6 mensagens na fila pedidos (a da lição 1). No worker.py da lição de ack, troque para basic_qos(prefetch_count=1) (senão o primeiro worker pega as 6 de uma vez) e rode duas cópias, em dois terminais, lendo da mesma fila pedidos: elas dividem as mensagens."
+    ],
+    "ok": "as filas cozinha e nota mostram 3 mensagens cada, a partir de uma única publicação por mensagem; e as duas cópias do worker na mesma fila imprimem mensagens diferentes."
+  }
+}

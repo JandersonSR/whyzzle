@@ -1,0 +1,100 @@
+{
+  "title": "Ordem, DLQ e prefetch",
+  "subtitle": "O pizzaiolo lento que pega comanda demais e a comanda envenenada que ninguém consegue fazer",
+  "mission": "Na cozinha, o Zé é rápido (1 min por pizza) e o Beto é novato (3 min). São 12 comandas e uma 13ª envenenada: \"pizza de sabor inexistente\", que faz qualquer um travar. Ajuste o prefetch (quantas comandas cada um segura de uma vez), a DLQ (a gaveta das comandas problemáticas) e veja o que acontece com a ordem.",
+  "predict": {
+    "question": "se você subir o prefetch de 1 para 10, as 12 pizzas ficam prontas…",
+    "options": {
+      "faster": "Mais rápido: menos idas ao balcão",
+      "same": "No mesmo tempo",
+      "slower": "Mais devagar"
+    }
+  },
+  "feedback": {
+    "right": "isso: com prefetch 10, o broker reparte meio a meio e o Beto fica com 6 comandas na mão. O Zé termina as dele e fica parado enquanto o Beto sua. Com prefetch 1, quem termina pega a próxima, e o Zé faz a maioria.",
+    "wrong": "fica mais devagar: o prefetch alto faz o broker entregar 6 comandas para cada um logo de cara. O Beto, lento, segura as dele, e o Zé fica de braços cruzados. Prefetch baixo deixa o trabalho ir para quem está livre.",
+    "skipped": "sem palpite? Compare o tempo total com prefetch 1 e com 10."
+  },
+  "coach": {
+    "ui": "palpite anotado. Leve o prefetch de 1 para 10 e olhe o tempo total e as barras.",
+    "cmd": "palpite anotado. Rode distribuir e depois distribuir --prefetch 10."
+  },
+  "tryNext": {
+    "ui": "Ligue \"consumidor único\": só o Zé trabalha, nada sai fora de ordem, mas leva 12 minutos. Ordem estrita custa paralelismo.",
+    "cmd": "Rode distribuir --unico sim e compare \"fora de ordem\" e o tempo."
+  },
+  "why": {
+    "simples": "Prefetch é quantas comandas cada pizzaiolo pode segurar antes de terminar alguma. Se o novato pega muitas, elas ficam paradas no bolso dele enquanto o rápido está livre.\nDLQ (fila de mensagens mortas) é a gaveta das comandas que ninguém consegue fazer. Sem ela, a comanda envenenada volta para o varal, alguém pega, trava, devolve, outro pega… para sempre. Com ela, depois de algumas tentativas, vai para a gaveta e um humano olha com calma.\nE com dois pizzaiolos de velocidades diferentes, a pizza 3 pode ficar pronta antes da 2. Se a ordem importa, só um pode trabalhar por vez.",
+    "dev": "No RabbitMQ, prefetch (basic.qos) limita quantas entregas sem ack podem estar em andamento; com global=false (o padrão dos clientes) o limite vale por consumidor, não por canal; 0 é sem limite. A documentação diz que valores entre 100 e 300 costumam dar a melhor vazão sem sobrecarregar consumidores, e que 1 é o mais conservador e reduz bastante a vazão. Esse conselho vale para mensagens rápidas (milissegundos); quando cada mensagem leva minutos, como aqui, prefetch baixo distribui melhor.\nDLQ: configure um dead letter exchange (de preferência por política, não fixo no código). A mensagem vai para lá quando é rejeitada sem requeue, expira por TTL, estoura o limite de tamanho da fila ou passa do limite de entregas de uma quorum queue (20 por padrão desde o RabbitMQ 4.0; nesta simulação, 3).",
+    "especialista": "Ordem numa fila só existe com um consumidor por vez: com vários, o despacho é round-robin e a ordem entre consumidores se perde, e reentregas também embaralham. O RabbitMQ oferece single active consumer (argumento x-single-active-consumer na declaração da fila) para ter um ativo e outros de reserva. No Kafka a ordem é por partição: mensagens com a mesma chave caem na mesma partição, e o paralelismo é o número de partições.\nSem limite de entregas, uma poison message com requeue=true vira um laço quente que consome CPU e esconde o problema. Isso vale para filas clássicas; numa quorum queue do RabbitMQ 4 o limite existe (delivery-limit, 20 por padrão) e, sem DLX configurado, a mensagem é descartada em silêncio ao atingi-lo: outro problema, mais difícil de notar. Monitore a DLQ (profundidade e idade), guarde o motivo (o cabeçalho x-death traz reason, como rejected, expired, maxlen ou delivery_limit) e tenha um caminho de reprocessamento. Lembre que o dead-lettering padrão não usa confirmação interna; quorum queues oferecem a estratégia at-least-once, com custo de memória e CPU."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: desligue a DLQ.",
+      "cmd": "hora de quebrar: rode distribuir --dlq nao"
+    },
+    "success": "Quebrou: sem DLQ, a comanda #13 volta para a fila toda vez que trava alguém. Numa fila clássica, ela nunca zera, o painel mostra \"1 mensagem\" para sempre e os logs enchem de erro igual. As outras 12 até saem em {finish} min, mas a cozinha nunca fica em paz. (Numa quorum queue do RabbitMQ 4 sem DLX seria outro problema: após 20 tentativas de entrega, o limite padrão, a mensagem seria descartada em silêncio.)",
+    "calm": "Com prefetch {p}: 12 pizzas em {finish} min (Zé {fast}, Beto {slow}), e a #13 foi para a DLQ depois de 3 tentativas. Para quebrar, desligue a DLQ."
+  },
+  "hints": {
+    "ui": [
+      "Mexa no prefetch, na DLQ e no consumidor único.",
+      "A comanda ☠ é a envenenada: veja para onde ela vai.",
+      "Desligue a DLQ."
+    ],
+    "cmd": [
+      "O nome da fila vai entre aspas; --prefetch, --dlq e --unico são opcionais.",
+      "--prefetch 0 é sem limite; --dlq e --unico aceitam sim ou nao.",
+      "distribuir --dlq nao"
+    ]
+  },
+  "errors": {
+    "belowMin.prefetch": "Prefetch não fica negativo. Use 0 para \"sem limite\".",
+    "aboveMax.prefetch": "Até 1000 nesta simulação.",
+    "notBool.dlq": "Use sim ou nao.",
+    "notBool.sac": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Fila",
+    "prefetch": "Prefetch (comandas na mão; 0 = sem limite)",
+    "dlq": "DLQ para comandas problemáticas",
+    "sac": "Consumidor único (ordem estrita)"
+  },
+  "scene": {
+    "label": "Despacho de comandas",
+    "empty": "Rode para distribuir.",
+    "finishM": "tempo para as 12 pizzas",
+    "oooM": "pizzas fora de ordem",
+    "triesM": "tentativas da comanda ☠",
+    "queueLabel": "Fila depois do serviço",
+    "counter": "balcão",
+    "emptyQueue": "fila vazia",
+    "fastW": "Zé (rápido)",
+    "slowW": "Beto (novato)",
+    "fastNote": "{fast} pizzas",
+    "slowNote": "{slow} pizzas",
+    "standby": "de reserva",
+    "chart": "Pizzas feitas por cada um",
+    "ordersS": "pizzas",
+    "terminal": "Log da comanda #13",
+    "t1": "! #13 tentativa 1: sabor inexistente, nack",
+    "t2": "! #13 tentativa 2: sabor inexistente, nack",
+    "t3": "! #13 tentativa 3: sabor inexistente, nack",
+    "tDlq": "+ #13 → pedidos.dlq (limite de entregas)",
+    "tLoop1": "! #13 tentativa 4, 5, 6, … de volta para a fila",
+    "tLoop2": "? a fila nunca zera",
+    "loopNote": "Sem DLQ, numa fila clássica a mensagem envenenada fica em laço: volta para a fila, trava alguém, volta de novo. Ninguém percebe até a conta de CPU chegar. Numa quorum queue do RabbitMQ 4 sem DLX, após 20 entregas (delivery-limit padrão) ela seria descartada em silêncio: outro problema.",
+    "hoardNote": "O Beto segurou {slow} comandas e o Zé ficou parado esperando. Prefetch alto com trabalho lento concentra a fila em quem é mais devagar.",
+    "oooNote": "{ooo} pizzas ficaram prontas antes de uma comanda mais antiga. Se a ordem importa (criar e depois cancelar o mesmo pedido), use um consumidor por vez ou uma chave por cliente."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Com o Docker instalado, suba um RabbitMQ com o painel de gestão: docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management",
+      "Abra http://localhost:15672 no navegador e entre com guest / guest (esse usuário só funciona a partir da sua própria máquina, e é só para estudo).",
+      "Na aba Exchanges, crie uma exchange pedidos.dlx (tipo fanout). Na aba Queues and Streams, crie a fila pedidos.dlq e ligue-a a essa exchange (Bindings). Depois crie a fila pedidos do tipo Quorum com o argumento x-dead-letter-exchange = pedidos.dlx (em produção, prefira uma política).",
+      "Publique uma mensagem em pedidos. Em \"Get messages\", escolha em Ack Mode \"Reject requeue false\" e clique em \"Get Message(s)\"."
+    ],
+    "ok": "a mensagem sai de pedidos e aparece em pedidos.dlq: a comanda problemática foi para a gaveta em vez de voltar para o varal."
+  }
+}

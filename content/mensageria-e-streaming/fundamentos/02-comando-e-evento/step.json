@@ -1,0 +1,269 @@
+{
+  "id": "msg-comando-evento",
+  "order": 2,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "mensageria",
+    "evento",
+    "comando",
+    "acoplamento"
+  ],
+  "requires": [
+    "msg-sincrono-assincrono"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "anunciar",
+      "en": "announce"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "PedidoPago",
+        "en": "OrderPaid"
+      },
+      "ui": "examples",
+      "examples": [
+        {
+          "pt": "PedidoPago",
+          "en": "OrderPaid"
+        },
+        {
+          "pt": "FazerPizza",
+          "en": "MakePizza"
+        },
+        {
+          "pt": "EmitirNota",
+          "en": "IssueInvoice"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "style",
+        "alias": {
+          "pt": "estilo",
+          "en": "style"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "event",
+            "pt": "evento",
+            "en": "event"
+          },
+          {
+            "id": "command",
+            "pt": "comando",
+            "en": "command"
+          }
+        ],
+        "default": "event",
+        "ui": "select"
+      },
+      {
+        "name": "services",
+        "alias": {
+          "pt": "servicos",
+          "en": "services"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "kitchen",
+            "pt": "cozinha",
+            "en": "kitchen"
+          },
+          {
+            "id": "invoice",
+            "pt": "nota",
+            "en": "invoice"
+          },
+          {
+            "id": "loyalty",
+            "pt": "fidelidade",
+            "en": "loyalty"
+          },
+          {
+            "id": "delivery",
+            "pt": "entrega",
+            "en": "delivery"
+          }
+        ],
+        "default": [
+          "kitchen",
+          "invoice"
+        ],
+        "ui": "checkboxes"
+      }
+    ]
+  },
+  "break": {
+    "flag": "coupled"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "compute": {
+        "n": "len(services)",
+        "isEvent": "style == 'event'",
+        "sent": "isEvent ? (n > 0 ? 1 : 0) : n",
+        "knows": "isEvent ? 0 : n",
+        "changeNew": "isEvent ? 0 : 1",
+        "pastName": "endsany(lower(text), pastEnds)",
+        "nameMismatch": "(isEvent && !pastName) || (!isEvent && pastName)"
+      },
+      "cases": [
+        {
+          "when": "n == 0",
+          "error": "noServices"
+        },
+        {
+          "when": "!isEvent && n >= 3",
+          "flags": [
+            "coupled"
+          ]
+        },
+        {
+          "when": "isEvent",
+          "flags": [
+            "decoupled"
+          ]
+        },
+        {
+          "when": "nameMismatch",
+          "flags": [
+            "badName"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "n": "n",
+            "sent": "sent",
+            "knows": "knows",
+            "change": "changeNew"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@sentM",
+              "value": "=sent",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@knowsM",
+              "value": "=knows",
+              "format": "int",
+              "tone": "=knows >= 3 ? 'bad' : (knows > 0 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@changeM",
+              "value": "=changeNew",
+              "format": "int",
+              "tone": "=changeNew > 0 ? 'warn' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "queue",
+          "label": "=isEvent ? '@busLabel' : '@directLabel'",
+          "producer": "@cashier",
+          "messages": "=fill(sent, (isEvent ? '+' : '?') + text)",
+          "consumers": [
+            {
+              "label": "@kitchen",
+              "note": "=includes(services, 'kitchen') ? (isEvent ? '@listens' : '@ordered') : '@off'",
+              "tone": "=includes(services, 'kitchen') ? 'ok' : 'dim'"
+            },
+            {
+              "label": "@invoice",
+              "note": "=includes(services, 'invoice') ? (isEvent ? '@listens' : '@ordered') : '@off'",
+              "tone": "=includes(services, 'invoice') ? 'ok' : 'dim'"
+            },
+            {
+              "label": "@loyalty",
+              "note": "=includes(services, 'loyalty') ? (isEvent ? '@listens' : '@ordered') : '@off'",
+              "tone": "=includes(services, 'loyalty') ? 'ok' : 'dim'"
+            },
+            {
+              "label": "@delivery",
+              "note": "=includes(services, 'delivery') ? (isEvent ? '@listens' : '@ordered') : '@off'",
+              "tone": "=includes(services, 'delivery') ? 'ok' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@aspect",
+            "@command",
+            "@event"
+          ],
+          "rows": [
+            [
+              "@rWho",
+              "@cWho",
+              "@eWho"
+            ],
+            [
+              "@rName",
+              "@cName",
+              "@eName"
+            ],
+            [
+              "@rTo",
+              "@cTo",
+              "@eTo"
+            ],
+            [
+              "@rNo",
+              "@cNo",
+              "@eNo"
+            ]
+          ],
+          "tones": [
+            "neutral",
+            "neutral",
+            "=isEvent ? 'ok' : 'warn'",
+            "neutral"
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=nameMismatch",
+          "tone": "warn",
+          "text": "=isEvent ? '@nameEvent' : '@nameCommand'"
+        },
+        {
+          "type": "note",
+          "when": "=!isEvent && n >= 3",
+          "tone": "bad",
+          "text": "@coupledNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "zero",
+      "one",
+      "all"
+    ],
+    "answer": "zero"
+  }
+}

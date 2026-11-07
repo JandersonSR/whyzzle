@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Combinar ack, confirmação, idempotência, DLQ e prefetch num fluxo real.",
+      "Perceber como uma correção cria o próximo problema.",
+      "Justificar cada configuração."
+    ],
+    "minutes": 25,
+    "activity": "Em grupos, consertem a configuração e depois expliquem para a turma, em 2 minutos, por que ligar a confirmação sem chave de idempotência piora a cobrança em dobro.",
+    "discussion": [
+      "Qual dos quatro critérios seria o mais caro de descobrir em produção?",
+      "O que mais você monitoraria na noite da Black Friday?"
+    ],
+    "misconceptions": [
+      "\"Exactly-once é uma opção do broker.\" O efeito único vem da combinação de entrega pelo menos uma vez com consumidor idempotente."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Combine ack, confirms, idempotency, DLQ and prefetch in a real flow.",
+      "Notice how one fix creates the next problem.",
+      "Justify each setting."
+    ],
+    "minutes": 25,
+    "activity": "In groups, fix the configuration and then explain to the class, in 2 minutes, why turning on confirms without an idempotency key makes double charges worse.",
+    "discussion": [
+      "Which of the four criteria would be the most expensive to discover in production?",
+      "What else would you monitor on Black Friday night?"
+    ],
+    "misconceptions": [
+      "\"Exactly-once is a broker setting.\" A single effect comes from combining at-least-once delivery with an idempotent consumer."
+    ]
+  }
+}

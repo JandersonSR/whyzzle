@@ -1,0 +1,210 @@
+{
+  "id": "msg-ack-e-garantias",
+  "order": 3,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "mensageria",
+    "ack",
+    "at-least-once",
+    "at-most-once",
+    "rabbitmq"
+  ],
+  "requires": [
+    "msg-sincrono-assincrono"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "cozinhar",
+      "en": "cook"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "pedidos",
+        "en": "pedidos"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "ack",
+        "alias": {
+          "pt": "ack",
+          "en": "ack"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "manual",
+            "pt": "manual",
+            "en": "manual"
+          },
+          {
+            "id": "auto",
+            "pt": "auto",
+            "en": "auto"
+          }
+        ],
+        "default": "manual",
+        "ui": "select"
+      },
+      {
+        "name": "crash",
+        "alias": {
+          "pt": "falha",
+          "en": "crash"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 10,
+        "default": 4,
+        "ui": "slider"
+      }
+    ]
+  },
+  "break": {
+    "flag": "ordersLost"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "taken": 10,
+        "queued": 20
+      },
+      "compute": {
+        "crashed": "crash < 10",
+        "isManual": "ack == 'manual'",
+        "lostN": "!isManual && crashed ? taken - crash : 0",
+        "backN": "isManual && crashed ? taken - crash + 1 : 0",
+        "dupN": "isManual && crashed ? 1 : 0",
+        "ackedN": "isManual ? (crashed ? crash - 1 : taken) : taken",
+        "unackedBefore": "isManual ? taken : 0",
+        "readyAfter": "queued + backN"
+      },
+      "cases": [
+        {
+          "when": "lostN > 0",
+          "flags": [
+            "ordersLost"
+          ]
+        },
+        {
+          "when": "backN > 0",
+          "flags": [
+            "redelivered"
+          ]
+        },
+        {
+          "when": "dupN > 0",
+          "flags": [
+            "duplicate"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "lost": "lostN",
+            "back": "backN",
+            "dup": "dupN",
+            "k": "crash",
+            "acked": "ackedN",
+            "queue": "text"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@lostM",
+              "value": "=lostN",
+              "format": "int",
+              "tone": "=lostN > 0 ? 'bad' : 'dim'"
+            },
+            {
+              "label": "@backM",
+              "value": "=backN",
+              "format": "int",
+              "tone": "=backN > 0 ? 'warn' : 'dim'"
+            },
+            {
+              "label": "@dupM",
+              "value": "=dupN",
+              "format": "int",
+              "tone": "=dupN > 0 ? 'warn' : 'dim'"
+            },
+            {
+              "label": "@ackedM",
+              "value": "=ackedN",
+              "format": "int",
+              "tone": "info"
+            }
+          ]
+        },
+        {
+          "type": "queue",
+          "label": "@queueLabel",
+          "producer": "@counter",
+          "messages": "=concat(fill(backN, '?↺'), fill(queued, '#'))",
+          "consumers": [
+            {
+              "label": "worker-1",
+              "note": "=crashed ? '@crashedNote' : '@fineNote'",
+              "tone": "=crashed ? 'bad' : 'ok'"
+            },
+            {
+              "label": "worker-2",
+              "note": "=backN > 0 ? '@takesOver' : '@waiting'",
+              "tone": "ok"
+            }
+          ],
+          "dlq": "=fill(lostN, '#')",
+          "dlqLabel": "@lostLabel"
+        },
+        {
+          "type": "terminal",
+          "label": "@terminal",
+          "lines": [
+            "$ rabbitmqctl list_queues name messages_ready messages_unacknowledged",
+            "Listing queues for vhost / ...",
+            "name   messages_ready   messages_unacknowledged",
+            "@before",
+            "='  ' + text + '   ' + queued + '   ' + unackedBefore",
+            "=crashed ? '@after' : '@noCrash'",
+            "=(lostN > 0 ? '!' : '+') + ' ' + text + '   ' + readyAfter + '   0'"
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=lostN > 0",
+          "tone": "bad",
+          "text": "@lostNote"
+        },
+        {
+          "type": "note",
+          "when": "=dupN > 0",
+          "tone": "warn",
+          "text": "@dupNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "lost",
+      "back",
+      "stuck"
+    ],
+    "answer": "back"
+  }
+}

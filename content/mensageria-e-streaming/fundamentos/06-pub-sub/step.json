@@ -1,0 +1,213 @@
+{
+  "id": "msg-pub-sub",
+  "order": 6,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "mensageria",
+    "pub-sub",
+    "fanout",
+    "consumer-group",
+    "kafka"
+  ],
+  "requires": [
+    "msg-comando-evento"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "publicar",
+      "en": "publish"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "PedidoPago",
+        "en": "OrderPaid"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "queues",
+        "alias": {
+          "pt": "filas",
+          "en": "queues"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "perService",
+            "pt": "por-servico",
+            "en": "per-service"
+          },
+          {
+            "id": "shared",
+            "pt": "compartilhada",
+            "en": "shared"
+          }
+        ],
+        "default": "perService",
+        "ui": "select"
+      },
+      {
+        "name": "log",
+        "alias": {
+          "pt": "log",
+          "en": "log"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "missedEvents"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "total": 9
+      },
+      "compute": {
+        "shared": "queues == 'shared'",
+        "kitchenN": "shared ? 3 : 9",
+        "invoiceN": "shared ? 3 : 9",
+        "loyaltyN": "shared ? 2 : 9",
+        "analyticsN": "shared ? 1 : (log ? 9 : 3)"
+      },
+      "cases": [
+        {
+          "when": "kitchenN < total || invoiceN < total || loyaltyN < total",
+          "flags": [
+            "missedEvents"
+          ]
+        },
+        {
+          "when": "!shared && !log",
+          "flags": [
+            "lateNoHistory"
+          ]
+        },
+        {
+          "when": "!shared && log",
+          "flags": [
+            "replayed"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "kitchen": "kitchenN",
+            "invoice": "invoiceN",
+            "loyalty": "loyaltyN",
+            "analytics": "analyticsN"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@kitchen",
+              "value": "=kitchenN + '/9'",
+              "tone": "=kitchenN < 9 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@invoice",
+              "value": "=invoiceN + '/9'",
+              "tone": "=invoiceN < 9 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@loyalty",
+              "value": "=loyaltyN + '/9'",
+              "tone": "=loyaltyN < 9 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@analytics",
+              "value": "=analyticsN + '/9'",
+              "tone": "=analyticsN < 9 ? 'warn' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@cashier",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "=shared ? '@oneQueue' : (log ? '@topic' : '@fanout')",
+              "sub": "=shared ? '@oneQueueSub' : (log ? '@topicSub' : '@fanoutSub')",
+              "tone": "=shared ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@services",
+              "sub": "=shared ? '@splitSub' : '@copySub'",
+              "tone": "=shared ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@service",
+            "@where",
+            "@got"
+          ],
+          "rows": [
+            "=['@kitchen', shared ? '@sharedName' : (log ? '@gKitchen' : '@qKitchen'), kitchenN + '/9']",
+            "=['@invoice', shared ? '@sharedName' : (log ? '@gInvoice' : '@qInvoice'), invoiceN + '/9']",
+            "=['@loyalty', shared ? '@sharedName' : (log ? '@gLoyalty' : '@qLoyalty'), loyaltyN + '/9']",
+            "=['@analytics', shared ? '@sharedName' : (log ? '@gAnalytics' : '@qAnalytics'), analyticsN + '/9']"
+          ],
+          "tones": [
+            "=kitchenN < 9 ? 'bad' : 'neutral'",
+            "=invoiceN < 9 ? 'bad' : 'neutral'",
+            "=loyaltyN < 9 ? 'bad' : 'neutral'",
+            "=analyticsN < 9 ? 'warn' : 'neutral'"
+          ],
+          "caption": "@caption"
+        },
+        {
+          "type": "note",
+          "when": "=shared",
+          "tone": "bad",
+          "text": "@sharedNote"
+        },
+        {
+          "type": "note",
+          "when": "=!shared && !log",
+          "tone": "info",
+          "text": "@lateNote"
+        },
+        {
+          "type": "note",
+          "when": "=!shared && log",
+          "tone": "ok",
+          "text": "@replayNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "nine",
+      "three",
+      "zero"
+    ],
+    "answer": "three"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Explicar prefetch e seu efeito com consumidores de velocidades diferentes.",
+      "Usar DLQ para isolar mensagens envenenadas.",
+      "Reconhecer quando a ordem se perde."
+    ],
+    "minutes": 20,
+    "activity": "Dois alunos fazem \"pizzas\" (dobrar papéis), um rápido e um que só pode usar uma mão. Joguem com \"pegue 6 de uma vez\" e com \"pegue 1 por vez\" e cronometrem. Inclua um papel impossível de dobrar e combinem uma gaveta para ele.",
+    "discussion": [
+      "Que mensagem \"envenenada\" pode aparecer num sistema que você conhece?",
+      "Quando a ordem importa de verdade, e quando é só costume?"
+    ],
+    "misconceptions": [
+      "\"Prefetch alto é sempre mais rápido.\" Para trabalho lento e desigual, ele concentra a fila em quem é mais devagar."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explain prefetch and its effect with consumers of different speeds.",
+      "Use a DLQ to isolate poison messages.",
+      "Recognize when ordering is lost."
+    ],
+    "minutes": 20,
+    "activity": "Two students make \"pizzas\" (folding paper), one fast and one allowed to use only one hand. Play with \"take 6 at once\" and \"take 1 at a time\" and time it. Include a paper that can’t be folded and agree on a drawer for it.",
+    "discussion": [
+      "What \"poison\" message could show up in a system you know?",
+      "When does order really matter, and when is it just habit?"
+    ],
+    "misconceptions": [
+      "\"Higher prefetch is always faster.\" For slow, uneven work, it piles the queue onto the slowest worker."
+    ]
+  }
+}

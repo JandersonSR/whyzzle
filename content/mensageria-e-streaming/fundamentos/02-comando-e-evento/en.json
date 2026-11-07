@@ -1,0 +1,115 @@
+{
+  "title": "Command vs event",
+  "subtitle": "\"Make the pizza!\" or \"the order was paid\"? The difference changes who depends on whom",
+  "mission": "When an order is paid, Nona’s cashier has to tell the kitchen, invoicing and, soon, the loyalty program. Compare sending an order to each one (command) with announcing what happened (event) and see how often the cashier has to change.",
+  "predict": {
+    "question": "in event style, if the pizzeria turns on the loyalty program, how many changes does the cashier’s code need?",
+    "options": {
+      "zero": "None",
+      "one": "One",
+      "all": "One per service that already existed"
+    }
+  },
+  "feedback": {
+    "right": "right: the cashier just announces \"OrderPaid\". Whoever cares subscribes. Loyalty shows up, subscribes, and the cashier never even finds out.",
+    "wrong": "it’s none. With an event, the cashier doesn’t know who listens: loyalty subscribes on its own. With commands, then yes, the cashier must be changed to send one more order.",
+    "skipped": "no guess? Tick loyalty in event style and look at \"changes to the cashier\"."
+  },
+  "coach": {
+    "ui": "guess noted. Tick loyalty and switch between event and command.",
+    "cmd": "guess noted. Run announce --services kitchen,invoice,loyalty and then the same with --style command."
+  },
+  "tryNext": {
+    "ui": "Change the name to \"MakePizza\" in event style: the warning says it looks like an order, not a fact.",
+    "cmd": "Run announce \"MakePizza\" and read the warning about the name."
+  },
+  "why": {
+    "simples": "A command is an order to someone specific: \"Joe, make a pepperoni!\". Joe can do it or say they’re out of pepperoni.\nAn event is news: \"order 42 was paid!\", shouted to the whole pizzeria. Whoever cares reacts: the kitchen starts the pizza, the invoice is issued, the loyalty card gets a stamp. Whoever shouted doesn’t need to know who heard.",
+    "dev": "Command: imperative verb (IssueInvoice), one recipient that owns the decision, can be rejected and usually goes to that service’s queue. Event: a past-tense fact (OrderPaid), immutable, published by whoever owns the fact and delivered to zero or more subscribers.\nUse a command when you need one specific thing done; use an event when others may want to react to something that already happened. Mixing both (an \"event\" called OrderPaidSendEmail) brings back the coupling you were trying to avoid.",
+    "especialista": "An event decouples in time and dependency, but not in contract: the OrderPaid format becomes a public API, with versioning and compatibility (adding an optional field is safe; renaming breaks every subscriber). Choose between \"thin\" events (ids only, whoever needs more queries) and \"fat\" ones (carry state; fewer calls, more coupling to the format).\nSince nobody orchestrates, the flow becomes implicit: trace it with a correlation id and distributed tracing. When the process needs ordering and compensation (pay, reserve, deliver), compare choreography with events against orchestration with commands (saga), a Practice track topic."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: command style with kitchen, invoice and loyalty ticked.",
+      "cmd": "time to break it: run announce --style command --services kitchen,invoice,loyalty"
+    },
+    "success": "Broken: the cashier now knows {knows} services by name and sends {sent} messages. Every new service is one more change to the cashier, and if one of them is down, the cashier has to decide what to do.",
+    "calm": "{n} services served with {sent} message(s), and the cashier knows {knows} of them by name. To break it, send commands to 3 services."
+  },
+  "hints": {
+    "ui": [
+      "Pick the style and tick the interested services.",
+      "Watch \"services the cashier knows\": that’s the coupling.",
+      "Command style, with kitchen, invoice and loyalty."
+    ],
+    "cmd": [
+      "The message name goes in quotes; --style and --services are optional.",
+      "--services takes a comma-separated list: kitchen,invoice,loyalty,delivery.",
+      "announce --style command --services kitchen,invoice,loyalty"
+    ]
+  },
+  "errors": {
+    "notInEnum.style": "Use event or command.",
+    "notInEnum.services": "The services are kitchen, invoice, loyalty and delivery.",
+    "model.noServices": "Nobody interested? Then you don’t even need a message. Tick at least one service."
+  },
+  "controls": {
+    "arg": "Message name",
+    "style": "Style",
+    "services": "Interested services"
+  },
+  "scene": {
+    "label": "Nona’s cashier",
+    "empty": "Run to announce.",
+    "sentM": "messages the cashier sends",
+    "knowsM": "services the cashier knows",
+    "changeM": "cashier changes per new service",
+    "busLabel": "Event published once, delivered to subscribers",
+    "directLabel": "One command per service",
+    "cashier": "cashier",
+    "kitchen": "kitchen",
+    "invoice": "invoicing",
+    "loyalty": "loyalty",
+    "delivery": "delivery",
+    "listens": "subscribed",
+    "ordered": "gets an order from the cashier",
+    "off": "not involved",
+    "tableLabel": "Command vs event",
+    "aspect": "aspect",
+    "command": "command",
+    "event": "event",
+    "rWho": "who decides",
+    "cWho": "the sender asks for it",
+    "eWho": "each subscriber decides",
+    "rName": "name",
+    "cName": "imperative verb: IssueInvoice",
+    "eName": "past-tense fact: OrderPaid",
+    "rTo": "recipients",
+    "cTo": "exactly one",
+    "eTo": "zero, one or many",
+    "rNo": "can it be refused?",
+    "cNo": "yes (\"out of pepperoni\")",
+    "eNo": "no: it already happened",
+    "nameEvent": "\"{text}\" sounds like an order. An event is a past-tense fact: OrderPaid, PizzaLeftTheOven.",
+    "nameCommand": "\"{text}\" sounds like a fact. A command is an imperative request: MakePizza, IssueInvoice.",
+    "coupledNote": "The cashier became \"everyone’s boss\": it knows {knows} services and breaks if any of them changes address or format."
+  },
+  "data": {
+    "pastEnds": [
+      "ed",
+      "paid",
+      "done",
+      "sent",
+      "made",
+      "shipped"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Take a system you know (school, shop, work) and list 6 messages it exchanges or could exchange.",
+      "For each one, write: command or event? Who owns it? How many interested parties?",
+      "Rename: commands in the imperative (IssueInvoice), events in the past tense (OrderPaid). If some \"event\" has a single interested party and tells it to do something, it’s probably a disguised command."
+    ],
+    "ok": "every message on the list has a name that already says whether it’s an order or a fact, and the events don’t mention who will receive them."
+  }
+}

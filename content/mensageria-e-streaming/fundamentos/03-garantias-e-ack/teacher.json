@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Explicar o que é um ack.",
+      "Diferenciar at-most-once de at-least-once.",
+      "Prever perda ou duplicata a partir do momento do ack."
+    ],
+    "minutes": 20,
+    "activity": "Jogo da comanda: um aluno é o broker e guarda uma cópia de cada comanda até ouvir \"terminei\". Outro é o pizzaiolo e \"desmaia\" quando o professor bater palma. Rodem com e sem cópia e contem perdas e repetições.",
+    "discussion": [
+      "Em que sistema é melhor perder do que repetir? E repetir do que perder?",
+      "Por que o \"exactly-once\" de fábrica é uma promessa difícil?"
+    ],
+    "misconceptions": [
+      "\"Se a fila é durável, nada se perde.\" Durabilidade não ajuda se o consumidor confirmou antes de processar."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explain what an ack is.",
+      "Tell at-most-once from at-least-once.",
+      "Predict loss or duplicates from when the ack happens."
+    ],
+    "minutes": 20,
+    "activity": "Ticket game: one student is the broker and keeps a copy of each ticket until they hear \"done\". Another is the cook and \"faints\" when the teacher claps. Play with and without copies and count losses and repeats.",
+    "discussion": [
+      "In which system is it better to lose than to repeat? And to repeat than to lose?",
+      "Why is out-of-the-box \"exactly-once\" a hard promise?"
+    ],
+    "misconceptions": [
+      "\"If the queue is durable, nothing is lost.\" Durability doesn’t help if the consumer acked before processing."
+    ]
+  }
+}

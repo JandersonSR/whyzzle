@@ -136,11 +136,10 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 3. Mensageria e streaming
 - **Fundamentos**
-  - [ ] → F1 · Por que filas existem (7): síncrono × assíncrono; comando × evento; garantias de entrega e ack; consumidor idempotente; ordem, DLQ e prefetch; pub/sub; quando não usar fila.
-    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão, testes finais e publicação.
-  - [ ] Missão: pagamentos na Black Friday sem venda perdida nem cobrança duplicada.
+  - [x] F1 · Por que filas existem (7): síncrono × assíncrono; comando × evento; garantias de entrega e ack; consumidor idempotente; ordem, DLQ e prefetch; pub/sub; quando não usar fila.
+  - [x] Missão: pagamentos na Black Friday sem venda perdida nem cobrança duplicada.
 - **Prática**
-  - [ ] P1 · RabbitMQ no trabalho (6): exchanges e bindings; filas duráveis e quorum; publisher confirms; retry com atraso e DLX; prefetch e escala de consumidores; RabbitMQ × Kafka.
+  - [ ] → P1 · RabbitMQ no trabalho (6): exchanges e bindings; filas duráveis e quorum; publisher confirms; retry com atraso e DLX; prefetch e escala de consumidores; RabbitMQ × Kafka.
   - [ ] P2 · Kafka a fundo (8): log, partições e offsets; chave e ordem; consumer groups e rebalance; acks, idempotência e transações do produtor; esquemas e compatibilidade; Kafka Connect; Event Hubs com API Kafka; reprocessamento.
   - [ ] P3 · Padrões de integração (6): transactional outbox; saga (coreografia × orquestração); backoff com jitter; correlation ID; inbox e deduplicação; evolução de eventos.
   - [ ] Missão: integrar pedidos, estoque e pagamento com outbox, saga e reprocessamento.
@@ -408,6 +407,7 @@ Depende das etapas de plataforma PL1 a PL3.
 | nov/2026 | Plataforma · PL2 · modelo declarativo + 9 peças de cena reutilizáveis (galeria em /galeria) | Publicada |
 | nov/2026 | Plataforma · PL3 · executores no navegador (Transformers.js 4.3.2, WebLLM 0.2.87) e sua chave (Anthropic, OpenAI, Gemini, compatível); ativos nos passos 2 e 4 dos Fundamentos | Publicada |
 | nov/2026 | IA aplicada · Prática · P1 · 7 lições com modelos reais (tokenizador do GPT-4o, multilingual-e5-small, Llama 3.2 1B ou sua chave), todas só com dados | Publicada |
+| nov/2026 | Mensageria e streaming · Fundamentos F1 + missão (pizzaria: síncrono × assíncrono, comando × evento, ack, idempotência, ordem/DLQ/prefetch, pub/sub, quando não usar fila; missão Black Friday) | Publicada |
 | nov/2026 | Desenvolvimento assistido por IA · Fundamentos F1 + missão (padaria Pão de Mel: autocompletar × chat × agente, contexto, especificação, revisão, quando não usar, ética e autoria; missão do bug 0,1 × 3) | Publicada |
 | nov/2026 | IA aplicada · Prática · P2 · RAG de verdade: 8 lições sobre o manual da Aurora (BM25 real, embeddings e5 no navegador, reranker por LLM, citação e recusa, recall@k) | Publicada |
 
