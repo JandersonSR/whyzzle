@@ -111,6 +111,7 @@ Depende das etapas de plataforma PL1 a PL3.
   Lições: ingestão e limpeza; fatiar sem cortar a resposta; índice vetorial no navegador; busca híbrida; reranking; citar e recusar; perguntas com duas partes; medir a busca com recall@k.
 
 - [ ] → **Etapa P3 · Prompts e agentes para o trabalho** (7 lições): prompt de sistema e papéis; exemplos (few-shot) e formato; extração de dados de e-mails e notas fiscais; classificação e triagem de tickets de atendimento; agente com ferramentas e limites; memória de conversa e resumo; MCP para conectar sistemas da empresa.
+  - Em andamento: escrita das 7 lições começou (subagente); falta revisão, testes finais e publicação.
 - [ ] **Missão final da Prática**: assistente de RH que responde dúvidas a partir das políticas da empresa (fonte citada, recusa quando não sabe, triagem para humano), rodando no navegador.
 
 ### Produção (empresas e times)
@@ -123,7 +124,8 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 2. Desenvolvimento assistido por IA
 - **Fundamentos**
-  - [ ] F1 · IA no editor (6): autocompletar × chat × agente; contexto que o modelo enxerga; pedir com especificação; revisar o que a IA escreveu; quando não usar; ética e autoria.
+  - [ ] → F1 · IA no editor (6): autocompletar × chat × agente; contexto que o modelo enxerga; pedir com especificação; revisar o que a IA escreveu; quando não usar; ética e autoria.
+    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão, testes finais e publicação.
   - [ ] Missão: corrigir um bug pequeno com ajuda da IA, provando com teste.
 - **Prática**
   - [ ] P1 · Fluxo com agentes de código (7): especificação antes do código; arquivos de regras do repositório; tarefas pequenas e verificáveis; testes como contrato; refatoração assistida; legado e código desconhecido; vários agentes em paralelo.
@@ -135,7 +137,8 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 3. Mensageria e streaming
 - **Fundamentos**
-  - [ ] F1 · Por que filas existem (7): síncrono × assíncrono; comando × evento; garantias de entrega e ack; consumidor idempotente; ordem, DLQ e prefetch; pub/sub; quando não usar fila.
+  - [ ] → F1 · Por que filas existem (7): síncrono × assíncrono; comando × evento; garantias de entrega e ack; consumidor idempotente; ordem, DLQ e prefetch; pub/sub; quando não usar fila.
+    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão, testes finais e publicação.
   - [ ] Missão: pagamentos na Black Friday sem venda perdida nem cobrança duplicada.
 - **Prática**
   - [ ] P1 · RabbitMQ no trabalho (6): exchanges e bindings; filas duráveis e quorum; publisher confirms; retry com atraso e DLX; prefetch e escala de consumidores; RabbitMQ × Kafka.
