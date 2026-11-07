@@ -322,6 +322,20 @@ const FUNCS: Record<string, (args: Value[], rng: () => number) => Value> = {
   /** Indices of the k best values; scores of 0 or less are never "found". */
   topk: ([list, k], rng) =>
     (FUNCS.order([list], rng) as Value[]).filter((i) => num(arr(list)[num(i)]) > 0).slice(0, Math.max(0, num(k))),
+  /** a[i] × b[i], item by item. */
+  mul: ([a, b]) => arr(a).map((v, i) => num(v) * num(arr(b)[i] ?? 0)),
+  /** Running total: [1, 2, 3] → [1, 3, 6]. */
+  cumsum: ([list]) => {
+    let t = 0;
+    return arr(list).map((v) => (t += num(v)));
+  },
+  /** map[key] for each key (default when missing). */
+  lookupall: ([map, keys, dflt]) => {
+    const m = map && typeof map === 'object' ? (map as Record<string, Value>) : {};
+    return arr(keys).map((k) => (Object.prototype.hasOwnProperty.call(m, String(k)) ? m[String(k)] : (dflt ?? null)));
+  },
+  /** True when the text contains any of the keywords (case-insensitive). */
+  containsany: ([text, keys]) => arr(keys).some((k) => String(text ?? '').toLowerCase().includes(String(k).toLowerCase())),
   /** 1 for each item that is in the set, else 0. */
   memberall: ([list, set]) => arr(list).map((x) => (arr(set).includes(x) ? 1 : 0)),
   /** Prefixes each text: `yes` when it contains any pattern (case-insensitive), else `no`. */

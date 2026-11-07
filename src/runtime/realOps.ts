@@ -186,7 +186,7 @@ export const OPS: Record<string, RealOp> = {
         continue;
       }
       trace.push(`? ${reply.slice(0, 160)}`);
-      history.push({ role: 'assistant', content: reply }, { role: 'user', content: String(args.nudge ?? 'Responda só com JSON: {"tool":…,"args":…} ou {"answer":…}.') });
+      history.push({ role: 'assistant', content: reply }, { role: 'user', content: fill(args.nudge ?? 'Responda só com JSON: {"tool":…,"args":…} ou {"answer":…}.', env) });
     }
     return { realTrace: trace, realAnswer: answer, realCalls: calls, realLimit: !answer };
   },
