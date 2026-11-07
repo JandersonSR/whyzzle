@@ -127,9 +127,9 @@
         "vecN": "minmax(vec)",
         "kw": "bm25(text, chunkTexts, stop)",
         "score": "mode == 'vector' ? vecN : (mode == 'keyword' ? kw : blend(vecN, kw, weight))",
-        "top": "topk(score, top)",
+        "hits": "topk(score, top)",
         "gold": "lookup(goldMap, text, [])",
-        "r": "recall(top, gold)",
+        "r": "recall(hits, gold)",
         "hit": "len(gold) > 0 && r == 1"
       },
       "cases": [
@@ -155,7 +155,7 @@
           "when": "true",
           "vars": {
             "recallPct": "round(r * 100)",
-            "first": "len(top) ? chunkTexts[top[0]] : ''",
+            "first": "len(hits) ? chunkTexts[hits[0]] : ''",
             "mode": "mode"
           }
         }
@@ -167,11 +167,11 @@
           "labels": "=range(12, 1)",
           "series": [
             {
-              "name": "@vec",
+              "label": "@vec",
               "values": "=roundall(scale(vecN, 100), 0)"
             },
             {
-              "name": "@kw",
+              "label": "@kw",
               "values": "=roundall(scale(kw, 100), 0)"
             }
           ]
@@ -184,8 +184,8 @@
             "@chunk",
             "@score"
           ],
-          "rows": "=zip(pickall(chunkSources, top), pickall(chunkTexts, top), roundall(scale(pickall(score, top), 100), 0))",
-          "tones": "=mark(len(top), 0, hit ? 'ok' : 'bad', 'neutral')"
+          "rows": "=zip(pickall(chunkSources, hits), pickall(chunkTexts, hits), roundall(scale(pickall(score, hits), 100), 0))",
+          "tones": "=mark(len(hits), 0, hit ? 'ok' : 'bad', 'neutral')"
         },
         {
           "type": "metrics",
@@ -200,7 +200,7 @@
         },
         {
           "type": "note",
-          "when": "=len(top) == 0",
+          "when": "=len(hits) == 0",
           "tone": "bad",
           "text": "@nothing"
         },

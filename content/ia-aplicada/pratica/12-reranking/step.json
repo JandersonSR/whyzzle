@@ -179,7 +179,7 @@
             "@hyb",
             "@rr"
           ],
-          "rows": "=zip(scale(cands, 1), candTexts, roundall(scale(pickall(hyb, cands), 100), 0), rerank ? roundall(scale(rr, 100), 0) : fill(len(cands), '–'))"
+          "rows": "=zip(affine(cands, 1, 1), candTexts, roundall(scale(pickall(hyb, cands), 100), 0), rerank ? roundall(scale(rr, 100), 0) : fill(len(cands), '–'))"
         },
         {
           "type": "table",
@@ -188,7 +188,7 @@
             "#",
             "@chunk"
           ],
-          "rows": "=zip(scale(final, 1), pickall(chunkTexts, final))",
+          "rows": "=zip(affine(final, 1, 1), pickall(chunkTexts, final))",
           "tones": "=fill(len(final), r == 1 ? 'ok' : 'warn')"
         },
         {

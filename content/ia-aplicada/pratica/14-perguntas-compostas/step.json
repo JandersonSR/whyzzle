@@ -184,7 +184,7 @@
             "@source",
             "@chunk"
           ],
-          "rows": "=zip(scale(found, 1), pickall(chunkSources, found), pickall(chunkTexts, found))",
+          "rows": "=zip(affine(found, 1, 1), pickall(chunkSources, found), pickall(chunkTexts, found))",
           "tones": "=fill(len(found), r == 1 ? 'ok' : 'warn')"
         },
         {

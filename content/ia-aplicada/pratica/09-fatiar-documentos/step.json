@@ -166,7 +166,7 @@
             "@chunk",
             "@score"
           ],
-          "rows": "=zip(scale(top, 1), pickall(cs, top), roundall(scale(pickall(scores, top), 100), 0))",
+          "rows": "=zip(affine(top, 1, 1), pickall(cs, top), roundall(scale(pickall(scores, top), 100), 0))",
           "tones": "=mark(len(top), 0, hit ? 'ok' : 'bad', 'neutral')"
         },
         {

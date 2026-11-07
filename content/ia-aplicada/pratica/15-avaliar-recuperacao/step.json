@@ -181,7 +181,7 @@
           },
           "series": [
             {
-              "name": "@recallK",
+              "label": "@recallK",
               "values": "=roundall(scale(recs, 100), 0)"
             }
           ]

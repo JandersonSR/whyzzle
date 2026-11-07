@@ -119,9 +119,9 @@
         "memText": "bytes < 1000000 ? round(bytes / 1000) + ' KB' : (bytes < 1000000000 ? round(bytes / 1000000) + ' MB' : round(bytes / 1000000000, 1) + ' GB')",
         "bruteMs": "scale * dims / 500000",
         "sims": "real ? realSims : roundall(lookup(semSims, text, affine(clampall(scale(overlapall(text, chunkTexts, stop), 4), 0, 1), 0.7, 0.2)), 3)",
-        "top": "topk(sims, top)",
+        "hits": "topk(sims, top)",
         "gold": "lookup(goldMap, text, [])",
-        "hit": "len(gold) > 0 && includes(gold, top[0])"
+        "hit": "len(gold) > 0 && len(hits) > 0 && includes(gold, hits[0])"
       },
       "cases": [
         {
@@ -208,8 +208,8 @@
             "@chunk",
             "@sim"
           ],
-          "rows": "=zip(pickall(chunkSources, top), pickall(chunkTexts, top), roundall(pickall(sims, top), 2))",
-          "tones": "=mark(len(top), 0, hit ? 'ok' : 'warn', 'neutral')"
+          "rows": "=zip(pickall(chunkSources, hits), pickall(chunkTexts, hits), roundall(pickall(sims, hits), 2))",
+          "tones": "=mark(len(hits), 0, hit ? 'ok' : 'warn', 'neutral')"
         },
         {
           "type": "note",
