@@ -28,7 +28,7 @@ Regras do modelo declarativo, na prática:
 - Um valor de `compute` não pode ter o mesmo nome de uma flag (ele sobrescreve a flag).
 - `cases` aplicam todos os que batem, em ordem: `flags`, `vars` (usadas em `{…}` nos textos), `error` (texto em `errors["model.<codigo>"]`).
 - Erros do parser: `errors["aboveMax.<flag>"]`, `belowMin`, `notInEnum`, `notBool`, `missingArg`.
-- Funções úteis para listas: `mul`, `cumsum`, `lookupall`, `containsany`, `memberall`, `tagmatching`, `topk`, `blend`, `zip`, `mark`, `fill`.
+- Funções úteis para listas: `mul`, `cumsum`, `maxall`, `geall`, `ltall`, `pickrows`, `lookupall`, `containsany`, `memberall`, `tagmatching`, `topk`, `blend`, `zip`, `mark`, `fill`.
   Não há map/filter com expressão por item: pré-calcule tabelas no gerador Python quando precisar.
 - `live: true` faz a cena atualizar enquanto a pessoa mexe nos controles (bom para lições de cálculo).
 

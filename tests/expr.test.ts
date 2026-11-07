@@ -71,6 +71,10 @@ describe('expression language', () => {
     expect(ev('memberall([3, 5, 7], [5])')).toEqual([0, 1, 0]);
     expect(ev('mul([1, 2], [3, 4])')).toEqual([3, 8]);
     expect(ev('cumsum([1, 2, 3])')).toEqual([1, 3, 6]);
+    expect(ev('maxall([[1, 5], [7, 2]])')).toEqual([5, 7]);
+    expect(ev('geall([0.7, 0.8], 0.75)')).toEqual([false, true]);
+    expect(ev('ltall([0.7, 0.8], 0.75)')).toEqual([true, false]);
+    expect(ev('pickrows([[1], [2], [3]], [2, 0])')).toEqual([[3], [1]]);
     expect(evaluate("lookupall(m, ['a', 'z'], 0)", { m: { a: 2 } })).toEqual([2, 0]);
     expect(ev("containsany('Fica 0,30 então', ['0,30', 'x'])")).toBe(true);
     expect(ev("tagmatching(['Página 1', 'texto'], ['página'], '! ', '')")).toEqual(['! Página 1', 'texto']);

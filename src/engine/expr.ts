@@ -336,6 +336,13 @@ const FUNCS: Record<string, (args: Value[], rng: () => number) => Value> = {
   },
   /** True when the text contains any of the keywords (case-insensitive). */
   containsany: ([text, keys]) => arr(keys).some((k) => String(text ?? '').toLowerCase().includes(String(k).toLowerCase())),
+  /** Largest value of each row. */
+  maxall: ([m]) => arr(m).map((row) => Math.max(...arr(row).map(num))),
+  /** Item ≥ x / item < x, as booleans. */
+  geall: ([list, x]) => arr(list).map((v) => num(v) >= num(x)),
+  ltall: ([list, x]) => arr(list).map((v) => num(v) < num(x)),
+  /** Rows of a matrix (or items of a list) at the given indices. */
+  pickrows: ([m, idxs]) => arr(idxs).map((i) => arr(m)[num(i)]),
   /** 1 for each item that is in the set, else 0. */
   memberall: ([list, set]) => arr(list).map((x) => (arr(set).includes(x) ? 1 : 0)),
   /** Prefixes each text: `yes` when it contains any pattern (case-insensitive), else `no`. */
