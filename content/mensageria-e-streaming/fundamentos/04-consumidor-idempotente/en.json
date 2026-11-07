@@ -1,0 +1,92 @@
+{
+  "title": "Idempotent consumer",
+  "subtitle": "If the message will arrive twice, make the second time not count",
+  "mission": "Nona’s loyalty card gives 10 points per paid order. 11 deliveries arrived for 8 orders: 2 redeliveries from the broker (remember acks?) and 1 resend from the cashier, which thought the first one had failed. Pick the dedup key so each order gives points only once.",
+  "predict": {
+    "question": "if you dedup by message id, out of the 3 repeats (2 redeliveries + 1 resend), how many still give double points?",
+    "options": {
+      "zero": "None",
+      "one": "One",
+      "three": "All three"
+    }
+  },
+  "feedback": {
+    "right": "right: the broker’s redelivery carries the same id and is blocked. But the cashier, when resending, created a new message with a new id (m9) for the same order P105. To the consumer it looks like another order.",
+    "wrong": "it’s one: redeliveries carry the same message id, but the cashier’s resend was born with a new id (m9). Only a business key, the order number, catches both cases.",
+    "skipped": "no guess? Run consume --key message and look for m9’s red row."
+  },
+  "coach": {
+    "ui": "guess noted. Switch the key to \"message\" and look for red rows in the table.",
+    "cmd": "guess noted. Run consume --key message and look for red rows in the table."
+  },
+  "tryNext": {
+    "ui": "Now go back to \"order\" and turn off \"in the same transaction\": the worker credited P102 and crashed before writing the key down. The redelivery gets through.",
+    "cmd": "Run consume --transaction no and look at P102’s redelivery row."
+  },
+  "why": {
+    "simples": "Idempotent means doing it twice gives the same result as doing it once. Pressing the elevator button five times doesn’t call five elevators.\nSince the queue sometimes delivers twice, the consumer keeps a notebook of orders that already got points. P102 again? It’s in the notebook, skip it. The trick is to write down the order number (which never changes), not the envelope number (which changes if someone sends it again).",
+    "dev": "With at-least-once, duplicates are normal, not a bug. The defense lives in the consumer: a \"processed\" table with a unique constraint on the idempotency key, and the effect (crediting points) and the key record written in the same database transaction. An INSERT with ON CONFLICT DO NOTHING (Postgres, SQLite) that inserts nothing means \"seen it, skip\".\nThe key must identify the business intent: the order id, or an idempotency key generated once by the client and reused on every resend. The broker’s message id only catches redeliveries, because a new publish creates a new message.",
+    "especialista": "Sometimes you can make the effect itself idempotent with no extra table: \"set status = PAID\" instead of \"add 10 points\", or upsert by natural key. When the effect leaves your database (charging a card, sending an email), pass the idempotency key along: payment gateways commonly accept one in a request header.\nIn Kafka, the idempotent producer (on by default when no conflicting settings are present) prevents log duplicates caused by producer retries, and transactions give exactly-once between topics; but the consumer’s external effect still needs idempotency. Decide how long to keep keys (dedup window) based on how long a message can be redelivered."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick the key \"none\".",
+      "cmd": "time to break it: run consume --key none"
+    },
+    "success": "Broken: with no key, every delivery becomes points. {credited} credits for 8 orders, {extra} too many: {points} points handed out. On a loyalty card that’s a small loss; on a payment, it’s a customer charged twice.",
+    "calm": "{credited} credits for 8 orders, {extra} too many. To break it, consume with no key at all."
+  },
+  "hints": {
+    "ui": [
+      "Pick the dedup key and watch the table.",
+      "Red row = a repeat that gave points again.",
+      "Pick the key \"none\"."
+    ],
+    "cmd": [
+      "The consumer name goes in quotes; --key and --transaction are optional.",
+      "--key takes order, message or none.",
+      "consume --key none"
+    ]
+  },
+  "errors": {
+    "notInEnum.key": "Use order, message or none.",
+    "notBool.tx": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Consumer",
+    "key": "Dedup key",
+    "tx": "Points and key in the same transaction"
+  },
+  "scene": {
+    "label": "Loyalty card consumer",
+    "empty": "Run to consume.",
+    "deliveriesM": "deliveries received",
+    "creditedM": "times points were given",
+    "extraM": "double credits",
+    "pointsM": "points handed out",
+    "tableLabel": "Deliveries in arrival order",
+    "msgid": "message id",
+    "order": "order",
+    "kind": "what it is",
+    "result": "result",
+    "first": "first delivery",
+    "redelivery": "broker redelivery",
+    "resend": "cashier resend (new id)",
+    "credited": "+10 points",
+    "skipped": "seen, skipped",
+    "caption": "8 orders, 11 deliveries. The right total is 80 points.",
+    "msgNote": "The message id blocked the redeliveries, but the cashier’s resend came as m9, a new message for the same P105.",
+    "txNote": "Without a transaction, the worker credited P102 and crashed before writing the key down. On redelivery, the notebook had no P102.",
+    "noneNote": "With no key, the consumer has no memory: every delivery is treated as new.",
+    "okNote": "Each order gave points exactly once: {points} points, as it should. Messages arrived twice, but the effect happened once."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Open a terminal with SQLite (sqlite3 test.db) and create the table: CREATE TABLE processados (chave TEXT PRIMARY KEY);",
+      "Run twice: INSERT INTO processados VALUES ('P102') ON CONFLICT DO NOTHING; SELECT changes();",
+      "In your consumer, apply the effect (credit points) only when changes() is 1, inside the same transaction (BEGIN … COMMIT)."
+    ],
+    "ok": "the first time changes() shows 1 and the second shows 0: the database itself tells you whether that order was already processed."
+  }
+}

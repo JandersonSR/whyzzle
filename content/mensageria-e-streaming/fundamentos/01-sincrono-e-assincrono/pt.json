@@ -1,0 +1,96 @@
+{
+  "title": "Síncrono × assíncrono",
+  "subtitle": "A pizzaria na sexta à noite: segurar o cliente no telefone ou anotar e avisar depois?",
+  "mission": "A Pizzaria da Nona recebe um pico de pedidos às 19h. A cozinha faz 4 pizzas a cada 10 minutos por pizzaiolo. Compare o atendimento síncrono (o cliente fica na linha até a pizza ficar pronta) com o assíncrono (anota o pedido numa fila e responde na hora).",
+  "predict": {
+    "question": "no modo fila (assíncrono), com 20 pedidos a cada 10 minutos e uma cozinha que só faz 12, o que acontece com os pedidos que sobram?",
+    "options": {
+      "lost": "Somem: a cozinha não dá conta",
+      "wait": "Esperam na fila e saem um pouco mais tarde",
+      "faster": "A cozinha fica mais rápida"
+    }
+  },
+  "feedback": {
+    "right": "isso! A fila não faz a cozinha mais rápida: ela guarda o excesso do pico e a cozinha vai tirando no ritmo dela. Ninguém foi embora, só esperou mais um pouco.",
+    "wrong": "olhe o gráfico: a fila sobe no pico e desce quando o movimento acalma. A cozinha continua com o mesmo ritmo; a fila só guarda o que não coube.",
+    "skipped": "sem palpite? Rode e olhe a linha da fila no gráfico: ela sobe e desce, e o contador de perdidos fica em zero."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode no modo assíncrono e depois troque para síncrono. Compare \"pedidos perdidos\".",
+    "cmd": "palpite anotado. Rode atender e depois atender --modo sincrono. Compare \"pedidos perdidos\"."
+  },
+  "tryNext": {
+    "ui": "Agora deixe 2 pizzaiolos no modo assíncrono. A fila não zera até as 20h: fila guarda pico, mas não resolve falta de capacidade.",
+    "cmd": "Rode atender --pizzaiolos 2 e veja o aviso de fila que não esvazia."
+  },
+  "why": {
+    "simples": "Síncrono é o telefone: você liga, pede e fica esperando na linha até alguém resolver. Se a linha está ocupada, você desiste e liga para outra pizzaria.\nAssíncrono é a comanda: o atendente anota, diz \"anotado, já sai!\" e pendura o papel no varal da cozinha. O varal é a fila. Na hora do rush ele enche, mas nenhum pedido cai no chão, e a cozinha vai pegando um de cada vez.",
+    "dev": "Numa chamada síncrona (HTTP, gRPC) quem chama fica esperando a resposta e depende de o outro lado estar de pé e com folga naquele instante. Se ele demora, os timeouts estouram em cascata.\nCom uma fila, o produtor publica a mensagem num broker (RabbitMQ, Kafka, Azure Service Bus, SQS) e segue a vida; o consumidor processa no ritmo dele. Você ganha três coisas: amortecer picos, isolar falhas (o consumidor pode cair e voltar) e escalar consumidores separado do produtor. O preço: a resposta vira \"aceito, processando\", e alguém precisa acompanhar o tamanho da fila.",
+    "especialista": "Fila é um amortecedor, não um multiplicador de capacidade: se a taxa média de chegada passa da taxa média de processamento, a fila cresce sem limite (é a lição do \"--pizzaiolos 2\"). Pela Lei de Little, itens na fila = taxa de chegada × tempo de espera; monitore profundidade e idade da mensagem mais velha, não só \"a fila existe\".\nDefina o que acontece quando a fila enche (limite de tamanho, rejeitar publicação, descartar a mais antiga) e o contrato com o usuário: um 202 Accepted com id para consultar o status, ou uma notificação quando terminar. Assíncrono também muda o modelo mental do time: erros deixam de aparecer na tela de quem pediu e passam a aparecer em métricas e alertas."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: troque o modo para síncrono e rode com o pico de 20 pedidos.",
+      "cmd": "hora de quebrar: rode atender --modo sincrono"
+    },
+    "success": "Quebrou: sem fila, a linha só aguenta {cap} pedidos a cada 10 minutos e {lost} clientes ouviram \"ocupado\" e foram pedir em outro lugar. A cozinha era a mesma; o que faltou foi onde esperar.",
+    "calm": "Nenhum pedido perdido: no pico a fila chegou a {maxq} pedidos e a pior espera extra foi de {wait} min. Para quebrar, atenda sem fila."
+  },
+  "hints": {
+    "ui": [
+      "Mexa nos controles; a cena muda sozinha.",
+      "No modo síncrono, quem não cabe na capacidade da cozinha fica sem atendimento.",
+      "Escolha o modo síncrono com pico de 20 e 3 pizzaiolos."
+    ],
+    "cmd": [
+      "O pedido vai entre aspas; --modo, --pico e --pizzaiolos são opcionais.",
+      "--modo aceita sincrono ou assincrono.",
+      "atender --modo sincrono"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Use sincrono ou assincrono.",
+    "aboveMax.peak": "Até 60 pedidos a cada 10 minutos: mais que isso nem a Nona aguenta.",
+    "belowMin.peak": "Pico negativo não existe (infelizmente para a cozinha).",
+    "belowMin.cooks": "Sem pizzaiolo não sai pizza. Pelo menos 1.",
+    "aboveMax.cooks": "Até 10 pizzaiolos: a cozinha é pequena."
+  },
+  "controls": {
+    "arg": "Pedido de exemplo",
+    "mode": "Modo de atendimento",
+    "peak": "Pedidos a cada 10 min no pico",
+    "cooks": "Pizzaiolos"
+  },
+  "scene": {
+    "label": "Pizzaria da Nona, 19h às 20h",
+    "empty": "Rode para abrir a pizzaria.",
+    "answer": "tempo até o cliente ouvir uma resposta",
+    "lostM": "pedidos perdidos",
+    "maxqM": "pedidos na fila no pico",
+    "waitM": "pior espera extra",
+    "queueLabel": "Varal de comandas (a fila)",
+    "lineLabel": "Telefone, sem fila",
+    "phone": "telefone e app",
+    "kitchen": "cozinha",
+    "capNote": "{cap} pizzas / 10 min",
+    "emptyQueue": "fila vazia",
+    "noQueue": "ninguém espera: ou atende, ou dá ocupado",
+    "lostLabel": "desistiram",
+    "chart": "Fila e perdas a cada 10 minutos",
+    "chartQueue": "pedidos esperando",
+    "chartLost": "pedidos perdidos",
+    "syncNote": "{lost} clientes ouviram \"ocupado\". No síncrono, capacidade que falta vira cliente perdido na hora.",
+    "drainNote": "A fila não esvaziou até as 20h: ainda tem {left} pedidos esperando. Fila guarda pico, mas não cria capacidade.",
+    "asyncNote": "Todo mundo ouviu \"anotado!\" em 2 segundos. No pico a fila chegou a {maxq} e zerou quando o movimento acalmou."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Com o Docker instalado, suba um RabbitMQ com o painel de gestão: docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management",
+      "Abra http://localhost:15672 no navegador e entre com guest / guest (esse usuário só funciona a partir da sua própria máquina, e é só para estudo).",
+      "Na aba de filas (Queues), crie uma fila chamada pedidos. Abra a fila e use \"Publish message\" para publicar 5 mensagens, como \"1 calabresa\".",
+      "Repare que ninguém está consumindo e mesmo assim os 5 pedidos foram aceitos. Depois use \"Get messages\" para tirar um."
+    ],
+    "ok": "a fila pedidos mostra 5 mensagens prontas (Ready) sem nenhum consumidor ligado: o pedido foi aceito sem precisar da cozinha naquele instante."
+  }
+}

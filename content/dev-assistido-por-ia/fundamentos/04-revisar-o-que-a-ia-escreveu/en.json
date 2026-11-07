@@ -1,0 +1,112 @@
+{
+  "title": "Review what the AI wrote",
+  "subtitle": "\"All tests passed\" isn’t the same as \"it’s right\"",
+  "mission": "The agent opened a PR with the bakery’s discount coupon and proudly announced: \"Done! 3 tests passing\". There are 4 problems hidden in the diff. Choose how to review and only approve when you’ve found them all.",
+  "predict": {
+    "question": "if you only run the tests, how many of the 4 problems show up?",
+    "options": {
+      "zero": "None",
+      "two": "About 2",
+      "four": "All 4, tests catch everything"
+    }
+  },
+  "feedback": {
+    "right": "right: zero. The tests are green because they test what the AI thought, not what the bakery needs. One of them doesn’t even check anything.",
+    "wrong": "none showed up. A green test only proves the code does what the tests ask, and the same AI wrote the tests.",
+    "skipped": "no guess? Look: 3 of 3 green and 4 problems still hidden."
+  },
+  "coach": {
+    "ui": "guess noted. Run with only \"run the tests\", then tick the other review methods.",
+    "cmd": "guess noted. Run it as is, then try --checks run,read,deps,data,edges."
+  },
+  "tryNext": {
+    "ui": "Tick every review method, find all 4 problems and only then switch on \"Approve\".",
+    "cmd": "Run review --checks run,read,deps,data,edges --approve yes."
+  },
+  "why": {
+    "simples": "When a new colleague hands in work, you don’t sign it without looking just because they said \"done\". Same with AI, with one twist: it writes fast, neatly and with a lot of confidence, which makes you want to trust it.\nReviewing means reading what changed, running it, testing the weird cases and checking where each new piece came from.",
+    "dev": "Checklist for an AI PR: (1) read the whole diff, tests included, looking for tests with no assertion or loosened assertions; (2) check each new dependency in the registry (npm view <package>: date, versions, downloads, repository); (3) look for personal data and secrets in logs and error messages; (4) write an edge test yourself (coupon’s last day, zero amount, empty list); (5) run the whole suite, not just the new test.\nAlso ask \"what changed that I didn’t ask for?\": agents sometimes touch more files than needed.",
+    "especialista": "Models sometimes cite packages that don’t exist; researchers showed these made-up names repeat, and attackers can register the name first (\"slopsquatting\"). A package that’s 3 days old with 2 downloads is a red flag even if it installs fine.\nSince the test author and the code author can be the same model, use independent checks: acceptance tests written by people, static and secret scanning in CI, dependency scanning (lockfile, SCA) and a rule that agent PRs go through the same human review as any other. A log with a national ID number or phone is a privacy-law problem (LGPD, GDPR), not just a style issue."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: leave only \"run the tests\" and switch on \"Approve\".",
+      "cmd": "time to break it: run review --approve yes without checking anything else."
+    },
+    "success": "Broken: the PR went to production with {missing} problem(s). On the coupon’s last day customers couldn’t use it, their phone and ID numbers ended up in the log, and the app now depends on a stranger’s package. All with green tests.",
+    "calm": "{caught} of 4 problems found and nothing approved yet. To break it, approve without a proper review."
+  },
+  "hints": {
+    "ui": [
+      "Tick review methods; the scene updates by itself.",
+      "Each hidden problem says which kind of review finds it.",
+      "To break it: only \"run the tests\" and \"Approve\" on."
+    ],
+    "cmd": [
+      "--checks takes a list: run, read, deps, data, edges.",
+      "--approve yes sends the PR to production.",
+      "review \"AI PR: apply discount coupon\" --approve yes"
+    ]
+  },
+  "errors": {
+    "notInEnum.checks": "“{value}” isn’t a review method here. Options: {options}.",
+    "notBool.approve": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Pull request",
+    "checks": "How to review",
+    "approve": "Approve and ship to production"
+  },
+  "scene": {
+    "label": "PR review",
+    "empty": "Run to review.",
+    "caught": "problems found",
+    "green": "green tests",
+    "notRun": "not run",
+    "decision": "decision",
+    "approved": "approved",
+    "waiting": "in review",
+    "diff": "PR diff (written by the AI)",
+    "d0": "$ git diff main",
+    "d1": "+import { validaCupom } from 'cupom-valida-br'",
+    "d1bad": "!import { validaCupom } from 'cupom-valida-br'   ← 3-day-old package, 2 downloads",
+    "dFn": "+export function aplicarCupom(pedido, codigo, cliente, hoje) {",
+    "d2": "+  if (hoje < cupom.validade) pedido.total *= 0.9",
+    "d2bad": "!  if (hoje < cupom.validade) pedido.total *= 0.9   ← fails on the last day; should be <=",
+    "d3": "+  console.log('cupom usado', cliente.nome, cliente.telefone, cliente.cpf)",
+    "d3bad": "!  console.log('cupom usado', cliente.nome, cliente.telefone, cliente.cpf)   ← personal data in the log",
+    "dEnd": "+}",
+    "d4": "+test('aplica cupom', () => { aplicarCupom(pedido, 'BOLO10', cliente, hoje) })",
+    "d4bad": "!test('aplica cupom', () => { aplicarCupom(pedido, 'BOLO10', cliente, hoje) })   ← no expect: always passes",
+    "run": "Terminal",
+    "pass1": "+PASS applies coupon",
+    "pass2": "+PASS computes total",
+    "pass3": "+PASS free delivery above R$ 100",
+    "failEdge": "!FAIL coupon on its last valid day (your new test)",
+    "npmView": "?created 3 days ago · 1 version · 2 downloads · no repository",
+    "problems": "Problems in the PR",
+    "hidden1": "Hidden problem #1",
+    "hidden2": "Hidden problem #2",
+    "hidden3": "Hidden problem #3",
+    "hidden4": "Hidden problem #4",
+    "p1": "Suspicious dependency: cupom-valida-br",
+    "p2": "Coupon fails on its last day (< instead of <=)",
+    "p3": "Customer phone and ID number in the log",
+    "p4": "Test with no assertion (no expect)",
+    "h1": "Only shows up when you check new packages in the registry.",
+    "h2": "Only shows up with an edge test: the coupon’s last day.",
+    "h3": "Shows up when reading the diff or looking for personal data.",
+    "h4": "Shows up when reading the diff, tests included.",
+    "shippedNote": "Approved with {missing} problem(s) inside. In production, the customer finds them.",
+    "greenNote": "All green and no problems found. Looks great, and that’s exactly what should make you suspicious."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Ask your AI of choice for a small function with tests (e.g., validate a coupon with an expiry date) and don’t accept it right away.",
+      "Read the whole diff looking for: tests without expect, logs with personal data, new dependencies. For each new package, run npm view <name> and check the creation date, versions and repository.",
+      "Write an edge test yourself (the last valid day, zero amount) and run the whole suite."
+    ],
+    "ok": "you found at least one problem the AI’s own tests didn’t catch, and can say which kind of review found it."
+  }
+}

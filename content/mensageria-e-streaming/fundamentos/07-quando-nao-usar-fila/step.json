@@ -1,0 +1,257 @@
+{
+  "id": "msg-quando-nao-usar-fila",
+  "order": 7,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "mensageria",
+    "arquitetura",
+    "trade-offs"
+  ],
+  "requires": [
+    "msg-sincrono-assincrono",
+    "msg-pub-sub"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "decidir",
+      "en": "decide"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "app da pizzaria",
+        "en": "pizzeria app"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "case",
+        "alias": {
+          "pt": "caso",
+          "en": "case"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "email",
+            "pt": "email",
+            "en": "email"
+          },
+          {
+            "id": "price",
+            "pt": "preco",
+            "en": "price"
+          },
+          {
+            "id": "coupon",
+            "pt": "cupom",
+            "en": "coupon"
+          },
+          {
+            "id": "invoice",
+            "pt": "nota",
+            "en": "invoice"
+          },
+          {
+            "id": "report",
+            "pt": "relatorio",
+            "en": "report"
+          }
+        ],
+        "default": "email",
+        "ui": "select"
+      },
+      {
+        "name": "mode",
+        "alias": {
+          "pt": "modo",
+          "en": "mode"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "queue",
+            "pt": "fila",
+            "en": "queue"
+          },
+          {
+            "id": "direct",
+            "pt": "direto",
+            "en": "direct"
+          }
+        ],
+        "default": "queue",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "wrongTool"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "caseInfo": {
+          "price": {
+            "work": 30,
+            "needs": true,
+            "flaky": false
+          },
+          "coupon": {
+            "work": 80,
+            "needs": true,
+            "flaky": false
+          },
+          "email": {
+            "work": 1200,
+            "needs": false,
+            "flaky": true
+          },
+          "invoice": {
+            "work": 3000,
+            "needs": false,
+            "flaky": true
+          },
+          "report": {
+            "work": 90000,
+            "needs": false,
+            "flaky": false
+          }
+        },
+        "pollMs": 2000,
+        "ackMs": 50
+      },
+      "compute": {
+        "info": "lookup(caseInfo, case, null)",
+        "work": "info.work",
+        "needs": "info.needs",
+        "flaky": "info.flaky",
+        "isQueue": "mode == 'queue'",
+        "userMs": "isQueue ? (needs ? work + pollMs : ackMs) : work",
+        "parts": "isQueue ? 4 : 0",
+        "wrongQ": "isQueue && needs",
+        "wrongD": "!isQueue && !needs",
+        "rightT": "!wrongQ && !wrongD",
+        "caseName": "lookup(caseNames, case, case)"
+      },
+      "cases": [
+        {
+          "when": "wrongQ",
+          "flags": [
+            "wrongTool"
+          ]
+        },
+        {
+          "when": "wrongD",
+          "flags": [
+            "fragile"
+          ]
+        },
+        {
+          "when": "rightT",
+          "flags": [
+            "rightTool"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "ms": "userMs",
+            "parts": "parts",
+            "name": "caseName"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@userM",
+              "value": "=userMs",
+              "format": "ms",
+              "tone": "=userMs > 1000 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@partsM",
+              "value": "=parts",
+              "format": "int",
+              "tone": "=parts > 0 ? 'info' : 'dim'"
+            },
+            {
+              "label": "@downM",
+              "value": "=isQueue ? '@waitsRetry' : '@errorScreen'",
+              "tone": "=isQueue ? 'ok' : (flaky ? 'bad' : 'warn')"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@app",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "=isQueue ? '@broker' : '@call'",
+              "sub": "=isQueue ? '@brokerSub' : '@callSub'",
+              "tone": "=wrongQ ? 'bad' : 'neutral'"
+            },
+            {
+              "label": "=caseName",
+              "sub": "=work + ' ms'",
+              "tone": "=rightT ? 'ok' : 'warn'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@question",
+            "@answer"
+          ],
+          "rows": [
+            [
+              "@q1",
+              "=needs ? '@yes' : '@no'"
+            ],
+            [
+              "@q2",
+              "=work >= 1000 ? '@yes' : '@no'"
+            ],
+            [
+              "@q3",
+              "=flaky ? '@yes' : '@no'"
+            ]
+          ],
+          "caption": "=needs ? '@capDirect' : '@capQueue'"
+        },
+        {
+          "type": "note",
+          "tone": "=rightT ? 'ok' : 'bad'",
+          "text": "=rightT ? '@rightNote' : (wrongQ ? '@wrongQNote' : '@wrongDNote')"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "yes",
+      "no",
+      "always"
+    ],
+    "answer": "no"
+  }
+}

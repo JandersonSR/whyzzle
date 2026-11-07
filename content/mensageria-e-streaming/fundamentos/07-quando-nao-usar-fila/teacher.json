@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Aplicar três perguntas para decidir entre fila e chamada direta.",
+      "Reconhecer o custo operacional de uma fila.",
+      "Conhecer alternativas mais simples."
+    ],
+    "minutes": 15,
+    "activity": "Debate em duplas: cada dupla recebe 3 funcionalidades de um app conhecido (banco, delivery, rede social) e defende \"fila\" ou \"direto\" para cada uma em 1 minuto. A turma vota.",
+    "discussion": [
+      "Que funcionalidade você já viu ficar mais lenta por estar \"assíncrona demais\"?",
+      "Quem paga o custo de operar uma fila na sua equipe?"
+    ],
+    "misconceptions": [
+      "\"Arquitetura moderna é tudo por fila.\" Fila é ferramenta para um tipo de problema; para consultas rápidas, ela só acrescenta espera."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Apply three questions to choose between a queue and a direct call.",
+      "Recognize a queue’s operating cost.",
+      "Know simpler alternatives."
+    ],
+    "minutes": 15,
+    "activity": "Pair debate: each pair gets 3 features of a well-known app (bank, delivery, social network) and argues \"queue\" or \"direct\" for each one in 1 minute. The class votes.",
+    "discussion": [
+      "Which feature have you seen get slower for being \"too async\"?",
+      "Who pays the cost of running a queue on your team?"
+    ],
+    "misconceptions": [
+      "\"Modern architecture means everything goes through a queue.\" A queue is a tool for one kind of problem; for fast lookups it only adds waiting."
+    ]
+  }
+}

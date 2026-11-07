@@ -1,0 +1,104 @@
+{
+  "title": "Quando não usar fila",
+  "subtitle": "Fila é ótima até alguém perguntar o preço da pizza e ouvir \"anotado, depois te aviso\"",
+  "mission": "O app da Nona tem cinco tarefas: consultar preço, validar cupom no pagamento, mandar e-mail de confirmação, emitir nota fiscal e gerar o relatório do mês. Para cada uma, decida: fila ou chamada direta? Ache o caso em que a fila só atrapalha.",
+  "predict": {
+    "question": "para o app mostrar o preço de uma pizza, vale colocar uma fila no meio?",
+    "options": {
+      "yes": "Sim, fila deixa tudo mais robusto",
+      "no": "Não, a pessoa precisa da resposta agora",
+      "always": "Sempre: tudo deveria passar por fila"
+    }
+  },
+  "feedback": {
+    "right": "isso: a consulta leva 30 ms e a pessoa não consegue seguir sem a resposta. Com fila, ela recebe \"anotado\" e o app fica perguntando \"já tem?\" de tempos em tempos. Mais peças, mais demora, nenhum ganho.",
+    "wrong": "não vale: a resposta é rápida e a pessoa precisa dela para continuar. A fila só acrescenta espera, uma consulta repetida e quatro peças para operar. Fila brilha quando o trabalho é lento, instável ou pode ser feito depois.",
+    "skipped": "sem palpite? Rode decidir --caso preco e compare fila com direto."
+  },
+  "coach": {
+    "ui": "palpite anotado. Escolha \"preço\" e alterne entre fila e direto.",
+    "cmd": "palpite anotado. Rode decidir --caso preco e depois decidir --caso preco --modo direto."
+  },
+  "tryNext": {
+    "ui": "Agora \"nota fiscal\" no modo direto: 3 segundos com a pessoa olhando a tela, e se o serviço da nota cair, erro na cara do cliente.",
+    "cmd": "Rode decidir --caso nota --modo direto e leia o aviso."
+  },
+  "why": {
+    "simples": "Antes de pôr fila, faça três perguntas. A pessoa precisa da resposta agora para continuar? O trabalho é lento? O serviço do outro lado cai de vez em quando?\nSe precisa da resposta agora e é rápido (preço, cupom, login), chame direto. Se pode ser feito depois, é lento ou instável (e-mail, nota fiscal, relatório), fila. Fila não é enfeite: é mais uma coisa para ligar, vigiar e consertar.",
+    "dev": "Fila traz custos fixos: broker para operar e atualizar, consumidor para implantar, DLQ, monitoramento de profundidade e idade, idempotência, rastreamento entre processos e testes mais difíceis. Vale quando há pico, trabalho lento, dependência instável, ou vários interessados no mesmo fato.\nNão vale para leituras que o usuário espera (consultas, validações), quando você precisa da resposta para decidir o próximo passo na mesma requisição, ou quando o volume é pequeno e um retry simples resolve. Request/reply por cima de fila existe, mas só se justifica quando o broker já está lá por outros motivos.",
+    "especialista": "Alternativas mais simples costumam vencer: retry com backoff e jitter mais circuit breaker numa chamada direta; um job agendado lendo uma tabela de pendências; ou a própria tabela como fila (SELECT … FOR UPDATE SKIP LOCKED no Postgres) quando o volume é modesto e você quer a mesma transação do banco.\nCuidado também com \"fila como banco de dados\": consultar o estado de um pedido varrendo mensagens não funciona; o estado mora num banco e a fila só transporta mudanças. E fila não resolve consistência entre dois sistemas sozinha: se você grava no banco e publica a mensagem em passos separados, um deles pode falhar. Para isso existe o padrão outbox, que a trilha Prática detalha."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha \"preço\" com fila.",
+      "cmd": "hora de quebrar: rode decidir --caso preco --modo fila"
+    },
+    "success": "Quebrou: para mostrar {name}, a pessoa esperou {ms} ms em vez de 30, e o time ganhou {parts} peças para operar. A fila resolveu um problema que não existia.",
+    "calm": "{name}: escolha certa, resposta para a pessoa em {ms} ms. Para quebrar, coloque uma fila onde a pessoa precisa da resposta na hora."
+  },
+  "hints": {
+    "ui": [
+      "Escolha um caso e um modo; a tabela mostra as três perguntas.",
+      "Fila atrapalha quando a resposta é rápida e a pessoa precisa dela agora.",
+      "Escolha \"preço\" com fila."
+    ],
+    "cmd": [
+      "--caso aceita email, preco, cupom, nota ou relatorio.",
+      "--modo aceita fila ou direto.",
+      "decidir --caso preco --modo fila"
+    ]
+  },
+  "errors": {
+    "notInEnum.case": "Os casos são email, preco, cupom, nota e relatorio.",
+    "notInEnum.mode": "Use fila ou direto."
+  },
+  "controls": {
+    "arg": "Sistema",
+    "case": "Tarefa",
+    "mode": "Como fazer"
+  },
+  "scene": {
+    "label": "Fila ou chamada direta?",
+    "empty": "Rode para decidir.",
+    "userM": "tempo até a pessoa ver o resultado",
+    "partsM": "peças a mais para operar",
+    "downM": "se o serviço de destino cair",
+    "waitsRetry": "espera e tenta de novo",
+    "errorScreen": "erro na tela",
+    "app": "app",
+    "broker": "fila + worker",
+    "brokerSub": "\"anotado\", resultado depois",
+    "call": "chamada direta",
+    "callSub": "espera a resposta",
+    "tableLabel": "As três perguntas",
+    "question": "pergunta",
+    "answer": "resposta",
+    "q1": "A pessoa precisa do resultado agora para continuar?",
+    "q2": "O trabalho leva 1 segundo ou mais?",
+    "q3": "O serviço de destino costuma falhar?",
+    "yes": "sim",
+    "no": "não",
+    "capDirect": "Precisa da resposta agora: chamada direta, com timeout e retry curto.",
+    "capQueue": "Pode ficar para depois: fila, com DLQ e consumidor idempotente.",
+    "rightNote": "Boa escolha para {name}.",
+    "wrongQNote": "Fila para {name}? A pessoa fica esperando, o app fica perguntando \"já tem?\", e o time ganha {parts} peças para cuidar.",
+    "wrongDNote": "Direto para {name}: a pessoa fica {ms} ms olhando a tela, e se o serviço cair, o erro vai parar na cara dela. Aqui a fila vale a pena."
+  },
+  "data": {
+    "caseNames": {
+      "price": "o preço",
+      "coupon": "o cupom",
+      "email": "o e-mail de confirmação",
+      "invoice": "a nota fiscal",
+      "report": "o relatório do mês"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Liste 5 funcionalidades de um sistema que você usa ou constrói (no trabalho, na escola, num app).",
+      "Para cada uma, responda as três perguntas da cena: precisa da resposta agora? leva 1 s ou mais? o destino falha às vezes?",
+      "Marque \"fila\" só onde a primeira resposta for não e pelo menos uma das outras for sim. Para o resto, escreva qual timeout e quantas tentativas usaria na chamada direta."
+    ],
+    "ok": "cada funcionalidade tem uma escolha com justificativa, e pelo menos uma ficou como chamada direta. Se todas viraram fila, revise a primeira pergunta."
+  }
+}

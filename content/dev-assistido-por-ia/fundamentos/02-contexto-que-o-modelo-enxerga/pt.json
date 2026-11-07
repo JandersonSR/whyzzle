@@ -1,0 +1,121 @@
+{
+  "title": "O contexto que o modelo enxerga",
+  "subtitle": "A IA só sabe o que está na janela dela, e a janela tem tamanho",
+  "mission": "O total de alguns pedidos da padaria sai errado. A Bia pergunta para a IA o porquê. A resposta só pode ser boa se os arquivos certos estiverem no contexto: o código do desconto e o AGENTS.md com as regras do negócio. Escolha o que entra e cuidado com o arquivo gigante.",
+  "predict": {
+    "question": "só com pedido.ts no contexto (o padrão), o que a IA faz?",
+    "options": {
+      "right": "Acha a causa certinha",
+      "guess": "Chuta uma causa que parece boa",
+      "refuse": "Diz que não tem informação suficiente"
+    }
+  },
+  "feedback": {
+    "right": "isso: ela chutou \"arredondamento\" com toda a confiança. Às vezes a IA pede mais arquivos (ótimo quando acontece), mas não conte com isso: o normal é responder com o que tem.",
+    "wrong": "ela chutou: \"deve ser arredondamento\". Sem ver o arquivo do desconto nem as regras, a IA completa com o que é comum em outros projetos, e com a mesma confiança de quando acerta.",
+    "skipped": "sem palpite? Olha a nota: um chute bem escrito. A IA não viu o arquivo que tem o problema."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode só com pedido.ts; depois marque desconto e regras.",
+    "cmd": "palpite anotado. Rode como está e depois tente --arquivos regras,desconto."
+  },
+  "tryNext": {
+    "ui": "Agora marque só \"desconto\": a IA acha o código mas chuta a regra. O porquê do bug estava no arquivo de regras.",
+    "cmd": "Rode perguntar --arquivos desconto e compare com --arquivos regras,desconto."
+  },
+  "why": {
+    "simples": "A IA não lê o seu computador inteiro. Ela lê uma \"mesa\" de papéis que você (ou a ferramenta) coloca na frente dela: isso é o contexto. Se o papel com a resposta não está na mesa, ela responde com o que acha, e acha com muita confiança.\nE a mesa tem tamanho: se você joga um calhamaço enorme em cima, outros papéis caem no chão.",
+    "dev": "O contexto é tudo que vai para o modelo numa chamada: instruções, arquivos, mensagens anteriores, saídas de comandos. Ele é medido em tokens e tem limite (a janela de contexto), que muda de modelo para modelo. Os números aqui são de brinquedo.\nArquivos de regras do repositório entram em toda sessão: AGENTS.md (formato aberto lido por várias ferramentas, como Cursor e agentes do Copilot), CLAUDE.md no Claude Code, .github/copilot-instructions.md no Copilot e .cursor/rules no Cursor. Coloque ali o que o código não diz sozinho: regras do negócio, comandos de teste, convenções. E nunca jogue arquivo gerado (bundle, .min.js, lock) no contexto.",
+    "especialista": "Caber na janela não garante uso: estudos como \"Lost in the Middle\" (Liu et al.) mostraram que modelos aproveitam pior informações no meio de contextos longos do que no começo ou no fim. Contexto enxuto e relevante ganha de contexto gigante.\nCada ferramenta lida com o excesso do seu jeito (cortar, resumir a conversa, buscar só trechos), e nenhuma faz caber o que não cabe; neste simulador, o que entrou primeiro sai primeiro. A documentação do Claude Code lembra que CLAUDE.md é tratado como contexto, não como configuração obrigatória: para garantir uma regra, use mecanismos que executam (hooks, testes, CI). Arquivos de regras curtos e específicos são seguidos com mais consistência."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: marque regras, desconto, pedido e o bundle gigante.",
+      "cmd": "hora de quebrar: rode com --arquivos regras,desconto,pedido,bundle"
+    },
+    "success": "Quebrou: {total} tokens não cabem em {window}. O bundle empurrou {dropped} arquivo(s) para fora da janela, incluindo as regras e o desconto, justo os que tinham a resposta. Mais contexto não é contexto melhor.",
+    "calm": "Tudo coube na janela ({used} de {window} tokens). Para quebrar, coloque o bundle junto com os arquivos importantes."
+  },
+  "hints": {
+    "ui": [
+      "Marque e desmarque arquivos; a cena atualiza sozinha.",
+      "A resposta do bug do total precisa de dois arquivos: o código do desconto e as regras.",
+      "Marque regras, desconto, pedido e bundle."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas; --arquivos recebe uma lista separada por vírgula.",
+      "Opções de arquivo: regras, desconto, pedido, log, bundle.",
+      "perguntar \"Por que o total do pedido sai errado?\" --arquivos regras,desconto,pedido,bundle"
+    ]
+  },
+  "errors": {
+    "notInEnum.files": "“{value}” não é um arquivo daqui. Opções: {options}."
+  },
+  "controls": {
+    "arg": "Pergunta da Bia",
+    "files": "Arquivos no contexto"
+  },
+  "scene": {
+    "label": "A mesa da IA",
+    "empty": "Rode para ver o que a IA enxerga.",
+    "used": "tokens na janela",
+    "full": "janela ocupada",
+    "dropped": "arquivos que caíram fora",
+    "table": "O que entrou no contexto",
+    "file": "arquivo",
+    "tokens": "tokens (de brinquedo)",
+    "status": "situação",
+    "fR": "AGENTS.md",
+    "fD": "desconto.ts",
+    "fO": "pedido.ts",
+    "fL": "erro.log",
+    "fB": "app.min.js",
+    "notIn": "não incluído",
+    "droppedOut": "caiu fora da janela",
+    "seen": "a IA enxerga",
+    "cut": "cortado pela metade",
+    "caption": "Janela de brinquedo: {window} tokens. Quando passa, o que entrou primeiro sai primeiro.",
+    "q": "Pergunta",
+    "model": "A IA",
+    "o_right": "responde com base no código e nas regras",
+    "o_partial": "acerta metade, chuta a outra",
+    "o_guessed": "chuta com confiança",
+    "overflowNote": "Passou da janela: {total} tokens para {window}. O app.min.js é código gerado, gigante e inútil para entender o bug."
+  },
+  "data": {
+    "needs": {
+      "Por que o total do pedido sai errado?": [
+        "discount",
+        "rules"
+      ],
+      "Onde está a regra da taxa de entrega?": [
+        "rules"
+      ]
+    },
+    "answers": {
+      "Por que o total do pedido sai errado?": {
+        "right": "A IA: \"Em desconto.ts, o desconto de 10% é aplicado depois de somar a taxa de entrega. O AGENTS.md diz que o desconto vale só para os produtos. Calcule o desconto antes de somar a taxa.\"",
+        "partial": "A IA: \"Em desconto.ts, o desconto é aplicado sobre o total com a taxa. Talvez esteja certo, talvez não: depende da regra do negócio.\" (Achou o código, mas chutou a regra.)",
+        "guessed": "A IA: \"Provavelmente é um problema de arredondamento com números decimais. Tente usar toFixed(2).\" (Parece ótimo. Está errado: ela nunca viu o arquivo do desconto.)"
+      },
+      "Onde está a regra da taxa de entrega?": {
+        "right": "A IA: \"Está no AGENTS.md: taxa de entrega de R$ 8, sem desconto, grátis acima de R$ 100.\"",
+        "partial": "A IA acertou parte, mas não viu o arquivo de regras.",
+        "guessed": "A IA: \"Geralmente fica num arquivo config.js ou numa tabela do banco.\" (Chute educado. Esse arquivo nem existe.)"
+      }
+    },
+    "answersFallback": {
+      "right": "A IA: \"Em desconto.ts, o desconto de 10% é aplicado depois de somar a taxa de entrega. O AGENTS.md diz que o desconto vale só para os produtos. Calcule o desconto antes de somar a taxa.\"",
+      "partial": "A IA: \"Em desconto.ts, o desconto é aplicado sobre o total com a taxa. Talvez esteja certo, talvez não: depende da regra do negócio.\" (Achou o código, mas chutou a regra.)",
+      "guessed": "A IA: \"Provavelmente é um problema de arredondamento com números decimais. Tente usar toFixed(2).\" (Parece ótimo. Está errado: ela nunca viu o arquivo do desconto.)"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Num projeto seu, crie um AGENTS.md na raiz com 3 linhas: como rodar os testes, uma regra do negócio (ex.: \"valores sempre em centavos\") e uma convenção de nomes. No Claude Code o arquivo equivalente é CLAUDE.md; no Copilot, .github/copilot-instructions.md.",
+      "Abra uma conversa nova no agente da sua ferramenta e pergunte algo que só a regra responde, como: em que unidade guardamos os preços?",
+      "No Claude Code, rode /context para ver quais arquivos de memória entraram. Depois apague a regra, abra outra conversa e faça a mesma pergunta."
+    ],
+    "ok": "com a regra no arquivo, a IA responde \"centavos\" citando a regra; sem ela, chuta (e geralmente chuta \"reais com casas decimais\")."
+  }
+}

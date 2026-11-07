@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Revisar um diff de IA com um checklist.",
+      "Entender por que teste verde não prova correção.",
+      "Reconhecer dependência suspeita e dados pessoais em log."
+    ],
+    "minutes": 20,
+    "activity": "Imprima um diff curto com 4 problemas plantados. Grupos têm 10 minutos e cada um só pode usar um jeito de revisar (ler, rodar, bordas, pacotes). Depois comparam quem achou o quê.",
+    "discussion": [
+      "Por que um teste escrito pela mesma IA que escreveu o código é fraco como prova?",
+      "O que você faria ao ver um pacote com 3 dias de vida no seu projeto?"
+    ],
+    "misconceptions": [
+      "\"Se os testes passaram, está certo.\" Teste só prova o que ele verifica; um teste sem expect passa sempre."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Review an AI diff with a checklist.",
+      "Understand why a green test doesn’t prove correctness.",
+      "Recognize a suspicious dependency and personal data in logs."
+    ],
+    "minutes": 20,
+    "activity": "Print a short diff with 4 planted problems. Groups get 10 minutes and each can use only one review method (read, run, edges, deps). Then they compare who found what.",
+    "discussion": [
+      "Why is a test written by the same AI that wrote the code weak as proof?",
+      "What would you do on seeing a 3-day-old package in your project?"
+    ],
+    "misconceptions": [
+      "\"If the tests passed, it’s right.\" A test only proves what it checks; a test without expect always passes."
+    ]
+  }
+}

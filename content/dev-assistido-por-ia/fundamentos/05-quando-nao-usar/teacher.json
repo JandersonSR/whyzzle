@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Reconhecer quatro situações em que a IA atrapalha ou é arriscada.",
+      "Usar a IA como tutora em vez de \"fazedora\".",
+      "Proteger segredos e dados pessoais."
+    ],
+    "minutes": 15,
+    "activity": "Cartões com 10 situações (prova, senha, trocar uma vírgula, código de pagamento...). Em grupos, a turma separa em \"IA faz\", \"IA explica\" e \"sem IA\" e defende as escolhas.",
+    "discussion": [
+      "Qual a diferença entre usar a IA para entender e para entregar?",
+      "Se você colou um segredo sem querer, o que precisa fazer?"
+    ],
+    "misconceptions": [
+      "\"Se eu apagar a conversa, o segredo some.\" Depois de enviado, considere vazado e troque a chave.",
+      "\"Usar IA para tudo é ser produtivo.\" Em tarefa minúscula ou de aprendizado, atrapalha."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Recognize four situations where AI gets in the way or is risky.",
+      "Use AI as a tutor instead of a \"doer\".",
+      "Protect secrets and personal data."
+    ],
+    "minutes": 15,
+    "activity": "Cards with 10 situations (exam, password, change one comma, payment code...). In groups, the class sorts them into \"AI does it\", \"AI explains\" and \"no AI\" and defends their choices.",
+    "discussion": [
+      "What’s the difference between using AI to understand and to hand in?",
+      "If you pasted a secret by accident, what do you need to do?"
+    ],
+    "misconceptions": [
+      "\"If I delete the chat, the secret is gone.\" Once sent, consider it leaked and rotate the key.",
+      "\"Using AI for everything is being productive.\" On tiny or learning jobs it gets in the way."
+    ]
+  }
+}

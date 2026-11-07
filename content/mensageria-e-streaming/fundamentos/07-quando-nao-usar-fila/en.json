@@ -1,0 +1,104 @@
+{
+  "title": "When not to use a queue",
+  "subtitle": "Queues are great until someone asks the price of a pizza and hears \"noted, I’ll get back to you\"",
+  "mission": "Nona’s app has five tasks: checking a price, validating a coupon at checkout, sending a confirmation email, issuing an invoice and building the monthly report. For each one, decide: queue or direct call? Find the case where the queue only gets in the way.",
+  "predict": {
+    "question": "for the app to show the price of a pizza, is it worth putting a queue in between?",
+    "options": {
+      "yes": "Yes, a queue makes everything more robust",
+      "no": "No, the person needs the answer now",
+      "always": "Always: everything should go through a queue"
+    }
+  },
+  "feedback": {
+    "right": "right: the lookup takes 30 ms and the person can’t move on without the answer. With a queue, they get \"noted\" and the app keeps asking \"is it ready?\" every so often. More parts, more delay, no gain.",
+    "wrong": "it isn’t: the answer is fast and the person needs it to continue. The queue only adds waiting, repeated polling and four parts to operate. Queues shine when work is slow, flaky or can happen later.",
+    "skipped": "no guess? Run decide --case price and compare queue with direct."
+  },
+  "coach": {
+    "ui": "guess noted. Pick \"price\" and switch between queue and direct.",
+    "cmd": "guess noted. Run decide --case price and then decide --case price --mode direct."
+  },
+  "tryNext": {
+    "ui": "Now \"invoice\" in direct mode: 3 seconds with the person staring at the screen, and if the invoicing service goes down, an error in the customer’s face.",
+    "cmd": "Run decide --case invoice --mode direct and read the warning."
+  },
+  "why": {
+    "simples": "Before adding a queue, ask three questions. Does the person need the answer now to continue? Is the work slow? Does the service on the other side go down now and then?\nIf the answer is needed now and it’s fast (price, coupon, login), call directly. If it can happen later, is slow or flaky (email, invoice, report), use a queue. A queue isn’t decoration: it’s one more thing to run, watch and fix.",
+    "dev": "A queue has fixed costs: a broker to run and upgrade, a consumer to deploy, a DLQ, depth and age monitoring, idempotency, cross-process tracing and harder tests. It pays off with peaks, slow work, flaky dependencies, or several parties interested in the same fact.\nIt doesn’t pay off for reads the user is waiting on (queries, validations), when you need the answer to decide the next step in the same request, or when volume is low and a simple retry does the job. Request/reply over a queue exists, but it’s only justified when the broker is already there for other reasons.",
+    "especialista": "Simpler alternatives often win: retry with backoff and jitter plus a circuit breaker on a direct call; a scheduled job reading a pending table; or the table itself as a queue (SELECT … FOR UPDATE SKIP LOCKED in Postgres) when volume is modest and you want the same database transaction.\nAlso beware of \"the queue as a database\": looking up an order’s state by scanning messages doesn’t work; state lives in a database and the queue only carries changes. And a queue doesn’t solve consistency between two systems by itself: if you write to the database and publish the message in separate steps, one of them can fail. That’s what the outbox pattern is for, covered in the Practice track."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick \"price\" with a queue.",
+      "cmd": "time to break it: run decide --case price --mode queue"
+    },
+    "success": "Broken: to show {name}, the person waited {ms} ms instead of 30, and the team got {parts} parts to operate. The queue solved a problem that didn’t exist.",
+    "calm": "{name}: right choice, answer to the person in {ms} ms. To break it, put a queue where the person needs the answer right away."
+  },
+  "hints": {
+    "ui": [
+      "Pick a case and a mode; the table shows the three questions.",
+      "A queue gets in the way when the answer is fast and the person needs it now.",
+      "Pick \"price\" with a queue."
+    ],
+    "cmd": [
+      "--case takes email, price, coupon, invoice or report.",
+      "--mode takes queue or direct.",
+      "decide --case price --mode queue"
+    ]
+  },
+  "errors": {
+    "notInEnum.case": "The cases are email, price, coupon, invoice and report.",
+    "notInEnum.mode": "Use queue or direct."
+  },
+  "controls": {
+    "arg": "System",
+    "case": "Task",
+    "mode": "How to do it"
+  },
+  "scene": {
+    "label": "Queue or direct call?",
+    "empty": "Run to decide.",
+    "userM": "time until the person sees the result",
+    "partsM": "extra parts to operate",
+    "downM": "if the target service goes down",
+    "waitsRetry": "waits and retries",
+    "errorScreen": "error on screen",
+    "app": "app",
+    "broker": "queue + worker",
+    "brokerSub": "\"noted\", result later",
+    "call": "direct call",
+    "callSub": "waits for the answer",
+    "tableLabel": "The three questions",
+    "question": "question",
+    "answer": "answer",
+    "q1": "Does the person need the result now to continue?",
+    "q2": "Does the work take 1 second or more?",
+    "q3": "Does the target service fail now and then?",
+    "yes": "yes",
+    "no": "no",
+    "capDirect": "Needs the answer now: direct call, with a timeout and a short retry.",
+    "capQueue": "Can happen later: queue, with a DLQ and an idempotent consumer.",
+    "rightNote": "Good choice for {name}.",
+    "wrongQNote": "A queue for {name}? The person waits, the app keeps asking \"is it ready?\", and the team gets {parts} parts to look after.",
+    "wrongDNote": "Direct for {name}: the person stares at the screen for {ms} ms, and if the service goes down, the error lands in their face. Here the queue is worth it."
+  },
+  "data": {
+    "caseNames": {
+      "price": "the price",
+      "coupon": "the coupon",
+      "email": "the confirmation email",
+      "invoice": "the invoice",
+      "report": "the monthly report"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "List 5 features of a system you use or build (at work, at school, in an app).",
+      "For each one, answer the scene’s three questions: is the answer needed now? does it take 1 s or more? does the target fail sometimes?",
+      "Mark \"queue\" only where the first answer is no and at least one of the others is yes. For the rest, write which timeout and how many retries you’d use on the direct call."
+    ],
+    "ok": "every feature has a choice with a reason, and at least one stayed a direct call. If all became queues, review the first question."
+  }
+}

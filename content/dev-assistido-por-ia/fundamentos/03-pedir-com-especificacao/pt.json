@@ -1,0 +1,117 @@
+{
+  "title": "Pedir com especificação",
+  "subtitle": "Entradas, regras, exemplos e limites: o que separa \"faz aí\" de código certo",
+  "mission": "A padaria vende bolo por quilo e a Bia quer que a IA escreva a função do preço. Existem 5 testes escondidos que a função precisa passar. Comece com o pedido vago e vá ligando partes da especificação até passar em todos.",
+  "predict": {
+    "question": "com o pedido vago (nada ligado), quantos dos 5 testes escondidos passam?",
+    "options": {
+      "none": "Nenhum ou quase nenhum",
+      "some": "Uns 2 ou 3",
+      "all": "Todos, a IA é esperta"
+    }
+  },
+  "feedback": {
+    "right": "isso: zero. A IA não errou \"por burrice\": devolveu o preço como texto (\"R$ 90,00\"), não pôs taxa de entrega nem desconto, porque ninguém contou que existiam.",
+    "wrong": "passaram zero. O código até parece bom, mas devolve texto em vez de número e não sabe da taxa nem do desconto. A IA preencheu as lacunas com o que é comum, não com o que a padaria quer.",
+    "skipped": "sem palpite? Olha a lista de testes: tudo vermelho, e o código parece ótimo. Esse é o perigo."
+  },
+  "coach": {
+    "ui": "palpite anotado. Ligue uma chave de cada vez e veja quais testes acendem.",
+    "cmd": "palpite anotado. Rode como está, depois some --entradas sim, --regras sim, --exemplos sim e --limites sim, um de cada vez."
+  },
+  "tryNext": {
+    "ui": "Ligue regras e entradas, mas deixe exemplos desligado: o teste de 4 kg com entrega falha. A dúvida \"o desconto vale na taxa?\" só um exemplo resolve.",
+    "cmd": "Rode pedir --entradas sim --regras sim e depois acrescente --exemplos sim."
+  },
+  "why": {
+    "simples": "Pedir \"faz um bolo\" para um confeiteiro novo dá um bolo. Talvez não o seu. Se você diz o sabor, o tamanho, para quantas pessoas e mostra uma foto, ele acerta.\nCom a IA é igual: quanto mais você conta (o que entra, o que sai, as regras, exemplos e os casos esquisitos), menos ela precisa adivinhar.",
+    "dev": "Uma especificação curta e útil tem: entradas e saída com tipos (kg é número, devolve número em reais), regras do negócio com números (R$ 8 de entrega, 10% acima de 3 kg, só no bolo), exemplos de entrada → saída, casos-limite (0,5 kg cobra 1 kg; 0 ou negativo dá erro) e restrições (sem dependência nova, siga o estilo do projeto).\nMelhor ainda: escreva os exemplos como testes e peça para a IA fazer os testes passarem. Eles viram o contrato que você confere.",
+    "especialista": "Exemplos sem regras convidam ao \"overfitting\": o caminho mais curto para passar em dois exemplos é tratar exatamente aqueles dois casos, e um modelo otimizado para \"fazer o teste passar\" pode tomar esse atalho. Por isso a regra vem por escrito e os testes de aceitação incluem casos que o modelo não viu.\nEm times, a especificação fica num arquivo (issue, doc de design, critérios de aceite) que o agente lê e que a revisão compara com o diff. Ambiguidade que você não resolve na especificação, o modelo resolve sozinho, e geralmente do jeito \"mais comum na internet\"."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: desligue tudo e ligue só os exemplos.",
+      "cmd": "hora de quebrar: rode o pedido só com --exemplos sim."
+    },
+    "success": "Quebrou: só com exemplos e sem regras, a IA \"decorou\" as respostas: se for 2 kg devolve 90, se for 4 kg com entrega devolve 170, e o resto vira zero. Passou em {passed} de 5, justo nos testes iguais aos exemplos.",
+    "calm": "{passed} de 5 testes passando com {items} parte(s) da especificação. Para quebrar, dê só exemplos, sem regras."
+  },
+  "hints": {
+    "ui": [
+      "Ligue as partes da especificação uma de cada vez; a cena atualiza sozinha.",
+      "Cada teste vermelho diz o que faltou no pedido.",
+      "Para quebrar: deixe ligado só \"Exemplos\"."
+    ],
+    "cmd": [
+      "O pedido vai entre aspas; as partes da especificação são chaves sim/nao.",
+      "Partes: --entradas, --regras, --exemplos, --limites, --restricoes.",
+      "pedir \"faz a função do preço do bolo (R$ 45 o kg)\" --exemplos sim"
+    ]
+  },
+  "errors": {
+    "notBool.inputs": "Use sim ou nao.",
+    "notBool.rules": "Use sim ou nao.",
+    "notBool.examples": "Use sim ou nao.",
+    "notBool.edges": "Use sim ou nao.",
+    "notBool.constraints": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Pedido para a IA",
+    "inputs": "Entradas e saída (tipos)",
+    "rules": "Regras do negócio",
+    "examples": "Exemplos entrada → saída",
+    "edges": "Casos-limite",
+    "constraints": "Restrições (sem dependência nova)"
+  },
+  "scene": {
+    "label": "O que a IA escreveu",
+    "empty": "Rode para ver o código.",
+    "passed": "testes escondidos passando",
+    "items": "partes da especificação",
+    "deps": "dependência nova",
+    "depYes": "sim (lodash)",
+    "depNo": "nenhuma",
+    "code": "precoBolo.js",
+    "cDep": "?import _ from 'lodash' // dependência nova só para arredondar",
+    "cNoDep": "~// sem dependências novas",
+    "cSig": "function precoBolo(kg, entrega) {",
+    "cHard1": "!  if (kg === 2 && !entrega) return 90",
+    "cHard2": "!  if (kg === 4 && entrega) return 170",
+    "cHard3": "!  return 0 // o resto? ninguém pediu",
+    "cEdge": "  if (kg <= 0) throw new Error('peso inválido')",
+    "cNoEdge": "~  // peso zero ou negativo? sigo em frente",
+    "cMin": "  const cobrado = Math.max(kg, 1)",
+    "cNoMin": "~  const cobrado = kg // sem peso mínimo",
+    "cBase": "  let bolo = cobrado * 45",
+    "cDiscOk": "  if (cobrado > 3) bolo = bolo * 0.9",
+    "cDiscBad": "?  const total = (bolo + (entrega ? 8 : 0)) * (cobrado > 3 ? 0.9 : 1) // desconto até na taxa",
+    "cNoDisc": "~  // desconto? nunca ouvi falar",
+    "cFee": "  const total = bolo + (entrega ? 8 : 0)",
+    "cNoFee": "~  const total = bolo // taxa de entrega? que taxa?",
+    "cRet": "  return total",
+    "cRetStr": "?  return 'R$ ' + total.toFixed(2).replace('.', ',') // texto, não número",
+    "cEmpty": "~",
+    "tests": "Testes escondidos",
+    "t1": "2 kg, retirada → 90",
+    "t2": "2 kg com entrega → 98",
+    "t3": "4 kg com entrega → 170 (desconto só no bolo)",
+    "t4": "0,5 kg → cobra 1 kg: 45",
+    "t5": "0 kg → erro",
+    "w1": "Sem tipos nem exemplo, a função devolve texto (\"R$ 90,00\") e o teste espera o número 90.",
+    "w2": "Precisa das regras (R$ 8 de entrega) e de saber que a saída é número.",
+    "w3": "Precisa das regras e de um exemplo: só ele mostra que o desconto não vale na taxa.",
+    "w4": "Precisa saber do peso mínimo de 1 kg (regras ou casos-limite).",
+    "w5": "Só os casos-limite dizem o que fazer com peso zero.",
+    "hardNote": "A IA \"decorou\" os exemplos em vez de entender a regra. O código passa nos exemplos e falha em todo o resto.",
+    "allNote": "5 de 5. A especificação virou contrato: dá para conferir o código contra ela, linha por linha."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Escolha uma função pequena do seu projeto (ou a do bolo). Escreva a especificação em 5 blocos: entradas e saída, regras, 2 exemplos, 2 casos-limite e restrições.",
+      "Cole a especificação no chat ou no agente e peça: escreva a função e os testes a partir destes exemplos e casos-limite.",
+      "Rode os testes. Depois acrescente um caso que não estava nos exemplos (ex.: 3,5 kg com entrega) e veja se a função aguenta."
+    ],
+    "ok": "os testes dos exemplos passam e o caso novo também, sem você ter dito a resposta dele. Isso mostra que a IA seguiu a regra, não decorou."
+  }
+}

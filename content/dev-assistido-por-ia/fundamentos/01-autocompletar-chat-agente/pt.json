@@ -1,0 +1,117 @@
+{
+  "title": "Autocompletar × chat × agente",
+  "subtitle": "Três jeitos de ter IA no editor, e cada um tem um tamanho de tarefa",
+  "mission": "A Bia cuida do app de encomendas da Padaria Pão de Mel. Hoje ela tem três tarefas: terminar uma linha, entender um NaN misterioso e renomear um campo em 12 arquivos. Escolha a ferramenta certa para cada uma e veja o que sobra para ela fazer na mão.",
+  "predict": {
+    "question": "tarefa: renomear preco para valor em 12 arquivos e rodar os testes. Qual modo faz isso sem a Bia ficar catando arquivo?",
+    "options": {
+      "autocomplete": "Autocompletar (o texto cinza que aparece enquanto digita)",
+      "chat": "Chat (você pergunta, ele responde na janela ao lado)",
+      "agent": "Agente (ele mexe nos arquivos e roda comandos)"
+    }
+  },
+  "feedback": {
+    "right": "isso! O agente editou os 12 arquivos e rodou os testes. O autocompletar só enxerga a linha onde você está, e o chat sugere, mas quem cola é você.",
+    "wrong": "olha a tabela: só o agente alcança 12 arquivos e roda os testes. O autocompletar mexe na linha onde está o cursor; o chat conversa e sugere, mas não abre arquivo por você.",
+    "skipped": "sem palpite, tudo bem. Olha a tabela: cada modo tem um alcance, e só um deles chega em 12 arquivos."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com o agente e depois troque para autocompletar e chat na mesma tarefa.",
+    "cmd": "palpite anotado. Rode o comando como está e depois troque --ferramenta para autocompletar e chat."
+  },
+  "tryNext": {
+    "ui": "Agora escolha a tarefa \"Completar a linha...\" e use o agente. Funciona, mas é um canhão para matar mosquito: olha os minutos.",
+    "cmd": "Rode usar \"Completar a linha que calcula o preço com desconto\" --ferramenta agente e compare com autocompletar."
+  },
+  "why": {
+    "simples": "Pense em três ajudantes de cozinha. O autocompletar é quem termina a sua frase (\"…e uma pitada de sal\"). O chat é o colega que você chama para perguntar \"por que meu bolo solou?\". O agente é quem recebe a tarefa inteira: \"faz as 12 fornadas e me avisa quando provar\".\nNenhum é melhor que o outro: cada um serve para um tamanho de tarefa. E quanto mais coisa a IA faz sozinha, mais você precisa conferir no fim.",
+    "dev": "Autocompletar (o GitHub Copilot chama de inline suggestions; o Cursor chama de Tab) prevê o próximo trecho a partir do código em volta do cursor. É rápido e barato, mas não planeja nem roda nada.\nChat (Copilot Chat, o painel de chat do Cursor, Claude.ai) responde perguntas e propõe trechos usando o que você mostrou. Agente (agent mode do Copilot, Agent do Cursor, Claude Code) lê o projeto, edita vários arquivos e roda comandos como os testes, pedindo sua confirmação conforme a configuração. Regra prática: tarefa de uma linha → autocompletar; dúvida → chat; mudança em vários arquivos com verificação → agente.",
+    "especialista": "Os três usam modelos de linguagem; o que muda é o laço em volta. O agente roda um ciclo de planejar → usar ferramenta (ler arquivo, editar, rodar comando) → observar o resultado → repetir, até achar que terminou. Por isso ele resolve tarefas maiores e também erra maior: um passo errado vira dez arquivos errados.\nHá ainda agentes que trabalham fora do seu editor: o GitHub tem um agente na nuvem que pesquisa o repositório, faz um plano e muda o código num branch para você revisar. Quanto mais autonomia, mais importam permissões mínimas, testes que provam o resultado e revisão do diff antes de aceitar."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha a tarefa de renomear nos 12 arquivos e use o autocompletar.",
+      "cmd": "hora de quebrar: rode a tarefa de renomear com --ferramenta autocompletar."
+    },
+    "success": "Quebrou: o autocompletar trocou {done} arquivo e deixou {left} para a Bia catar na mão, sem rodar teste nenhum. Ferramenta pequena para tarefa grande vira trabalho braçal (e o arquivo esquecido aparece em produção).",
+    "calm": "A ferramenta deu conta desta tarefa. Para quebrar, dê uma tarefa grande para uma ferramenta pequena."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma tarefa e uma ferramenta; a cena atualiza sozinha.",
+      "A tabela mostra o alcance de cada modo e se ele serve para a tarefa escolhida.",
+      "Tarefa de renomear nos 12 arquivos + ferramenta autocompletar."
+    ],
+    "cmd": [
+      "A tarefa vai entre aspas depois de usar.",
+      "--ferramenta aceita autocompletar, chat ou agente.",
+      "usar \"Renomear preco para valor nos 12 arquivos e rodar os testes\" --ferramenta autocompletar"
+    ]
+  },
+  "errors": {
+    "notInEnum.tool": "“{value}” não é uma ferramenta daqui. Opções: {options}."
+  },
+  "controls": {
+    "arg": "Tarefa da Bia",
+    "tool": "Ferramenta"
+  },
+  "scene": {
+    "label": "Quem faz o quê",
+    "empty": "Rode para ver quem faz o quê.",
+    "you": "Bia pede",
+    "result": "Resultado",
+    "t_autocomplete": "Autocompletar",
+    "t_chat": "Chat",
+    "t_agent": "Agente",
+    "r_autocomplete": "a linha onde está o cursor",
+    "r_chat": "conversa e sugere trechos",
+    "r_agent": "vários arquivos + roda comandos",
+    "resShort": "não alcança",
+    "resOver": "resolve, mas sobra ferramenta",
+    "resFit": "tamanho certo",
+    "done": "arquivos que a IA mudou",
+    "left": "arquivos para você",
+    "mins": "minutos da Bia (estimativa)",
+    "tests": "testes rodados?",
+    "yes": "sim",
+    "no": "não",
+    "table": "Os três modos nesta tarefa",
+    "mode": "modo",
+    "reach": "alcance",
+    "forThis": "para esta tarefa",
+    "v_short": "pequeno demais",
+    "v_over": "grande demais",
+    "v_fit": "serve",
+    "missedNote": "A ferramenta não alcança a tarefa: sobraram {left} arquivo(s) para fazer na mão, e ninguém rodou os testes.",
+    "overNote": "Funciona, mas explicar a tarefa e revisar o resultado leva mais tempo que a própria tarefa ({mins} min).",
+    "fitNote": "Ferramenta do tamanho da tarefa: cerca de {mins} min da Bia, incluindo conferir o resultado."
+  },
+  "data": {
+    "tasks": {
+      "Completar a linha que calcula o preço com desconto": {
+        "need": 1,
+        "files": 1
+      },
+      "Entender por que o total do carrinho dá NaN": {
+        "need": 2,
+        "files": 0
+      },
+      "Renomear preco para valor nos 12 arquivos e rodar os testes": {
+        "need": 3,
+        "files": 12
+      }
+    },
+    "fallbackTask": {
+      "need": 2,
+      "files": 0
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Abra um projeto no VS Code com o GitHub Copilot (ou no Cursor). Num arquivo, escreva o comentário // soma o preço dos itens do carrinho e espere: o texto cinza que aparece é o autocompletar. Aceite com Tab.",
+      "Abra o chat da ferramenta e pergunte: por que esta função pode devolver NaN? Repare que ele responde, mas não muda arquivo nenhum sozinho.",
+      "Troque para o modo agente e peça: renomeie a variável total para totalPedido em todos os arquivos e rode os testes. Leia a lista de arquivos e os comandos que ele quer rodar antes de aprovar."
+    ],
+    "ok": "você viu os três comportamentos: texto cinza na linha, resposta no painel e um agente que lista os arquivos alterados e pede para rodar os testes."
+  }
+}

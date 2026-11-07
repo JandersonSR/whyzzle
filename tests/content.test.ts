@@ -47,7 +47,7 @@ describe('content', () => {
   it('has unique ids and orders per track', () => {
     const ids = lessons.map((l) => l.def.id);
     expect(new Set(ids).size).toBe(ids.length);
-    const orders = lessons.map((l) => `${l.track}:${l.def.order}`);
+    const orders = lessons.map((l) => `${l.topic}:${l.track}:${l.def.order}`);
     expect(new Set(orders).size).toBe(orders.length);
   });
 

@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Aplicar o ciclo teste vermelho → pedido especificado → revisão → suíte verde.",
+      "Juntar contexto, especificação e revisão numa tarefa real.",
+      "Entender o bug de ponto flutuante com dinheiro."
+    ],
+    "minutes": 25,
+    "activity": "Em duplas, cada uma recebe um bug pequeno diferente (data, arredondamento, texto vazio). Uma pessoa pilota a IA, a outra é a revisora que só aprova com teste vermelho antes e verde depois.",
+    "discussion": [
+      "Por que escrever o teste antes do conserto?",
+      "Como perceber que a IA \"consertou\" o teste em vez do código?"
+    ],
+    "misconceptions": [
+      "\"Se a IA disse que consertou, consertou.\" Só o teste que falhava e agora passa, sem ter sido alterado, prova isso."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Apply the cycle red test → specified request → review → green suite.",
+      "Combine context, spec and review in a real task.",
+      "Understand the floating-point bug with money."
+    ],
+    "minutes": 25,
+    "activity": "In pairs, each gets a different small bug (dates, rounding, empty text). One person drives the AI, the other is the reviewer who only approves with a red test before and green after.",
+    "discussion": [
+      "Why write the test before the fix?",
+      "How do you notice the AI \"fixed\" the test instead of the code?"
+    ],
+    "misconceptions": [
+      "\"If the AI said it fixed it, it’s fixed.\" Only the test that failed and now passes, unchanged, proves it."
+    ]
+  }
+}

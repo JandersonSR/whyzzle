@@ -1,0 +1,112 @@
+{
+  "title": "Revisar o que a IA escreveu",
+  "subtitle": "\"Todos os testes passaram\" não é o mesmo que \"está certo\"",
+  "mission": "O agente abriu um PR com o cupom de desconto da padaria e avisou, todo orgulhoso: \"Pronto! 3 testes passando\". Existem 4 problemas escondidos no diff. Escolha como revisar e só aprove quando achar todos.",
+  "predict": {
+    "question": "se você só rodar os testes, quantos dos 4 problemas aparecem?",
+    "options": {
+      "zero": "Nenhum",
+      "two": "Uns 2",
+      "four": "Os 4, teste pega tudo"
+    }
+  },
+  "feedback": {
+    "right": "isso: zero. Os testes estão verdes porque testam o que a IA pensou, não o que a padaria precisa. Um deles nem tem verificação nenhuma.",
+    "wrong": "nenhum apareceu. Teste verde só prova que o código faz o que os testes pedem, e quem escreveu os testes foi a mesma IA.",
+    "skipped": "sem palpite? Olha: 3 de 3 verdes e 4 problemas ainda escondidos."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode só com \"rodar os testes\" e depois marque os outros jeitos de revisar.",
+    "cmd": "palpite anotado. Rode como está e depois tente --checar rodar,ler,pacotes,dados,bordas."
+  },
+  "tryNext": {
+    "ui": "Marque todos os jeitos de revisar, ache os 4 problemas e só então ligue \"Aprovar\".",
+    "cmd": "Rode revisar --checar rodar,ler,pacotes,dados,bordas --aprovar sim."
+  },
+  "why": {
+    "simples": "Quando um colega novo faz um trabalho, você não assina sem olhar só porque ele disse \"tá pronto\". Com a IA é a mesma coisa, com um detalhe: ela escreve rápido, bonito e com muita confiança, e isso dá vontade de confiar.\nRevisar é ler o que mudou, rodar, testar os casos esquisitos e conferir de onde veio cada peça nova.",
+    "dev": "Checklist para PR de IA: (1) leia o diff inteiro, inclusive os testes, procurando teste sem verificação ou verificação afrouxada; (2) confira cada dependência nova no registro (npm view <pacote>: data, versões, downloads, repositório); (3) procure dados pessoais e segredos em logs e mensagens de erro; (4) escreva você um teste de borda (último dia do cupom, valor zero, lista vazia); (5) rode a suíte toda, não só o teste novo.\nPergunte também \"o que mudou que eu não pedi?\": agentes às vezes mexem em mais arquivos do que o necessário.",
+    "especialista": "Modelos às vezes citam pacotes que não existem; pesquisadores mostraram que esses nomes inventados se repetem, e atacantes podem registrar o nome antes (\"slopsquatting\"). Um pacote com 3 dias e 2 downloads é sinal vermelho mesmo que instale sem erro.\nComo autor e revisor do teste podem ser o mesmo modelo, use verificações independentes: testes de aceitação escritos por gente, análise estática e de segredos no CI, varredura de dependências (lockfile, SCA) e regra de que o PR de agente passa pela mesma revisão humana que qualquer outro. Log com CPF ou telefone é problema de LGPD, não só de estilo."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: deixe só \"rodar os testes\" e ligue \"Aprovar\".",
+      "cmd": "hora de quebrar: rode revisar --aprovar sim sem checar mais nada."
+    },
+    "success": "Quebrou: o PR foi para produção com {missing} problema(s). No último dia de validade os clientes não conseguiram usar o cupom, o telefone e o CPF deles foram parar no log, e o app agora depende de um pacote de um desconhecido. Tudo com os testes verdes.",
+    "calm": "{caught} de 4 problemas encontrados e nada aprovado ainda. Para quebrar, aprove sem revisar direito."
+  },
+  "hints": {
+    "ui": [
+      "Marque os jeitos de revisar; a cena atualiza sozinha.",
+      "Cada problema escondido diz que tipo de revisão o encontra.",
+      "Para quebrar: só \"rodar os testes\" e \"Aprovar\" ligado."
+    ],
+    "cmd": [
+      "--checar recebe uma lista: rodar, ler, pacotes, dados, bordas.",
+      "--aprovar sim manda o PR para produção.",
+      "revisar \"PR da IA: aplicar cupom de desconto\" --aprovar sim"
+    ]
+  },
+  "errors": {
+    "notInEnum.checks": "“{value}” não é um jeito de revisar daqui. Opções: {options}.",
+    "notBool.approve": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Pull request",
+    "checks": "Como revisar",
+    "approve": "Aprovar e mandar para produção"
+  },
+  "scene": {
+    "label": "Revisão do PR",
+    "empty": "Rode para revisar.",
+    "caught": "problemas encontrados",
+    "green": "testes verdes",
+    "notRun": "não rodou",
+    "decision": "decisão",
+    "approved": "aprovado",
+    "waiting": "em revisão",
+    "diff": "Diff do PR (escrito pela IA)",
+    "d0": "$ git diff main",
+    "d1": "+import { validaCupom } from 'cupom-valida-br'",
+    "d1bad": "!import { validaCupom } from 'cupom-valida-br'   ← pacote de 3 dias, 2 downloads",
+    "dFn": "+export function aplicarCupom(pedido, codigo, cliente, hoje) {",
+    "d2": "+  if (hoje < cupom.validade) pedido.total *= 0.9",
+    "d2bad": "!  if (hoje < cupom.validade) pedido.total *= 0.9   ← no último dia não vale; o certo é <=",
+    "d3": "+  console.log('cupom usado', cliente.nome, cliente.telefone, cliente.cpf)",
+    "d3bad": "!  console.log('cupom usado', cliente.nome, cliente.telefone, cliente.cpf)   ← dados pessoais no log",
+    "dEnd": "+}",
+    "d4": "+test('aplica cupom', () => { aplicarCupom(pedido, 'BOLO10', cliente, hoje) })",
+    "d4bad": "!test('aplica cupom', () => { aplicarCupom(pedido, 'BOLO10', cliente, hoje) })   ← sem expect: passa sempre",
+    "run": "Terminal",
+    "pass1": "+PASS aplica cupom",
+    "pass2": "+PASS calcula total",
+    "pass3": "+PASS frete grátis acima de R$ 100",
+    "failEdge": "!FAIL cupom no último dia de validade (seu teste novo)",
+    "npmView": "?criado há 3 dias · 1 versão · 2 downloads · sem repositório",
+    "problems": "Problemas no PR",
+    "hidden1": "Problema escondido nº 1",
+    "hidden2": "Problema escondido nº 2",
+    "hidden3": "Problema escondido nº 3",
+    "hidden4": "Problema escondido nº 4",
+    "p1": "Dependência suspeita: cupom-valida-br",
+    "p2": "Cupom não vale no último dia (< em vez de <=)",
+    "p3": "Telefone e CPF do cliente no log",
+    "p4": "Teste sem verificação (sem expect)",
+    "h1": "Só aparece conferindo os pacotes novos no registro.",
+    "h2": "Só aparece com um teste de borda: o último dia do cupom.",
+    "h3": "Aparece lendo o diff ou procurando dados pessoais.",
+    "h4": "Aparece lendo o diff, inclusive os testes.",
+    "shippedNote": "Aprovado com {missing} problema(s) dentro. Em produção, quem descobre é o cliente.",
+    "greenNote": "Tudo verde e nenhum problema encontrado. Parece ótimo, e é exatamente isso que deveria deixar você desconfiado."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Peça para a IA de sua preferência uma função pequena com testes (ex.: validar um cupom com data de validade) e não aceite de primeira.",
+      "Leia o diff inteiro procurando: teste sem expect, log com dados pessoais, dependência nova. Para cada pacote novo, rode npm view <nome> e veja data de criação, versões e repositório.",
+      "Escreva você um teste de borda (o último dia da validade, valor zero) e rode a suíte toda."
+    ],
+    "ok": "você achou pelo menos um problema que os testes da própria IA não pegavam, e sabe dizer qual tipo de revisão o encontrou."
+  }
+}

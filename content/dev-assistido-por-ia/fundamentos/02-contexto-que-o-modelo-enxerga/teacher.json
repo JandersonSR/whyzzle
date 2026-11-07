@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Entender contexto como \"o que está na mesa da IA\".",
+      "Escolher arquivos relevantes em vez de tudo.",
+      "Saber para que serve um arquivo de regras (AGENTS.md, CLAUDE.md)."
+    ],
+    "minutes": 20,
+    "activity": "Uma pessoa faz o papel da IA e só pode responder lendo os papéis que a turma coloca na mesa (uma folha A4 de limite). A turma tenta fazê-la acertar a causa de um \"bug\" escrito num dos papéis.",
+    "discussion": [
+      "O que vale escrever no arquivo de regras do projeto?",
+      "Por que colar o projeto inteiro pode piorar a resposta?"
+    ],
+    "misconceptions": [
+      "\"A IA já conhece o meu projeto.\" Ela só enxerga o que entra no contexto daquela conversa.",
+      "\"Quanto mais contexto, melhor.\" Contexto demais expulsa ou dilui o que importa."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Understand context as \"what’s on the AI’s desk\".",
+      "Pick relevant files instead of everything.",
+      "Know what a rules file (AGENTS.md, CLAUDE.md) is for."
+    ],
+    "minutes": 20,
+    "activity": "One person plays the AI and can only answer by reading the papers the class puts on the desk (one A4 sheet as the limit). The class tries to make them find the cause of a \"bug\" written on one of the papers.",
+    "discussion": [
+      "What is worth writing in the project rules file?",
+      "Why can pasting the whole project make the answer worse?"
+    ],
+    "misconceptions": [
+      "\"The AI already knows my project.\" It only sees what goes into that conversation’s context.",
+      "\"The more context, the better.\" Too much context pushes out or dilutes what matters."
+    ]
+  }
+}

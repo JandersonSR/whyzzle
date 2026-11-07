@@ -1,0 +1,121 @@
+{
+  "title": "The context the model sees",
+  "subtitle": "The AI only knows what’s in its window, and the window has a size",
+  "mission": "Some bakery orders come out with the wrong total. Bia asks the AI why. The answer can only be good if the right files are in context: the discount code and the AGENTS.md with the business rules. Pick what goes in, and watch out for the giant file.",
+  "predict": {
+    "question": "with only order.ts in context (the default), what does the AI do?",
+    "options": {
+      "right": "Finds the exact cause",
+      "guess": "Guesses a cause that sounds good",
+      "refuse": "Says it doesn’t have enough information"
+    }
+  },
+  "feedback": {
+    "right": "right: it guessed \"rounding\" with full confidence. Sometimes the AI asks for more files (great when it happens), but don’t count on it: the usual is to answer with what it has.",
+    "wrong": "it guessed: \"must be rounding\". Without the discount file or the rules, the AI fills in with what’s common in other projects, and with the same confidence as when it’s right.",
+    "skipped": "no guess? Look at the note: a well-written guess. The AI never saw the file with the problem."
+  },
+  "coach": {
+    "ui": "guess noted. Run with only order.ts; then tick discount and rules.",
+    "cmd": "guess noted. Run it as is, then try --files rules,discount."
+  },
+  "tryNext": {
+    "ui": "Now tick only \"discount\": the AI finds the code but guesses the rule. The why of the bug was in the rules file.",
+    "cmd": "Run ask --files discount and compare with --files rules,discount."
+  },
+  "why": {
+    "simples": "The AI doesn’t read your whole computer. It reads a \"desk\" of papers that you (or the tool) put in front of it: that’s the context. If the paper with the answer isn’t on the desk, it answers with what it thinks, and it thinks with a lot of confidence.\nAnd the desk has a size: drop a huge brick of paper on it and other papers fall on the floor.",
+    "dev": "Context is everything sent to the model in one call: instructions, files, earlier messages, command output. It’s measured in tokens and has a limit (the context window) that varies by model. The numbers here are toy numbers.\nRepository rules files go into every session: AGENTS.md (an open format read by several tools, such as Cursor and Copilot’s agents), CLAUDE.md in Claude Code, .github/copilot-instructions.md in Copilot and .cursor/rules in Cursor. Put there what the code doesn’t say by itself: business rules, test commands, conventions. And never throw generated files (bundles, .min.js, lock files) into the context.",
+    "especialista": "Fitting in the window doesn’t guarantee use: studies such as \"Lost in the Middle\" (Liu et al.) showed models use information in the middle of long contexts worse than at the start or end. Lean, relevant context beats giant context.\nEach tool handles overflow its own way (cutting, summarizing the conversation, retrieving only snippets), and none makes what doesn’t fit fit; in this simulator, first in is first out. Claude Code’s docs point out that CLAUDE.md is treated as context, not enforced configuration: to guarantee a rule, use mechanisms that execute (hooks, tests, CI). Short, specific rules files are followed more consistently."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: tick rules, discount, order and the giant bundle.",
+      "cmd": "time to break it: run with --files rules,discount,order,bundle"
+    },
+    "success": "Broken: {total} tokens don’t fit in {window}. The bundle pushed {dropped} file(s) out of the window, including the rules and the discount code, exactly the ones with the answer. More context isn’t better context.",
+    "calm": "Everything fit in the window ({used} of {window} tokens). To break it, add the bundle along with the important files."
+  },
+  "hints": {
+    "ui": [
+      "Tick and untick files; the scene updates by itself.",
+      "The total bug needs two files: the discount code and the rules.",
+      "Tick rules, discount, order and bundle."
+    ],
+    "cmd": [
+      "The question goes in quotes; --files takes a comma-separated list.",
+      "File options: rules, discount, order, log, bundle.",
+      "ask \"Why is the order total wrong?\" --files rules,discount,order,bundle"
+    ]
+  },
+  "errors": {
+    "notInEnum.files": "“{value}” isn’t a file here. Options: {options}."
+  },
+  "controls": {
+    "arg": "Bia’s question",
+    "files": "Files in context"
+  },
+  "scene": {
+    "label": "The AI’s desk",
+    "empty": "Run to see what the AI sees.",
+    "used": "tokens in the window",
+    "full": "window used",
+    "dropped": "files that fell out",
+    "table": "What went into the context",
+    "file": "file",
+    "tokens": "tokens (toy)",
+    "status": "status",
+    "fR": "AGENTS.md",
+    "fD": "discount.ts",
+    "fO": "order.ts",
+    "fL": "error.log",
+    "fB": "app.min.js",
+    "notIn": "not included",
+    "droppedOut": "fell out of the window",
+    "seen": "the AI sees it",
+    "cut": "cut in half",
+    "caption": "Toy window: {window} tokens. When it overflows, first in is first out.",
+    "q": "Question",
+    "model": "The AI",
+    "o_right": "answers from the code and the rules",
+    "o_partial": "gets half right, guesses the rest",
+    "o_guessed": "guesses confidently",
+    "overflowNote": "Over the window: {total} tokens for {window}. app.min.js is generated code, huge and useless for understanding the bug."
+  },
+  "data": {
+    "needs": {
+      "Why is the order total wrong?": [
+        "discount",
+        "rules"
+      ],
+      "Where is the delivery fee rule?": [
+        "rules"
+      ]
+    },
+    "answers": {
+      "Why is the order total wrong?": {
+        "right": "The AI: \"In discount.ts, the 10% discount is applied after adding the delivery fee. AGENTS.md says the discount applies to products only. Apply the discount before adding the fee.\"",
+        "partial": "The AI: \"In discount.ts, the discount is applied to the total including the fee. That may or may not be right: it depends on the business rule.\" (It found the code but guessed the rule.)",
+        "guessed": "The AI: \"It’s probably a rounding issue with decimal numbers. Try toFixed(2).\" (Sounds great. It’s wrong: it never saw the discount file.)"
+      },
+      "Where is the delivery fee rule?": {
+        "right": "The AI: \"It’s in AGENTS.md: R$ 8 delivery fee, never discounted, free above R$ 100.\"",
+        "partial": "The AI got part of it but didn’t see the rules file.",
+        "guessed": "The AI: \"It’s usually in a config.js file or a database table.\" (Polite guess. That file doesn’t even exist.)"
+      }
+    },
+    "answersFallback": {
+      "right": "The AI: \"In discount.ts, the 10% discount is applied after adding the delivery fee. AGENTS.md says the discount applies to products only. Apply the discount before adding the fee.\"",
+      "partial": "The AI: \"In discount.ts, the discount is applied to the total including the fee. That may or may not be right: it depends on the business rule.\" (It found the code but guessed the rule.)",
+      "guessed": "The AI: \"It’s probably a rounding issue with decimal numbers. Try toFixed(2).\" (Sounds great. It’s wrong: it never saw the discount file.)"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "In a project of yours, create an AGENTS.md at the root with 3 lines: how to run the tests, one business rule (e.g., \"amounts always in cents\") and one naming convention. In Claude Code the equivalent file is CLAUDE.md; in Copilot, .github/copilot-instructions.md.",
+      "Open a new conversation with your tool’s agent and ask something only the rule answers, like: what unit do we store prices in?",
+      "In Claude Code, run /context to see which memory files were loaded. Then delete the rule, open another conversation and ask the same question."
+    ],
+    "ok": "with the rule in the file, the AI answers \"cents\" citing the rule; without it, it guesses (usually \"decimal dollars\")."
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "title": "Pub/sub",
+  "subtitle": "One queue to split work, one queue per subscriber so everyone hears",
+  "mission": "The cashier published 9 \"OrderPaid\" events. Kitchen, invoicing and loyalty need all of them. Analytics only showed up after the 6th. Wire the services to a shared queue or to one queue per service, and see who got what. Then try log mode, which keeps history.",
+  "predict": {
+    "question": "if kitchen, invoicing and loyalty read from the SAME queue, how many of the 9 events does each get?",
+    "options": {
+      "nine": "All 9",
+      "three": "About 3 each",
+      "zero": "None"
+    }
+  },
+  "feedback": {
+    "right": "right: in a queue, each message goes to one consumer only. The services become \"competitors\" and split the events like cooks sharing tickets. Great for splitting work, terrible for telling everyone.",
+    "wrong": "each gets about 3: in a queue, each message is delivered to just one consumer. For every service to get everything, each needs its own queue bound to a fanout exchange (or, in Kafka, its own consumer group).",
+    "skipped": "no guess? Run publish --queues shared and look at the table."
+  },
+  "coach": {
+    "ui": "guess noted. Switch to the shared queue and compare the table.",
+    "cmd": "guess noted. Run publish and then publish --queues shared."
+  },
+  "tryNext": {
+    "ui": "Go back to \"per service\" and turn on log mode: analytics, which arrived late, reads from the start.",
+    "cmd": "Run publish --log yes and look at the analytics row."
+  },
+  "why": {
+    "simples": "A shared queue is the kitchen’s ticket pile: each ticket goes to one cook only. It’s for splitting work.\nPub/sub is the family group chat: one message, and everyone gets their own copy. The publisher doesn’t know how many are listening.\nAnd there’s the mailbox versus the bulletin board: in a queue, a read letter leaves the box; in a log (like Kafka), the note stays on the board and latecomers can still read it.",
+    "dev": "In RabbitMQ (AMQP 0-9-1), the producer publishes to an exchange, and bindings decide which queues get it. Types: direct (exact key), fanout (copies to every bound queue), topic (key pattern, like order.*) and headers. Pub/sub = a fanout or topic exchange with one queue per service; several consumers on the same queue = competing consumers.\nIn Kafka the same idea shows up as consumer groups: each group gets every message in the topic, and within a group the partitions are split among consumers. Same group splits; different groups copy.",
+    "especialista": "Queues and logs have different retention models. In a queue, an acked message is deleted; a new service only sees what arrives after its queue exists. In a log (Kafka, or RabbitMQ streams), messages stay for the retention time or size, and each reader keeps its offset: you can reprocess, and a new service can read history.\nThat changes architecture decisions: rebuilding a read model from events, auditing, debugging by replaying. In exchange, you manage retention, compaction, partitions and per-group lag. One queue per subscriber also multiplies storage: many subscribers on a big fanout is a sign to consider a stream."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: put everyone on the shared queue.",
+      "cmd": "time to break it: run publish --queues shared"
+    },
+    "success": "Broken: on the same queue, each event went to just one service. The kitchen saw {kitchen} of 9, invoicing {invoice} and loyalty {loyalty}. Some paid pizzas were never made and some orders got no invoice.",
+    "calm": "Each service with its own queue got all 9 events. Analytics got {analytics}. To break it, put everyone on the same queue."
+  },
+  "hints": {
+    "ui": [
+      "Choose how to wire the services and whether history is kept.",
+      "On the same queue, each message has a single destination.",
+      "Pick \"shared\"."
+    ],
+    "cmd": [
+      "The event name goes in quotes; --queues and --log are optional.",
+      "--queues takes per-service or shared.",
+      "publish --queues shared"
+    ]
+  },
+  "errors": {
+    "notInEnum.queues": "Use per-service or shared.",
+    "notBool.log": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Event",
+    "queues": "How to wire the services",
+    "log": "Log mode (keeps history, like Kafka)"
+  },
+  "scene": {
+    "label": "Who got the 9 events",
+    "empty": "Run to publish.",
+    "kitchen": "kitchen",
+    "invoice": "invoicing",
+    "loyalty": "loyalty",
+    "analytics": "analytics (late)",
+    "cashier": "cashier",
+    "oneQueue": "a single queue",
+    "oneQueueSub": "consumers compete",
+    "fanout": "fanout exchange",
+    "fanoutSub": "one copy per queue",
+    "topic": "topic (log)",
+    "topicSub": "each group with its offset",
+    "services": "services",
+    "splitSub": "each event to just one",
+    "copySub": "everyone receives",
+    "tableLabel": "Deliveries per service",
+    "service": "service",
+    "where": "reads from",
+    "got": "received",
+    "sharedName": "pedidos queue (shared)",
+    "gKitchen": "kitchen group",
+    "gInvoice": "invoicing group",
+    "gLoyalty": "loyalty group",
+    "gAnalytics": "analytics group, from the start",
+    "caption": "9 events published; analytics subscribed after the 6th.",
+    "sharedNote": "A shared queue is for splitting work among copies of the SAME service, not for notifying different services.",
+    "lateNote": "With queues, latecomers only see what comes after: analytics got {analytics} of 9. History was already deleted.",
+    "replayNote": "In a log, messages stay for the retention period. Analytics started from offset 0 and read all 9."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "With Docker installed, start RabbitMQ with the management UI: docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management",
+      "Open http://localhost:15672 in your browser and log in with guest / guest (that user only works from your own machine, and is for study only).",
+      "Create an exchange eventos of type fanout and two queues, cozinha and nota. On each queue, bind it to the eventos exchange.",
+      "On the eventos exchange page, publish 3 messages. Then look at both queues’ counts.",
+      "To see the other side, run two copies of worker.py from the ack lesson reading the same queue: they split the messages."
+    ],
+    "ok": "the cozinha and nota queues show 3 messages each, from a single publish per message; and the two worker copies on the same queue print different messages."
+  }
+}

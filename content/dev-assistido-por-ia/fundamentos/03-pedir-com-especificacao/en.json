@@ -1,0 +1,117 @@
+{
+  "title": "Ask with a specification",
+  "subtitle": "Inputs, rules, examples and edge cases: what separates \"just do it\" from correct code",
+  "mission": "The bakery sells cake by the kilo and Bia wants the AI to write the price function. There are 5 hidden tests the function must pass. Start with the vague request and switch on parts of the specification until all of them pass.",
+  "predict": {
+    "question": "with the vague request (nothing switched on), how many of the 5 hidden tests pass?",
+    "options": {
+      "none": "None or almost none",
+      "some": "About 2 or 3",
+      "all": "All of them, the AI is smart"
+    }
+  },
+  "feedback": {
+    "right": "right: zero. The AI didn’t fail \"for being dumb\": it returned the price as text (\"R$ 90,00\") and added no delivery fee or discount, because nobody said they existed.",
+    "wrong": "zero passed. The code even looks fine, but it returns text instead of a number and knows nothing about the fee or the discount. The AI filled the gaps with what’s common, not with what the bakery wants.",
+    "skipped": "no guess? Look at the test list: all red, and the code looks great. That’s the danger."
+  },
+  "coach": {
+    "ui": "guess noted. Switch on one part at a time and watch which tests turn green.",
+    "cmd": "guess noted. Run it as is, then add --inputs yes, --rules yes, --examples yes and --edges yes, one at a time."
+  },
+  "tryNext": {
+    "ui": "Switch on rules and inputs but leave examples off: the 4 kg with delivery test fails. The question \"does the discount apply to the fee?\" only an example settles.",
+    "cmd": "Run request --inputs yes --rules yes and then add --examples yes."
+  },
+  "why": {
+    "simples": "Asking a new baker to \"make a cake\" gets you a cake. Maybe not yours. Tell them the flavor, the size, how many people and show a photo, and they nail it.\nThe AI is the same: the more you tell it (what goes in, what comes out, the rules, examples and the weird cases), the less it has to guess.",
+    "dev": "A short, useful spec has: inputs and output with types (kg is a number, returns a number in reais), business rules with numbers (R$ 8 delivery, 10% off above 3 kg, cake only), input → output examples, edge cases (0.5 kg charges 1 kg; 0 or negative is an error) and constraints (no new dependency, follow the project’s style).\nBetter still: write the examples as tests and ask the AI to make them pass. They become the contract you check.",
+    "especialista": "Examples without rules invite overfitting: the shortest path to passing two examples is to handle exactly those two cases, and a model optimized to \"make the test pass\" may take that shortcut. That’s why the rule is written down and acceptance tests include cases the model hasn’t seen.\nIn teams, the spec lives in a file (issue, design doc, acceptance criteria) that the agent reads and that review compares against the diff. Any ambiguity you don’t settle in the spec, the model settles on its own, usually the \"most common on the internet\" way."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch everything off and turn on only examples.",
+      "cmd": "time to break it: run the request with only --examples yes."
+    },
+    "success": "Broken: with only examples and no rules, the AI \"memorized\" the answers: 2 kg returns 90, 4 kg with delivery returns 170, and everything else becomes zero. It passed {passed} of 5, exactly the tests that match the examples.",
+    "calm": "{passed} of 5 tests passing with {items} spec part(s). To break it, give only examples, no rules."
+  },
+  "hints": {
+    "ui": [
+      "Switch on spec parts one at a time; the scene updates by itself.",
+      "Each red test says what was missing from the request.",
+      "To break it: leave only \"Examples\" on."
+    ],
+    "cmd": [
+      "The request goes in quotes; spec parts are yes/no switches.",
+      "Parts: --inputs, --rules, --examples, --edges, --constraints.",
+      "request \"write the cake price function (R$ 45 per kg)\" --examples yes"
+    ]
+  },
+  "errors": {
+    "notBool.inputs": "Use yes or no.",
+    "notBool.rules": "Use yes or no.",
+    "notBool.examples": "Use yes or no.",
+    "notBool.edges": "Use yes or no.",
+    "notBool.constraints": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Request to the AI",
+    "inputs": "Inputs and output (types)",
+    "rules": "Business rules",
+    "examples": "Input → output examples",
+    "edges": "Edge cases",
+    "constraints": "Constraints (no new dependency)"
+  },
+  "scene": {
+    "label": "What the AI wrote",
+    "empty": "Run to see the code.",
+    "passed": "hidden tests passing",
+    "items": "spec parts",
+    "deps": "new dependency",
+    "depYes": "yes (lodash)",
+    "depNo": "none",
+    "code": "precoBolo.js",
+    "cDep": "?import _ from 'lodash' // new dependency just to round",
+    "cNoDep": "~// no new dependencies",
+    "cSig": "function precoBolo(kg, entrega) {",
+    "cHard1": "!  if (kg === 2 && !entrega) return 90",
+    "cHard2": "!  if (kg === 4 && entrega) return 170",
+    "cHard3": "!  return 0 // everything else? nobody asked",
+    "cEdge": "  if (kg <= 0) throw new Error('invalid weight')",
+    "cNoEdge": "~  // zero or negative weight? carry on",
+    "cMin": "  const cobrado = Math.max(kg, 1)",
+    "cNoMin": "~  const cobrado = kg // no minimum weight",
+    "cBase": "  let bolo = cobrado * 45",
+    "cDiscOk": "  if (cobrado > 3) bolo = bolo * 0.9",
+    "cDiscBad": "?  const total = (bolo + (entrega ? 8 : 0)) * (cobrado > 3 ? 0.9 : 1) // discount on the fee too",
+    "cNoDisc": "~  // discount? never heard of it",
+    "cFee": "  const total = bolo + (entrega ? 8 : 0)",
+    "cNoFee": "~  const total = bolo // delivery fee? what fee?",
+    "cRet": "  return total",
+    "cRetStr": "?  return 'R$ ' + total.toFixed(2).replace('.', ',') // text, not a number",
+    "cEmpty": "~",
+    "tests": "Hidden tests",
+    "t1": "2 kg, pickup → 90",
+    "t2": "2 kg with delivery → 98",
+    "t3": "4 kg with delivery → 170 (discount on cake only)",
+    "t4": "0.5 kg → charges 1 kg: 45",
+    "t5": "0 kg → error",
+    "w1": "Without types or an example, the function returns text (\"R$ 90,00\") and the test expects the number 90.",
+    "w2": "Needs the rules (R$ 8 delivery) and knowing the output is a number.",
+    "w3": "Needs the rules and an example: only it shows the discount doesn’t apply to the fee.",
+    "w4": "Needs to know about the 1 kg minimum (rules or edge cases).",
+    "w5": "Only the edge cases say what to do with zero weight.",
+    "hardNote": "The AI \"memorized\" the examples instead of understanding the rule. The code passes the examples and fails everything else.",
+    "allNote": "5 of 5. The spec became a contract: you can check the code against it, line by line."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Pick a small function from your project (or the cake one). Write the spec in 5 blocks: inputs and output, rules, 2 examples, 2 edge cases and constraints.",
+      "Paste the spec into the chat or agent and ask: write the function and the tests from these examples and edge cases.",
+      "Run the tests. Then add a case that wasn’t in the examples (e.g., 3.5 kg with delivery) and see if the function holds up."
+    ],
+    "ok": "the example tests pass and so does the new case, without you giving its answer. That shows the AI followed the rule instead of memorizing."
+  }
+}

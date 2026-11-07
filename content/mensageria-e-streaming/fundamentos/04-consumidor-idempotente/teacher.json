@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Definir idempotência com exemplos do dia a dia.",
+      "Escolher uma chave de deduplicação de negócio.",
+      "Entender por que efeito e chave vão na mesma transação."
+    ],
+    "minutes": 20,
+    "activity": "Cada grupo recebe 11 papeizinhos de \"pedido pago\" (alguns repetidos, um reenviado com número de envelope diferente) e precisa dar carimbos num cartão fidelidade sem carimbar duas vezes o mesmo pedido.",
+    "discussion": [
+      "Que botões do dia a dia são idempotentes e quais não são?",
+      "Por quanto tempo vale guardar as chaves já vistas?"
+    ],
+    "misconceptions": [
+      "\"O broker garante que não repete.\" Com at-least-once, repetir faz parte do contrato; quem garante o efeito único é o consumidor."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Define idempotency with everyday examples.",
+      "Pick a business dedup key.",
+      "Understand why the effect and the key go in the same transaction."
+    ],
+    "minutes": 20,
+    "activity": "Each group gets 11 \"order paid\" slips (some repeated, one resent with a different envelope number) and must stamp a loyalty card without stamping the same order twice.",
+    "discussion": [
+      "Which everyday buttons are idempotent and which aren’t?",
+      "How long is it worth keeping the keys you’ve seen?"
+    ],
+    "misconceptions": [
+      "\"The broker guarantees no repeats.\" With at-least-once, repeats are part of the contract; the consumer is what guarantees a single effect."
+    ]
+  }
+}

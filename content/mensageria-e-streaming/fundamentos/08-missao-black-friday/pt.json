@@ -1,0 +1,81 @@
+{
+  "title": "Missão: Black Friday sem venda perdida nem cobrança duplicada",
+  "subtitle": "20 mil pagamentos em uma hora, workers que caem e um gateway lento",
+  "mission": "Na Black Friday, a Nona vende vale-pizza pelo site: 20.000 pagamentos numa hora. O checkout publica cada pagamento numa fila e dois workers cobram no gateway (0,8 s por cobrança). Durante o pico, 3 workers vão cair, o broker vai trocar de nó uma vez e 5 pagamentos chegam com dados de cartão inválidos. A configuração atual é a pior possível. Conserte até os quatro critérios ficarem verdes.",
+  "coach": {
+    "ui": "Mexa nos controles; os critérios mudam enquanto você ajusta. Cada um que falhar diz o porquê.",
+    "cmd": "Edite o comando e rode. Cada critério que falhar diz o porquê. Tudo que você precisa apareceu nas lições 3, 4 e 5."
+  },
+  "why": {
+    "simples": "Você montou o caminho seguro de um pagamento: o broker confirma que guardou (confirmação do produtor), o worker só diz \"terminei\" depois de cobrar (ack manual), a cobrança repetida é barrada pelo número do pedido (idempotência), o pagamento impossível vai para a gaveta (DLQ) e ninguém segura mais trabalho do que consegue fazer (prefetch).\nRepare no efeito dominó: ligar a confirmação faz o checkout reenviar quando fica em dúvida, e o ack manual faz o broker reentregar quando um worker cai. As duas coisas evitam perder venda, mas criam repetições, e é a chave do pedido que impede a cobrança dupla.",
+    "dev": "A receita: publisher confirms no produtor (e reenvio com a mesma chave de idempotência quando a confirmação não vem), mensagens persistentes numa quorum queue, ack manual depois de gravar o resultado, prefetch dimensionado pelo tempo de processamento (aqui, cada mensagem segura 0,8 s, então 50 na mão são 40 s de trabalho que voltam para a fila se o worker cair), DLX por política e um limite de entregas.\nNo consumidor: tabela de chaves processadas com unicidade, mesma transação do efeito, e a chave do pedido repassada ao gateway, que também deve ser idempotente.",
+    "especialista": "Para produção ainda faltam: o padrão outbox no checkout (gravar o pedido e a mensagem na mesma transação e publicar depois, para não existir \"pedido salvo sem mensagem\"), alertas de profundidade e idade da fila e da DLQ, um processo para reprocessar a DLQ, testes de caos (derrubar worker e nó no meio do pico), e capacidade calculada antes: 20.000 cobranças × 0,8 s são 16.000 s de trabalho, então dois workers sequenciais não terminam numa hora; você precisa de mais consumidores ou de concorrência dentro deles.\nNo Kafka, o desenho equivalente é commit de offset depois de processar, produtor idempotente, chave do pedido como chave da mensagem para manter a ordem por pedido, um tópico de erro como DLQ, e a mesma idempotência no efeito externo."
+  },
+  "success": "Missão cumprida! Nenhuma venda perdida, nenhuma cobrança em dobro: {redelivered} reentregas e os reenvios do checkout foram barrados pela chave do pedido, os 5 cartões inválidos estão na DLQ esperando um humano, e cada worker segura no máximo {p} pagamentos. A Nona pode dormir na Black Friday.",
+  "errors": {
+    "notInEnum.ack": "Use auto ou manual.",
+    "notInEnum.key": "Use nenhuma, mensagem ou pedido.",
+    "notBool.dlq": "Use sim ou nao.",
+    "notBool.confirms": "Use sim ou nao.",
+    "belowMin.prefetch": "Prefetch não fica negativo. 0 é sem limite (e é um dos problemas).",
+    "aboveMax.prefetch": "Até 1000 nesta simulação."
+  },
+  "controls": {
+    "arg": "Fila",
+    "ack": "Ack do worker",
+    "key": "Chave de idempotência",
+    "dlq": "DLQ para pagamentos impossíveis",
+    "prefetch": "Prefetch por worker (0 = sem limite)",
+    "confirms": "Confirmação do broker ao checkout"
+  },
+  "scene": {
+    "label": "Pagamentos da Black Friday",
+    "empty": "Rode para abrir as vendas.",
+    "trackDone": "Você concluiu a trilha Fundamentos de Mensageria e streaming.",
+    "checks": "Critérios da missão",
+    "cLost": "Nenhuma venda perdida",
+    "cLostWhy": "{lostAck} perdidas com ack automático quando os workers caíram + {lostPub} que o broker nunca confirmou na troca de nó",
+    "cDup": "Nenhuma cobrança em dobro",
+    "cDupWhy": "{dupsN} clientes cobrados duas vezes: reentregas e reenvios passaram sem chave",
+    "cDupWhyMsg": "{dupsN} cobranças em dobro: o reenvio do checkout chega com id de mensagem novo",
+    "cPoison": "Cartões inválidos não travam a fila",
+    "cPoisonWhy": "sem DLQ, os 5 pagamentos inválidos voltam para a fila sem parar",
+    "cPrefetch": "Prefetch entre 1 e 50",
+    "cPrefetchWhy": "com {inflight} na mão, cada worker segura uns {holdSec} s de cobranças que voltam todas se ele cair",
+    "cPrefetchWhy0": "sem limite, um worker puxa {inflight} pagamentos e o outro fica sem nada",
+    "lostM": "vendas perdidas",
+    "dupM": "cobranças em dobro",
+    "redelM": "reentregas",
+    "holdM": "segundos de trabalho na mão de cada worker",
+    "queueLabel": "Fila pagamentos",
+    "checkout": "checkout",
+    "emptyQueue": "fila vazia",
+    "grabsAll": "puxou tudo que pôde",
+    "starved": "sem trabalho",
+    "holding": "segura até {p}",
+    "gateway": "gateway de pagamento",
+    "idemOn": "recebe a chave do pedido",
+    "idemOff": "cobra tudo que chega",
+    "terminal": "Revisão da configuração",
+    "tAckManual": "+ ack manual depois de cobrar",
+    "tAckAuto": "! ack automático: pagamento some se o worker cair",
+    "tConfirmOn": "+ publisher confirms ligado no checkout",
+    "tConfirmOff": "! checkout publica sem saber se o broker guardou",
+    "tKeyOrder": "+ idempotência pelo número do pedido",
+    "tKeyMsg": "? idempotência pelo id da mensagem: reenvio passa",
+    "tKeyNone": "! sem idempotência",
+    "tDlqOn": "+ DLQ por política, com limite de entregas",
+    "tDlqOff": "! sem DLQ: mensagem envenenada em laço",
+    "tPrefOk": "+ prefetch {p}",
+    "tPrefBad": "! prefetch {p}: fora da faixa segura para cobranças de 0,8 s"
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Pegue um fluxo de pagamento ou pedido que você conhece e responda por escrito: o produtor sabe se o broker guardou a mensagem? O consumidor confirma antes ou depois do efeito? Qual é a chave de idempotência? Para onde vai a mensagem que sempre falha? Quantas mensagens cada consumidor segura?",
+      "No RabbitMQ local, aplique uma DLX por política: rabbitmqctl set_policy DLX \"^pagamentos$\" '{\"dead-letter-exchange\":\"pagamentos.dlx\"}' --apply-to queues",
+      "Faça o teste de caos: publique 100 mensagens, derrube o consumidor no meio (Ctrl+C), suba de novo e confira na tabela de chaves que nenhum pedido foi processado duas vezes."
+    ],
+    "ok": "depois de derrubar e religar o consumidor, a tabela de processados tem exatamente 100 chaves, a fila zerou e qualquer mensagem rejeitada está em pagamentos.dlq."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Diferenciar comando de evento.",
+      "Ver como evento reduz o acoplamento do produtor.",
+      "Dar nomes que deixam a intenção clara."
+    ],
+    "minutes": 15,
+    "activity": "Um aluno é o caixa. Rodada 1: ele entrega um bilhete com ordem para cada colega-serviço. Rodada 2: ele escreve o fato no quadro e cada um decide o que fazer. Entra um \"serviço novo\" no meio: em qual rodada o caixa precisou mudar?",
+    "discussion": [
+      "Que eventos a sua escola ou empresa \"grita\" sem saber quem escuta?",
+      "Quando é melhor um comando, mesmo com o acoplamento?"
+    ],
+    "misconceptions": [
+      "\"Evento e mensagem são a mesma coisa.\" Mensagem é o envelope; comando e evento são intenções diferentes que viajam nele."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell a command from an event.",
+      "See how events reduce producer coupling.",
+      "Pick names that make intent clear."
+    ],
+    "minutes": 15,
+    "activity": "One student is the cashier. Round 1: they hand an order slip to each classmate-service. Round 2: they write the fact on the board and everyone decides what to do. A \"new service\" joins halfway: in which round did the cashier have to change?",
+    "discussion": [
+      "What events does your school or company \"shout\" without knowing who listens?",
+      "When is a command better, coupling and all?"
+    ],
+    "misconceptions": [
+      "\"Event and message are the same thing.\" The message is the envelope; command and event are different intents that travel in it."
+    ]
+  }
+}

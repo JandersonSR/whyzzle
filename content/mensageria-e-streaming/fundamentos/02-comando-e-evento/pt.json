@@ -1,0 +1,117 @@
+{
+  "title": "Comando × evento",
+  "subtitle": "\"Faça a pizza!\" ou \"o pedido foi pago\"? A diferença muda quem manda em quem",
+  "mission": "Quando um pedido é pago, o caixa da Nona precisa avisar a cozinha, a nota fiscal e, em breve, o programa de fidelidade. Compare mandar uma ordem para cada um (comando) com anunciar o que aconteceu (evento) e ver quantas vezes o caixa precisa mudar.",
+  "predict": {
+    "question": "no estilo evento, se a pizzaria ligar o programa de fidelidade, quantas mudanças o código do caixa precisa?",
+    "options": {
+      "zero": "Nenhuma",
+      "one": "Uma",
+      "all": "Uma por serviço que já existia"
+    }
+  },
+  "feedback": {
+    "right": "isso: o caixa só anuncia \"PedidoPago\". Quem quiser saber se inscreve. A fidelidade chega, se inscreve, e o caixa nem fica sabendo.",
+    "wrong": "é nenhuma. Com evento, o caixa não conhece quem escuta: a fidelidade se inscreve sozinha. Com comando, aí sim, o caixa precisa ser alterado para mandar mais uma ordem.",
+    "skipped": "sem palpite? Marque fidelidade no estilo evento e olhe \"mudanças no caixa\"."
+  },
+  "coach": {
+    "ui": "palpite anotado. Marque fidelidade e alterne entre evento e comando.",
+    "cmd": "palpite anotado. Rode anunciar --servicos cozinha,nota,fidelidade e depois o mesmo com --estilo comando."
+  },
+  "tryNext": {
+    "ui": "Troque o nome para \"FazerPizza\" no estilo evento: o aviso diz que isso tem cara de ordem, não de fato.",
+    "cmd": "Rode anunciar \"FazerPizza\" e leia o aviso sobre o nome."
+  },
+  "why": {
+    "simples": "Comando é uma ordem para alguém específico: \"Zé, faz uma calabresa!\". O Zé pode fazer ou dizer que acabou a calabresa.\nEvento é uma notícia: \"o pedido 42 foi pago!\", gritada para a pizzaria toda. Quem se importa reage: a cozinha começa a pizza, o caixa imprime a nota, o cartão fidelidade ganha um carimbo. Quem gritou não precisa saber quem ouviu.",
+    "dev": "Comando: verbo no imperativo (EmitirNota), um destinatário que é dono da decisão, pode ser recusado e normalmente vai para uma fila daquele serviço. Evento: fato no passado (PedidoPago), imutável, publicado por quem é dono do fato e entregue a zero ou mais assinantes.\nUse comando quando você precisa que uma coisa específica seja feita; use evento quando outros podem querer reagir a algo que já aconteceu. Misturar os dois (\"evento\" PedidoPagoEnviarEmail) recria o acoplamento que você tentou evitar.",
+    "especialista": "Evento desacopla no tempo e na dependência, mas não no contrato: o formato do PedidoPago vira API pública, com versionamento e compatibilidade (adicionar campo opcional é seguro; renomear quebra todos os assinantes). Decida entre evento \"magro\" (só ids, quem precisa consulta) e \"gordo\" (carrega o estado; menos chamadas, mais acoplamento ao formato).\nComo ninguém orquestra, o fluxo fica implícito: rastreie com id de correlação e tracing distribuído. Quando o processo precisa de ordem e compensação (pagar, reservar, entregar), compare coreografia por eventos com orquestração por comandos (saga), assunto da trilha Prática."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: estilo comando com cozinha, nota e fidelidade marcadas.",
+      "cmd": "hora de quebrar: rode anunciar --estilo comando --servicos cozinha,nota,fidelidade"
+    },
+    "success": "Quebrou: o caixa agora conhece {knows} serviços pelo nome e manda {sent} mensagens. Cada serviço novo é mais uma mudança no caixa, e se um deles estiver fora, o caixa precisa decidir o que fazer.",
+    "calm": "{n} serviços atendidos com {sent} mensagem(ns), e o caixa conhece {knows} deles pelo nome. Para quebrar, mande comandos para 3 serviços."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o estilo e marque os serviços interessados.",
+      "Olhe \"serviços que o caixa conhece\": é o acoplamento.",
+      "Estilo comando, com cozinha, nota e fidelidade."
+    ],
+    "cmd": [
+      "O nome da mensagem vai entre aspas; --estilo e --servicos são opcionais.",
+      "--servicos aceita uma lista separada por vírgula: cozinha,nota,fidelidade,entrega.",
+      "anunciar --estilo comando --servicos cozinha,nota,fidelidade"
+    ]
+  },
+  "errors": {
+    "notInEnum.style": "Use evento ou comando.",
+    "notInEnum.services": "Os serviços são cozinha, nota, fidelidade e entrega.",
+    "model.noServices": "Ninguém interessado? Então nem precisa de mensagem. Marque pelo menos um serviço."
+  },
+  "controls": {
+    "arg": "Nome da mensagem",
+    "style": "Estilo",
+    "services": "Serviços interessados"
+  },
+  "scene": {
+    "label": "Caixa da Nona",
+    "empty": "Rode para anunciar.",
+    "sentM": "mensagens que o caixa envia",
+    "knowsM": "serviços que o caixa conhece",
+    "changeM": "mudanças no caixa por serviço novo",
+    "busLabel": "Evento publicado uma vez, entregue a quem assinou",
+    "directLabel": "Um comando para cada serviço",
+    "cashier": "caixa",
+    "kitchen": "cozinha",
+    "invoice": "nota fiscal",
+    "loyalty": "fidelidade",
+    "delivery": "entrega",
+    "listens": "assinou o evento",
+    "ordered": "recebe ordem do caixa",
+    "off": "não participa",
+    "tableLabel": "Comando × evento",
+    "aspect": "aspecto",
+    "command": "comando",
+    "event": "evento",
+    "rWho": "quem decide",
+    "cWho": "quem envia manda fazer",
+    "eWho": "cada assinante decide o que fazer",
+    "rName": "nome",
+    "cName": "verbo no imperativo: EmitirNota",
+    "eName": "fato no passado: PedidoPago",
+    "rTo": "destinatários",
+    "cTo": "exatamente um",
+    "eTo": "zero, um ou muitos",
+    "rNo": "pode ser recusado?",
+    "cNo": "sim (\"acabou a calabresa\")",
+    "eNo": "não: já aconteceu",
+    "nameEvent": "\"{text}\" soa como ordem. Evento é fato no passado: PedidoPago, PizzaSaiuDoForno.",
+    "nameCommand": "\"{text}\" soa como fato. Comando é um pedido no imperativo: FazerPizza, EmitirNota.",
+    "coupledNote": "O caixa virou o \"chefe de todo mundo\": conhece {knows} serviços e quebra se qualquer um mudar de endereço ou de formato."
+  },
+  "data": {
+    "pastEnds": [
+      "ado",
+      "ido",
+      "pago",
+      "feito",
+      "aceito",
+      "emitida",
+      "emitido",
+      "entregue"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Pegue um sistema que você conhece (o da escola, da loja, do trabalho) e liste 6 mensagens que ele troca ou poderia trocar.",
+      "Para cada uma, escreva: é comando ou evento? Quem é o dono? Quantos interessados tem?",
+      "Renomeie: comandos no imperativo (EmitirNota), eventos no passado (PedidoPago). Se algum \"evento\" tem um único interessado e manda ele fazer algo, provavelmente é um comando disfarçado."
+    ],
+    "ok": "cada mensagem da lista tem um nome que já diz se é ordem ou fato, e os eventos não citam quem vai recebê-los."
+  }
+}

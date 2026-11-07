@@ -1,0 +1,392 @@
+{
+  "id": "msg-consumidor-idempotente",
+  "order": 4,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "mensageria",
+    "idempotencia",
+    "deduplicacao",
+    "at-least-once"
+  ],
+  "requires": [
+    "msg-ack-e-garantias"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "consumir",
+      "en": "consume"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "fidelidade",
+        "en": "loyalty"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "key",
+        "alias": {
+          "pt": "chave",
+          "en": "key"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "order",
+            "pt": "pedido",
+            "en": "order"
+          },
+          {
+            "id": "message",
+            "pt": "mensagem",
+            "en": "message"
+          },
+          {
+            "id": "none",
+            "pt": "nenhuma",
+            "en": "none"
+          }
+        ],
+        "default": "order",
+        "ui": "select"
+      },
+      {
+        "name": "tx",
+        "alias": {
+          "pt": "transacao",
+          "en": "transaction"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "doubleCredit"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "msgIds": [
+          "m1",
+          "m2",
+          "m3",
+          "m2",
+          "m4",
+          "m5",
+          "m9",
+          "m6",
+          "m7",
+          "m7",
+          "m8"
+        ],
+        "orderIds": [
+          "P101",
+          "P102",
+          "P103",
+          "P102",
+          "P104",
+          "P105",
+          "P105",
+          "P106",
+          "P107",
+          "P107",
+          "P108"
+        ],
+        "kinds": [
+          "@first",
+          "@first",
+          "@first",
+          "@redelivery",
+          "@first",
+          "@first",
+          "@resend",
+          "@first",
+          "@first",
+          "@redelivery",
+          "@first"
+        ],
+        "results": {
+          "none-tx": [
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited"
+          ],
+          "none-notx": [
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited"
+          ],
+          "message-tx": [
+            "@credited",
+            "@credited",
+            "@credited",
+            "@skipped",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@skipped",
+            "@credited"
+          ],
+          "message-notx": [
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@skipped",
+            "@credited"
+          ],
+          "order-tx": [
+            "@credited",
+            "@credited",
+            "@credited",
+            "@skipped",
+            "@credited",
+            "@credited",
+            "@skipped",
+            "@credited",
+            "@credited",
+            "@skipped",
+            "@credited"
+          ],
+          "order-notx": [
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@credited",
+            "@skipped",
+            "@credited",
+            "@credited",
+            "@skipped",
+            "@credited"
+          ]
+        },
+        "toneMap": {
+          "none-tx": [
+            "neutral",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral"
+          ],
+          "none-notx": [
+            "neutral",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral"
+          ],
+          "message-tx": [
+            "neutral",
+            "neutral",
+            "neutral",
+            "dim",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral",
+            "neutral",
+            "dim",
+            "neutral"
+          ],
+          "message-notx": [
+            "neutral",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral",
+            "neutral",
+            "dim",
+            "neutral"
+          ],
+          "order-tx": [
+            "neutral",
+            "neutral",
+            "neutral",
+            "dim",
+            "neutral",
+            "neutral",
+            "dim",
+            "neutral",
+            "neutral",
+            "dim",
+            "neutral"
+          ],
+          "order-notx": [
+            "neutral",
+            "neutral",
+            "neutral",
+            "bad",
+            "neutral",
+            "neutral",
+            "dim",
+            "neutral",
+            "neutral",
+            "dim",
+            "neutral"
+          ]
+        },
+        "orders": 8,
+        "perOrder": 10
+      },
+      "compute": {
+        "combo": "key + (tx ? '-tx' : '-notx')",
+        "res": "lookup(results, combo, [])",
+        "rowTones": "lookup(toneMap, combo, [])",
+        "creditedN": "count(res, '@credited')",
+        "extraN": "creditedN - orders",
+        "pointsN": "creditedN * perOrder"
+      },
+      "cases": [
+        {
+          "when": "extraN > 0",
+          "flags": [
+            "doubleCredit"
+          ]
+        },
+        {
+          "when": "extraN == 0",
+          "flags": [
+            "onceEffect"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "extra": "extraN",
+            "points": "pointsN",
+            "credited": "creditedN"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@deliveriesM",
+              "value": "=len(res)",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@creditedM",
+              "value": "=creditedN",
+              "format": "int",
+              "tone": "neutral"
+            },
+            {
+              "label": "@extraM",
+              "value": "=extraN",
+              "format": "int",
+              "tone": "=extraN > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@pointsM",
+              "value": "=pointsN",
+              "format": "int",
+              "tone": "=extraN > 0 ? 'warn' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@msgid",
+            "@order",
+            "@kind",
+            "@result"
+          ],
+          "rows": "=zip(msgIds, orderIds, kinds, res)",
+          "tones": "=rowTones",
+          "caption": "@caption"
+        },
+        {
+          "type": "note",
+          "when": "=key == 'message' && extraN > 0",
+          "tone": "warn",
+          "text": "@msgNote"
+        },
+        {
+          "type": "note",
+          "when": "=key == 'order' && !tx",
+          "tone": "warn",
+          "text": "@txNote"
+        },
+        {
+          "type": "note",
+          "when": "=key == 'none'",
+          "tone": "bad",
+          "text": "@noneNote"
+        },
+        {
+          "type": "note",
+          "when": "=extraN == 0",
+          "tone": "ok",
+          "text": "@okNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "zero",
+      "one",
+      "three"
+    ],
+    "answer": "one"
+  }
+}

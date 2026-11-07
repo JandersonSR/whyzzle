@@ -1,0 +1,251 @@
+{
+  "id": "msg-sincrono-assincrono",
+  "order": 1,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "mensageria",
+    "fila",
+    "assincrono",
+    "pico"
+  ],
+  "requires": [],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "atender",
+      "en": "serve"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "1 calabresa grande",
+        "en": "1 large pepperoni"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "mode",
+        "alias": {
+          "pt": "modo",
+          "en": "mode"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "async",
+            "pt": "assincrono",
+            "en": "async"
+          },
+          {
+            "id": "sync",
+            "pt": "sincrono",
+            "en": "sync"
+          }
+        ],
+        "default": "async",
+        "ui": "select"
+      },
+      {
+        "name": "peak",
+        "alias": {
+          "pt": "pico",
+          "en": "peak"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 60,
+        "default": 20,
+        "ui": "slider"
+      },
+      {
+        "name": "cooks",
+        "alias": {
+          "pt": "pizzaiolos",
+          "en": "cooks"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 10,
+        "default": 3,
+        "ui": "slider"
+      }
+    ]
+  },
+  "break": {
+    "flag": "ordersLost"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "calm": 4,
+        "prepMin": 15
+      },
+      "compute": {
+        "cap": "cooks * 4",
+        "isAsync": "mode == 'async'",
+        "q1": "isAsync ? max(0, peak - cap) : 0",
+        "q2": "isAsync ? max(0, q1 + peak - cap) : 0",
+        "q3": "isAsync ? max(0, q2 + peak - cap) : 0",
+        "q4": "isAsync ? max(0, q3 + calm - cap) : 0",
+        "q5": "isAsync ? max(0, q4 + calm - cap) : 0",
+        "q6": "isAsync ? max(0, q5 + calm - cap) : 0",
+        "x1": "isAsync ? 0 : max(0, peak - cap)",
+        "x4": "isAsync ? 0 : max(0, calm - cap)",
+        "lostN": "3 * x1 + 3 * x4",
+        "maxQ": "max(q1, q2, q3, q4, q5, q6)",
+        "waitMin": "isAsync ? ceil(maxQ / cap * 10) : 0",
+        "answerText": "isAsync ? '2 s' : prepMin + ' min'"
+      },
+      "cases": [
+        {
+          "when": "lostN > 0",
+          "flags": [
+            "ordersLost"
+          ]
+        },
+        {
+          "when": "isAsync && maxQ > 0",
+          "flags": [
+            "queued"
+          ]
+        },
+        {
+          "when": "q6 > 0",
+          "flags": [
+            "neverDrains"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "lost": "lostN",
+            "maxq": "maxQ",
+            "wait": "waitMin",
+            "cap": "cap",
+            "left": "q6"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@answer",
+              "value": "=answerText",
+              "tone": "=isAsync ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@lostM",
+              "value": "=lostN",
+              "format": "int",
+              "tone": "=lostN > 0 ? 'bad' : 'dim'"
+            },
+            {
+              "label": "@maxqM",
+              "value": "=maxQ",
+              "format": "int",
+              "tone": "=maxQ > 0 ? 'info' : 'dim'"
+            },
+            {
+              "label": "@waitM",
+              "value": "=waitMin",
+              "format": "min",
+              "tone": "=waitMin > 30 ? 'warn' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "queue",
+          "when": "=isAsync",
+          "label": "@queueLabel",
+          "producer": "@phone",
+          "empty": "@emptyQueue",
+          "messages": "=fill(q3, '#')",
+          "consumers": [
+            {
+              "label": "@kitchen",
+              "note": "@capNote",
+              "tone": "ok"
+            }
+          ]
+        },
+        {
+          "type": "queue",
+          "when": "=!isAsync",
+          "label": "@lineLabel",
+          "producer": "@phone",
+          "empty": "@noQueue",
+          "messages": [],
+          "consumers": [
+            {
+              "label": "@kitchen",
+              "note": "@capNote",
+              "tone": "=lostN > 0 ? 'warn' : 'ok'"
+            }
+          ],
+          "dlq": "=fill(min(lostN, 30), '#')",
+          "dlqLabel": "@lostLabel"
+        },
+        {
+          "type": "chart",
+          "label": "@chart",
+          "kind": "line",
+          "labels": [
+            "19:00",
+            "19:10",
+            "19:20",
+            "19:30",
+            "19:40",
+            "19:50"
+          ],
+          "series": [
+            {
+              "label": "@chartQueue",
+              "values": "=[q1, q2, q3, q4, q5, q6]"
+            },
+            {
+              "label": "@chartLost",
+              "values": "=[x1, x1, x1, x4, x4, x4]"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=lostN > 0",
+          "tone": "bad",
+          "text": "@syncNote"
+        },
+        {
+          "type": "note",
+          "when": "=q6 > 0",
+          "tone": "warn",
+          "text": "@drainNote"
+        },
+        {
+          "type": "note",
+          "when": "=isAsync && maxQ > 0 && q6 == 0",
+          "tone": "ok",
+          "text": "@asyncNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "lost",
+      "wait",
+      "faster"
+    ],
+    "answer": "wait"
+  }
+}

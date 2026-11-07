@@ -1,0 +1,74 @@
+{
+  "title": "Missão: um bug pequeno, provado com teste",
+  "subtitle": "Junte tudo da trilha: contexto, especificação, revisão e testes",
+  "mission": "Uma cliente comprou 3 pães de R$ 0,10 e o recibo mostrou R$ 0,30000000000000004. A Bia vai consertar com ajuda da IA, mas o fluxo dela está todo errado: pedido vago, projeto inteiro colado, nenhum teste e nenhuma revisão. Ajuste até os 5 critérios ficarem verdes.",
+  "coach": {
+    "ui": "Mexa nos controles e aperte Rodar. Cada critério que falhar diz o porquê.",
+    "cmd": "Edite o comando e rode. Cada critério que falhar diz o porquê."
+  },
+  "why": {
+    "simples": "Você fez o que bons times fazem: primeiro provou que o bug existe com um teste que falha, deu à IA só os arquivos certos, disse exatamente o resultado esperado, leu o que ela mudou e rodou todos os testes no fim.\nA IA escreveu o conserto rapidinho; quem garantiu que estava certo foi você.",
+    "dev": "O bug é o clássico do ponto flutuante: 0,1 não tem representação exata em binário, então 0.1 * 3 dá 0.30000000000000004 em JavaScript. A correção de verdade é guardar dinheiro em centavos (inteiros) e só formatar na tela.\nO fluxo: teste que falha (vermelho) → pedido com o resultado esperado e os arquivos certos → diff revisado (o teste não pode ter sido afrouxado para passar) → suíte inteira verde. Sem o vermelho no começo, você não sabe se o teste prova alguma coisa.",
+    "especialista": "Num time, este fluxo vira regra: o agente recebe uma issue com critérios de aceite, o CI exige teste novo que falhava antes (dá para conferir rodando o teste contra o commit anterior), a revisão olha especialmente mudanças em testes e asserções, e a suíte toda roda em todo PR.\nAgentes às vezes \"resolvem\" fazendo o teste aceitar o valor errado (toBeCloseTo, asserção removida, teste pulado). Uma regra no AGENTS.md ou CLAUDE.md (\"nunca altere asserções existentes sem pedir\") ajuda, mas só a revisão e o CI garantem. Isso é a trilha Prática."
+  },
+  "success": "Missão cumprida! O recibo mostra R$ 0,30, o teste novo falhou antes e passa agora, ninguém afrouxou asserção nenhuma e a suíte inteira está verde. {done} de 5 critérios: bug consertado e provado.",
+  "errors": {
+    "notBool.testFirst": "--teste-primeiro aceita sim ou nao.",
+    "notBool.review": "--revisar aceita sim ou nao.",
+    "notInEnum.ctx": "“{value}” não é um arquivo daqui. Opções: {options}.",
+    "notInEnum.run": "“{value}” não é uma opção. Use: {options}.",
+    "missingArg": "Faltou o pedido para a IA, entre aspas. Exemplo: consertar \"3 pães de R$ 0,10 devem dar R$ 0,30\""
+  },
+  "controls": {
+    "arg": "Pedido para a IA",
+    "testFirst": "Escrever o teste que falha primeiro",
+    "ctx": "Arquivos no contexto",
+    "review": "Revisar o diff antes de aceitar",
+    "run": "Quais testes rodar no fim"
+  },
+  "scene": {
+    "label": "Painel da missão",
+    "empty": "Rode para ver como a Bia se sai.",
+    "receipt": "recibo de 3 × 0,10",
+    "ok030": "R$ 0,30",
+    "bad030": "R$ 0,30000000000000004",
+    "criteria": "critérios",
+    "term": "Terminal",
+    "redFirst": "!FAIL 3 pães de 0,10 somam 0,30 (esperado 0.3, recebido 0.30000000000000004)",
+    "noRepro": "~(nenhum teste reproduz o bug: não dá para provar o conserto)",
+    "notRun": "~(nenhum teste rodado depois do conserto)",
+    "greenNew": "+PASS 3 pães de 0,10 somam 0,30",
+    "greenWeak": "?PASS 3 pães de 0,10 somam 0,30 (mas a IA trocou toBe por toBeCloseTo no teste: ele não prova mais o valor exato)",
+    "stillRed": "!FAIL o total ainda dá 0.30000000000000004",
+    "greenOld": "+PASS desconto de 10% · PASS taxa de entrega · PASS frete grátis",
+    "redOld": "!FAIL desconto de 10% (a troca para centavos quebrou o arredondamento e ninguém conferiu o diff)",
+    "checksLabel": "Critérios ({done} de 5)",
+    "k1": "Bug reproduzido com um teste que falha antes do conserto",
+    "k2": "Contexto certo: preco.ts e o teste, sem o projeto inteiro",
+    "k3": "Pedido diz o resultado esperado",
+    "k4": "Diff revisado: nenhum teste afrouxado",
+    "k5": "Suíte inteira rodada e verde",
+    "w1": "Sem um teste vermelho no começo, nada prova que o conserto conserta (lição 4).",
+    "w2": "Marque preco e teste e tire \"tudo\": o projeto inteiro estoura a janela e dilui o que importa (lição 2).",
+    "w3": "Diga o resultado esperado no pedido: 0,30, ou calcular em centavos (lição 3).",
+    "w4": "Sem revisar, a IA pode \"consertar\" afrouxando o teste, e o efeito colateral passa despercebido (lição 4).",
+    "w5": "Rode todos os testes, não só o novo, e eles precisam ficar verdes: o conserto pode quebrar outra coisa (e para isso o código precisa estar certo e revisado).",
+    "trackDone": "Você concluiu a trilha Fundamentos de Desenvolvimento assistido por IA."
+  },
+  "data": {
+    "kw": [
+      "0,30",
+      "0.30",
+      "centavo",
+      "0,3 "
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "No terminal, rode node -e \"console.log(0.1 * 3)\" e veja o 0.30000000000000004 com os próprios olhos.",
+      "Num projeto com testes (Vitest ou Jest), escreva um teste que espera somar(3, 0.10) igual a 0.30 e confirme que ele falha.",
+      "Peça ao agente ou chat, mostrando só o arquivo da função e o teste: \"faça este teste passar guardando valores em centavos; não altere o teste\". Leia o diff e rode a suíte inteira."
+    ],
+    "ok": "o teste que estava vermelho fica verde sem ter sido alterado, o resto da suíte continua verde e o valor mostrado é 0,30."
+  }
+}

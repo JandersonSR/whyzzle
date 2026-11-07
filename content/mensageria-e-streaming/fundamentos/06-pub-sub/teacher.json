@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Diferenciar competing consumers de pub/sub.",
+      "Ler exchange, binding e fila no RabbitMQ.",
+      "Entender a diferença entre fila e log."
+    ],
+    "minutes": 20,
+    "activity": "O professor \"publica\" 9 cartões. Rodada 1: um monte só, três alunos-serviço pegam do mesmo monte. Rodada 2: o professor faz 3 cópias de cada cartão, uma por aluno. Um quarto aluno chega no meio: o que ele consegue ler em cada rodada? E se os cartões ficassem colados no quadro?",
+    "discussion": [
+      "Em que caso você quer que cada mensagem vá para um só?",
+      "Para que serve poder reler eventos antigos?"
+    ],
+    "misconceptions": [
+      "\"Mais consumidores na fila = mais serviços avisados.\" Na mesma fila, mais consumidores só dividem o trabalho."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell competing consumers from pub/sub.",
+      "Read exchange, binding and queue in RabbitMQ.",
+      "Understand the difference between a queue and a log."
+    ],
+    "minutes": 20,
+    "activity": "The teacher \"publishes\" 9 cards. Round 1: one pile, three student-services take from the same pile. Round 2: the teacher makes 3 copies of each card, one per student. A fourth student arrives halfway: what can they read in each round? What if the cards stayed pinned on the board?",
+    "discussion": [
+      "When do you want each message to go to just one consumer?",
+      "What is replaying old events good for?"
+    ],
+    "misconceptions": [
+      "\"More consumers on the queue = more services notified.\" On the same queue, more consumers only split the work."
+    ]
+  }
+}

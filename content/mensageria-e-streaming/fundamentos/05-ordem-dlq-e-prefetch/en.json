@@ -1,0 +1,100 @@
+{
+  "title": "Ordering, DLQ and prefetch",
+  "subtitle": "The slow cook who grabs too many tickets and the poisoned ticket nobody can make",
+  "mission": "In the kitchen, Zé is fast (1 min per pizza) and Beto is a rookie (3 min). There are 12 tickets plus a poisoned 13th: \"a flavor that doesn’t exist\", which makes anyone choke. Tune the prefetch (how many tickets each one holds at once), the DLQ (the drawer for problem tickets) and see what happens to ordering.",
+  "predict": {
+    "question": "if you raise prefetch from 1 to 10, the 12 pizzas are done…",
+    "options": {
+      "faster": "Faster: fewer trips to the counter",
+      "same": "In the same time",
+      "slower": "Slower"
+    }
+  },
+  "feedback": {
+    "right": "right: with prefetch 10, the broker splits them evenly and Beto ends up holding 6 tickets. Zé finishes his and stands idle while Beto sweats. With prefetch 1, whoever finishes takes the next one, and Zé does most of them.",
+    "wrong": "it gets slower: high prefetch makes the broker hand 6 tickets to each one right away. Slow Beto holds on to his, and Zé stands around. Low prefetch lets work go to whoever is free.",
+    "skipped": "no guess? Compare the total time with prefetch 1 and 10."
+  },
+  "coach": {
+    "ui": "guess noted. Move prefetch from 1 to 10 and watch the total time and the bars.",
+    "cmd": "guess noted. Run dispatch and then dispatch --prefetch 10."
+  },
+  "tryNext": {
+    "ui": "Turn on \"single active consumer\": only Zé works, nothing comes out of order, but it takes 12 minutes. Strict ordering costs parallelism.",
+    "cmd": "Run dispatch --single yes and compare \"out of order\" and the time."
+  },
+  "why": {
+    "simples": "Prefetch is how many tickets each cook may hold before finishing any. If the rookie grabs many, they sit in his pocket while the fast one is free.\nThe DLQ (dead letter queue) is the drawer for tickets nobody can make. Without it, the poisoned ticket goes back on the rail, someone takes it, chokes, puts it back, someone else takes it… forever. With it, after a few tries it goes to the drawer and a human looks at it calmly.\nAnd with two cooks at different speeds, pizza 3 can be ready before pizza 2. If order matters, only one can work at a time.",
+    "dev": "In RabbitMQ, prefetch (basic.qos) caps how many unacked deliveries a channel may have; 0 means unlimited. The docs say values from 100 to 300 usually give the best throughput without overwhelming consumers, and that 1 is the most conservative and significantly reduces throughput. That advice is for fast messages (milliseconds); when each message takes minutes, like here, low prefetch spreads work better.\nDLQ: configure a dead letter exchange (preferably via policy, not hardcoded). A message goes there when rejected without requeue, expired by TTL, dropped by a queue length limit, or past a quorum queue’s delivery limit (20 by default since RabbitMQ 4.0; 3 in this simulation).",
+    "especialista": "Ordering in a queue only exists with one consumer at a time: with several, dispatch is round-robin and order across consumers is lost, and redeliveries shuffle it too. RabbitMQ offers single active consumer (the x-single-active-consumer argument when declaring the queue) to have one active and others on standby. In Kafka, ordering is per partition: messages with the same key land in the same partition, and parallelism is the number of partitions.\nWithout a delivery limit, a poison message with requeue=true becomes a hot loop that burns CPU and hides the problem. Monitor the DLQ (depth and age), keep the reason (the x-death header carries a reason such as rejected, expired, maxlen or delivery_limit) and have a reprocessing path. Note that default dead-lettering uses no internal confirms; quorum queues offer an at-least-once strategy, at a memory and CPU cost."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: turn off the DLQ.",
+      "cmd": "time to break it: run dispatch --dlq no"
+    },
+    "success": "Broken: without a DLQ, ticket #13 goes back to the queue every time it chokes someone. The queue never empties, the dashboard shows \"1 message\" forever and the logs fill with the same error. The other 12 still come out in {finish} min, but the kitchen never gets peace.",
+    "calm": "With prefetch {p}: 12 pizzas in {finish} min (Zé {fast}, Beto {slow}), and #13 went to the DLQ after 3 tries. To break it, turn off the DLQ."
+  },
+  "hints": {
+    "ui": [
+      "Move prefetch, DLQ and single consumer.",
+      "The ☠ ticket is the poisoned one: see where it goes.",
+      "Turn off the DLQ."
+    ],
+    "cmd": [
+      "The queue name goes in quotes; --prefetch, --dlq and --single are optional.",
+      "--prefetch 0 means unlimited; --dlq and --single take yes or no.",
+      "dispatch --dlq no"
+    ]
+  },
+  "errors": {
+    "belowMin.prefetch": "Prefetch can’t be negative. Use 0 for \"unlimited\".",
+    "aboveMax.prefetch": "Up to 1000 in this simulation.",
+    "notBool.dlq": "Use yes or no.",
+    "notBool.sac": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Queue",
+    "prefetch": "Prefetch (tickets in hand; 0 = unlimited)",
+    "dlq": "DLQ for problem tickets",
+    "sac": "Single active consumer (strict order)"
+  },
+  "scene": {
+    "label": "Ticket dispatch",
+    "empty": "Run to dispatch.",
+    "finishM": "time for the 12 pizzas",
+    "oooM": "pizzas out of order",
+    "triesM": "tries of the ☠ ticket",
+    "queueLabel": "Queue after service",
+    "counter": "counter",
+    "emptyQueue": "empty queue",
+    "fastW": "Zé (fast)",
+    "slowW": "Beto (rookie)",
+    "fastNote": "{fast} pizzas",
+    "slowNote": "{slow} pizzas",
+    "standby": "on standby",
+    "chart": "Pizzas made by each",
+    "ordersS": "pizzas",
+    "terminal": "Ticket #13 log",
+    "t1": "! #13 try 1: unknown flavor, nack",
+    "t2": "! #13 try 2: unknown flavor, nack",
+    "t3": "! #13 try 3: unknown flavor, nack",
+    "tDlq": "+ #13 → pedidos.dlq (delivery limit)",
+    "tLoop1": "! #13 try 4, 5, 6, … back to the queue",
+    "tLoop2": "? the queue never empties",
+    "loopNote": "Without a DLQ, the poison message loops: back to the queue, chokes someone, back again. Nobody notices until the CPU bill arrives.",
+    "hoardNote": "Beto held {slow} tickets and Zé stood idle. High prefetch with slow work piles the queue onto the slowest worker.",
+    "oooNote": "{ooo} pizzas were ready before an older ticket. If order matters (create then cancel the same order), use one consumer at a time or a key per customer."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "With Docker installed, start RabbitMQ with the management UI: docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management",
+      "Open http://localhost:15672 in your browser and log in with guest / guest (that user only works from your own machine, and is for study only).",
+      "Create an exchange pedidos.dlx (type fanout) and a queue pedidos.dlq bound to it (Bindings). Then create the pedidos queue of type Quorum with the argument x-dead-letter-exchange = pedidos.dlx (in production, prefer a policy).",
+      "Publish a message to pedidos. In \"Get messages\", choose the mode that rejects without requeueing (requeue false) and click to fetch."
+    ],
+    "ok": "the message leaves pedidos and shows up in pedidos.dlq: the problem ticket went to the drawer instead of back on the rail."
+  }
+}

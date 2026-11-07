@@ -1,0 +1,109 @@
+{
+  "title": "Ética e autoria",
+  "subtitle": "De quem é o código, de onde ele veio e quem responde por ele",
+  "mission": "A IA sugeriu 30 linhas para a agenda de encomendas da padaria, e a ferramenta avisou que o trecho é parecido com um repositório público sob licença GPL-3.0. Antes de entregar, preencha a ficha: declarar o uso de IA, conferir a origem e a licença, e conseguir explicar cada linha.",
+  "predict": {
+    "question": "quem responde pelo código que a IA sugeriu e a Bia entregou?",
+    "options": {
+      "ai": "A IA (ou a empresa da ferramenta)",
+      "you": "A Bia, que aceitou e entregou",
+      "nobody": "Ninguém: foi a máquina"
+    }
+  },
+  "feedback": {
+    "right": "isso: na ficha, o responsável é quem entrega. A ferramenta sugere; quem aceita, adapta e manda para o cliente (ou para o professor) responde pelo resultado.",
+    "wrong": "olha a primeira linha da ficha: responsável é quem entrega. Ferramenta não assina trabalho, não vai à reunião com o cliente e não responde ao professor.",
+    "skipped": "sem palpite? A primeira linha da ficha responde."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com tudo ligado e depois desligue uma chave de cada vez.",
+    "cmd": "palpite anotado. Rode como está e depois tente --declarar nao, --licenca nao e --explicar nao, um de cada vez."
+  },
+  "tryNext": {
+    "ui": "Troque para o trabalho da feira de ciências e desligue \"Conferir origem e licença\": lá o problema vira crédito, não contrato.",
+    "cmd": "Rode entregar \"Trabalho da feira de ciências: app de quiz\" --licenca nao e compare."
+  },
+  "why": {
+    "simples": "Três perguntas honestas antes de entregar algo feito com IA: eu contei que usei? Eu sei de onde veio esse trecho? Eu consigo explicar cada linha?\nSe a resposta for \"não\" para alguma, ainda não está pronto. E quem entrega responde, como quando você assina um trabalho em grupo.",
+    "dev": "Código sugerido pode coincidir com código público. O GitHub Copilot confere cada sugestão contra código público e, conforme a política da conta ou da organização, descarta as coincidências ou mostra a sugestão com uma referência (repositório e licença). Se aparecer referência, leia a licença: GPL num produto fechado traz obrigações que a padaria não quer; o caminho é reescrever ou não usar.\nDeclarar o uso de IA segue a regra do lugar: escolas e revistas costumam pedir; empresas têm política própria. Uma linha no PR ou no relatório (\"usei IA para X, revisei Y\") resolve.",
+    "especialista": "Autoria e direito autoral ainda estão se ajustando à IA, e variam por país. Nos EUA, o relatório de 2025 do Copyright Office sobre IA concluiu que só prompts não dão controle humano suficiente: o que é protegido é a contribuição humana (seleção, arranjo, modificações criativas). No Brasil, a Lei 9.610/98 define autor como pessoa física, e programas de computador têm lei própria (9.609/98). Isto não é consultoria jurídica: em projeto sério, pergunte ao jurídico.\nNa prática de times: registre no PR o que veio de IA, mantenha o filtro de código público conforme a política, rode varredura de licenças nas dependências e leia os termos da ferramenta que a empresa contratou (eles dizem quem é dono das sugestões e como os dados são usados)."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: na agenda da padaria (código fechado), desligue \"Conferir origem e licença\".",
+      "cmd": "hora de quebrar: rode entregar com --licenca nao no app da padaria."
+    },
+    "success": "Quebrou: 30 linhas parecidas com código GPL-3.0 entraram num app fechado sem ninguém ler a licença. Agora a padaria tem um problema de contrato que nenhum teste pega, e quem entregou foi a Bia.",
+    "calm": "Ficha com {ok} de 3 itens em ordem. Para quebrar, entregue o app fechado sem conferir a origem do trecho."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o trabalho e mexa nas chaves; a cena atualiza sozinha.",
+      "A ficha mostra o que está em ordem e o que falta.",
+      "App da padaria + \"Conferir origem e licença\" desligado."
+    ],
+    "cmd": [
+      "O trabalho vai entre aspas depois de entregar.",
+      "--declarar, --licenca e --explicar aceitam sim ou nao.",
+      "entregar \"Agenda de encomendas do app da padaria (código fechado)\" --licenca nao"
+    ]
+  },
+  "errors": {
+    "notBool.declare": "Use sim ou nao.",
+    "notBool.license": "Use sim ou nao.",
+    "notBool.explain": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "O que vai ser entregue",
+    "declare": "Declarar o uso de IA",
+    "license": "Conferir origem e licença do trecho",
+    "explain": "Consegue explicar cada linha"
+  },
+  "scene": {
+    "label": "Ficha de entrega",
+    "empty": "Rode para preencher a ficha.",
+    "sugg": "Sugestão da IA",
+    "suggSub": "30 linhas para a agenda",
+    "match": "Parecido com código público",
+    "matchSub": "repositório agenda-js · GPL-3.0",
+    "decision": "O que a Bia fez",
+    "rewrote": "leu a licença e reescreveu",
+    "credited": "leu a licença e deu o crédito",
+    "pasted": "colou sem olhar",
+    "sheet": "Ficha",
+    "item": "item",
+    "value": "situação",
+    "rowOwner": "Quem responde pelo código",
+    "you": "quem entregou (Bia)",
+    "rowDeclared": "Uso de IA declarado",
+    "declaredYes": "sim, no PR",
+    "declaredNo": "não",
+    "rowMatch": "Trecho parecido com código público",
+    "matchRewrote": "licença lida; trecho reescrito",
+    "matchCredited": "licença lida; fonte citada no trabalho",
+    "matchNo": "ninguém conferiu",
+    "rowExplain": "Consegue explicar cada linha",
+    "yes": "sim",
+    "no": "não",
+    "licenseNote": "Código parecido com GPL-3.0 num app fechado, sem ninguém ler a licença: problema jurídico que nenhum teste pega.",
+    "creditNote": "Num trabalho escolar, usar trecho de outra pessoa sem citar a fonte é plágio, mesmo que a IA tenha trazido.",
+    "undeclaredWork": "A política da padaria pede uma linha no PR dizendo onde a IA ajudou. Sem isso, a revisão não sabe onde olhar com mais cuidado.",
+    "undeclaredSchool": "A escola pede para declarar o uso de IA. Esconder vira problema de honestidade, não de tecnologia.",
+    "explainNote": "Se você não consegue explicar uma linha, não consegue manter, corrigir nem defender. Volte e entenda antes de entregar.",
+    "honestNote": "Ficha completa: uso declarado, origem conferida e código que você sabe explicar. Pode entregar de cabeça erguida."
+  },
+  "data": {
+    "kinds": {
+      "Agenda de encomendas do app da padaria (código fechado)": "closed",
+      "Trabalho da feira de ciências: app de quiz": "school"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Se você usa GitHub Copilot, abra as configurações da sua conta no GitHub (Copilot) e ache a opção sobre sugestões que coincidem com código público; veja se está para bloquear ou permitir com referência.",
+      "Pegue um trabalho ou PR recente feito com ajuda de IA e escreva uma linha de declaração: \"Usei IA para [o quê]; revisei e testei [o quê]\".",
+      "Escolha 5 linhas que a IA escreveu e explique cada uma em voz alta (ou para um colega) sem olhar a resposta da IA."
+    ],
+    "ok": "você sabe como está o filtro de código público na sua ferramenta, tem uma linha de declaração pronta e conseguiu explicar as 5 linhas com as suas palavras."
+  }
+}

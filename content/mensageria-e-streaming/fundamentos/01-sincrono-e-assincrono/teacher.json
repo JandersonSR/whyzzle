@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Diferenciar chamada síncrona de mensagem assíncrona.",
+      "Ver a fila absorvendo um pico.",
+      "Entender que fila não cria capacidade."
+    ],
+    "minutes": 15,
+    "activity": "Simulação na sala: um aluno é a cozinha e só \"faz\" uma pizza a cada 10 segundos. Primeiro os colegas fazem pedidos falando direto com ele (síncrono); depois, deixando papéis numa caixa (fila). Contem quantos pedidos se perdem em cada rodada.",
+    "discussion": [
+      "Onde você já esperou \"na linha\" quando podia ter recebido um aviso depois?",
+      "O que o cliente precisa saber quando o pedido foi só aceito, e não concluído?"
+    ],
+    "misconceptions": [
+      "\"Fila deixa o sistema mais rápido.\" Ela deixa o sistema mais resistente a picos; a velocidade continua sendo a do consumidor."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell a synchronous call from an asynchronous message.",
+      "See a queue absorbing a peak.",
+      "Understand that a queue doesn’t create capacity."
+    ],
+    "minutes": 15,
+    "activity": "Classroom simulation: one student is the kitchen and \"makes\" only one pizza every 10 seconds. First classmates order by talking to them directly (sync); then by dropping slips into a box (queue). Count how many orders are lost in each round.",
+    "discussion": [
+      "Where have you waited \"on the line\" when you could have been notified later?",
+      "What does a customer need to know when the order was only accepted, not finished?"
+    ],
+    "misconceptions": [
+      "\"A queue makes the system faster.\" It makes the system resilient to peaks; speed is still the consumer’s."
+    ]
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "title": "Mission: Black Friday with no lost sale and no double charge",
+  "subtitle": "20 thousand payments in an hour, workers that crash and a slow gateway",
+  "mission": "On Black Friday, Nona sells pizza vouchers online: 20,000 payments in one hour. Checkout publishes each payment to a queue and two workers charge the gateway (0.8 s per charge). During the peak, 3 workers will crash, the broker will fail over once and 5 payments arrive with invalid card data. The current setup is the worst possible. Fix it until all four criteria turn green.",
+  "coach": {
+    "ui": "Move the controls; the criteria change as you adjust. Each failing one says why.",
+    "cmd": "Edit the command and run it. Each failing criterion says why. Everything you need showed up in lessons 3, 4 and 5."
+  },
+  "why": {
+    "simples": "You built the safe path for a payment: the broker confirms it stored it (publisher confirms), the worker only says \"done\" after charging (manual ack), a repeated charge is blocked by the order number (idempotency), the impossible payment goes to the drawer (DLQ) and nobody holds more work than they can do (prefetch).\nNotice the domino effect: turning on confirms makes checkout resend when in doubt, and manual ack makes the broker redeliver when a worker crashes. Both prevent lost sales but create repeats, and the order key is what stops the double charge.",
+    "dev": "The recipe: publisher confirms on the producer (and resend with the same idempotency key when the confirm doesn’t come), persistent messages on a quorum queue, manual ack after storing the result, prefetch sized by processing time (here each message takes 0.8 s, so 50 in hand is 40 s of work that goes back to the queue if the worker crashes), a DLX via policy and a delivery limit.\nOn the consumer: a processed-keys table with a uniqueness constraint, in the same transaction as the effect, and the order key passed to the gateway, which should be idempotent too.",
+    "especialista": "For production you still need: the outbox pattern on checkout (write the order and the message in the same transaction and publish afterwards, so \"order saved without a message\" can’t happen), depth and age alerts on the queue and the DLQ, a DLQ reprocessing process, chaos tests (kill a worker and a node mid-peak), and capacity worked out up front: 20,000 charges × 0.8 s is 16,000 s of work, so two sequential workers can’t finish in an hour; you need more consumers or concurrency inside them.\nIn Kafka, the equivalent design is committing offsets after processing, an idempotent producer, the order id as the message key to keep per-order ordering, an error topic as the DLQ, and the same idempotency on the external effect."
+  },
+  "success": "Mission accomplished! No lost sale, no double charge: {redelivered} redeliveries and checkout’s resends were blocked by the order key, the 5 invalid cards are in the DLQ waiting for a human, and each worker holds at most {p} payments. Nona can sleep through Black Friday.",
+  "errors": {
+    "notInEnum.ack": "Use auto or manual.",
+    "notInEnum.key": "Use none, message or order.",
+    "notBool.dlq": "Use yes or no.",
+    "notBool.confirms": "Use yes or no.",
+    "belowMin.prefetch": "Prefetch can’t be negative. 0 means unlimited (and that’s one of the problems).",
+    "aboveMax.prefetch": "Up to 1000 in this simulation."
+  },
+  "controls": {
+    "arg": "Queue",
+    "ack": "Worker ack",
+    "key": "Idempotency key",
+    "dlq": "DLQ for impossible payments",
+    "prefetch": "Prefetch per worker (0 = unlimited)",
+    "confirms": "Broker confirms to checkout"
+  },
+  "scene": {
+    "label": "Black Friday payments",
+    "empty": "Run to open sales.",
+    "trackDone": "You completed the Messaging and streaming Foundations track.",
+    "checks": "Mission criteria",
+    "cLost": "No lost sale",
+    "cLostWhy": "{lostAck} lost to automatic ack when workers crashed + {lostPub} the broker never confirmed during failover",
+    "cDup": "No double charge",
+    "cDupWhy": "{dupsN} customers charged twice: redeliveries and resends got through with no key",
+    "cDupWhyMsg": "{dupsN} double charges: checkout’s resend arrives with a new message id",
+    "cPoison": "Invalid cards don’t jam the queue",
+    "cPoisonWhy": "without a DLQ, the 5 invalid payments keep going back to the queue",
+    "cPrefetch": "Prefetch between 1 and 50",
+    "cPrefetchWhy": "with {inflight} in hand, each worker holds about {holdSec} s of charges that all come back if it crashes",
+    "cPrefetchWhy0": "unlimited, one worker pulls {inflight} payments and the other gets nothing",
+    "lostM": "lost sales",
+    "dupM": "double charges",
+    "redelM": "redeliveries",
+    "holdM": "seconds of work in each worker’s hand",
+    "queueLabel": "Payments queue",
+    "checkout": "checkout",
+    "emptyQueue": "empty queue",
+    "grabsAll": "grabbed all it could",
+    "starved": "no work",
+    "holding": "holds up to {p}",
+    "gateway": "payment gateway",
+    "idemOn": "gets the order key",
+    "idemOff": "charges whatever arrives",
+    "terminal": "Configuration review",
+    "tAckManual": "+ manual ack after charging",
+    "tAckAuto": "! automatic ack: payment vanishes if the worker crashes",
+    "tConfirmOn": "+ publisher confirms on at checkout",
+    "tConfirmOff": "! checkout publishes without knowing if the broker stored it",
+    "tKeyOrder": "+ idempotency by order number",
+    "tKeyMsg": "? idempotency by message id: resends get through",
+    "tKeyNone": "! no idempotency",
+    "tDlqOn": "+ DLQ via policy, with a delivery limit",
+    "tDlqOff": "! no DLQ: poison message loops",
+    "tPrefOk": "+ prefetch {p}",
+    "tPrefBad": "! prefetch {p}: outside the safe range for 0.8 s charges"
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Take a payment or order flow you know and answer in writing: does the producer know whether the broker stored the message? Does the consumer ack before or after the effect? What is the idempotency key? Where does the always-failing message go? How many messages does each consumer hold?",
+      "On local RabbitMQ, apply a DLX via policy: rabbitmqctl set_policy DLX \"^pagamentos$\" '{\"dead-letter-exchange\":\"pagamentos.dlx\"}' --apply-to queues",
+      "Run the chaos test: publish 100 messages, kill the consumer halfway (Ctrl+C), start it again and check in the keys table that no order was processed twice."
+    ],
+    "ok": "after killing and restarting the consumer, the processed table has exactly 100 keys, the queue is empty and any rejected message is in pagamentos.dlq."
+  }
+}

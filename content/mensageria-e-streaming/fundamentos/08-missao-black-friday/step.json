@@ -1,0 +1,282 @@
+{
+  "id": "msg-missao-black-friday",
+  "order": 8,
+  "track": "fundamentos",
+  "kind": "mission",
+  "minutes": 25,
+  "tags": [
+    "missao",
+    "mensageria",
+    "pagamentos",
+    "idempotencia",
+    "dlq",
+    "prefetch"
+  ],
+  "requires": [
+    "msg-ack-e-garantias",
+    "msg-consumidor-idempotente",
+    "msg-ordem-dlq-prefetch"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "configurar",
+      "en": "configure"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "pagamentos",
+        "en": "payments"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "ack",
+        "alias": {
+          "pt": "ack",
+          "en": "ack"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "auto",
+            "pt": "auto",
+            "en": "auto"
+          },
+          {
+            "id": "manual",
+            "pt": "manual",
+            "en": "manual"
+          }
+        ],
+        "default": "auto",
+        "ui": "select"
+      },
+      {
+        "name": "key",
+        "alias": {
+          "pt": "chave",
+          "en": "key"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "none",
+            "pt": "nenhuma",
+            "en": "none"
+          },
+          {
+            "id": "message",
+            "pt": "mensagem",
+            "en": "message"
+          },
+          {
+            "id": "order",
+            "pt": "pedido",
+            "en": "order"
+          }
+        ],
+        "default": "none",
+        "ui": "select"
+      },
+      {
+        "name": "dlq",
+        "alias": {
+          "pt": "dlq",
+          "en": "dlq"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "prefetch",
+        "alias": {
+          "pt": "prefetch",
+          "en": "prefetch"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 1000,
+        "uiMax": 300,
+        "default": 0,
+        "ui": "slider"
+      },
+      {
+        "name": "confirms",
+        "alias": {
+          "pt": "confirmacao",
+          "en": "confirms"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "passed"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "payments": 20000,
+        "crashes": 3,
+        "unlimitedGrab": 2500,
+        "poisonN": 5,
+        "resendN": 12,
+        "unconfirmedLost": 37,
+        "maxPrefetch": 50,
+        "gatewaySec": 0.8
+      },
+      "compute": {
+        "inflight": "prefetch == 0 ? unlimitedGrab : prefetch",
+        "isManual": "ack == 'manual'",
+        "lostAck": "isManual ? 0 : crashes * inflight",
+        "lostPub": "confirms ? 0 : unconfirmedLost",
+        "lostN": "lostAck + lostPub",
+        "redeliveredN": "isManual ? crashes * inflight : 0",
+        "brokerDups": "isManual ? crashes : 0",
+        "resends": "confirms ? resendN : 0",
+        "dupsN": "key == 'none' ? brokerDups + resends : (key == 'message' ? resends : 0)",
+        "prefOk": "prefetch >= 1 && prefetch <= maxPrefetch",
+        "holdSec": "round(inflight * gatewaySec)",
+        "okCount": "(lostN == 0 ? 1 : 0) + (dupsN == 0 ? 1 : 0) + (dlq ? 1 : 0) + (prefOk ? 1 : 0)",
+        "allOk": "okCount == 4"
+      },
+      "cases": [
+        {
+          "when": "allOk",
+          "flags": [
+            "passed"
+          ]
+        },
+        {
+          "when": "lostN > 0",
+          "flags": [
+            "salesLost"
+          ]
+        },
+        {
+          "when": "dupsN > 0",
+          "flags": [
+            "doubleCharge"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "lost": "lostN",
+            "dups": "dupsN",
+            "redelivered": "redeliveredN",
+            "inflight": "inflight",
+            "p": "prefetch",
+            "ok": "okCount"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "checks",
+          "label": "@checks",
+          "items": [
+            {
+              "label": "@cLost",
+              "ok": "=lostN == 0",
+              "why": "@cLostWhy"
+            },
+            {
+              "label": "@cDup",
+              "ok": "=dupsN == 0",
+              "why": "=key == 'message' ? '@cDupWhyMsg' : '@cDupWhy'"
+            },
+            {
+              "label": "@cPoison",
+              "ok": "=dlq",
+              "why": "@cPoisonWhy"
+            },
+            {
+              "label": "@cPrefetch",
+              "ok": "=prefOk",
+              "why": "=prefetch == 0 ? '@cPrefetchWhy0' : '@cPrefetchWhy'"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@lostM",
+              "value": "=lostN",
+              "format": "int",
+              "tone": "=lostN > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@dupM",
+              "value": "=dupsN",
+              "format": "int",
+              "tone": "=dupsN > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@redelM",
+              "value": "=redeliveredN",
+              "format": "int",
+              "tone": "=redeliveredN > 300 ? 'warn' : 'dim'"
+            },
+            {
+              "label": "@holdM",
+              "value": "=holdSec",
+              "format": "int",
+              "tone": "=prefOk ? 'ok' : 'warn'"
+            }
+          ]
+        },
+        {
+          "type": "queue",
+          "label": "@queueLabel",
+          "producer": "@checkout",
+          "empty": "@emptyQueue",
+          "messages": "=dlq ? fill(12, '#') : concat(['!☠', '!☠'], fill(10, '#'))",
+          "consumers": [
+            {
+              "label": "pay-worker-1",
+              "note": "=prefetch == 0 ? '@grabsAll' : '@holding'",
+              "tone": "=prefOk ? 'ok' : 'warn'"
+            },
+            {
+              "label": "pay-worker-2",
+              "note": "=prefetch == 0 ? '@starved' : '@holding'",
+              "tone": "=prefOk ? 'ok' : 'dim'"
+            },
+            {
+              "label": "@gateway",
+              "note": "=key == 'order' ? '@idemOn' : '@idemOff'",
+              "tone": "=key == 'order' ? 'ok' : 'bad'"
+            }
+          ],
+          "dlq": "=dlq ? fill(poisonN, '☠') : []",
+          "dlqLabel": "DLQ"
+        },
+        {
+          "type": "terminal",
+          "label": "@terminal",
+          "lines": [
+            "=isManual ? '@tAckManual' : '@tAckAuto'",
+            "=confirms ? '@tConfirmOn' : '@tConfirmOff'",
+            "=key == 'order' ? '@tKeyOrder' : (key == 'message' ? '@tKeyMsg' : '@tKeyNone')",
+            "=dlq ? '@tDlqOn' : '@tDlqOff'",
+            "=prefOk ? '@tPrefOk' : '@tPrefBad'"
+          ]
+        }
+      ]
+    }
+  }
+}

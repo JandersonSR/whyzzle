@@ -1,0 +1,96 @@
+{
+  "title": "Sync vs async",
+  "subtitle": "The pizzeria on Friday night: keep the customer on the phone, or write it down and call back?",
+  "mission": "Nona’s Pizzeria gets a rush of orders at 7 pm. The kitchen makes 4 pizzas every 10 minutes per cook. Compare synchronous service (the customer stays on the line until the pizza is ready) with asynchronous (write the order into a queue and answer right away).",
+  "predict": {
+    "question": "in queue mode (async), with 20 orders every 10 minutes and a kitchen that only makes 12, what happens to the extra orders?",
+    "options": {
+      "lost": "They vanish: the kitchen can’t keep up",
+      "wait": "They wait in the queue and come out a bit later",
+      "faster": "The kitchen gets faster"
+    }
+  },
+  "feedback": {
+    "right": "right! The queue doesn’t make the kitchen faster: it holds the rush overflow and the kitchen works through it at its own pace. Nobody left, they just waited a bit more.",
+    "wrong": "look at the chart: the queue grows during the rush and shrinks when it calms down. The kitchen keeps the same pace; the queue only holds what didn’t fit.",
+    "skipped": "no guess? Run it and watch the queue line in the chart: it rises and falls, and the lost counter stays at zero."
+  },
+  "coach": {
+    "ui": "guess noted. Run in async mode, then switch to sync. Compare \"lost orders\".",
+    "cmd": "guess noted. Run serve, then serve --mode sync. Compare \"lost orders\"."
+  },
+  "tryNext": {
+    "ui": "Now set 2 cooks in async mode. The queue doesn’t empty by 8 pm: a queue absorbs a peak, but it can’t fix missing capacity.",
+    "cmd": "Run serve --cooks 2 and see the warning about a queue that never empties."
+  },
+  "why": {
+    "simples": "Synchronous is the phone: you call, order and hold the line until someone sorts it out. If the line is busy, you give up and call another pizzeria.\nAsynchronous is the order ticket: the server writes it down, says \"got it, coming up!\" and clips the paper onto the kitchen rail. The rail is the queue. During the rush it fills up, but no order falls on the floor, and the kitchen takes one at a time.",
+    "dev": "In a synchronous call (HTTP, gRPC) the caller waits for the answer and depends on the other side being up and with room right at that moment. If it’s slow, timeouts cascade.\nWith a queue, the producer publishes a message to a broker (RabbitMQ, Kafka, Azure Service Bus, SQS) and moves on; the consumer processes at its own pace. You gain three things: absorbing peaks, isolating failures (the consumer can go down and come back) and scaling consumers apart from the producer. The price: the answer becomes \"accepted, processing\", and someone has to watch the queue length.",
+    "especialista": "A queue is a shock absorber, not a capacity multiplier: if the average arrival rate exceeds the average processing rate, the queue grows without bound (that’s the \"--cooks 2\" lesson). By Little’s Law, items in the queue = arrival rate × waiting time; monitor depth and the age of the oldest message, not just \"the queue exists\".\nDecide what happens when the queue is full (length limit, reject publishes, drop the oldest) and the contract with the user: a 202 Accepted with an id to poll for status, or a notification when done. Async also changes the team’s mental model: errors stop showing up on the requester’s screen and start showing up in metrics and alerts."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch the mode to sync and run with the rush of 20 orders.",
+      "cmd": "time to break it: run serve --mode sync"
+    },
+    "success": "Broken: without a queue, the line only handles {cap} orders every 10 minutes and {lost} customers heard a busy signal and ordered somewhere else. Same kitchen; what was missing was a place to wait.",
+    "calm": "No order lost: at the peak the queue reached {maxq} orders and the worst extra wait was {wait} min. To break it, serve without a queue."
+  },
+  "hints": {
+    "ui": [
+      "Move the controls; the scene updates by itself.",
+      "In sync mode, whoever doesn’t fit in the kitchen’s capacity goes unserved.",
+      "Pick sync mode with a rush of 20 and 3 cooks."
+    ],
+    "cmd": [
+      "The order goes in quotes; --mode, --peak and --cooks are optional.",
+      "--mode takes sync or async.",
+      "serve --mode sync"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Use sync or async.",
+    "aboveMax.peak": "Up to 60 orders every 10 minutes: beyond that not even Nona can cope.",
+    "belowMin.peak": "There’s no negative rush (sadly for the kitchen).",
+    "belowMin.cooks": "No cook, no pizza. At least 1.",
+    "aboveMax.cooks": "Up to 10 cooks: it’s a small kitchen."
+  },
+  "controls": {
+    "arg": "Sample order",
+    "mode": "Service mode",
+    "peak": "Orders per 10 min at the peak",
+    "cooks": "Cooks"
+  },
+  "scene": {
+    "label": "Nona’s Pizzeria, 7 to 8 pm",
+    "empty": "Run to open the pizzeria.",
+    "answer": "time until the customer hears back",
+    "lostM": "lost orders",
+    "maxqM": "orders queued at the peak",
+    "waitM": "worst extra wait",
+    "queueLabel": "Order rail (the queue)",
+    "lineLabel": "Phone, no queue",
+    "phone": "phone and app",
+    "kitchen": "kitchen",
+    "capNote": "{cap} pizzas / 10 min",
+    "emptyQueue": "empty queue",
+    "noQueue": "nobody waits: either served or busy signal",
+    "lostLabel": "gave up",
+    "chart": "Queue and losses every 10 minutes",
+    "chartQueue": "orders waiting",
+    "chartLost": "orders lost",
+    "syncNote": "{lost} customers got a busy signal. In sync mode, missing capacity turns into lost customers on the spot.",
+    "drainNote": "The queue didn’t empty by 8 pm: {left} orders are still waiting. A queue holds a peak, but it doesn’t create capacity.",
+    "asyncNote": "Everyone heard \"got it!\" within 2 seconds. At the peak the queue reached {maxq} and drained when things calmed down."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "With Docker installed, start RabbitMQ with the management UI: docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management",
+      "Open http://localhost:15672 in your browser and log in with guest / guest (that user only works from your own machine, and is for study only).",
+      "In the queues tab (Queues), create a queue named pedidos. Open it and use \"Publish message\" to publish 5 messages, like \"1 pepperoni\".",
+      "Notice nobody is consuming and the 5 orders were still accepted. Then use \"Get messages\" to take one out."
+    ],
+    "ok": "the pedidos queue shows 5 ready messages with no consumer attached: the order was accepted without needing the kitchen at that moment."
+  }
+}

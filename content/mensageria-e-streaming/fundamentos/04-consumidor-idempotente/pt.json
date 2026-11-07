@@ -1,0 +1,92 @@
+{
+  "title": "Consumidor idempotente",
+  "subtitle": "Se a mensagem vai chegar repetida, o jeito é fazer a segunda vez não contar",
+  "mission": "O cartão fidelidade da Nona dá 10 pontos por pedido pago. Chegaram 11 entregas para 8 pedidos: 2 reentregas do broker (lembra do ack?) e 1 reenvio do caixa, que achou que a primeira tinha falhado. Escolha a chave de deduplicação para que cada pedido dê pontos uma vez só.",
+  "predict": {
+    "question": "se você deduplicar pelo id da mensagem, dos 3 repetidos (2 reentregas + 1 reenvio), quantos ainda dão pontos em dobro?",
+    "options": {
+      "zero": "Nenhum",
+      "one": "Um",
+      "three": "Os três"
+    }
+  },
+  "feedback": {
+    "right": "isso: a reentrega do broker traz o mesmo id e é barrada. Mas o caixa, ao reenviar, criou uma mensagem nova com id novo (m9) para o mesmo pedido P105. Para o consumidor, parece outro pedido.",
+    "wrong": "é um: reentregas trazem o mesmo id da mensagem, mas o reenvio do caixa nasceu com id novo (m9). Só uma chave do negócio, o número do pedido, pega os dois casos.",
+    "skipped": "sem palpite? Rode consumir --chave mensagem e procure a linha vermelha da m9."
+  },
+  "coach": {
+    "ui": "palpite anotado. Troque a chave para \"mensagem\" e procure as linhas vermelhas na tabela.",
+    "cmd": "palpite anotado. Rode consumir --chave mensagem e procure as linhas vermelhas na tabela."
+  },
+  "tryNext": {
+    "ui": "Agora volte para \"pedido\" e desligue \"na mesma transação\": o worker creditou P102 e caiu antes de anotar a chave. A reentrega passa.",
+    "cmd": "Rode consumir --transacao nao e veja a linha da reentrega de P102."
+  },
+  "why": {
+    "simples": "Idempotente é a operação que, feita duas vezes, dá o mesmo resultado que feita uma. Apertar o botão do elevador cinco vezes não chama cinco elevadores.\nComo a fila às vezes entrega repetido, o consumidor guarda um caderninho com os pedidos que já deram pontos. Chegou de novo o P102? Já está no caderno, ignora. O truque é anotar o número do pedido (que não muda), e não o número do envelope (que muda se alguém mandar de novo).",
+    "dev": "Com at-least-once, duplicata é normal, não bug. A defesa é no consumidor: uma tabela de \"já processados\" com restrição de unicidade na chave de idempotência, e o efeito (creditar pontos) e o registro da chave gravados na mesma transação do banco. Um INSERT com ON CONFLICT DO NOTHING (Postgres, SQLite) que não insere nada diz \"já vi, ignora\".\nA chave precisa identificar a intenção do negócio: id do pedido, ou um idempotency key gerado uma vez pelo cliente e reaproveitado em todo reenvio. O message-id do broker só pega reentregas, porque um novo publish gera nova mensagem.",
+    "especialista": "Às vezes dá para tornar o próprio efeito idempotente sem tabela extra: \"definir status = PAGO\" em vez de \"somar 10 pontos\", ou upsert por chave natural. Quando o efeito sai do seu banco (cobrar um cartão, mandar e-mail), passe a chave de idempotência adiante: gateways de pagamento costumam aceitar uma no cabeçalho da requisição.\nNo Kafka, o produtor idempotente (ativado por padrão desde que não haja configuração conflitante) evita duplicatas no log causadas por retry do produtor, e transações dão exactly-once entre tópicos; mas o efeito externo do consumidor continua precisando de idempotência. Defina por quanto tempo guardar as chaves (janela de deduplicação) olhando por quanto tempo uma mensagem pode ser reentregue."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha a chave \"nenhuma\".",
+      "cmd": "hora de quebrar: rode consumir --chave nenhuma"
+    },
+    "success": "Quebrou: sem chave, cada entrega vira pontos. {credited} créditos para 8 pedidos, {extra} a mais: {points} pontos distribuídos. No cartão fidelidade é prejuízo pequeno; num pagamento, é cliente cobrado em dobro.",
+    "calm": "{credited} créditos para 8 pedidos, {extra} a mais. Para quebrar, consuma sem chave nenhuma."
+  },
+  "hints": {
+    "ui": [
+      "Escolha a chave de deduplicação e veja a tabela.",
+      "Linha vermelha = repetição que deu pontos de novo.",
+      "Escolha a chave \"nenhuma\"."
+    ],
+    "cmd": [
+      "O nome do consumidor vai entre aspas; --chave e --transacao são opcionais.",
+      "--chave aceita pedido, mensagem ou nenhuma.",
+      "consumir --chave nenhuma"
+    ]
+  },
+  "errors": {
+    "notInEnum.key": "Use pedido, mensagem ou nenhuma.",
+    "notBool.tx": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Consumidor",
+    "key": "Chave de deduplicação",
+    "tx": "Pontos e chave na mesma transação"
+  },
+  "scene": {
+    "label": "Consumidor do cartão fidelidade",
+    "empty": "Rode para consumir.",
+    "deliveriesM": "entregas recebidas",
+    "creditedM": "vezes que deu pontos",
+    "extraM": "créditos em dobro",
+    "pointsM": "pontos distribuídos",
+    "tableLabel": "Entregas na ordem em que chegaram",
+    "msgid": "id da mensagem",
+    "order": "pedido",
+    "kind": "o que é",
+    "result": "resultado",
+    "first": "primeira entrega",
+    "redelivery": "reentrega do broker",
+    "resend": "reenvio do caixa (id novo)",
+    "credited": "+10 pontos",
+    "skipped": "já visto, ignorado",
+    "caption": "8 pedidos, 11 entregas. O certo são 80 pontos.",
+    "msgNote": "O id da mensagem barrou as reentregas, mas o reenvio do caixa veio como m9, uma mensagem nova para o mesmo P105.",
+    "txNote": "Sem transação, o worker creditou P102 e caiu antes de anotar a chave. Na reentrega, o caderno não tinha P102.",
+    "noneNote": "Sem chave, o consumidor não tem memória: toda entrega é tratada como nova.",
+    "okNote": "Cada pedido deu pontos uma vez só: {points} pontos, como devia. As mensagens chegaram repetidas, mas o efeito aconteceu uma vez."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Abra um terminal com SQLite (sqlite3 teste.db) e crie a tabela: CREATE TABLE processados (chave TEXT PRIMARY KEY);",
+      "Rode duas vezes: INSERT INTO processados VALUES ('P102') ON CONFLICT DO NOTHING; SELECT changes();",
+      "No seu consumidor, faça o efeito (creditar pontos) só quando changes() for 1, dentro da mesma transação (BEGIN … COMMIT)."
+    ],
+    "ok": "a primeira vez changes() mostra 1 e a segunda mostra 0: o banco diz sozinho se aquele pedido já foi processado."
+  }
+}
