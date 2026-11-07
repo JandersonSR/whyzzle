@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Usar async Task e await.",
+      "Comparar esperar em sequência com Task.WhenAll.",
+      "Explicar por que evitar async void."
+    ],
+    "minutes": 20,
+    "activity": "Três alunos com cronômetro: um \"faz\" o misto (conta até 3), outro o suco (até 2), outro o troco (até 1). Primeiro um de cada vez, depois todos ao mesmo tempo. Quanto tempo o cliente esperou em cada rodada?",
+    "discussion": [
+      "Que tarefas da escola são espera (fila da secretaria) e quais são trabalho de verdade?",
+      "Por que o async void é perigoso mesmo quando \"funciona\"?"
+    ],
+    "misconceptions": [
+      "\"async faz o código rodar em outra thread.\" Ele libera a thread enquanto espera; trabalho pesado de CPU continua precisando de Task.Run ou paralelismo."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Use async Task and await.",
+      "Compare awaiting in sequence with Task.WhenAll.",
+      "Explain why to avoid async void."
+    ],
+    "minutes": 20,
+    "activity": "Three students with stopwatches: one \"makes\" the toastie (counts to 3), another the juice (to 2), another the change (to 1). First one at a time, then all at once. How long did the customer wait each round?",
+    "discussion": [
+      "Which school tasks are waiting (the office queue) and which are real work?",
+      "Why is async void dangerous even when it \"works\"?"
+    ],
+    "misconceptions": [
+      "\"async makes code run on another thread.\" It frees the thread while waiting; heavy CPU work still needs Task.Run or parallelism."
+    ]
+  }
+}

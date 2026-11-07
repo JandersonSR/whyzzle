@@ -1,0 +1,104 @@
+{
+  "title": "Types and variables",
+  "subtitle": "Why three 10-cent candies don’t make 30 cents (when you pick the wrong type)",
+  "mission": "Dona Cida, who runs the school canteen, asked for a new till in C#. Each candy costs R$ 0.10 and the program adds them one by one. Pick the type of the variable that holds the total (decimal, double or int in cents) and see what the program prints. The code keeps the canteen’s Portuguese names (total is total, centavos means cents).",
+  "predict": {
+    "question": "with double, adding 3 candies at 0.10 one at a time, what does the program print?",
+    "options": {
+      "exact": "0.3: kid’s math",
+      "drift": "0.30000000000000004",
+      "error": "A compile error: double isn’t allowed for money"
+    }
+  },
+  "feedback": {
+    "right": "right! double stores numbers in binary, and 0.1 in binary repeats forever (like 1/3 in decimal). Each addition rounds a tiny bit, and on the third one the error shows up on screen. The compiler doesn’t complain: the error is silent.",
+    "wrong": "the program prints 0.30000000000000004. It compiles with no warning at all: double is a valid type, it just isn’t exact for cents. 0.1 in binary repeats forever, and each addition’s rounding piles up.",
+    "skipped": "no guess? Run add --type double and look at the printed value."
+  },
+  "coach": {
+    "ui": "guess noted. Switch the type to double and look at the printed value. Then go back to decimal.",
+    "cmd": "guess noted. Run add --type double and then add --type decimal."
+  },
+  "tryNext": {
+    "ui": "Now pick int and read the division box: totalCentavos / 100 gives 0. Dividing two ints throws away the fraction.",
+    "cmd": "Run add --type double --qty 10 and watch ten candies become 0.9999999999999999."
+  },
+  "why": {
+    "simples": "Every variable in C# has a type, and the type is the \"box\" the value lives in. int holds whole numbers (candies, students). double holds numbers with a decimal point very quickly, but approximately, because the computer counts in binary and 0.1 in binary never ends, like 1/3 = 0.333… for us. decimal holds numbers with a decimal point counting in base 10, the way we do on paper, so 0.10 is exactly 0.10.\nCanteen rule: money goes in decimal (or in cents in an int). double is for measurements, like the fridge temperature.",
+    "dev": "Coming from JavaScript: there every number is a double (64-bit IEEE 754), so 0.1 + 0.2 is 0.30000000000000004 too. In C# you choose: int (32 bits), long (64), double (64, binary), decimal (128 bits, base 10, 28 to 29 significant digits) and the literal says the type: 0.10 is double, 0.10m is decimal, 10 is int.\nvar is not JS’s \"any\": var x = 5; makes x an int forever, decided at compile time. Two traps that catch people coming from JS: 7 / 2 is 3 (dividing ints drops the fraction; use 7 / 2.0 or 7m / 2) and adding 1 to int.MaxValue gives -2147483648 with no error, because arithmetic is unchecked by default. Also notice decimal keeps its scale: 0.10m + 0.10m + 0.10m prints 0.30, with the zero.",
+    "especialista": "Value types (int, double, decimal, bool, structs) are copied when you assign them or pass them to a method; reference types (string, classes, arrays) copy only the reference. Where each lives in memory (stack or heap) is an implementation detail; what matters to your code is the copy semantics.\ndecimal is base-10 floating point: a 96-bit integer plus a scale (where the decimal point goes). It is exact for decimal values like 0.10, but not for everything: 1m / 3 is still an approximation, and it is much slower than double because the math runs in software. For overflow, use checked (or the project option CheckForOverflowUnderflow) and get an OverflowException instead of a negative number; with constants, the compiler already refuses (CS0220). And remember ToString uses the current culture: on a Windows set to Portuguese, the same program prints 0,30000000000000004 with a comma. For files and APIs, format with CultureInfo.InvariantCulture."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick double with 3 candies.",
+      "cmd": "time to break it: run add --type double"
+    },
+    "success": "Broken: with double, {qty} candies at R$ 0.10 became {printed}, when the right answer was {right}. No warning, no error: just wrong change nobody notices until the till doesn’t add up at closing time.",
+    "calm": "The program printed {printed} and the math adds up. To break it, store the total in a double with 3 candies."
+  },
+  "hints": {
+    "ui": [
+      "Pick the type and the quantity; the scene updates by itself.",
+      "One of the types counts in binary and can’t hold 0.1 exactly.",
+      "Pick double with 3 candies."
+    ],
+    "cmd": [
+      "--type and --qty are optional.",
+      "--type takes decimal, double or int.",
+      "add --type double"
+    ]
+  },
+  "errors": {
+    "notInEnum.kind": "Use decimal, double or int.",
+    "belowMin.qty": "At least 1 candy, otherwise there’s nothing to add.",
+    "aboveMax.qty": "Up to 20 candies: beyond that Dona Cida sends you to the dentist."
+  },
+  "controls": {
+    "arg": "What is being added",
+    "kind": "Type of the total",
+    "qty": "How many R$ 0.10 candies"
+  },
+  "scene": {
+    "label": "Canteen till",
+    "empty": "Run to add up the candies.",
+    "printedM": "the program prints",
+    "rightM": "it should be",
+    "exactM": "exact?",
+    "bytesM": "bytes per value",
+    "yes": "yes",
+    "no": "no",
+    "divLabel": "What if you want reais? (two divisions)",
+    "runLabel": "Terminal",
+    "tableLabel": "The most common types",
+    "cType": "type",
+    "cBytes": "bytes",
+    "cGood": "good for",
+    "cTrap": "gotcha",
+    "gInt": "counting things, cents",
+    "tInt": "7 / 2 is 3",
+    "gLong": "huge numbers, ids",
+    "tLong": "literal needs L beyond int range",
+    "gDouble": "measurements, physics, charts",
+    "tDouble": "0.1 isn’t exact",
+    "gDecimal": "money",
+    "tDecimal": "literal needs m (0.10m)",
+    "gBool": "yes or no",
+    "tBool": "doesn’t turn into a number like in JS",
+    "gString": "text",
+    "tString": "can be null (lesson 5)",
+    "ref": "reference",
+    "driftNote": "Each += 0.10 rounds a little in binary. With {qty} candies the error already shows: {printed}.",
+    "luckyNote": "This time rounding hid the error and it printed {printed}. Luck isn’t a strategy: with 3 candies the same code is wrong.",
+    "decimalNote": "decimal counts in base 10: {qty} × 0.10 is exactly {right}, and it even keeps the trailing zero.",
+    "intNote": "In cents the sum is exact: {cents}. But watch out when turning it into reais: {cents} / 100 gives {intDiv} (integer division), and {cents} / 100m gives {decDiv}."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Install the .NET SDK (the current LTS, from dotnet.microsoft.com) and check it with dotnet --version. Then create the project: dotnet new console -o Cantina and go into the folder: cd Cantina",
+      "Replace everything in Program.cs with:\ndouble totalDouble = 0;\ndecimal totalDecimal = 0;\nfor (int i = 0; i < 3; i++)\n{\n    totalDouble += 0.10;\n    totalDecimal += 0.10m;\n}\nConsole.WriteLine(totalDouble);\nConsole.WriteLine(totalDecimal);\nConsole.WriteLine(7 / 2);\nConsole.WriteLine(7 / 2.0);",
+      "Run it with dotnet run."
+    ],
+    "ok": "you see 4 lines: 0.30000000000000004, 0.30, 3 and 3.5 (with commas instead of dots if your system is set to Portuguese)."
+  }
+}

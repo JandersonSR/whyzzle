@@ -1,0 +1,104 @@
+{
+  "title": "Tipos e variáveis",
+  "subtitle": "Por que três balas de 10 centavos não dão 30 centavos (quando você escolhe o tipo errado)",
+  "mission": "A Dona Cida, da cantina da escola, pediu um caixa novo em C#. Cada bala custa R$ 0,10 e o programa soma uma por uma. Escolha o tipo da variável que guarda o total (decimal, double ou int em centavos) e veja o que o programa imprime. O código usa os nomes em português da cantina.",
+  "predict": {
+    "question": "com double, somando 3 balas de 0,10 uma de cada vez, o que o programa imprime?",
+    "options": {
+      "exact": "0,3: conta de criança",
+      "drift": "0,30000000000000004",
+      "error": "Dá erro de compilação: double não serve para dinheiro"
+    }
+  },
+  "feedback": {
+    "right": "isso! double guarda números em binário, e 0,1 em binário é uma dízima (como 1/3 em decimal). Cada soma arredonda um tiquinho, e na terceira o erro aparece na tela. O compilador não reclama: o erro é silencioso.",
+    "wrong": "o programa imprime 0,30000000000000004. Compila sem nenhum aviso: double é um tipo válido, só não é exato para centavos. 0,1 em binário é uma dízima, e o arredondamento de cada soma vai se acumulando.",
+    "skipped": "sem palpite? Rode somar --tipo double e olhe o valor impresso."
+  },
+  "coach": {
+    "ui": "palpite anotado. Troque o tipo para double e veja o valor impresso. Depois volte para decimal.",
+    "cmd": "palpite anotado. Rode somar --tipo double e depois somar --tipo decimal."
+  },
+  "tryNext": {
+    "ui": "Agora escolha int e leia a caixa da divisão: totalCentavos / 100 dá 0. Divisão entre dois int joga fora a parte quebrada.",
+    "cmd": "Rode somar --tipo double --qtd 10 e veja dez balas virarem 0,9999999999999999."
+  },
+  "why": {
+    "simples": "Toda variável em C# tem um tipo, e o tipo é a \"caixa\" onde o valor mora. int guarda números inteiros (balas, alunos). double guarda números com vírgula de um jeito muito rápido, mas aproximado, porque o computador conta em binário e 0,1 em binário nunca termina, como 1/3 = 0,333… para nós. decimal guarda números com vírgula contando em base 10, do jeito que a gente faz no caderno, então 0,10 é exatamente 0,10.\nRegra da cantina: dinheiro vai em decimal (ou em centavos num int). double fica para medidas, como a temperatura da geladeira.",
+    "dev": "Vindo do JavaScript: lá todo number é um double (IEEE 754 de 64 bits), então 0.1 + 0.2 também dá 0.30000000000000004. Em C# você escolhe: int (32 bits), long (64), double (64, binário), decimal (128 bits, base 10, 28 a 29 dígitos significativos) e o literal diz o tipo: 0.10 é double, 0.10m é decimal, 10 é int.\nvar não é o \"any\" do JS: var x = 5; faz x ser int para sempre, decidido na compilação. Duas pegadinhas que pegam quem vem do JS: 7 / 2 dá 3 (divisão entre int descarta a fração; use 7 / 2.0 ou 7m / 2) e somar 1 ao int.MaxValue dá -2147483648 sem erro, porque por padrão a conta não é verificada. Repare também que decimal guarda a escala: 0.10m + 0.10m + 0.10m imprime 0.30, com o zero.",
+    "especialista": "Tipos de valor (int, double, decimal, bool, struct) são copiados quando você atribui ou passa para um método; tipos de referência (string, classes, arrays) copiam só a referência. Onde cada um mora na memória (pilha ou heap) é detalhe de implementação; o que importa para o seu código é a semântica de cópia.\ndecimal é um ponto flutuante em base 10: um inteiro de 96 bits mais uma escala (a posição da vírgula). Ele é exato para valores decimais como 0,10, mas não para tudo: 1m / 3 continua sendo uma aproximação, e ele é bem mais lento que double porque a conta é feita em software. Para estouro, use checked (ou a opção do projeto CheckForOverflowUnderflow) e ganhe uma OverflowException em vez de um número negativo; com constantes, o compilador já recusa (CS0220). E lembre que ToString usa a cultura atual: num Windows em português, o mesmo programa imprime 0,30000000000000004 com vírgula. Para arquivos e APIs, formate com CultureInfo.InvariantCulture."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha double com 3 balas.",
+      "cmd": "hora de quebrar: rode somar --tipo double"
+    },
+    "success": "Quebrou: com double, {qty} balas de R$ 0,10 viraram {printed}, e o certo era {right}. Nenhum aviso, nenhum erro: só um troco errado que ninguém percebe até o fechamento do caixa não bater.",
+    "calm": "O programa imprimiu {printed} e a conta bate. Para quebrar, guarde o total num double com 3 balas."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o tipo e a quantidade; a cena muda sozinha.",
+      "Um dos tipos conta em binário e não guarda 0,1 exato.",
+      "Escolha double com 3 balas."
+    ],
+    "cmd": [
+      "--tipo e --qtd são opcionais.",
+      "--tipo aceita decimal, double ou int.",
+      "somar --tipo double"
+    ]
+  },
+  "errors": {
+    "notInEnum.kind": "Use decimal, double ou int.",
+    "belowMin.qty": "Pelo menos 1 bala, senão não tem o que somar.",
+    "aboveMax.qty": "Até 20 balas: mais que isso a Dona Cida manda você para o dentista."
+  },
+  "controls": {
+    "arg": "O que está sendo somado",
+    "kind": "Tipo do total",
+    "qty": "Quantas balas de R$ 0,10"
+  },
+  "scene": {
+    "label": "Caixa da cantina",
+    "empty": "Rode para somar as balas.",
+    "printedM": "o programa imprime",
+    "rightM": "o certo seria",
+    "exactM": "conta exata?",
+    "bytesM": "bytes por valor",
+    "yes": "sim",
+    "no": "não",
+    "divLabel": "E se quiser em reais? (duas divisões)",
+    "runLabel": "Terminal",
+    "tableLabel": "Os tipos mais usados",
+    "cType": "tipo",
+    "cBytes": "bytes",
+    "cGood": "bom para",
+    "cTrap": "pegadinha",
+    "gInt": "contar coisas, centavos",
+    "tInt": "7 / 2 dá 3",
+    "gLong": "números enormes, ids",
+    "tLong": "literal precisa de L se passar do int",
+    "gDouble": "medidas, física, gráficos",
+    "tDouble": "0,1 não é exato",
+    "gDecimal": "dinheiro",
+    "tDecimal": "literal precisa de m (0.10m)",
+    "gBool": "sim ou não",
+    "tBool": "não vira número como no JS",
+    "gString": "texto",
+    "tString": "pode ser null (lição 5)",
+    "ref": "referência",
+    "driftNote": "Cada += 0.10 arredonda um pouquinho em binário. Com {qty} balas, o erro já aparece: {printed}.",
+    "luckyNote": "Desta vez o arredondamento escondeu o erro e saiu {printed}. Sorte não é estratégia: com 3 balas, o mesmo código erra.",
+    "decimalNote": "decimal conta em base 10: {qty} × 0,10 é exatamente {right}, e ele até guarda o zero do fim.",
+    "intNote": "Em centavos, a soma é exata: {cents}. Mas cuidado na hora de virar reais: {cents} / 100 dá {intDiv} (divisão inteira), e {cents} / 100m dá {decDiv}."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Instale o .NET SDK (a versão LTS atual, em dotnet.microsoft.com) e confira com dotnet --version. Depois crie o projeto: dotnet new console -o Cantina e entre na pasta: cd Cantina",
+      "Troque todo o conteúdo de Program.cs por:\ndouble totalDouble = 0;\ndecimal totalDecimal = 0;\nfor (int i = 0; i < 3; i++)\n{\n    totalDouble += 0.10;\n    totalDecimal += 0.10m;\n}\nConsole.WriteLine(totalDouble);\nConsole.WriteLine(totalDecimal);\nConsole.WriteLine(7 / 2);\nConsole.WriteLine(7 / 2.0);",
+      "Rode com dotnet run."
+    ],
+    "ok": "aparecem 4 linhas: 0,30000000000000004, 0,30, 3 e 3,5 (com ponto em vez de vírgula se o seu sistema estiver em inglês)."
+  }
+}

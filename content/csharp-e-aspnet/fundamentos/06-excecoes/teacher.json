@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Usar try/catch capturando por tipo.",
+      "Preferir TryParse quando o erro é esperado.",
+      "Reconhecer o perigo do catch vazio."
+    ],
+    "minutes": 20,
+    "activity": "Telefone sem fio do erro: um aluno \"lança\" um bilhete de erro; o próximo pode resolver, passar adiante ou amassar e jogar fora (catch vazio). No fim, perguntem à turma o que a Dona Cida ficou sabendo em cada caso.",
+    "discussion": [
+      "Que erros da cantina são esperados (digitação) e quais são excepcionais (impressora sem papel)?",
+      "Por que um erro escondido pode ser pior que um programa que para?"
+    ],
+    "misconceptions": [
+      "\"Colocar try/catch em tudo deixa o programa mais seguro.\" Capturar sem tratar só esconde o problema e deixa os dados errados."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Use try/catch catching by type.",
+      "Prefer TryParse when the error is expected.",
+      "Recognize the danger of an empty catch."
+    ],
+    "minutes": 20,
+    "activity": "Error telephone game: one student \"throws\" an error note; the next can handle it, pass it on, or crumple it and throw it away (empty catch). At the end, ask the class what Dona Cida found out in each case.",
+    "discussion": [
+      "Which canteen errors are expected (typos) and which are exceptional (printer out of paper)?",
+      "Why can a hidden error be worse than a program that stops?"
+    ],
+    "misconceptions": [
+      "\"Wrapping everything in try/catch makes the program safer.\" Catching without handling only hides the problem and leaves the data wrong."
+    ]
+  }
+}

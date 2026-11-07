@@ -13,7 +13,7 @@
   "tracks": [
     {
       "id": "fundamentos",
-      "status": "soon",
+      "status": "ready",
       "title": {
         "pt": "Fundamentos",
         "en": "Foundations"

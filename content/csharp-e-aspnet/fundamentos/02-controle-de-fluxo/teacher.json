@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Usar if, switch de expressão, for e foreach.",
+      "Entender por que índices vão de 0 a tamanho menos 1.",
+      "Ler um aviso do compilador antes de rodar."
+    ],
+    "minutes": 15,
+    "activity": "Cinco alunos em fila, numerados de 0 a 4. Um \"laço humano\" chama os números em voz alta seguindo for (i = 0; i <= 5…). Quem é chamado e não existe? Repitam com foreach: \"cada um da fila, um passo à frente\".",
+    "discussion": [
+      "Por que o C# prefere quebrar o programa a devolver undefined?",
+      "Quando você precisa do índice e quando o foreach basta?"
+    ],
+    "misconceptions": [
+      "\"Se compilou, está certo.\" O compilador pega o if (x = 5), mas não pega índice fora da lista; isso só aparece rodando (ou num teste)."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Use if, switch expressions, for and foreach.",
+      "Understand why indexes go from 0 to length minus 1.",
+      "Read a compiler warning before running."
+    ],
+    "minutes": 15,
+    "activity": "Five students in line, numbered 0 to 4. A \"human loop\" calls the numbers out loud following for (i = 0; i <= 5…). Who is called and doesn’t exist? Repeat with foreach: \"everyone in line, one step forward\".",
+    "discussion": [
+      "Why does C# prefer crashing the program over returning undefined?",
+      "When do you need the index and when is foreach enough?"
+    ],
+    "misconceptions": [
+      "\"If it compiled, it’s right.\" The compiler catches if (x = 5), but not an index outside the list; that only shows up when running (or in a test)."
+    ]
+  }
+}

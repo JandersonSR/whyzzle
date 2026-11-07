@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Juntar tipos, validação, exceções e testes num problema real.",
+      "Escrever testes para casos de borda (taxa zero, centavos, entrada inválida).",
+      "Justificar decimal para dinheiro."
+    ],
+    "minutes": 30,
+    "activity": "Em grupos, cada um fica com um critério e precisa explicar para a turma, com um exemplo numérico, o que dá errado sem ele. Depois, juntos, escrevam no quadro os quatro testes antes de olhar a receita.",
+    "discussion": [
+      "Qual dos erros seria o mais caro de descobrir só no mês 12 do empréstimo?",
+      "Por que um único teste verde pode dar uma falsa sensação de segurança?"
+    ],
+    "misconceptions": [
+      "\"Se o teste passou, a calculadora está certa.\" O teste só prova os casos que ele cobre; taxa zero e centavos precisam dos seus próprios testes."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Combine types, validation, exceptions and tests in a real problem.",
+      "Write tests for edge cases (zero rate, cents, invalid input).",
+      "Justify decimal for money."
+    ],
+    "minutes": 30,
+    "activity": "In groups, each takes one criterion and must explain to the class, with a numeric example, what goes wrong without it. Then, together, write the four tests on the board before looking at the recipe.",
+    "discussion": [
+      "Which mistake would be the most expensive to discover only in month 12 of the loan?",
+      "Why can a single green test give a false sense of safety?"
+    ],
+    "misconceptions": [
+      "\"If the test passed, the calculator is right.\" A test only proves the cases it covers; zero rate and cents need their own tests."
+    ]
+  }
+}

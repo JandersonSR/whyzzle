@@ -1,0 +1,85 @@
+{
+  "title": "Collections and LINQ",
+  "subtitle": "The query that only works when someone asks, and works again every time you ask",
+  "mission": "Dona Cida keeps the menu in a List and wants the snacks under R$ 5. With LINQ, that’s a Where (filters) followed by a Select (takes the name). To see when each part runs, each one writes to the terminal. Find out in what order the lines show up and what changes with ToList, with a Count() before the foreach and with popcorn (Pipoca) added to the menu afterwards. The code keeps the Portuguese names: lanches = snacks, baratos = cheap ones, mostra = show.",
+  "predict": {
+    "question": "without ToList, in what order do the where, select and mostra lines appear?",
+    "options": {
+      "batch": "All the wheres, then all the selects, then all the mostras",
+      "interleaved": "One snack at a time: where, select and mostra for that snack, then the next",
+      "nothing": "Nothing shows up: the query never runs without ToList"
+    }
+  },
+  "feedback": {
+    "right": "right: Where and Select do nothing at the moment you write them. When the foreach asks for the next item, the query pulls one snack, filters it, transforms it and hands it over. One at a time, like a conveyor belt.",
+    "wrong": "it’s one at a time. LINQ over lists uses deferred execution: the query is a recipe, and what runs it is the foreach, asking item by item. That’s why where, select and mostra interleave.",
+    "skipped": "no guess? Run query and read the terminal top to bottom."
+  },
+  "coach": {
+    "ui": "guess noted. Read the terminal top to bottom. Then switch the mode to tolist and compare.",
+    "cmd": "guess noted. Run query and then query --mode tolist."
+  },
+  "tryNext": {
+    "ui": "Turn popcorn on in deferred mode: it was added after the query and still shows up. Then try it in tolist mode.",
+    "cmd": "Run query --popcorn yes and look for Pipoca in the terminal."
+  },
+  "why": {
+    "simples": "A List is a line of things of the same type that grows when you add to it. LINQ is a way to ask that list questions: \"which ones cost less than 5?\" (Where) and \"just give me the name\" (Select).\nThe trick: writing the question doesn’t answer it. It’s like leaving a note for the kitchen: \"set aside the cheap snacks\". Nothing happens until someone goes to fetch them. And if two people go, the kitchen sorts them out twice. If you want a stored answer, take a photo: that’s ToList.",
+    "dev": "For JS folks: arr.filter(...).map(...) builds new arrays right away; in C#, list.Where(...).Select(...) returns a lazy IEnumerable<T>, closer to a generator. Where, Select, OrderBy, Take and friends are deferred; ToList, ToArray, Count, First, Sum, Any and the foreach itself execute.\nPractical consequences: each execution walks the source again (Count() then foreach = two trips), and changes to the list before execution show up in the result. Materialize with ToList() when you’ll use the result more than once or need a \"snapshot\" of that moment. Everyday collections: List<T> (growable list), Dictionary<TKey,TValue> (lookup by key), HashSet<T> (no duplicates) and arrays (fixed size).",
+    "especialista": "Deferred execution becomes a serious problem with IQueryable (Entity Framework Core): the query is translated to SQL and each enumeration is a trip to the database. A Count() followed by a foreach is two queries; a query enumerated inside a loop is the famous N+1. Rule CA1851 (possible multiple enumerations of IEnumerable) can be turned on in the project to warn you.\nOperators also differ in \"how much\" they defer: Where and Select stream (one item at a time), while OrderBy and GroupBy must read the whole source on the first MoveNext. Lambdas with side effects, like the ones here, are great for learning and terrible in production: the effect happens again on every enumeration. And changing the List while a foreach walks it throws InvalidOperationException; materialize first or walk a copy."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: in deferred mode, turn on \"count first\".",
+      "cmd": "time to break it: run query --count yes"
+    },
+    "success": "Broken: the query ran {runs} times. The where was called {whereN} times for {items} snacks, because Count() and the foreach each filtered from scratch. On a list it’s just waste; on a database it would be {runs} queries.",
+    "calm": "The query ran {runs} time: {whereN} where calls and {selectN} select calls, {shown} snacks shown. To break it, count before the foreach in deferred mode."
+  },
+  "hints": {
+    "ui": [
+      "Change the mode and the two switches; the terminal shows each call.",
+      "Each execution of a deferred query walks the list from the start.",
+      "In deferred mode, turn on \"count first\"."
+    ],
+    "cmd": [
+      "--mode, --count and --popcorn are optional.",
+      "--mode takes deferred or tolist; --count and --popcorn take yes or no.",
+      "query --count yes"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Use deferred or tolist.",
+    "notBool.countFirst": "Use yes or no.",
+    "notBool.late": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Question",
+    "mode": "Query mode",
+    "countFirst": "Count before the foreach (Count())",
+    "late": "Add popcorn after the query"
+  },
+  "scene": {
+    "label": "Canteen menu",
+    "empty": "Run the query.",
+    "runsM": "times the query ran",
+    "whereM": "where calls",
+    "selectM": "select calls",
+    "shownM": "snacks shown",
+    "runLabel": "Terminal",
+    "deferredNote": "Deferred execution: the foreach asked for one item at a time, and each snack went through where and select right before being shown.",
+    "twiceNote": "Count() ran the whole query just to count, and the foreach ran it again: {whereN} where calls for {items} snacks.",
+    "tolistNote": "With ToList, the query runs once right away, stores the result in a new list, and the foreach just reads that list.",
+    "lateNote": "Pipoca joined the menu after the query was written and still showed up: the query reads the list when it runs.",
+    "lateListNote": "With ToList the snapshot was taken before Pipoca arrived, so it doesn’t show up."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Create the project (if you haven’t yet): dotnet new console -o Cantina and go into Cantina.",
+      "Replace Program.cs with:\nvar lanches = new List<Lanche>\n{\n    new(\"Coxinha\", 6m),\n    new(\"Suco\", 4m),\n    new(\"Bolo\", 7m),\n    new(\"Pão de queijo\", 3m),\n};\n\nvar baratos = lanches\n    .Where(l =>\n    {\n        Console.WriteLine($\"  where  {l.Nome}\");\n        return l.Preco < 5m;\n    })\n    .Select(l =>\n    {\n        Console.WriteLine($\"  select {l.Nome}\");\n        return l.Nome;\n    });\n\nlanches.Add(new(\"Pipoca\", 3m));\nConsole.WriteLine($\"total: {baratos.Count()}\");\nforeach (var nome in baratos)\n{\n    Console.WriteLine($\"mostra {nome}\");\n}\n\nrecord Lanche(string Nome, decimal Preco);",
+      "Run dotnet run. Then change the Select’s \"    });\" to \"    })\" plus a new line \"    .ToList();\", and run again."
+    ],
+    "ok": "the first time where shows up twice for each snack (once for Count, once for the foreach), Pipoca shows up and the total is 3; with ToList, each where shows up only once, the total is 2 and Pipoca is gone."
+  }
+}

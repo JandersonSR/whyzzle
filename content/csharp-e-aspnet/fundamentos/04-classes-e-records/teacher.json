@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Diferenciar class e record.",
+      "Explicar referência: duas variáveis, um objeto.",
+      "Usar with para copiar com mudança."
+    ],
+    "minutes": 20,
+    "activity": "Dois alunos recebem o mesmo \"endereço\" num papel (o número de uma carteira). Um deles coloca um estojo na carteira. O outro vai lá e encontra o estojo. Depois façam o mesmo com uma ficha de pedido fotocopiada (record com with): rabiscar a cópia não muda o original.",
+    "discussion": [
+      "Que coisas da escola têm identidade (um aluno) e quais são só dados (uma nota de 8,5)?",
+      "Quando comparar pelo conteúdo pode enganar?"
+    ],
+    "misconceptions": [
+      "\"var b = a faz uma cópia.\" Para class, copia só a referência; os dois nomes apontam para o mesmo objeto.",
+      "\"record é tipo de valor.\" record (record class) é de referência com igualdade por valor; record struct é que é tipo de valor."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell class from record.",
+      "Explain references: two variables, one object.",
+      "Use with to copy with a change."
+    ],
+    "minutes": 20,
+    "activity": "Two students get the same \"address\" on paper (a desk number). One puts a pencil case on the desk. The other goes there and finds the pencil case. Then do the same with a photocopied order slip (record with with): scribbling on the copy doesn’t change the original.",
+    "discussion": [
+      "Which school things have identity (a student) and which are just data (a grade of 8.5)?",
+      "When can comparing by content be misleading?"
+    ],
+    "misconceptions": [
+      "\"var b = a makes a copy.\" For a class it copies only the reference; both names point to the same object.",
+      "\"A record is a value type.\" A record (record class) is a reference type with value equality; record struct is the value type."
+    ]
+  }
+}

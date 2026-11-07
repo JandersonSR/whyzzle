@@ -1,0 +1,427 @@
+{
+  "id": "cs-tipos-e-variaveis",
+  "order": 1,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "csharp",
+    "tipos",
+    "decimal",
+    "double",
+    "int"
+  ],
+  "requires": [],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "somar",
+      "en": "add"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "balas de R$ 0,10",
+        "en": "R$ 0.10 candies"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "kind",
+        "alias": {
+          "pt": "tipo",
+          "en": "type"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "decimal",
+            "pt": "decimal",
+            "en": "decimal"
+          },
+          {
+            "id": "double",
+            "pt": "double",
+            "en": "double"
+          },
+          {
+            "id": "int",
+            "pt": "int",
+            "en": "int"
+          }
+        ],
+        "default": "decimal",
+        "ui": "select"
+      },
+      {
+        "name": "qty",
+        "alias": {
+          "pt": "qtd",
+          "en": "qty"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 20,
+        "default": 3,
+        "ui": "slider"
+      }
+    ]
+  },
+  "break": {
+    "flag": "moneyDrift"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "dbl": {
+          "pt": {
+            "1": "0,1",
+            "2": "0,2",
+            "3": "0,30000000000000004",
+            "4": "0,4",
+            "5": "0,5",
+            "6": "0,6",
+            "7": "0,7",
+            "8": "0,7999999999999999",
+            "9": "0,8999999999999999",
+            "10": "0,9999999999999999",
+            "11": "1,0999999999999999",
+            "12": "1,2",
+            "13": "1,3",
+            "14": "1,4000000000000001",
+            "15": "1,5000000000000002",
+            "16": "1,6000000000000003",
+            "17": "1,7000000000000004",
+            "18": "1,8000000000000005",
+            "19": "1,9000000000000006",
+            "20": "2,0000000000000004"
+          },
+          "en": {
+            "1": "0.1",
+            "2": "0.2",
+            "3": "0.30000000000000004",
+            "4": "0.4",
+            "5": "0.5",
+            "6": "0.6",
+            "7": "0.7",
+            "8": "0.7999999999999999",
+            "9": "0.8999999999999999",
+            "10": "0.9999999999999999",
+            "11": "1.0999999999999999",
+            "12": "1.2",
+            "13": "1.3",
+            "14": "1.4000000000000001",
+            "15": "1.5000000000000002",
+            "16": "1.6000000000000003",
+            "17": "1.7000000000000004",
+            "18": "1.8000000000000005",
+            "19": "1.9000000000000006",
+            "20": "2.0000000000000004"
+          }
+        },
+        "dblExact": {
+          "1": true,
+          "2": true,
+          "3": false,
+          "4": true,
+          "5": true,
+          "6": true,
+          "7": true,
+          "8": false,
+          "9": false,
+          "10": false,
+          "11": false,
+          "12": true,
+          "13": true,
+          "14": false,
+          "15": false,
+          "16": false,
+          "17": false,
+          "18": false,
+          "19": false,
+          "20": false
+        },
+        "dec": {
+          "pt": {
+            "1": "0,10",
+            "2": "0,20",
+            "3": "0,30",
+            "4": "0,40",
+            "5": "0,50",
+            "6": "0,60",
+            "7": "0,70",
+            "8": "0,80",
+            "9": "0,90",
+            "10": "1,00",
+            "11": "1,10",
+            "12": "1,20",
+            "13": "1,30",
+            "14": "1,40",
+            "15": "1,50",
+            "16": "1,60",
+            "17": "1,70",
+            "18": "1,80",
+            "19": "1,90",
+            "20": "2,00"
+          },
+          "en": {
+            "1": "0.10",
+            "2": "0.20",
+            "3": "0.30",
+            "4": "0.40",
+            "5": "0.50",
+            "6": "0.60",
+            "7": "0.70",
+            "8": "0.80",
+            "9": "0.90",
+            "10": "1.00",
+            "11": "1.10",
+            "12": "1.20",
+            "13": "1.30",
+            "14": "1.40",
+            "15": "1.50",
+            "16": "1.60",
+            "17": "1.70",
+            "18": "1.80",
+            "19": "1.90",
+            "20": "2.00"
+          }
+        },
+        "decDiv": {
+          "pt": {
+            "1": "0,1",
+            "2": "0,2",
+            "3": "0,3",
+            "4": "0,4",
+            "5": "0,5",
+            "6": "0,6",
+            "7": "0,7",
+            "8": "0,8",
+            "9": "0,9",
+            "10": "1",
+            "11": "1,1",
+            "12": "1,2",
+            "13": "1,3",
+            "14": "1,4",
+            "15": "1,5",
+            "16": "1,6",
+            "17": "1,7",
+            "18": "1,8",
+            "19": "1,9",
+            "20": "2"
+          },
+          "en": {
+            "1": "0.1",
+            "2": "0.2",
+            "3": "0.3",
+            "4": "0.4",
+            "5": "0.5",
+            "6": "0.6",
+            "7": "0.7",
+            "8": "0.8",
+            "9": "0.9",
+            "10": "1",
+            "11": "1.1",
+            "12": "1.2",
+            "13": "1.3",
+            "14": "1.4",
+            "15": "1.5",
+            "16": "1.6",
+            "17": "1.7",
+            "18": "1.8",
+            "19": "1.9",
+            "20": "2"
+          }
+        }
+      },
+      "compute": {
+        "key": "str(qty)",
+        "isDouble": "kind == 'double'",
+        "isInt": "kind == 'int'",
+        "cents": "qty * 10",
+        "rightText": "lookup(lang == 'pt' ? dec.pt : dec.en, key, '')",
+        "printed": "isDouble ? lookup(lang == 'pt' ? dbl.pt : dbl.en, key, '') : (isInt ? str(cents) : rightText)",
+        "exact": "!isDouble || lookup(dblExact, key, false)",
+        "intDiv": "floor(cents / 100)",
+        "decDivText": "lookup(lang == 'pt' ? decDiv.pt : decDiv.en, key, '')",
+        "bytes": "kind == 'decimal' ? 16 : (isDouble ? 8 : 4)",
+        "litType": "kind == 'decimal' ? 'decimal total = 0;' : (isDouble ? 'double total = 0;' : 'int totalCentavos = 0;')",
+        "litAdd": "kind == 'decimal' ? '    total += 0.10m;' : (isDouble ? '    total += 0.10;' : '    totalCentavos += 10;')"
+      },
+      "cases": [
+        {
+          "when": "isDouble && !exact",
+          "flags": [
+            "moneyDrift"
+          ]
+        },
+        {
+          "when": "isDouble && exact",
+          "flags": [
+            "luckyDouble"
+          ]
+        },
+        {
+          "when": "isInt",
+          "flags": [
+            "inCents"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "printed": "printed",
+            "right": "rightText",
+            "qty": "qty",
+            "bytes": "bytes",
+            "cents": "cents",
+            "intDiv": "intDiv",
+            "decDiv": "decDivText"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@printedM",
+              "value": "=printed",
+              "tone": "=exact ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@rightM",
+              "value": "='R$ ' + rightText",
+              "tone": "info"
+            },
+            {
+              "label": "@exactM",
+              "value": "=exact ? '@yes' : '@no'",
+              "tone": "=exact ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@bytesM",
+              "value": "=bytes",
+              "format": "int",
+              "tone": "dim"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "Program.cs",
+          "lines": [
+            "=litType",
+            "='for (int i = 0; i < ' + qty + '; i++)'",
+            "{",
+            "=litAdd",
+            "}",
+            "=isInt ? 'Console.WriteLine(totalCentavos);' : 'Console.WriteLine(total);'"
+          ]
+        },
+        {
+          "type": "terminal",
+          "when": "=isInt",
+          "label": "@divLabel",
+          "lines": [
+            "Console.WriteLine(totalCentavos / 100);",
+            "Console.WriteLine(totalCentavos / 100m);"
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@runLabel",
+          "lines": "=concat(['$ dotnet run'], [(exact ? '+' : '!') + printed], isInt ? ['?' + intDiv, '+' + decDivText] : [])"
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@cType",
+            "@cBytes",
+            "@cGood",
+            "@cTrap"
+          ],
+          "rows": [
+            [
+              "int",
+              4,
+              "@gInt",
+              "@tInt"
+            ],
+            [
+              "long",
+              8,
+              "@gLong",
+              "@tLong"
+            ],
+            [
+              "double",
+              8,
+              "@gDouble",
+              "@tDouble"
+            ],
+            [
+              "decimal",
+              16,
+              "@gDecimal",
+              "@tDecimal"
+            ],
+            [
+              "bool",
+              1,
+              "@gBool",
+              "@tBool"
+            ],
+            [
+              "string",
+              "@ref",
+              "@gString",
+              "@tString"
+            ]
+          ],
+          "tones": "=[isInt ? 'info' : 'neutral', 'neutral', isDouble ? (exact ? 'warn' : 'bad') : 'neutral', kind == 'decimal' ? 'ok' : 'neutral', 'neutral', 'neutral']"
+        },
+        {
+          "type": "note",
+          "when": "=isDouble && !exact",
+          "tone": "bad",
+          "text": "@driftNote"
+        },
+        {
+          "type": "note",
+          "when": "=isDouble && exact",
+          "tone": "warn",
+          "text": "@luckyNote"
+        },
+        {
+          "type": "note",
+          "when": "=kind == 'decimal'",
+          "tone": "ok",
+          "text": "@decimalNote"
+        },
+        {
+          "type": "note",
+          "when": "=isInt",
+          "tone": "info",
+          "text": "@intNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "exact",
+      "drift",
+      "error"
+    ],
+    "answer": "drift"
+  }
+}

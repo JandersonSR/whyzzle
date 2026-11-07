@@ -1,0 +1,101 @@
+{
+  "title": "Nulabilidade",
+  "subtitle": "O aluno sem apelido, o ponto que explode e o compilador que avisa antes",
+  "mission": "O caixa cumprimenta cada aluno e grita o apelido em maiúsculas. Só que nem todo mundo tem apelido: aí o valor é null, que quer dizer \"nada aqui\". Escolha como o código acessa o apelido (ponto, ?., ?? ou !), ligue ou desligue a checagem de nulos do projeto e veja quem avisa e quem explode.",
+  "predict": {
+    "question": "com <Nullable>enable</Nullable> (o padrão do dotnet new) e string? Apelido, o que acontece ao compilar aluno.Apelido.ToUpper()?",
+    "options": {
+      "error": "Não compila",
+      "warning": "Compila, mas com um aviso (CS8602)",
+      "nothing": "Compila sem aviso nenhum"
+    }
+  },
+  "feedback": {
+    "right": "isso: o compilador sabe que string? pode ser null e avisa com CS8602 (\"possível referência nula\"). Mas é só aviso: o programa compila e, se o apelido for mesmo null, explode rodando.",
+    "wrong": "compila com o aviso CS8602. Os tipos anuláveis de referência são uma análise do compilador: ele avisa, mas não impede. Por padrão, aviso não barra a compilação.",
+    "skipped": "sem palpite? Rode cumprimentar --acesso ponto e olhe a linha amarela do terminal."
+  },
+  "coach": {
+    "ui": "palpite anotado. Troque o acesso para \"ponto\" e olhe o terminal. Depois tente \"exclamacao\".",
+    "cmd": "palpite anotado. Rode cumprimentar --acesso ponto e depois cumprimentar --acesso exclamacao."
+  },
+  "tryNext": {
+    "ui": "Agora use \"ponto\" com um aluno que tem apelido: funciona e grita TATÁ, mas o aviso continua. O aviso fala do dia em que vier alguém sem apelido.",
+    "cmd": "Rode cumprimentar --acesso ponto --tem-apelido sim e repare que o aviso não some."
+  },
+  "why": {
+    "simples": "null é uma caixa vazia. Pedir \"o apelido em maiúsculas\" de uma caixa vazia é como pedir para alguém ler um papel que não existe: o programa para com NullReferenceException, o erro mais famoso do mundo .NET.\nO C# moderno ajuda: quando você escreve string? (com interrogação), está dizendo \"aqui pode não ter nada\". O compilador passa a vigiar e avisa se você usar sem conferir. Três jeitos seguros de conferir: ?. (\"se tiver, faça\"), ?? (\"se não tiver, use este outro\") ou um if. E um jeito de mentir: ! (\"confia, tem sim\"). Mentir para o compilador cala o aviso, mas não enche a caixa.",
+    "dev": "Para quem vem do TypeScript: <Nullable>enable</Nullable> é parecido com strictNullChecks. string é \"não nulo\" e string? é \"pode ser nulo\"; ?. e ?? funcionam igual ao TS, e ! é o mesmo operador de \"non-null assertion\". Os projetos criados com dotnet new já vêm com Nullable ligado.\nDiferenças importantes: no C# são avisos, não erros (CS8602 ao desreferenciar, CS8600 ao jogar um possível null numa variável não anulável, CS8618 para propriedade não anulável sem valor, CS8625 ao passar null para um parâmetro não anulável), e não há checagem em tempo de execução. Para barrar a compilação, use <WarningsAsErrors>nullable</WarningsAsErrors>. Para validar entrada pública, use ArgumentNullException.ThrowIfNull(x).",
+    "especialista": "Os tipos anuláveis de referência são só anotação e análise de fluxo: string e string? são o mesmo tipo em tempo de execução, então uma biblioteca antiga, um JSON desserializado ou reflection podem entregar null num string \"não nulo\". Nas bordas do sistema (APIs, banco, arquivos), valide de verdade.\nA análise entende ifs, is null, ?? e retornos antecipados, e você pode ensinar o compilador com atributos como [NotNullWhen(true)] (o padrão do TryParse), [MaybeNull] e [MemberNotNull]. Em DTOs, prefira membros required (C# 11) a \"= null!\": assim quem cria o objeto é obrigado a preencher. Não confunda com int? (Nullable<int>), que é um tipo de valor de verdade, com HasValue e Value, checado em tempo de execução. Migrando um projeto grande, ligue por arquivo com #nullable enable e avance aos poucos."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: acesse o apelido com \"exclamacao\", sem apelido.",
+      "cmd": "hora de quebrar: rode cumprimentar --acesso exclamacao"
+    },
+    "success": "Quebrou: NullReferenceException na linha 3. {how} O {name} foi cumprimentado e o caixa travou no apelido que não existia.",
+    "calm": "Nada explodiu: o apelido foi lido com segurança. Para quebrar, use ! num aluno sem apelido."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o acesso, a checagem do projeto e se o aluno tem apelido.",
+      "Dois acessos não conferem se tem alguma coisa na caixa.",
+      "Escolha \"exclamacao\" com o aluno sem apelido."
+    ],
+    "cmd": [
+      "O nome do aluno vai entre aspas; --acesso, --nullable e --tem-apelido são opcionais.",
+      "--acesso aceita ponto, interrogacao, padrao ou exclamacao.",
+      "cumprimentar --acesso exclamacao"
+    ]
+  },
+  "errors": {
+    "notInEnum.access": "Use ponto, interrogacao, padrao ou exclamacao.",
+    "notInEnum.nullable": "Use enable ou disable.",
+    "notBool.hasNick": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Nome do aluno",
+    "access": "Como ler o apelido",
+    "nullable": "Checagem de nulos no projeto",
+    "hasNick": "O aluno tem apelido"
+  },
+  "scene": {
+    "label": "Cumprimentos do caixa",
+    "empty": "Rode para cumprimentar.",
+    "warnM": "aviso do compilador",
+    "runM": "rodando",
+    "nickM": "apelido",
+    "none": "nenhum",
+    "ok": "ok",
+    "projLabel": "Cantina.csproj (trecho)",
+    "runLabel": "Terminal",
+    "flowLabel": "Quem pegou o problema",
+    "fCompile": "compilador",
+    "fRun": "execução",
+    "sWarn": "avisou: CS8602",
+    "sSilenced": "calado pelo !",
+    "sClean": "nada a avisar",
+    "sOff": "checagem desligada",
+    "sBoom": "explodiu",
+    "sFine": "tudo certo",
+    "crashWarnedNote": "O compilador avisou (CS8602) e o aviso foi ignorado. Sem apelido, o ponto explodiu.",
+    "crashBangNote": "O ! disse ao compilador \"confia, não é null\". Ele confiou, ficou quieto, e a execução explodiu do mesmo jeito.",
+    "crashOffNote": "Com Nullable desligado, o compilador nem sabe que o apelido pode faltar: zero aviso e a mesma explosão.",
+    "luckyNote": "Desta vez tinha apelido e deu certo, mas o aviso continua: o código não está preparado para o aluno sem apelido.",
+    "blankNote": "Com ?., sem apelido o resultado é null e o WriteLine imprime uma linha em branco. Não explode, mas também não diz nada.",
+    "coalesceNote": "?. evita a explosão e ?? troca o vazio por um texto padrão. Seguro e claro."
+  },
+  "data": {
+    "howWarned": "O compilador tinha avisado (CS8602), e o aviso ficou para trás.",
+    "howBang": "O ! calou o compilador, mas não colocou apelido nenhum na caixa.",
+    "howOff": "Com a checagem de nulos desligada, ninguém avisou nada."
+  },
+  "recipe": {
+    "steps": [
+      "Crie o projeto (se ainda não criou): dotnet new console -o Cantina e entre em Cantina. Abra Cantina.csproj e confira a linha <Nullable>enable</Nullable>.",
+      "Troque Program.cs por:\nvar aluno = new Aluno(\"Bia\", null);\nConsole.WriteLine($\"Oi, {aluno.Nome}!\");\nConsole.WriteLine(aluno.Apelido.ToUpper());\n\nrecord Aluno(string Nome, string? Apelido);",
+      "Rode dotnet run. Depois troque a linha 3 por Console.WriteLine(aluno.Apelido?.ToUpper() ?? \"(sem apelido)\"); e rode de novo."
+    ],
+    "ok": "na primeira vez aparecem o aviso CS8602, \"Oi, Bia!\" e uma NullReferenceException (o texto pode vir traduzido, conforme o idioma do seu SDK); na segunda, \"Oi, Bia!\" e \"(sem apelido)\", sem aviso."
+  }
+}

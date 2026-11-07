@@ -1,0 +1,89 @@
+{
+  "title": "Classes and records",
+  "subtitle": "Are two identical orders the same order? And if I copy one and change the copy, does the original change?",
+  "mission": "Ana ordered a coxinha (a Brazilian savory snack). Her friend wants \"the same order, but with cake (Bolo)\". The till copies Ana’s order and changes the snack. Choose whether Pedido (order) is a class or a record, and whether the copy is made with with or a plain equals sign, and see what happens to Ana’s order.",
+  "predict": {
+    "question": "with a record, two orders created separately with the same data (\"Ana\", \"Coxinha\"): a == outro gives…",
+    "options": {
+      "true": "True: same data, same order",
+      "false": "False: they’re two different objects",
+      "error": "Error: you can’t compare objects with =="
+    }
+  },
+  "feedback": {
+    "right": "right! A record compares by content: the compiler generates Equals, GetHashCode and == to look field by field. In a class, == asks \"is it the same object?\", and that would give False.",
+    "wrong": "it’s True. A record compares by content (value equality). The one comparing by identity, \"is it the same object in memory?\", is the class: there the same test would give False.",
+    "skipped": "no guess? Run copy and look at the last terminal line; then try --kind class --copy assign."
+  },
+  "coach": {
+    "ui": "guess noted. Look at the last terminal line. Then switch to class and assign copy.",
+    "cmd": "guess noted. Run copy and then copy --kind class --copy assign."
+  },
+  "tryNext": {
+    "ui": "Pick class with with: it doesn’t compile (CS8858). with belongs to records (and structs); classes don’t get copying for free.",
+    "cmd": "Run copy --kind class and read error CS8858."
+  },
+  "why": {
+    "simples": "A class is a house blueprint: you build objects with it. The variable doesn’t hold the house, it holds the address. If you write var b = a, you now have two slips of paper with the same address: painting \"b’s\" house paints \"a’s\" house, because it’s the same house.\nA record is made to hold data, like an order slip. It comes ready to compare by content (two slips with the same text are equal) and, instead of scribbling on the slip, you make a copy with one change: a with { Lanche = \"Bolo\" }. Ana’s slip stays intact.",
+    "dev": "In JS, objects are by reference too: const b = a; b.snack = \"Cake\" changes a, and {...a, snack: \"Cake\"} is the shallow copy. In C#, record Pedido(string Aluno, string Lanche); declares in one line a type with a constructor, init properties (settable only at creation), a readable ToString, value-based Equals/GetHashCode and support for with, which is C#’s \"spread\".\nUse class for things with identity and behavior that change over time (a service, an account with a balance) and record for data: API DTOs, messages, domain values. Careful: a record class is still a reference type (== compares values, but the variable still holds a reference); a record struct is a value type.",
+    "especialista": "with makes a shallow copy: if the record has a List<string> Itens, the original and the copy now share the same list, and adding an item to one shows up in the other. For real immutability, use immutable collections (ImmutableList, or an IReadOnlyList filled with a copy) and remember the generated equality compares the list’s reference, not its contents.\nRecord equality also considers the runtime type (EqualityContract): a derived record is never equal to its base, even with the same fields. Records work well as Dictionary and HashSet keys because GetHashCode follows the fields, as long as nothing changes after insertion. And the class primary constructor (C# 12), used here, only creates parameters: you decide whether they become properties and whether they can change."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick class and assign copy.",
+      "cmd": "time to break it: run copy --kind class --copy assign"
+    },
+    "success": "Broken: b = a copied only the address. Changing the \"copy’s\" snack changed Ana’s, who will now get {aText} without ordering it. And a == outro gave {equal}: with a class, same content doesn’t mean same order.",
+    "calm": "Ana’s order is still {aText}. To break it, use a class and copy with a plain equals sign."
+  },
+  "hints": {
+    "ui": [
+      "Pick Pedido’s kind and how to copy it.",
+      "With a class, the variable holds an address.",
+      "Pick class and assign copy."
+    ],
+    "cmd": [
+      "--kind and --copy are optional.",
+      "--kind takes record or class; --copy takes with or assign.",
+      "copy --kind class --copy assign"
+    ]
+  },
+  "errors": {
+    "notInEnum.kind": "Use record or class.",
+    "notInEnum.copy": "Use with or assign."
+  },
+  "controls": {
+    "arg": "Order",
+    "kind": "Pedido is a…",
+    "copy": "How to copy"
+  },
+  "scene": {
+    "label": "Canteen orders",
+    "empty": "Run to copy the order.",
+    "buildM": "build",
+    "ok": "ok",
+    "fail": "failed",
+    "aM": "Ana’s snack at the end",
+    "eqM": "a == outro",
+    "runLabel": "Terminal",
+    "memLabel": "Memory: who points to which object",
+    "cVar": "variable",
+    "cObj": "object",
+    "cLanche": "Lanche",
+    "capAlias": "a and b point to the same object #1",
+    "capRecord": "three objects; a and outro are equal by content",
+    "aliasNote": "b isn’t a copy: it’s another name for the same order. Touch b, you touch a.",
+    "recordNote": "with created a new order (#2) with only the snack changed; Ana’s stayed intact. And a == outro compares content.",
+    "initNote": "A positional record’s properties are init: they can only be set at creation. To \"change\" one, make a copy with with.",
+    "withNote": "with only works with records, structs and anonymous types. In a class, you’d have to write the copy by hand."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Create the project (if you haven’t yet): dotnet new console -o Cantina and go into Cantina.",
+      "Replace Program.cs with:\nvar a = new Pedido(\"Ana\", \"Coxinha\");\nvar b = a;\nb.Lanche = \"Bolo\";\nvar outro = new Pedido(\"Ana\", \"Coxinha\");\n\nConsole.WriteLine($\"a: {a.Lanche}, b: {b.Lanche}\");\nConsole.WriteLine(a == outro);\n\nclass Pedido(string aluno, string lanche)\n{\n    public string Aluno { get; set; } = aluno;\n    public string Lanche { get; set; } = lanche;\n}",
+      "Run dotnet run. Then replace the class with the line record Pedido(string Aluno, string Lanche); and the two b lines with var b = a with { Lanche = \"Bolo\" }; and run again."
+    ],
+    "ok": "with the class you see \"a: Bolo, b: Bolo\" and False; with the record you see \"a: Coxinha, b: Bolo\" and True."
+  }
+}

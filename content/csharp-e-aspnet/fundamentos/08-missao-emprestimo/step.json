@@ -1,0 +1,296 @@
+{
+  "id": "cs-missao-emprestimo",
+  "order": 8,
+  "track": "fundamentos",
+  "kind": "mission",
+  "minutes": 30,
+  "tags": [
+    "missao",
+    "csharp",
+    "decimal",
+    "testes",
+    "xunit",
+    "validacao"
+  ],
+  "requires": [
+    "cs-tipos-e-variaveis",
+    "cs-excecoes",
+    "cs-nulabilidade"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "calcular",
+      "en": "calculate"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "máquina de suco nova",
+        "en": "new juice machine"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "money",
+        "alias": {
+          "pt": "dinheiro",
+          "en": "money"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "double",
+            "pt": "double",
+            "en": "double"
+          },
+          {
+            "id": "decimal",
+            "pt": "decimal",
+            "en": "decimal"
+          }
+        ],
+        "default": "double",
+        "ui": "select"
+      },
+      {
+        "name": "rate",
+        "alias": {
+          "pt": "taxa",
+          "en": "rate"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "int",
+            "pt": "inteira",
+            "en": "int"
+          },
+          {
+            "id": "decimal",
+            "pt": "decimal",
+            "en": "decimal"
+          }
+        ],
+        "default": "int",
+        "ui": "select"
+      },
+      {
+        "name": "zeroRate",
+        "alias": {
+          "pt": "taxa-zero",
+          "en": "zero-rate"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "cents",
+        "alias": {
+          "pt": "centavos",
+          "en": "cents"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "validate",
+        "alias": {
+          "pt": "validar",
+          "en": "validate"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "errors",
+        "alias": {
+          "pt": "erros",
+          "en": "errors"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "swallow",
+            "pt": "engolir",
+            "en": "swallow"
+          },
+          {
+            "id": "throw",
+            "pt": "lancar",
+            "en": "throw"
+          }
+        ],
+        "default": "swallow",
+        "ui": "select"
+      },
+      {
+        "name": "tests",
+        "alias": {
+          "pt": "testes",
+          "en": "tests"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "basic",
+            "pt": "basico",
+            "en": "basic"
+          },
+          {
+            "id": "zero",
+            "pt": "taxa-zero",
+            "en": "zero-rate"
+          },
+          {
+            "id": "cents",
+            "pt": "centavos",
+            "en": "cents"
+          },
+          {
+            "id": "invalid",
+            "pt": "invalido",
+            "en": "invalid"
+          }
+        ],
+        "default": [
+          "basic"
+        ],
+        "ui": "checkboxes"
+      }
+    ]
+  },
+  "break": {
+    "flag": "passed"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "compute": {
+        "isDec": "money == 'decimal'",
+        "rateOk": "rate == 'decimal'",
+        "swallowing": "errors == 'swallow'",
+        "tB": "includes(tests, 'basic')",
+        "tZ": "includes(tests, 'zero')",
+        "tC": "includes(tests, 'cents')",
+        "tI": "includes(tests, 'invalid')",
+        "pB": "rateOk && cents",
+        "pZ": "zeroRate",
+        "pC": "zeroRate && cents && isDec",
+        "pI": "validate && !swallowing",
+        "allTests": "tB && tZ && tC && tI",
+        "selN": "(tB ? 1 : 0) + (tZ ? 1 : 0) + (tC ? 1 : 0) + (tI ? 1 : 0)",
+        "passN": "(tB && pB ? 1 : 0) + (tZ && pZ ? 1 : 0) + (tC && pC ? 1 : 0) + (tI && pI ? 1 : 0)",
+        "k1": "isDec",
+        "k2": "rateOk",
+        "k3": "zeroRate",
+        "k4": "cents",
+        "k5": "validate && !swallowing",
+        "k6": "allTests && pB && pZ && pC && pI",
+        "done": "(k1 ? 1 : 0) + (k2 ? 1 : 0) + (k3 ? 1 : 0) + (k4 ? 1 : 0) + (k5 ? 1 : 0) + (k6 ? 1 : 0)",
+        "T": "isDec ? 'decimal' : 'double'",
+        "ind": "swallowing ? '        ' : '    '",
+        "divZero": "isDec ? (swallowing ? '@vEmpty' : '@vDiv0') : '@vNaN'",
+        "basicKey": "!rateOk ? (zeroRate ? (cents ? '@v8333' : '@v8333raw') : divZero) : (cents ? '@v9456' : '@v9456raw')",
+        "lastKey": "!zeroRate ? divZero : (!cents ? (isDec ? '@v333dec' : '@v333dbl') : (isDec ? '@v33334' : '@v33334dbl'))",
+        "bLine": "pB ? '@okB' : (!rateOk ? (zeroRate ? '@failB8333' : (isDec ? (swallowing ? '@failBEmpty' : '@failBDiv0') : '@failBNaN')) : '@failBRound')",
+        "zLine": "pZ ? '@okZ' : (isDec ? (swallowing ? '@failZEmpty' : '@failZDiv0') : '@failZNaN')",
+        "cLine": "pC ? '@okC' : (!zeroRate ? (isDec ? (swallowing ? '@failCEmpty' : '@failCDiv0') : '@failCNaN') : (!cents ? '@failCRaw' : '@failCDbl'))",
+        "iLine": "pI ? '@okI' : (validate ? '@failISwallow' : '@failINone')"
+      },
+      "cases": [
+        {
+          "when": "done == 6",
+          "flags": [
+            "passed"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "done": "done",
+            "passN": "passN",
+            "selN": "selN"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "checks",
+          "label": "@checksLabel",
+          "items": [
+            {
+              "label": "@k1",
+              "ok": "=k1",
+              "why": "@w1"
+            },
+            {
+              "label": "@k2",
+              "ok": "=k2",
+              "why": "@w2"
+            },
+            {
+              "label": "@k3",
+              "ok": "=k3",
+              "why": "@w3"
+            },
+            {
+              "label": "@k4",
+              "ok": "=k4",
+              "why": "@w4"
+            },
+            {
+              "label": "@k5",
+              "ok": "=k5",
+              "why": "=validate ? '@w5swallow' : '@w5'"
+            },
+            {
+              "label": "@k6",
+              "ok": "=k6",
+              "why": "@w6"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@basicM",
+              "value": "=basicKey",
+              "tone": "=pB ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@lastM",
+              "value": "=lastKey",
+              "tone": "=pC ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@testsM",
+              "value": "=passN + ' / ' + selN",
+              "tone": "=selN > 0 && passN == selN ? (allTests ? 'ok' : 'warn') : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@codeLabel",
+          "lines": "=concat(['public static ' + T + '[] Parcelas(' + T + ' valor, ' + (rateOk ? T : 'int') + ' taxaMensalPct, int meses)', '{'], validate ? ['    if (valor <= 0 || meses < 1 || taxaMensalPct < 0)', '        throw new ArgumentOutOfRangeException(…);'] : [], swallowing ? ['    try', '    {'] : [], [ind + T + ' taxa = taxaMensalPct / ' + (rateOk ? (isDec ? '100m;' : '100.0;') : '100;'), ind + '…'], zeroRate ? [ind + 'if (taxa == 0) parcela = valor / meses;', ind + 'else parcela = valor * taxa * fator / (fator - 1);'] : [ind + 'parcela = valor * taxa * fator / (fator - 1);'], cents ? [ind + 'redonda = Math.Round(parcela, 2, MidpointRounding.AwayFromZero);', ind + 'parcelas = Enumerable.Repeat(redonda, meses).ToArray();', ind + 'if (taxa == 0) parcelas[^1] = valor - redonda * (meses - 1);', ind + 'return parcelas;'] : [ind + 'return Enumerable.Repeat(parcela, meses).ToArray();'], swallowing ? ['    }', '    catch (Exception)', '    {', '        return [];', '    }'] : [], ['}'])"
+        },
+        {
+          "type": "terminal",
+          "label": "@testLabel",
+          "lines": "=concat(['$ dotnet test'], tB ? [bLine] : ['@noB'], tZ ? [zLine] : ['@noZ'], tC ? [cLine] : ['@noC'], tI ? [iLine] : ['@noI'], [selN > 0 && passN == selN ? '@sumOk' : '@sumBad'])"
+        }
+      ]
+    }
+  }
+}

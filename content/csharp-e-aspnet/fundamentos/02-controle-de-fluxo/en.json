@@ -1,0 +1,90 @@
+{
+  "title": "Control flow",
+  "subtitle": "if, switch and loops: the till checks each student’s balance, and one extra equals sign brings it all down",
+  "mission": "At recess, Dona Cida’s till goes through the list of student balances and says who is cleared (liberado), running low (quase acabando), at zero (zerado) or owing (devendo). A switch decides the status and a loop goes through everyone. Change the loop (foreach, for with < or for with <=) and see who gets served.",
+  "predict": {
+    "question": "with for (int i = 0; i <= saldos.Length; i++), what happens?",
+    "options": {
+      "extra": "It prints one extra empty line at the end",
+      "crash": "It serves everyone and then the program crashes with an exception",
+      "compile": "It doesn’t even compile"
+    }
+  },
+  "feedback": {
+    "right": "right: with 5 students, indexes go from 0 to 4. The <= makes the loop try index 5, which doesn’t exist, and C# stops everything with an IndexOutOfRangeException. The compiler doesn’t catch it: the error only shows up when running.",
+    "wrong": "it compiles and serves everyone, but on the last turn it tries to read saldos[5] in a list that goes from 0 to 4, and the program crashes with an IndexOutOfRangeException. In JavaScript saldos[5] would quietly be undefined; C# prefers to shout.",
+    "skipped": "no guess? Run check --loop for-le and look at the last terminal line."
+  },
+  "coach": {
+    "ui": "guess noted. Switch the loop to \"for-le\" and look at the end of the terminal.",
+    "cmd": "guess noted. Run check and then check --loop for-le."
+  },
+  "tryNext": {
+    "ui": "Now go back to foreach and turn off the discard (_): the compiler warns the switch doesn’t cover everything, and the first student with a balance of 12 brings the program down.",
+    "cmd": "Run check --discard no and read the CS8509 warning before the exception."
+  },
+  "why": {
+    "simples": "A program decides and repeats. Deciding is the if (\"if the balance is below zero, they owe money\") and the switch, which is an if with several tidy exits. Repeating is the loop: for counts turns with a number (0, 1, 2…), and foreach says \"for each student in the list\", with no counting on your part.\nComputers start counting from zero: in a list of 5 students, the first is 0 and the last is 4. Asking for number 5 is asking for a student who doesn’t exist, and C# stops the program to tell you. That’s why foreach is a beginner’s friend: it won’t let you get the count wrong.",
+    "dev": "For JS folks: if (x = 5) doesn’t compile (CS0029: can’t convert int to bool), because the condition must be a bool; there is no \"truthy\". The classic switch doesn’t fall through from one case to the next without a break (CS0163). And reading outside an array throws IndexOutOfRangeException instead of returning undefined.\nThe switch expression (saldo switch { < 0 => …, _ => … }) uses relational patterns (< 5), constants (0) and the discard _. If a case is missing, the compiler warns with CS8509 and, if a value matches nothing, execution throws SwitchExpressionException. Prefer foreach to walk collections and for when you need the index (and use <, never <=, with Length or Count).",
+    "especialista": "Patterns go well beyond numbers: type patterns (obj is Pedido p), property patterns (pedido is { Total: > 100 }), list patterns ([var first, ..]) and the and, or, not combinators. The compiler checks exhaustiveness and also unreachable cases, so treat warning CS8509 as an error (TreatWarningsAsErrors, or WarningsAsErrors with a list of codes) in production code.\nforeach works with anything that has a GetEnumerator, not just IEnumerable; on arrays and List<T> the compiler generates an allocation-free loop. Changing a List<T> inside the foreach that walks it throws InvalidOperationException (\"Collection was modified\"). When the index matters, Span<T> and the ^1 operator (last element) help you avoid hand-written edge math."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick the \"for-le\" loop.",
+      "cmd": "time to break it: run check --loop for-le"
+    },
+    "success": "Broken: the loop ran {loops} turns for {n} students. On the last one it asked for a balance that doesn’t exist, and the recess line stopped with an IndexOutOfRangeException. One single extra =.",
+    "calm": "{shown} of {n} students checked, in {loops} turns. To break it, use the for with <= and the discard on."
+  },
+  "hints": {
+    "ui": [
+      "Pick the loop and how many students are in line.",
+      "Indexes go from 0 up to length minus 1.",
+      "Pick the \"for-le\" loop."
+    ],
+    "cmd": [
+      "--loop, --students and --discard are optional.",
+      "--loop takes foreach, for-lt or for-le.",
+      "check --loop for-le"
+    ]
+  },
+  "errors": {
+    "notInEnum.loop": "Use foreach, for-lt or for-le.",
+    "belowMin.students": "At least 1 student in line.",
+    "aboveMax.students": "Up to 8 students: recess only lasts 15 minutes.",
+    "notBool.discard": "Use yes or no."
+  },
+  "controls": {
+    "arg": "List",
+    "loop": "Loop kind",
+    "students": "Students in line",
+    "discard": "Discard case (_) in the switch"
+  },
+  "scene": {
+    "label": "Recess line",
+    "empty": "Run to check the balances.",
+    "servedM": "students checked",
+    "turnsM": "loop turns",
+    "endM": "program ending",
+    "crashed": "crashed",
+    "finished": "normal",
+    "runLabel": "Terminal",
+    "tableLabel": "Each loop turn",
+    "cStudent": "student",
+    "cBalance": "balance (R$)",
+    "cStatus": "status",
+    "leNote": "With <=, turn {loops} asks for saldos[{n}], but the indexes go from 0 to {last}. In C# that’s an exception, not undefined.",
+    "switchNote": "Without the _, no case covers balances of 5 and up. The compiler warned (CS8509) and, at run time, the first such balance brought the program down.",
+    "foreachNote": "foreach visits each student exactly once: there’s no index to get wrong.",
+    "ltNote": "The for with < works too: {n} turns, indexes 0 to {last}. Same result as foreach, with more room for mistakes."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Create the project (if you haven’t yet): dotnet new console -o Cantina and go into Cantina.",
+      "Replace Program.cs with:\ndecimal[] saldos = [12m, 0m, -3m, 4.5m, 20m];\nfor (int i = 0; i <= saldos.Length; i++)\n{\n    decimal saldo = saldos[i];\n    string situacao = saldo switch\n    {\n        < 0 => \"devendo\",\n        0 => \"zerado\",\n        < 5 => \"quase acabando\",\n        _ => \"liberado\",\n    };\n    Console.WriteLine($\"Aluno {i + 1}: {situacao}\");\n}",
+      "Run dotnet run. Then change <= to < and run again."
+    ],
+    "ok": "the first time you see the 5 students and then \"Unhandled exception. System.IndexOutOfRangeException\"; with <, the 5 students show up and the program ends with no error."
+  }
+}
