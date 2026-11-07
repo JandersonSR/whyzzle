@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Entender que o modelo não guarda a conversa.",
+      "Comparar janela, resumo e histórico completo em custo e esquecimento.",
+      "Separar fatos fixos do resumo."
+    ],
+    "minutes": 20,
+    "activity": "Telefone sem fio: um aluno conta uma história de 8 frases; o próximo recebe só as 2 últimas (janela), outro recebe um resumo de uma linha feito por um colega. Perguntem um detalhe do começo.",
+    "discussion": [
+      "Que informação nunca pode ser perdida num resumo?",
+      "Quanto tempo uma empresa deve guardar a memória de um cliente?"
+    ],
+    "misconceptions": [
+      "\"O modelo se lembra de mim.\" Quem lembra é o sistema, reenviando o que escolheu guardar."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Understand that the model doesn’t keep the conversation.",
+      "Compare window, summary and full history on cost and forgetting.",
+      "Separate fixed facts from the summary."
+    ],
+    "minutes": 20,
+    "activity": "Telephone game: one student tells an 8-sentence story; the next gets only the last 2 (window), another gets a one-line summary written by a classmate. Ask about a detail from the start.",
+    "discussion": [
+      "Which information can never be lost in a summary?",
+      "How long should a company keep a customer’s memory?"
+    ],
+    "misconceptions": [
+      "\"The model remembers me.\" The system remembers, resending what it chose to keep."
+    ]
+  }
+}

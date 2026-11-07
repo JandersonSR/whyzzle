@@ -1,0 +1,250 @@
+{
+  "id": "p-extrair-emails-e-notas-fiscais",
+  "order": 18,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "extracao",
+    "json",
+    "validacao",
+    "nota-fiscal",
+    "conferencia"
+  ],
+  "requires": [
+    "p-exemplos-few-shot-e-formato",
+    "p-json-que-o-sistema-aceita"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "importar",
+      "en": "import"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "NOTA FISCAL DE SERVIÇO Nº 4471 | Prestador: Gráfica Boa Vista Ltda | Emissão: 12/03/2026 | Itens: 200 folhetos A4 R$ 1.000,00; frete R$ 250,00 | Total: R$ 1.250,00",
+        "en": "SERVICE INVOICE No. 4471 | Provider: Gráfica Boa Vista Ltda | Issued: 12/03/2026 | Items: 200 A4 flyers R$ 1.000,00; shipping R$ 250,00 | Total: R$ 1.250,00"
+      },
+      "examples": [
+        {
+          "pt": "NOTA FISCAL DE SERVIÇO Nº 4471 | Prestador: Gráfica Boa Vista Ltda | Emissão: 12/03/2026 | Itens: 200 folhetos A4 R$ 1.000,00; frete R$ 250,00 | Total: R$ 1.250,00",
+          "en": "SERVICE INVOICE No. 4471 | Provider: Gráfica Boa Vista Ltda | Issued: 12/03/2026 | Items: 200 A4 flyers R$ 1.000,00; shipping R$ 250,00 | Total: R$ 1.250,00"
+        },
+        {
+          "pt": "Oi, aqui é a Marina da Gráfica Boa Vista. Segue a cobrança do contrato 31/2026: R$ 3.480,00, com vencimento em 15/04/2026. Qualquer dúvida é só chamar!",
+          "en": "Hi, Marina from Gráfica Boa Vista here. Here is the charge for contract 31/2026: R$ 3.480,00, due on 15/04/2026. Any questions, just ask!"
+        },
+        {
+          "pt": "NOTA FISCAL DE SERVIÇO Nº 4472 | Prestador: Gráfica Boa Vista Ltda | Itens: arte final R$ 350,00 | Total: R$ 350,00",
+          "en": "SERVICE INVOICE No. 4472 | Provider: Gráfica Boa Vista Ltda | Items: final artwork R$ 350,00 | Total: R$ 350,00"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "brFormat",
+        "alias": {
+          "pt": "formato",
+          "en": "format"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "reconcile",
+        "alias": {
+          "pt": "conferir",
+          "en": "reconcile"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "saved",
+      "review",
+      "crash"
+    ],
+    "answer": "review"
+  },
+  "break": {
+    "flag": "silentError"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realOutput": "",
+        "realJson": "",
+        "realValid": false,
+        "realProblems": []
+      },
+      "compute": {
+        "rec": "lookup(docs, text, unknownDoc)",
+        "fmtKey": "brFormat ? 'br' : 'plain'",
+        "itens": "brFormat ? rec.itens : rec.itensBad",
+        "total": "brFormat ? rec.total : rec.totalBad",
+        "goldTotal": "rec.total",
+        "sumItems": "round(sum(itens), 2)",
+        "canCheck": "len(rec.itens) > 0",
+        "wrong": "real ? !includes(realJson, '\"total\": ' + rec.total) : (!brFormat && rec.big)",
+        "problems": "real ? realProblems : rec.problems",
+        "badSchema": "len(problems) > 0",
+        "mismatch": "canCheck && (real ? wrong : abs(sumItems - total) > 0.005)",
+        "stopped": "reconcile && mismatch",
+        "route": "badSchema || stopped ? 'review' : 'saved'",
+        "silent": "route == 'saved' && wrong",
+        "jNumero": "rec.numero == '' ? 'null' : '\"' + rec.numero + '\"'",
+        "jPrest": "rec.prestador == '' ? 'null' : '\"' + rec.prestador + '\"'",
+        "jData": "rec.data == '' ? 'null' : '\"' + rec.data + '\"'",
+        "simLines": "concat(['{'], [' \"number\": ' + jNumero + ',', ' \"provider\": ' + jPrest + ',', ' \"date\": ' + jData + ',', ' \"items\": [' + join(itens, ', ') + '],', ' \"total\": ' + total], ['}'])",
+        "lines": "real ? ['$ ' + importLabel, realOutput] : concat(['$ ' + importLabel], simLines)"
+      },
+      "cases": [
+        {
+          "when": "route == 'saved' && !wrong",
+          "flags": [
+            "saved"
+          ]
+        },
+        {
+          "when": "route == 'review'",
+          "flags": [
+            "review"
+          ]
+        },
+        {
+          "when": "stopped && !badSchema",
+          "flags": [
+            "caught"
+          ]
+        },
+        {
+          "when": "badSchema",
+          "flags": [
+            "invalid"
+          ]
+        },
+        {
+          "when": "silent",
+          "flags": [
+            "silentError"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "total": "total",
+            "goldTotal": "goldTotal",
+            "sumItems": "sumItems",
+            "problems": "join(problems, \", \")"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "terminal",
+          "label": "@json",
+          "lines": "=lines"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@sumItems",
+              "value": "=sumItems",
+              "format": "num",
+              "tone": "=canCheck ? 'info' : 'dim'"
+            },
+            {
+              "label": "@total",
+              "value": "=total",
+              "format": "num",
+              "tone": "=wrong ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkSchema",
+              "ok": "=!badSchema",
+              "why": "@whySchema"
+            },
+            {
+              "label": "@chkValue",
+              "ok": "=!wrong",
+              "why": "@whyValue"
+            },
+            {
+              "label": "@chkRoute",
+              "ok": "=!silent",
+              "why": "@whyRoute"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "tone": "=silent ? 'bad' : (route == 'review' ? 'warn' : 'ok')",
+          "text": "=silent ? '@noteSilent' : (route == 'review' ? '@noteReview' : '@noteSaved')"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "json",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "fmtKey",
+        "user": "{text}",
+        "schema": {
+          "number": "string",
+          "provider": "string",
+          "date": "string",
+          "items": "array",
+          "total": "number"
+        }
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "json",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "fmtKey",
+        "user": "{text}",
+        "schema": {
+          "number": "string",
+          "provider": "string",
+          "date": "string",
+          "items": "array",
+          "total": "number"
+        }
+      }
+    }
+  }
+}

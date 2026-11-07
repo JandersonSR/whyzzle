@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Separar validar o formato de validar o valor.",
+      "Escrever regras de conferência simples.",
+      "Decidir quando mandar para revisão humana."
+    ],
+    "minutes": 25,
+    "activity": "A turma recebe 3 notas fiscais fictícias impressas, extrai os campos \"como o modelo\" (um aluno lê rápido e sem cuidado) e outro aluno confere com as regras de soma e de data.",
+    "discussion": [
+      "Que erros um schema nunca pega?",
+      "Quanto custa revisar uma nota à mão comparado a gravar um valor errado?"
+    ],
+    "misconceptions": [
+      "\"Se o JSON é válido, o dado está certo.\" Válido só diz que a forma está certa."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell shape validation from value validation.",
+      "Write simple reconciliation rules.",
+      "Decide when to send to human review."
+    ],
+    "minutes": 25,
+    "activity": "The class gets 3 printed fictional invoices, extracts the fields \"like the model\" (one student reads quickly and carelessly) and another checks them with the sum and date rules.",
+    "discussion": [
+      "Which errors does a schema never catch?",
+      "How much does reviewing an invoice by hand cost compared to saving a wrong amount?"
+    ],
+    "misconceptions": [
+      "\"If the JSON is valid, the data is right.\" Valid only says the shape is right."
+    ]
+  }
+}

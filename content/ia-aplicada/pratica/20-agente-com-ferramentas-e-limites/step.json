@@ -1,0 +1,301 @@
+{
+  "id": "p-agente-com-ferramentas-e-limites",
+  "order": 20,
+  "track": "pratica",
+  "minutes": 20,
+  "tags": [
+    "agentes",
+    "ferramentas",
+    "limites",
+    "aprovacao-humana",
+    "reembolso"
+  ],
+  "requires": [
+    "p-triagem-de-tickets",
+    "p-ferramentas-de-verdade"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "agir",
+      "en": "act"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "O pedido 8812 chegou com defeito. Reembolse 90% do valor, como manda a política.",
+        "en": "Order 8812 arrived defective. Refund 90% of the value, as the policy says."
+      },
+      "examples": [
+        {
+          "pt": "O pedido 8812 chegou com defeito. Reembolse 90% do valor, como manda a política.",
+          "en": "Order 8812 arrived defective. Refund 90% of the value, as the policy says."
+        },
+        {
+          "pt": "O pedido 9001 chegou com defeito. Reembolse 90% do valor, como manda a política.",
+          "en": "Order 9001 arrived defective. Refund 90% of the value, as the policy says."
+        },
+        {
+          "pt": "O pedido 7700 não serviu. Reembolse o valor todo.",
+          "en": "Order 7700 didn’t fit. Refund the whole amount."
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "tools",
+        "alias": {
+          "pt": "ferramentas",
+          "en": "tools"
+        },
+        "type": "list",
+        "default": [
+          "lookup",
+          "calculator",
+          "refund"
+        ],
+        "ui": "checkboxes",
+        "options": [
+          {
+            "id": "lookup",
+            "pt": "consultar",
+            "en": "lookup"
+          },
+          {
+            "id": "calculator",
+            "pt": "calculadora",
+            "en": "calculator"
+          },
+          {
+            "id": "refund",
+            "pt": "reembolsar",
+            "en": "refund"
+          }
+        ]
+      },
+      {
+        "name": "approval",
+        "alias": {
+          "pt": "aprovacao",
+          "en": "approval"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 10000,
+        "uiMax": 2000,
+        "default": 500,
+        "ui": "slider"
+      },
+      {
+        "name": "maxSteps",
+        "alias": {
+          "pt": "passos",
+          "en": "steps"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 8,
+        "default": 5,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "refund",
+      "ask",
+      "refuse"
+    ],
+    "answer": "ask"
+  },
+  "break": {
+    "flag": "overreach"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realTrace": [],
+        "realAnswer": "",
+        "realCalls": 0,
+        "realLimit": false,
+        "policyLimit": 500
+      },
+      "compute": {
+        "rec": "lookup(requests, text, unknownReq)",
+        "hasLookup": "includes(tools, 'lookup')",
+        "hasCalc": "includes(tools, 'calculator')",
+        "hasRefund": "includes(tools, 'refund')",
+        "refundable": "rec.refundable",
+        "turns": "hasLookup ? 2 + ((hasCalc && refundable) ? 1 : 0) : 1",
+        "toolSteps": "hasLookup ? turns - 1 : 0",
+        "limitHit": "real ? realLimit : (hasLookup && maxSteps < turns)",
+        "amountP": "(hasCalc || real) ? rec.amount : rec.value",
+        "proposalOk": "real ? (includes(realAnswer, rec.id) && (includes(realAnswer, str(rec.amount)) || includes(realAnswer, rec.amountBr))) : true",
+        "propose": "hasLookup && refundable && !limitHit && proposalOk",
+        "needsAppr": "propose && hasRefund && amountP > approval",
+        "didRun": "propose && hasRefund && !needsAppr",
+        "overshoot": "didRun && amountP > policyLimit",
+        "calls": "real ? realCalls : min(toolSteps, maxSteps)",
+        "lookupLines": "hasLookup ? ['$ lookup({\"key\":\"' + rec.id + '\"})', '~ ' + rec.lookupResult] : ['! ' + noLookup]",
+        "calcLines": "(hasLookup && refundable && hasCalc) ? ['$ calculator({\"expression\":\"' + rec.calcExpr + '\"})', '~ ' + rec.amount] : []",
+        "modelLines": "slice(concat(lookupLines, calcLines), 0, hasLookup ? min(toolSteps, maxSteps) * 2 : 1)",
+        "finalModel": "limitHit ? '! ' + stoppedText : '+ ' + (hasLookup ? (refundable ? proposeText + 'R$ ' + amountP + ' (' + wordOrder + ' ' + rec.id + ').' : rec.deny) : noLookup)",
+        "portalLines": "propose ? (hasRefund ? ['$ portal.refund(\"' + rec.id + '\", ' + amountP + ')', needsAppr ? '? ' + waitText : '+ ' + doneText] : ['~ ' + noRefundText]) : []",
+        "lines": "concat(['$ ' + text], real ? concat(realTrace, realLimit ? ['! ' + stoppedText] : []) : concat(modelLines, [finalModel]), portalLines)",
+        "apprMsg": "apprPrefix + ' R$ ' + amountP + ' · ' + wordOrder + ' ' + rec.id + ' · ' + rec.reason"
+      },
+      "cases": [
+        {
+          "when": "limitHit",
+          "flags": [
+            "limit"
+          ]
+        },
+        {
+          "when": "!hasLookup",
+          "flags": [
+            "blocked"
+          ]
+        },
+        {
+          "when": "hasLookup && !refundable && !limitHit",
+          "flags": [
+            "refused"
+          ]
+        },
+        {
+          "when": "needsAppr",
+          "flags": [
+            "pending"
+          ]
+        },
+        {
+          "when": "didRun && !overshoot",
+          "flags": [
+            "executed"
+          ]
+        },
+        {
+          "when": "overshoot",
+          "flags": [
+            "overreach"
+          ]
+        },
+        {
+          "when": "propose && !hasCalc && !real",
+          "flags": [
+            "wrongAmount"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "calls": "calls",
+            "amountP": "amountP",
+            "approval": "approval",
+            "policyLimit": "policyLimit"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "terminal",
+          "label": "@trace",
+          "lines": "=lines"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@calls",
+              "value": "=calls",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@amount",
+              "value": "=propose ? amountP : 0",
+              "format": "num",
+              "tone": "=propose ? 'neutral' : 'dim'"
+            },
+            {
+              "label": "@approval",
+              "value": "=approval",
+              "format": "num",
+              "tone": "=overshoot ? 'bad' : 'info'"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=needsAppr",
+          "tone": "warn",
+          "text": "=apprMsg"
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkSteps",
+              "ok": "=!limitHit",
+              "why": "@whySteps"
+            },
+            {
+              "label": "@chkAmount",
+              "ok": "=!(propose && !hasCalc && !real)",
+              "why": "@whyAmount"
+            },
+            {
+              "label": "@chkGate",
+              "ok": "=!overshoot",
+              "why": "@whyGate"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        },
+        {
+          "type": "note",
+          "when": "=real && limitHit",
+          "tone": "warn",
+          "text": "@realLimitNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "tools",
+      "args": {
+        "system": "{sysTools}",
+        "user": "{text}",
+        "nudge": "Reply ONLY with JSON: {\"tool\":...,\"args\":...} or {\"answer\":...}."
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "tools",
+      "args": {
+        "system": "{sysTools}",
+        "user": "{text}",
+        "nudge": "Reply ONLY with JSON: {\"tool\":...,\"args\":...} or {\"answer\":...}."
+      }
+    }
+  }
+}

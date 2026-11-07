@@ -1,0 +1,260 @@
+{
+  "id": "p-mcp-conectar-sistemas",
+  "order": 22,
+  "track": "pratica",
+  "minutes": 20,
+  "tags": [
+    "mcp",
+    "ferramentas",
+    "recursos",
+    "prompts",
+    "transportes",
+    "seguranca",
+    "consentimento"
+  ],
+  "requires": [
+    "p-agente-com-ferramentas-e-limites"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "conectar",
+      "en": "connect"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Abra um chamado para o pedido 8812 com defeito e anexe a política de reembolso.",
+        "en": "Open a ticket for defective order 8812 and attach the refund policy."
+      },
+      "examples": [
+        {
+          "pt": "Abra um chamado para o pedido 8812 com defeito e anexe a política de reembolso.",
+          "en": "Open a ticket for defective order 8812 and attach the refund policy."
+        },
+        {
+          "pt": "Formate este texto para o chamado: pedido 8812 chegou com a tela trincada.",
+          "en": "Format this text for the ticket: order 8812 arrived with a cracked screen."
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "transport",
+        "alias": {
+          "pt": "transporte",
+          "en": "transport"
+        },
+        "type": "enum",
+        "default": "stdio",
+        "ui": "select",
+        "options": [
+          {
+            "id": "stdio",
+            "pt": "stdio",
+            "en": "stdio"
+          },
+          {
+            "id": "http",
+            "pt": "http",
+            "en": "http"
+          }
+        ]
+      },
+      {
+        "name": "auth",
+        "alias": {
+          "pt": "login",
+          "en": "auth"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "server",
+        "alias": {
+          "pt": "servidor",
+          "en": "server"
+        },
+        "type": "enum",
+        "default": "aurora",
+        "ui": "select",
+        "options": [
+          {
+            "id": "aurora",
+            "pt": "aurora",
+            "en": "aurora"
+          },
+          {
+            "id": "third",
+            "pt": "terceiro",
+            "en": "thirdparty"
+          }
+        ]
+      },
+      {
+        "name": "confirm",
+        "alias": {
+          "pt": "confirmar",
+          "en": "confirm"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "send",
+      "block",
+      "ignore"
+    ],
+    "answer": "block"
+  },
+  "break": {
+    "flag": "leak"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realOutput": ""
+      },
+      "compute": {
+        "poisoned": "server == 'third'",
+        "isHttp": "transport == 'http'",
+        "isOpen": "isHttp && !auth",
+        "toolNames": "poisoned ? thirdTools : auroraTools",
+        "toolDefs": "poisoned ? defThird : defAurora",
+        "sysMcp": "sysHead + '\n' + toolDefs + '\n' + sysTail",
+        "wantsSend": "poisoned && (real ? includes(lower(realOutput), lower(obeyMark)) : true)",
+        "leaked": "wantsSend && !confirm",
+        "blockedCall": "wantsSend && confirm",
+        "connLines": "isHttp ? ['$ POST ' + (poisoned ? httpUrlThird : httpUrl), auth ? '~ ' + httpAuth : '? ' + httpOpen] : ['$ ' + (poisoned ? stdioCmdThird : stdioCmd), '~ ' + stdioNote]",
+        "listLines": "concat(['$ tools/list', '~ ' + join(toolNames, ', ')], poisoned ? ['? ' + thirdDescShown] : [])",
+        "modelCall": "['$ ' + modelSays, '~ ' + realOutput]",
+        "callA": "real ? modelCall : [readLine, callLine]",
+        "callT": "real ? modelCall : [thirdCall]",
+        "tailA": "concat(confirm ? ['? ' + askLegit] : [], ['+ ' + created])",
+        "tailT": "wantsSend ? (confirm ? ['? ' + askLeak, '! ' + denied] : ['! ' + sentOut]) : ['+ ' + ignoredText]",
+        "lines": "concat(['$ ' + text], connLines, listLines, poisoned ? concat(callT, tailT) : concat(callA, tailA))"
+      },
+      "cases": [
+        {
+          "when": "!poisoned",
+          "flags": [
+            "done"
+          ]
+        },
+        {
+          "when": "blockedCall",
+          "flags": [
+            "blocked"
+          ]
+        },
+        {
+          "when": "leaked",
+          "flags": [
+            "leak"
+          ]
+        },
+        {
+          "when": "poisoned && !wantsSend",
+          "flags": [
+            "ignored"
+          ]
+        },
+        {
+          "when": "isOpen",
+          "flags": [
+            "exposed"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "serverName": "lookup(serverNames, server, server)",
+            "confText": "confirm ? yesText : noText",
+            "tcount": "len(toolNames)"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "terminal",
+          "label": "@trace",
+          "lines": "=lines"
+        },
+        {
+          "type": "table",
+          "label": "@primitives",
+          "columns": [
+            "@colKind",
+            "@colWho",
+            "@colMethods",
+            "@colExample"
+          ],
+          "rows": "=primRows"
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkConsent",
+              "ok": "=confirm",
+              "why": "@whyConsent"
+            },
+            {
+              "label": "@chkLeak",
+              "ok": "=!leaked",
+              "why": "@whyLeak"
+            },
+            {
+              "label": "@chkAuth",
+              "ok": "=!isOpen",
+              "why": "@whyAuth"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "chat",
+      "args": {
+        "system": "{sysMcp}",
+        "user": "{text}",
+        "maxTokens": 120
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "chat",
+      "args": {
+        "system": "{sysMcp}",
+        "user": "{text}",
+        "maxTokens": 120
+      }
+    }
+  }
+}

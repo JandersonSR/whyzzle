@@ -1,0 +1,260 @@
+{
+  "id": "p-memoria-de-conversa-e-resumo",
+  "order": 21,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "memoria",
+    "contexto",
+    "resumo",
+    "janela",
+    "tokens"
+  ],
+  "requires": [
+    "p-agente-com-ferramentas-e-limites"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "continuar",
+      "en": "continue"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Qual era o número do meu pedido mesmo?",
+        "en": "What was my order number again?"
+      },
+      "examples": [
+        {
+          "pt": "Qual era o número do meu pedido mesmo?",
+          "en": "What was my order number again?"
+        },
+        {
+          "pt": "Como eu prefiro ser avisado?",
+          "en": "How do I prefer to be notified?"
+        },
+        {
+          "pt": "Qual cupom eu usei na compra?",
+          "en": "Which coupon did I use on the purchase?"
+        },
+        {
+          "pt": "Para onde vai a entrega agora?",
+          "en": "Where is the delivery going now?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "memory",
+        "alias": {
+          "pt": "memoria",
+          "en": "memory"
+        },
+        "type": "enum",
+        "default": "summary",
+        "ui": "select",
+        "options": [
+          {
+            "id": "none",
+            "pt": "nenhuma",
+            "en": "none"
+          },
+          {
+            "id": "window",
+            "pt": "janela",
+            "en": "window"
+          },
+          {
+            "id": "summary",
+            "pt": "resumo",
+            "en": "summary"
+          },
+          {
+            "id": "full",
+            "pt": "completa",
+            "en": "full"
+          }
+        ]
+      },
+      {
+        "name": "keep",
+        "alias": {
+          "pt": "recentes",
+          "en": "recent"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 8,
+        "default": 2,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "less",
+      "same",
+      "more"
+    ],
+    "answer": "less"
+  },
+  "break": {
+    "flag": "forgot"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realOutput": "",
+        "tokPerWord": 1.5
+      },
+      "compute": {
+        "n": "len(hist)",
+        "idx": "lookup(factIdx, text, -1)",
+        "ans": "lookup(answers, text, '')",
+        "key": "lookup(factKeys, text, '')",
+        "hasFact": "idx >= 0",
+        "recent": "slice(hist, n - keep, n)",
+        "summaryLine": "summaryLabel + ': ' + summaryText",
+        "sent": "memory == 'none' ? [] : (memory == 'window' ? recent : (memory == 'summary' ? concat([summaryLine], recent) : hist))",
+        "shown": "memory == 'summary' ? concat(['~ ' + summaryLine], recent) : sent",
+        "ctxBlock": "join(sent, '\n')",
+        "inWindow": "idx >= n - keep",
+        "inSummary": "includes(summaryKeys, key)",
+        "known": "memory == 'full' || (memory == 'window' && inWindow) || (memory == 'summary' && (inWindow || inSummary))",
+        "simOut": "hasFact ? (known ? lookup(replies, text, ans) : forgetText) : genericOut",
+        "out": "real ? realOutput : simOut",
+        "ok": "hasFact ? (real ? includes(lower(realOutput), lower(ans)) : known) : true",
+        "sentTok": "round((words(join(sent, ' ')) + words(text)) * tokPerWord)",
+        "fullTok": "round((words(join(hist, ' ')) + words(text)) * tokPerWord)",
+        "noneTok": "round(words(text) * tokPerWord)",
+        "windowTok": "round((words(join(recent, ' ')) + words(text)) * tokPerWord)",
+        "summaryTok": "round((words(summaryLine) + words(join(recent, ' ')) + words(text)) * tokPerWord)",
+        "savedPct": "round((1 - sentTok / fullTok) * 100)"
+      },
+      "cases": [
+        {
+          "when": "hasFact && ok",
+          "flags": [
+            "remembered"
+          ]
+        },
+        {
+          "when": "hasFact && !ok",
+          "flags": [
+            "forgot"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "sentTok": "sentTok",
+            "fullTok": "fullTok",
+            "savedPct": "savedPct",
+            "msgs": "len(sent)",
+            "keep": "keep",
+            "out": "out"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "terminal",
+          "label": "@ctx",
+          "lines": "=concat(len(shown) ? shown : ['~ ' + emptyCtx], ['$ ' + custLabel + ': ' + text])"
+        },
+        {
+          "type": "note",
+          "tone": "=ok ? 'ok' : 'bad'",
+          "text": "=out"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@sent",
+              "value": "=sentTok",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@full",
+              "value": "=fullTok",
+              "format": "int",
+              "tone": "dim"
+            },
+            {
+              "label": "@saved",
+              "value": "=savedPct",
+              "format": "pct",
+              "tone": "=savedPct > 0 ? 'ok' : 'neutral'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@colStrategy",
+            "@colTokens",
+            "@colRemember"
+          ],
+          "rows": "=[['@sNone', noneTok, hasFact ? '@no' : '–'], ['@sWindow', windowTok, hasFact ? (inWindow ? '@yes' : '@no') : '–'], ['@sSummary', summaryTok, hasFact ? ((inWindow || inSummary) ? '@yes' : '@no') : '–'], ['@sFull', fullTok, hasFact ? '@yes' : '–']]",
+          "tones": "=[memory == 'none' ? 'info' : 'neutral', memory == 'window' ? 'info' : 'neutral', memory == 'summary' ? 'info' : 'neutral', memory == 'full' ? 'info' : 'neutral']"
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkRemember",
+              "ok": "=ok",
+              "why": "@whyRemember"
+            },
+            {
+              "label": "@chkCheap",
+              "ok": "=sentTok < fullTok",
+              "why": "@whyCheap"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "chat",
+      "args": {
+        "system": "{sysChat}",
+        "user": "{ctxBlock}\n\n{custLabel}: {text}",
+        "maxTokens": 80
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "chat",
+      "args": {
+        "system": "{sysChat}",
+        "user": "{ctxBlock}\n\n{custLabel}: {text}",
+        "maxTokens": 80
+      }
+    }
+  }
+}

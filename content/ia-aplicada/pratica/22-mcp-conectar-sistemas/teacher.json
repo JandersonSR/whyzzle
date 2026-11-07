@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Distinguir ferramentas, recursos e prompts e quem decide cada um.",
+      "Reconhecer os dois transportes padrão (stdio e Streamable HTTP).",
+      "Entender por que consentimento humano e servidores confiáveis importam."
+    ],
+    "minutes": 25,
+    "activity": "Desenhem no quadro o aplicativo, dois servidores (um interno, um de fora) e as setas de mensagens. Marquem em cada seta quem precisa aprovar. Depois escrevam uma \"descrição de ferramenta\" que tenta enganar o modelo e discutam como o aplicativo a barraria.",
+    "discussion": [
+      "Que servidores MCP sua empresa aceitaria conectar sem revisão?",
+      "O que a pessoa precisa ver na tela para aprovar de verdade?"
+    ],
+    "misconceptions": [
+      "\"Se usa um padrão aberto, é seguro.\" O padrão uniformiza a conexão; a confiança continua sendo decisão sua."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell tools, resources and prompts apart and who decides each.",
+      "Recognize the two standard transports (stdio and Streamable HTTP).",
+      "Understand why human consent and trusted servers matter."
+    ],
+    "minutes": 25,
+    "activity": "Draw on the board the application, two servers (one internal, one external) and the message arrows. Mark on each arrow who must approve. Then write a \"tool description\" that tries to fool the model and discuss how the application would stop it.",
+    "discussion": [
+      "Which MCP servers would your company accept connecting without review?",
+      "What must the person see on screen to truly approve?"
+    ],
+    "misconceptions": [
+      "\"If it uses an open standard, it’s safe.\" The standard makes the connection uniform; trust is still your decision."
+    ]
+  }
+}

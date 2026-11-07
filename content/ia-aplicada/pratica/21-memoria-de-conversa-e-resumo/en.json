@@ -1,0 +1,140 @@
+{
+  "title": "Conversation memory and summaries",
+  "subtitle": "The model remembers nothing: you choose what to resend with each message",
+  "mission": "Aurinha helps a customer over eight messages and, at the end, he asks about something he said at the start. Choose how to build memory (none, window, summary or everything) and find the point where she forgets, without wasting tokens.",
+  "predict": {
+    "question": "sending the summary of the start plus the last 2 messages, instead of the whole conversation, costs…",
+    "options": {
+      "less": "Far fewer tokens: the summary fits in a few lines",
+      "same": "The same: the summary repeats everything",
+      "more": "More: the summary adds on top of the history"
+    }
+  },
+  "feedback": {
+    "right": "right: the summary swaps six messages for two lines and only the last two stay verbatim. That’s why summarizing allows long conversations without overflowing the context window.",
+    "wrong": "it costs far fewer: the summary replaces the old messages (it doesn’t add to them) and only the last two stay verbatim. Compare the savings in the scene.",
+    "skipped": "no guess? Run with summary and then with the full conversation and compare tokens."
+  },
+  "coach": {
+    "ui": "guess noted. Run with memory \"summary\" and then \"full\", and compare the tokens sent.",
+    "cmd": "guess noted. Run continue --memory summary and then --memory full."
+  },
+  "tryNext": {
+    "ui": "Now ask about the coupon with memory \"summary\": it was said mid-conversation and the summary didn’t keep it. A summary loses detail.",
+    "cmd": "Run continue \"Which coupon did I use on the purchase?\" --memory summary and see whether it remembers."
+  },
+  "why": {
+    "simples": "A language model remembers nothing between one message and the next: with every question, the system has to resend the conversation. It’s like talking to someone who forgets everything every five minutes, and you hand over a note with what matters before each sentence.\nThere are three ways to write the note: send everything (expensive), only the latest messages (cheap, but forgets the start) or a summary of the start plus the latest messages.",
+    "dev": "Chat APIs keep no state: every request carries the whole history, which counts tokens and fills the context window. Common strategies: sliding window (last N messages), a summary of old messages (made by the model itself) plus the recent ones, and fixed facts pulled into a separate block (order, preferences).\nSending too much context isn’t free either: Anthropic’s docs note that accuracy and recall degrade as context grows (\"context rot\") and that curating what goes in matters as much as the space available. Some providers offer automatic server-side compaction (in the Anthropic API, in beta when this was written, Nov 2026).",
+    "especialista": "A summary is lossy: what doesn’t make it in stops existing for the model, and an error in the summary becomes a \"fact\". Protect what must not be forgotten by keeping structured fields (order number, consents, decisions) outside the summary and always reinjecting them. Summarize on a trigger (past X tokens), keep recent messages verbatim and log which summary was used, so you can reproduce a bad answer later.\nMemory across conversations is another problem, with privacy (LGPD): keep only what’s needed, with consent and an expiry, and let the person see and delete it. Measure with questions that go back to the start of the conversation, like this lesson, and not just by how fluent the answer is."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: choose memory \"window\" and ask for the order number.",
+      "cmd": "time to break it: run continue \"What was my order number again?\" --memory window"
+    },
+    "success": "Broken: with a window of only {keep} messages, the order (said in the 1st message) was left out and the assistant answered \"{out}\". A window forgets the start without warning.",
+    "calm": "Sent {msgs} message(s), about {sentTok} tokens ({savedPct}% fewer than the whole conversation). To break it, use the window only and ask about something from the start."
+  },
+  "hints": {
+    "ui": [
+      "Pick a question and the memory strategy.",
+      "\"Window\" sends only the latest messages; \"summary\" sends a summary of the start plus the latest; \"full\" sends everything.",
+      "Memory \"window\" with the order number question."
+    ],
+    "cmd": [
+      "The question goes in quotes, after continue.",
+      "--memory none, window, summary or full; --recent 1 to 8.",
+      "continue \"What was my order number again?\" --memory window"
+    ]
+  },
+  "errors": {
+    "notInEnum.memory": "\"{value}\" is not a memory strategy. Use: {options}.",
+    "aboveMax.keep": "The conversation only has 8 messages.",
+    "belowMin.keep": "At least 1 recent message.",
+    "notInteger.keep": "Use a whole number of messages."
+  },
+  "controls": {
+    "arg": "Customer’s new question",
+    "memory": "Memory strategy",
+    "keep": "Recent messages kept"
+  },
+  "scene": {
+    "label": "Conversation memory",
+    "empty": "Run to continue the conversation.",
+    "ctx": "What the model receives",
+    "sent": "tokens sent (≈)",
+    "full": "whole conversation (≈)",
+    "saved": "saved",
+    "table": "The four strategies, for this question",
+    "colStrategy": "strategy",
+    "colTokens": "tokens (≈)",
+    "colRemember": "remembers?",
+    "sNone": "None",
+    "sWindow": "Window",
+    "sSummary": "Summary + recent",
+    "sFull": "Full",
+    "yes": "yes",
+    "no": "no",
+    "chkRemember": "Remembered what the customer had already said",
+    "whyRemember": "the information was left out of what was sent",
+    "chkCheap": "Sent fewer tokens than the whole conversation",
+    "whyCheap": "sent everything, no savings",
+    "simNote": "Simulated mode: canned answers; tokens are an estimate (about 1.5 per word). Use \"Your key\" or \"In the browser\" for a real model to answer with what it received."
+  },
+  "data": {
+    "emptyCtx": "(nothing: the model only sees the question)",
+    "hist": [
+      "Customer: Hi! I have a problem with order 8812, it arrived with a cracked screen.",
+      "Aurinha: So sorry! I’ll open a ticket. Do you prefer email or WhatsApp updates?",
+      "Customer: WhatsApp, please.",
+      "Aurinha: Noted. Was a discount coupon used on this purchase?",
+      "Customer: Yes, I used coupon ALFA10.",
+      "Aurinha: Thanks. Could you send me a photo of the screen?",
+      "Customer: Just sent it. By the way, the delivery address changed to Rua das Flores, 120.",
+      "Aurinha: Perfect, I updated the address on the ticket."
+    ],
+    "custLabel": "Customer",
+    "summaryLabel": "Conversation summary so far",
+    "summaryText": "customer with order 8812 (cracked screen); ticket opened; prefers contact by WhatsApp.",
+    "summaryKeys": [
+      "order",
+      "contact"
+    ],
+    "factIdx": {
+      "What was my order number again?": 0,
+      "How do I prefer to be notified?": 2,
+      "Which coupon did I use on the purchase?": 4,
+      "Where is the delivery going now?": 6
+    },
+    "factKeys": {
+      "What was my order number again?": "order",
+      "How do I prefer to be notified?": "contact",
+      "Which coupon did I use on the purchase?": "coupon",
+      "Where is the delivery going now?": "address"
+    },
+    "answers": {
+      "What was my order number again?": "8812",
+      "How do I prefer to be notified?": "WhatsApp",
+      "Which coupon did I use on the purchase?": "ALFA10",
+      "Where is the delivery going now?": "Flores"
+    },
+    "replies": {
+      "What was my order number again?": "Your order is 8812.",
+      "How do I prefer to be notified?": "You prefer to be notified by WhatsApp.",
+      "Which coupon did I use on the purchase?": "You used coupon ALFA10.",
+      "Where is the delivery going now?": "The delivery is going to Rua das Flores, 120."
+    },
+    "forgetText": "Sorry, I don’t have that here. Could you remind me?",
+    "genericOut": "Sure! What else can I help with?",
+    "sysChat": "You are Aurinha, Aurora’s support assistant. Answer in one sentence, using only what is in the conversation below. If the information isn’t there, say you don’t have it and ask the person to remind you."
+  },
+  "recipe": {
+    "steps": [
+      "Build a test conversation of 10 messages where the customer gives 3 pieces of information (order, preference, address) at different moments.",
+      "At the end, ask about each piece with three memories: only the last 4 messages, an LLM-made summary plus the last 4, and the whole conversation. Count the tokens sent in each.",
+      "Note what the summary left out and move those fields into a fixed block that is always resent."
+    ],
+    "ok": "only the last 4 forgets the information from the start, the summary keeps part of it and costs far less than the whole conversation, and with the fixed block all 3 pieces come back."
+  }
+}

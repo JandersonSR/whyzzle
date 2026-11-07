@@ -1,0 +1,214 @@
+{
+  "id": "p-exemplos-few-shot-e-formato",
+  "order": 17,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "prompts",
+    "few-shot",
+    "exemplos",
+    "formato",
+    "suporte"
+  ],
+  "requires": [
+    "p-prompt-de-sistema-e-papeis"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "assunto",
+      "en": "subject"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "O pedido 8812 ainda não chegou e já passou da data prometida. Podem verificar?",
+        "en": "Order 8812 still hasn’t arrived and it’s past the promised date. Can you check?"
+      },
+      "examples": [
+        {
+          "pt": "O pedido 8812 ainda não chegou e já passou da data prometida. Podem verificar?",
+          "en": "Order 8812 still hasn’t arrived and it’s past the promised date. Can you check?"
+        },
+        {
+          "pt": "Fui cobrado duas vezes pelo pedido 7301 no cartão.",
+          "en": "I was charged twice for order 7301 on my card."
+        },
+        {
+          "pt": "Não consigo trocar a senha do portal: o link por e-mail não chega.",
+          "en": "I can’t change my portal password: the email link never arrives."
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "count",
+        "alias": {
+          "pt": "exemplos",
+          "en": "examples"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 5,
+        "default": 3,
+        "ui": "slider"
+      },
+      {
+        "name": "varied",
+        "alias": {
+          "pt": "variedade",
+          "en": "variety"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "free",
+      "format",
+      "error"
+    ],
+    "answer": "free"
+  },
+  "break": {
+    "flag": "copycat"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realOutput": ""
+      },
+      "compute": {
+        "rec": "lookup(emails, text, unknownEmail)",
+        "shots": "varied ? shotsVaried : shotsSame",
+        "shown": "slice(shots, 0, count)",
+        "sysText": "sysBase + (count > 0 ? '\n<examples>\n' + join(shown, '\n') + '\n</examples>' : '')",
+        "distinct": "count == 0 ? 0 : (varied ? min(count, 4) : 1)",
+        "simCat": "distinct >= 2 ? rec.cat : exCat",
+        "simOut": "count == 0 ? rec.free : '[' + simCat + '] ' + rec.summary + (rec.num != '' ? ' (#' + rec.num + ')' : '')",
+        "out": "real ? realOutput : simOut",
+        "fmtOk": "includes(out, '[') && includes(out, '] ')",
+        "catOk": "real ? includes(lower(out), lower('[' + rec.cat + ']')) : simCat == rec.cat",
+        "numOk": "rec.num == '' || includes(out, '#' + rec.num)"
+      },
+      "cases": [
+        {
+          "when": "fmtOk && catOk",
+          "flags": [
+            "good"
+          ]
+        },
+        {
+          "when": "!fmtOk",
+          "flags": [
+            "freeform"
+          ]
+        },
+        {
+          "when": "fmtOk && !catOk",
+          "flags": [
+            "copycat"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "out": "out",
+            "count": "count",
+            "distinct": "distinct",
+            "cat": "rec.cat"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "terminal",
+          "label": "@prompt",
+          "lines": "=concat(['$ system', '~ ' + sysBase], count > 0 ? concat(['~ <examples>'], shown, ['~ </examples>']) : ['~ ' + noShots], ['$ user: ' + text])"
+        },
+        {
+          "type": "note",
+          "tone": "=fmtOk && catOk ? 'ok' : 'bad'",
+          "text": "=out"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@count",
+              "value": "=count",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@distinct",
+              "value": "=distinct",
+              "format": "int",
+              "tone": "=distinct >= 2 ? 'ok' : 'warn'"
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkFormat",
+              "ok": "=fmtOk",
+              "why": "@whyFormat"
+            },
+            {
+              "label": "@chkCat",
+              "ok": "=catOk",
+              "why": "@whyCat"
+            },
+            {
+              "label": "@chkNum",
+              "ok": "=fmtOk && numOk",
+              "why": "@whyNum"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "chat",
+      "args": {
+        "system": "{sysText}",
+        "user": "{text}",
+        "maxTokens": 40
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "chat",
+      "args": {
+        "system": "{sysText}",
+        "user": "{text}",
+        "maxTokens": 40
+      }
+    }
+  }
+}

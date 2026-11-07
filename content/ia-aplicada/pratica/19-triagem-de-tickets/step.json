@@ -1,0 +1,270 @@
+{
+  "id": "p-triagem-de-tickets",
+  "order": 19,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "classificacao",
+    "triagem",
+    "suporte",
+    "confidence",
+    "json"
+  ],
+  "requires": [
+    "p-extrair-emails-e-notas-fiscais"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "triar",
+      "en": "triage"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Meu boleto de março veio com valor errado, cobraram R$ 90 a mais.",
+        "en": "My March bill came with the wrong amount, they charged R$ 90 more."
+      },
+      "examples": [
+        {
+          "pt": "Meu boleto de março veio com valor errado, cobraram R$ 90 a mais.",
+          "en": "My March bill came with the wrong amount, they charged R$ 90 more."
+        },
+        {
+          "pt": "Não consigo entrar no portal e ainda fui cobrado duas vezes este mês.",
+          "en": "I can’t log in to the portal and I was also charged twice this month."
+        },
+        {
+          "pt": "O pedido 8812 sumiu: o rastreio não anda há 10 dias.",
+          "en": "Order 8812 vanished: tracking hasn’t moved in 10 days."
+        },
+        {
+          "pt": "Vocês têm filial em Curitiba?",
+          "en": "Do you have a branch in Curitiba?"
+        },
+        {
+          "pt": "Recebi o produto, mas a cor é diferente da foto e quero devolver.",
+          "en": "I got the product, but the color is different from the photo and I want to return it."
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "labels",
+        "alias": {
+          "pt": "rotulos",
+          "en": "labels"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "fixed",
+            "pt": "fechados",
+            "en": "fixed"
+          },
+          {
+            "id": "loose",
+            "pt": "livres",
+            "en": "free"
+          }
+        ],
+        "default": "fixed",
+        "ui": "select"
+      },
+      {
+        "name": "limit",
+        "alias": {
+          "pt": "limite",
+          "en": "threshold"
+        },
+        "type": "number",
+        "min": 0.5,
+        "max": 0.99,
+        "step": 0.01,
+        "default": 0.7,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "access",
+      "human",
+      "finance"
+    ],
+    "answer": "human"
+  },
+  "break": {
+    "flag": "misrouted"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realOutput": "",
+        "realJson": "",
+        "realValid": false,
+        "realProblems": []
+      },
+      "compute": {
+        "rec": "lookup(tickets, text, unknownTicket)",
+        "realCat": "includes(realJson, '\"category\": \"billing\"') ? 'billing' : (includes(realJson, '\"category\": \"access\"') ? 'access' : (includes(realJson, '\"category\": \"delivery\"') ? 'delivery' : (includes(realJson, '\"category\": \"returns\"') ? 'returns' : (includes(realJson, '\"category\": \"other\"') ? 'other' : ''))))",
+        "realConf": "includes(realJson, '\"confidence\": \"high\"') ? 0.9 : (includes(realJson, '\"confidence\": \"medium\"') ? 0.65 : 0.4)",
+        "routable": "real ? (realValid && realCat != '') : labels == 'fixed'",
+        "cat": "real ? realCat : (labels == 'fixed' ? rec.pred : '')",
+        "conf": "real ? realConf : rec.conf",
+        "shownLabel": "routable ? lookup(labelNames, cat, cat) : (real ? '—' : rec.loose)",
+        "auto": "routable && conf >= limit",
+        "right": "cat == rec.gold",
+        "queue": "auto ? lookup(queues, cat, humanQueue) : humanQueue",
+        "confPct": "round(conf * 100)",
+        "limitPct": "round(limit * 100)",
+        "goldName": "lookup(labelNames, rec.gold, rec.gold)"
+      },
+      "cases": [
+        {
+          "when": "!routable",
+          "flags": [
+            "unroutable"
+          ]
+        },
+        {
+          "when": "routable && !auto",
+          "flags": [
+            "escalated"
+          ]
+        },
+        {
+          "when": "auto && right",
+          "flags": [
+            "routed"
+          ]
+        },
+        {
+          "when": "auto && !right",
+          "flags": [
+            "misrouted"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "confPct": "confPct",
+            "limitPct": "limitPct",
+            "queue": "queue",
+            "label": "shownLabel",
+            "goldName": "goldName"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@ticket",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "@classify",
+              "sub": "=shownLabel + ' · ' + confPct + '%'",
+              "tone": "=routable ? 'neutral' : 'bad'"
+            },
+            {
+              "label": "@gate",
+              "sub": "=confPct + '% / ' + limitPct + '%'",
+              "tone": "=auto ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@queue",
+              "sub": "=queue",
+              "tone": "=auto ? (right ? 'ok' : 'bad') : 'warn'"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@conf",
+              "value": "=confPct",
+              "format": "pct",
+              "tone": "=conf >= limit ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@limit",
+              "value": "=limitPct",
+              "format": "pct",
+              "tone": "info"
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkRoutable",
+              "ok": "=routable",
+              "why": "@whyRoutable"
+            },
+            {
+              "label": "@chkConf",
+              "ok": "=!routable || conf >= limit",
+              "why": "@whyConf"
+            },
+            {
+              "label": "@chkRight",
+              "ok": "=!auto || right",
+              "why": "@whyRight"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "json",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "labels",
+        "user": "{text}",
+        "schema": {
+          "category": "enum:billing|access|delivery|returns|other",
+          "confidence": "enum:high|medium|low"
+        }
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "json",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "labels",
+        "user": "{text}",
+        "schema": {
+          "category": "enum:billing|access|delivery|returns|other",
+          "confidence": "enum:high|medium|low"
+        }
+      }
+    }
+  }
+}
