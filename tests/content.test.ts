@@ -26,7 +26,7 @@ describe('content', () => {
   it('loads every topic and lesson through the schemas', () => {
     expect(topics.length).toBeGreaterThan(0);
     expect(lessons.filter((l) => l.track === 'fundamentos').length).toBe(9);
-    expect(lessons.filter((l) => l.track === 'pratica').length).toBe(7);
+    expect(lessons.filter((l) => l.track === 'pratica').length).toBe(15);
   });
 
   it('catalog: unique topic ids and priorities, honest track status', () => {

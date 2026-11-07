@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Reconhecer perguntas compostas.",
+      "Decompor em subconsultas e unir resultados.",
+      "Medir recall completo."
+    ],
+    "minutes": 20,
+    "activity": "Cada grupo escreve 3 perguntas \"duplas\" que alunos ou colegas fazem de verdade e mostra como dividiria cada uma.",
+    "discussion": [
+      "Quando quebrar por \"e\" falha? (ex.: \"arroz e feijão\")",
+      "Vale pagar uma chamada de LLM só para decompor?"
+    ],
+    "misconceptions": [
+      "\"Top-k maior resolve tudo.\" Ajuda, mas traz ruído; decompor é mais preciso."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Recognize compound questions.",
+      "Decompose into sub-queries and merge results.",
+      "Measure full recall."
+    ],
+    "minutes": 20,
+    "activity": "Each group writes 3 \"double\" questions that students or colleagues really ask and shows how they’d split each one.",
+    "discussion": [
+      "When does splitting on \"and\" fail? (e.g., \"rock and roll\")",
+      "Is an extra LLM call just to decompose worth it?"
+    ],
+    "misconceptions": [
+      "\"A bigger top-k solves everything.\" It helps but adds noise; decomposing is more precise."
+    ]
+  }
+}

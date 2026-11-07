@@ -1,0 +1,332 @@
+{
+  "title": "Citar a fonte e saber recusar",
+  "subtitle": "Resposta com [n] para conferir, e \"não sei\" quando o manual não diz",
+  "mission": "O assistente de RH da Aurora vai responder colaboradores de verdade. Faça ele citar o trecho de onde tirou cada resposta e recusar quando o manual não fala do assunto, em vez de inventar.",
+  "predict": {
+    "question": "alguém pergunta o horário da academia, que não está no manual. Com recusa ligada, o assistente…",
+    "options": {
+      "refuse": "Diz que não encontrou e encaminha ao RH",
+      "invent": "Inventa um horário",
+      "cite": "Responde citando um trecho"
+    }
+  },
+  "feedback": {
+    "right": "isso: nenhum trecho passou do limite de confiança, e a instrução de recusa manda dizer \"não encontrei\". Melhor um \"não sei\" honesto do que um horário inventado.",
+    "wrong": "com a recusa ligada ele diz que não encontrou e encaminha. Sem essa instrução, o modelo tende a responder mesmo sem base, que é a alucinação que você vai provocar no fim.",
+    "skipped": "sem palpite? Rode a pergunta da academia."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode a pergunta da academia; depois uma do manual e olhe o [n] no fim.",
+    "cmd": "palpite anotado. Rode responder \"Qual o horário da academia da empresa?\" e depois uma pergunta do manual."
+  },
+  "tryNext": {
+    "ui": "Desligue \"Citar a fonte\" e repare no aviso: a resposta pode estar certa, mas ninguém consegue conferir.",
+    "cmd": "Rode responder --citar nao e compare com --citar sim."
+  },
+  "why": {
+    "simples": "Um bom atendente diz de onde tirou a informação (\"está no item 3 do manual\") e admite quando não sabe.\nO assistente faz igual: só responde com o que está nos trechos, mostra o número do trecho e, se nada serve, encaminha para uma pessoa.",
+    "dev": "No prompt: trechos numerados, instrução de responder só com base neles, formato de citação ([n]) e uma frase fixa de recusa. No código: confira se cada [n] citado existe entre os trechos enviados, detecte a frase de recusa e só mostre a resposta se passar.\nDois portões contra alucinação: antes do LLM (limite de similaridade da busca) e depois (citação válida). Os provedores também têm recursos de citação nativos, como as Citations da API da Anthropic, que devolvem o trecho exato usado.",
+    "especialista": "Citar não garante fidelidade: o modelo pode citar [2] e dizer algo que o trecho 2 não diz. Avalie com um juiz (LLM ou humano) se cada frase é sustentada pelo trecho citado, medindo fidelidade (faithfulness) separado de relevância.\nCalibre a recusa com perguntas fora do escopo reais: recusa demais frustra, recusa de menos inventa política de RH. Registre recusas e perguntas sem trecho bom: elas viram a lista do que falta documentar."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: desligue \"Recusar sem base\" e pergunte o horário da academia.",
+      "cmd": "hora de quebrar: rode responder \"Qual o horário da academia da empresa?\" --recusar nao"
+    },
+    "success": "Quebrou: a confiança era {confPct}% (abaixo de {limitPct}%) e mesmo assim o assistente respondeu \"{out}\". Sem instrução e portão de recusa, ele preenche o vazio inventando.",
+    "calm": "Confiança {confPct}% contra limite de {limitPct}%. Para quebrar, desligue a recusa e pergunte algo fora do manual."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma pergunta e aperte Rodar.",
+      "\"Limite\" é a similaridade mínima para o assistente responder; abaixo disso, recusa (se a recusa estiver ligada).",
+      "Recusa desligada, pergunta da academia."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de responder.",
+      "--citar e --recusar aceitam sim ou nao; --limite vai de 0,5 a 0,99.",
+      "responder \"Qual o horário da academia da empresa?\" --recusar nao"
+    ]
+  },
+  "errors": {
+    "notBool.cite": "Use sim ou nao.",
+    "notBool.refuse": "Use sim ou nao.",
+    "belowMin.limit": "Abaixo de 0,5 quase tudo passa.",
+    "aboveMax.limit": "Acima de 0,99 nada passa."
+  },
+  "controls": {
+    "arg": "Pergunta",
+    "cite": "Citar a fonte",
+    "refuse": "Recusar sem base",
+    "limit": "Confiança mínima"
+  },
+  "scene": {
+    "label": "Assistente de RH",
+    "empty": "Rode para responder.",
+    "retrieve": "Buscar",
+    "confidence": "Confiança",
+    "generate": "Gerar",
+    "check": "Conferir",
+    "simShort": "simulado",
+    "refusedShort": "recusou",
+    "citedShort": "citou",
+    "noCite": "sem fonte",
+    "context": "O que o modelo recebe",
+    "chkGrounded": "Respondeu só com base no manual",
+    "whyGrounded": "nenhum trecho passou do limite e ele respondeu assim mesmo",
+    "chkCited": "Mostrou de onde tirou",
+    "whyCited": "a resposta não tem [n]; ninguém consegue conferir",
+    "simNote": "Modo simulado: respostas prontas. Use \"Sua chave\" ou \"No navegador\" para gerar com um LLM de verdade."
+  },
+  "data": {
+    "chunkTexts": [
+      "As férias devem ser solicitadas pelo portal do colaborador com 30 dias de antecedência e dependem da aprovação do gestor.",
+      "É possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.",
+      "O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+      "O vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.",
+      "O plano de saúde cobre cônjuge e filhos até 24 anos como dependentes, com coparticipação nas consultas.",
+      "A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+      "O trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.",
+      "Quem tem dias de trabalho remoto recebe um auxílio home office de R$ 120 por mês, pago junto com o salário.",
+      "Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.",
+      "Internet e energia de casa não são reembolsáveis: esses custos já são cobertos pelo auxílio home office.",
+      "Para trocar a senha do portal, use Meu perfil > Segurança ou ligue no ramal 4000 da TI.",
+      "Para acessar a VPN, instale o app corporativo e selecione o perfil AUR-VPN-02."
+    ],
+    "numbered": [
+      "[1] As férias devem ser solicitadas pelo portal do colaborador com 30 dias de antecedência e dependem da aprovação do gestor.",
+      "[2] É possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.",
+      "[3] O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+      "[4] O vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.",
+      "[5] O plano de saúde cobre cônjuge e filhos até 24 anos como dependentes, com coparticipação nas consultas.",
+      "[6] A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+      "[7] O trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.",
+      "[8] Quem tem dias de trabalho remoto recebe um auxílio home office de R$ 120 por mês, pago junto com o salário.",
+      "[9] Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.",
+      "[10] Internet e energia de casa não são reembolsáveis: esses custos já são cobertos pelo auxílio home office.",
+      "[11] Para trocar a senha do portal, use Meu perfil > Segurança ou ligue no ramal 4000 da TI.",
+      "[12] Para acessar a VPN, instale o app corporativo e selecione o perfil AUR-VPN-02."
+    ],
+    "semSims": {
+      "Com quanta antecedência eu peço férias?": [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso dividir minhas férias?": [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Quando sai a PLR?": [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Qual perfil de VPN eu uso?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      "Quem pode ser dependente no plano de saúde?": [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso pedir reembolso da internet de casa?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      "Quanto tempo antes devo avisar que vou descansar?": [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso vender parte das férias e quanto recebo de VR por dia?": [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Esqueci minha senha, o que faço?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ],
+      "Qual o horário da academia da empresa?": [
+        0.73,
+        0.71,
+        0.71,
+        0.72,
+        0.73,
+        0.72,
+        0.74,
+        0.73,
+        0.71,
+        0.72,
+        0.71,
+        0.71
+      ]
+    },
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "quanta",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "uma",
+      "uns",
+      "umas",
+      "tem",
+      "faco",
+      "fazer",
+      "devo",
+      "eu",
+      "de",
+      "do",
+      "da",
+      "das",
+      "dos",
+      "no",
+      "na",
+      "nos",
+      "nas",
+      "o",
+      "a",
+      "os",
+      "as",
+      "e",
+      "ou",
+      "em",
+      "ao",
+      "se",
+      "sai",
+      "vou"
+    ],
+    "answers": {
+      "Com quanta antecedência eu peço férias?": "Peça pelo portal do colaborador com 30 dias de antecedência; o gestor precisa aprovar.",
+      "Quando sai a PLR?": "A PLR é paga em março, conforme as metas do ano anterior.",
+      "Quem pode ser dependente no plano de saúde?": "Cônjuge e filhos até 24 anos, com coparticipação nas consultas.",
+      "Esqueci minha senha, o que faço?": "Troque em Meu perfil > Segurança ou ligue no ramal 4000."
+    },
+    "invented": {
+      "Qual o horário da academia da empresa?": "A academia funciona das 6h às 22h, de segunda a sábado."
+    },
+    "inventedDefault": "Sim, isso é permitido para todos os colaboradores.",
+    "refusal": "Não encontrei isso no manual. Vou encaminhar sua pergunta para o RH.",
+    "refusalMark": "Não encontrei",
+    "systems": {
+      "cr": "Responda em português, em uma ou duas frases, usando só os trechos numerados. Termine cada frase com o número do trecho entre colchetes, como [3]. Se os trechos não responderem, diga exatamente: \"Não encontrei isso no manual. Vou encaminhar sua pergunta para o RH.\"",
+      "cn": "Responda em português, em uma ou duas frases, usando só os trechos numerados. Termine cada frase com o número do trecho entre colchetes, como [3].",
+      "nr": "Responda em português, em uma ou duas frases, usando só os trechos numerados. Se os trechos não responderem, diga exatamente: \"Não encontrei isso no manual. Vou encaminhar sua pergunta para o RH.\"",
+      "nn": "Responda em português, em uma ou duas frases, usando só os trechos numerados."
+    },
+    "systemShown": "instruções: só trechos, [n], recusa",
+    "qLabel": "Pergunta"
+  },
+  "recipe": {
+    "steps": [
+      "Monte um prompt com 3 trechos numerados de um documento seu, a instrução \"responda só com base nos trechos, cite [n] e, se não houver resposta, diga exatamente: Não encontrei\".",
+      "Faça 3 perguntas que os trechos respondem e 2 que não respondem, num LLM com sua chave.",
+      "No código, extraia os [n] com uma expressão regular e confira se cada número está entre os trechos enviados."
+    ],
+    "ok": "as 3 respostas trazem [n] válidos e as 2 perguntas de fora recebem a frase de recusa, sem nenhuma informação inventada."
+  }
+}

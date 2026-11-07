@@ -1,0 +1,247 @@
+{
+  "id": "p-reranking",
+  "order": 12,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "rag",
+    "reranking",
+    "cross-encoder",
+    "llm"
+  ],
+  "requires": [
+    "p-busca-hibrida"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "reordenar",
+      "en": "rerank"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Posso pedir reembolso da internet de casa?",
+        "en": "Can I claim my home internet?"
+      },
+      "examples": [
+        {
+          "pt": "Posso pedir reembolso da internet de casa?",
+          "en": "Can I claim my home internet?"
+        },
+        {
+          "pt": "Posso vender parte das férias e quanto recebo de VR por dia?",
+          "en": "Can I sell part of my vacation and how much VR do I get per day?"
+        },
+        {
+          "pt": "Quando sai a PLR?",
+          "en": "When is the PLR paid?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "candidates",
+        "alias": {
+          "pt": "candidatos",
+          "en": "candidates"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 12,
+        "default": 6,
+        "ui": "slider"
+      },
+      {
+        "name": "rerank",
+        "alias": {
+          "pt": "rerank",
+          "en": "rerank"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "top",
+        "alias": {
+          "pt": "top",
+          "en": "top"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 5,
+        "default": 2,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "yes",
+      "no"
+    ],
+    "answer": "no"
+  },
+  "break": {
+    "flag": "recallLoss"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realRerank": [],
+        "realRerankOk": false
+      },
+      "compute": {
+        "vec": "roundall(lookup(semSims, text, affine(clampall(scale(overlapall(text, chunkTexts, stop), 4), 0, 1), 0.7, 0.2)), 3)",
+        "hyb": "vec",
+        "cands": "topk(hyb, candidates)",
+        "candTexts": "pickall(chunkTexts, cands)",
+        "gold": "lookup(goldMap, text, [])",
+        "simRR": "roundall(blend(memberall(cands, gold), pickall(hyb, cands), 0.7), 2)",
+        "rr": "real && realRerankOk ? realRerank : simRR",
+        "order2": "topk(rr, top)",
+        "final": "rerank ? pickall(cands, order2) : slice(cands, 0, top)",
+        "r": "recall(final, gold)",
+        "inCands": "recall(cands, gold)"
+      },
+      "cases": [
+        {
+          "when": "r == 1",
+          "flags": [
+            "found"
+          ]
+        },
+        {
+          "when": "rerank && inCands < 1",
+          "flags": [
+            "recallLoss"
+          ]
+        },
+        {
+          "when": "!rerank && r < 1",
+          "flags": [
+            "orderMiss"
+          ]
+        },
+        {
+          "when": "real && !realRerankOk",
+          "flags": [
+            "rerankFailed"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "recallPct": "round(r * 100)",
+            "n": "candidates",
+            "top": "top"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@stage1",
+              "sub": "='top ' + candidates",
+              "tone": "=inCands < 1 ? 'bad' : 'info'"
+            },
+            {
+              "label": "@stage2",
+              "sub": "=rerank ? (real ? 'LLM' : '@simShort') : '@off'",
+              "tone": "=rerank ? 'neutral' : 'dim'"
+            },
+            {
+              "label": "@final",
+              "sub": "='top ' + top",
+              "tone": "=r == 1 ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@cands",
+          "columns": [
+            "#",
+            "@chunk",
+            "@hyb",
+            "@rr"
+          ],
+          "rows": "=zip(scale(cands, 1), candTexts, roundall(scale(pickall(hyb, cands), 100), 0), rerank ? roundall(scale(rr, 100), 0) : fill(len(cands), '–'))"
+        },
+        {
+          "type": "table",
+          "label": "@finalTable",
+          "columns": [
+            "#",
+            "@chunk"
+          ],
+          "rows": "=zip(scale(final, 1), pickall(chunkTexts, final))",
+          "tones": "=fill(len(final), r == 1 ? 'ok' : 'warn')"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@recall",
+              "value": "=round(r * 100)",
+              "format": "pct",
+              "tone": "=r == 1 ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@inCands",
+              "value": "=round(inCands * 100)",
+              "format": "pct",
+              "tone": "=inCands == 1 ? 'dim' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=real && !realRerankOk",
+          "tone": "warn",
+          "text": "@failNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "rerank",
+      "args": {
+        "candidates": "candTexts",
+        "query": "text",
+        "system": "{rerankSys}"
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "rerank",
+      "args": {
+        "candidates": "candTexts",
+        "query": "text",
+        "system": "{rerankSys}"
+      }
+    }
+  }
+}

@@ -1,0 +1,315 @@
+{
+  "title": "Two-part questions",
+  "subtitle": "One search brings one topic; split the question and merge the results",
+  "mission": "Employees ask two things at once: \"can I sell vacation and how much is the VR?\". Make search bring chunks for both parts by splitting the question into smaller queries.",
+  "predict": {
+    "question": "with a single search and top 2, does the vacation + VR question bring chunks for both topics?",
+    "options": {
+      "both": "Both",
+      "one": "Only the vacation one"
+    }
+  },
+  "feedback": {
+    "right": "right: a compound question’s vector is dominated by the strongest topic (vacation), and other vacation chunks crowd out the VR one.",
+    "wrong": "only the vacation one: the strongest topic dominates the search and other vacation chunks push VR out of the top 2.",
+    "skipped": "no guess? Run with --queries 1 and see what comes back."
+  },
+  "coach": {
+    "ui": "guess noted. Set \"Queries\" to 1 and run; then to 2.",
+    "cmd": "guess noted. Run ask --queries 1 and then --queries 2."
+  },
+  "tryNext": {
+    "ui": "Now the home internet question: it has one part, but the answer needs two chunks. Does splitting help? Try top 3.",
+    "cmd": "Run ask \"Can I claim my home internet?\" --top 3."
+  },
+  "why": {
+    "simples": "When someone asks two things together, search tends to grab the stronger one and forget the other.\nThe trick is to split into two questions, search each and merge what comes back, like making two shopping lists for two stores.",
+    "dev": "Query decomposition: a step (a simple rule or an LLM) splits the question into sub-questions; each goes to search, and results are merged without duplicates and reranked (RRF or a reranker) before reaching the LLM.\nVariants: multi-query (the LLM generates rephrasings of the same question) and HyDE (it generates a hypothetical answer and searches for it). All cost extra calls: use them when recall on compound questions is low.",
+    "especialista": "Not every multi-document answer comes from a compound question: \"can I claim internet?\" needs the rule (not reimbursed) and the reason (the allowance covers it), which the question doesn’t mention. There, a bigger top-k with a reranker helps, as does linking related chunks in the index (cross-references) or iterative search, where the model reads the first chunk and decides to search again.\nEvaluate with questions labeled with every needed chunk and measure full recall (all chunks), not just \"at least one\"."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: set \"Queries\" back to 1 with the vacation + VR question.",
+      "cmd": "time to break it: run ask --queries 1"
+    },
+    "success": "Broken: with a single query, {got} of {parts} needed chunks came back. The assistant would answer half the question and ignore the rest.",
+    "calm": "{got} of {parts} chunks with {queries} query(ies). To break it, use a single query on a two-part question."
+  },
+  "hints": {
+    "ui": [
+      "Pick a question and hit Run.",
+      "\"Queries 2\" splits the question at \"and\" and searches each part separately.",
+      "Queries 1 with the vacation + VR question."
+    ],
+    "cmd": [
+      "The question goes in quotes, after ask.",
+      "--queries 1 or 2; --top how many chunks in total.",
+      "ask --queries 1"
+    ]
+  },
+  "errors": {
+    "aboveMax.queries": "Up to 2 queries in this exercise.",
+    "belowMin.queries": "At least 1 query.",
+    "aboveMax.top": "Up to 6 chunks."
+  },
+  "controls": {
+    "arg": "Question",
+    "top": "Chunks in total (top)",
+    "queries": "Queries"
+  },
+  "scene": {
+    "label": "Search with decomposition",
+    "empty": "Run to search.",
+    "q": "Question",
+    "sub1": "query 1",
+    "sub2": "query 2",
+    "single": "single query",
+    "merge": "Merge",
+    "table": "Chunks found",
+    "source": "section",
+    "chunk": "chunk",
+    "recall": "needed chunks found",
+    "queries": "queries",
+    "simNote": "Vector search, as in the index lesson. Simulated mode: hand-written similarities. Use \"In the browser\" for real embeddings of each query."
+  },
+  "data": {
+    "chunkTexts": [
+      "Vacation must be requested through the employee portal 30 days in advance and needs the manager’s approval.",
+      "Vacation can be split into up to three periods: one of at least 14 days and the others of at least 5 days each.",
+      "Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.",
+      "The meal allowance (VR) is R$ 45 per working day; anyone may swap it for the grocery allowance (VA) of the same value.",
+      "The health plan covers spouses and children up to 24 as dependents, with co-payment on appointments.",
+      "The PLR profit share is paid in March, proportional to how well company and team goals were met the previous year.",
+      "Remote work is allowed up to 2 days a week, agreed with the manager at the start of each month.",
+      "Anyone with remote days gets a R$ 120 monthly home office allowance, paid with the salary.",
+      "Work expenses are reimbursed with an invoice uploaded in the expenses app within 30 days.",
+      "Home internet and electricity aren’t reimbursable: those costs are already covered by the home office allowance.",
+      "To change your portal password, go to My profile > Security or call IT extension 4000.",
+      "To use the VPN, install the corporate app and select the AUR-VPN-02 profile."
+    ],
+    "chunkSources": [
+      "Vacation",
+      "Vacation",
+      "Vacation",
+      "Benefits",
+      "Benefits",
+      "Benefits",
+      "Remote work",
+      "Remote work",
+      "Expenses",
+      "Expenses",
+      "IT",
+      "IT"
+    ],
+    "semSims": {
+      "How far in advance do I request vacation?": [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Can I split my vacation?": [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "When is the PLR paid?": [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Which VPN profile do I use?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      "Who can be a dependent on the health plan?": [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Can I claim my home internet?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      "How long before should I tell them I’ll take time off?": [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Can I sell part of my vacation and how much VR do I get per day?": [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "I forgot my password, what do I do?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ]
+    },
+    "goldMap": {
+      "How far in advance do I request vacation?": [
+        0
+      ],
+      "Can I split my vacation?": [
+        1
+      ],
+      "When is the PLR paid?": [
+        5
+      ],
+      "Which VPN profile do I use?": [
+        11
+      ],
+      "Who can be a dependent on the health plan?": [
+        4
+      ],
+      "Can I claim my home internet?": [
+        9,
+        7
+      ],
+      "How long before should I tell them I’ll take time off?": [
+        0
+      ],
+      "Can I sell part of my vacation and how much VR do I get per day?": [
+        2,
+        3
+      ],
+      "I forgot my password, what do I do?": [
+        10
+      ]
+    },
+    "stop": [
+      "what",
+      "which",
+      "how",
+      "when",
+      "where",
+      "can",
+      "could",
+      "the",
+      "for",
+      "with",
+      "does",
+      "did",
+      "was",
+      "my",
+      "your",
+      "that",
+      "this",
+      "get",
+      "have",
+      "has",
+      "and",
+      "you",
+      "do",
+      "to",
+      "of",
+      "in",
+      "is",
+      "an",
+      "on",
+      "a",
+      "i",
+      "it",
+      "me",
+      "long",
+      "far",
+      "far",
+      "should",
+      "tell",
+      "them",
+      "ll"
+    ],
+    "splitter": " and "
+  },
+  "recipe": {
+    "steps": [
+      "Write 3 two-part questions about a document of yours and mark each part’s chunks.",
+      "Search each whole question (top 2) and note how many right chunks came back.",
+      "Ask an LLM: \"split this question into independent sub-questions, one per line\"; search each (top 1) and merge."
+    ],
+    "ok": "with the whole question at least one misses a chunk; with sub-questions, all 3 bring both parts’ chunks."
+  }
+}

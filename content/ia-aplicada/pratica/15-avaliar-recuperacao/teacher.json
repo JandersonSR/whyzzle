@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Montar um conjunto de teste com gabarito.",
+      "Calcular recall@k.",
+      "Escolher configuração por número, não por impressão."
+    ],
+    "minutes": 25,
+    "activity": "A turma escreve 10 perguntas com gabarito sobre um texto conhecido; cada grupo testa um modo e um k, e o quadro mostra o placar.",
+    "discussion": [
+      "Por que separar avaliação da busca e da resposta?",
+      "Quantas perguntas bastam para confiar no número?"
+    ],
+    "misconceptions": [
+      "\"Testei umas perguntas e funcionou.\" Sem gabarito e número, não dá para comparar mudanças."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Build a labeled test set.",
+      "Compute recall@k.",
+      "Choose configuration by number, not by feel."
+    ],
+    "minutes": 25,
+    "activity": "The class writes 10 labeled questions about a known text; each group tests one mode and one k, and the board shows the scoreboard.",
+    "discussion": [
+      "Why evaluate search apart from the answer?",
+      "How many questions are enough to trust the number?"
+    ],
+    "misconceptions": [
+      "\"I tried a few questions and it worked.\" Without a key and a number you can’t compare changes."
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Exigir citação verificável.",
+      "Configurar recusa por limite e por instrução.",
+      "Reconhecer alucinação por falta de base."
+    ],
+    "minutes": 20,
+    "activity": "Em duplas: um faz perguntas, o outro só pode responder lendo um trecho do manual e dizendo o número. Quando não houver trecho, precisa dizer \"não encontrei\".",
+    "discussion": [
+      "Em que área errar a resposta é pior do que não responder?",
+      "Como provar que a citação sustenta a frase?"
+    ],
+    "misconceptions": [
+      "\"Se citou, está certo.\" O modelo pode citar um trecho e dizer outra coisa."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Require verifiable citations.",
+      "Set up refusal by threshold and by instruction.",
+      "Recognize hallucination from missing grounding."
+    ],
+    "minutes": 20,
+    "activity": "In pairs: one asks questions, the other may only answer by reading a handbook chunk and saying its number. With no chunk, they must say \"couldn’t find it\".",
+    "discussion": [
+      "In which area is a wrong answer worse than none?",
+      "How do you prove the citation supports the sentence?"
+    ],
+    "misconceptions": [
+      "\"If it cited, it’s right.\" The model can cite a chunk and say something else."
+    ]
+  }
+}

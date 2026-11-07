@@ -1,0 +1,314 @@
+{
+  "title": "Measure search: recall@k",
+  "subtitle": "A labeled question set decides, not gut feeling",
+  "mission": "Before putting Aurora’s assistant in production, measure search with 9 questions that have an answer key (the right chunks). Compare the three modes and pick the k that keeps recall above 80%.",
+  "predict": {
+    "question": "with k = 2, which mode has the highest mean recall over the 9 questions?",
+    "options": {
+      "vector": "Vector",
+      "keyword": "Keyword",
+      "hybrid": "Hybrid"
+    }
+  },
+  "feedback": {
+    "right": "right: vectors miss acronyms, keywords miss synonyms, and hybrid catches most of both. Now it’s a number, not a hunch.",
+    "wrong": "hybrid wins: each pure mode misses one kind of question and the mix covers both. Look at the three metrics side by side.",
+    "skipped": "no guess? Compare the three metrics at the top of the scene."
+  },
+  "coach": {
+    "ui": "guess noted. Run and compare the three numbers at the top; switch mode to see each question.",
+    "cmd": "guess noted. Run evaluate and compare the three numbers; then --mode vector and --mode keyword."
+  },
+  "tryNext": {
+    "ui": "Move k from 1 to 4. From what value does hybrid pass 80%? And weight: is there a value that does better?",
+    "cmd": "Run evaluate --k 1, --k 3 and then --weight 0.3 and --weight 0.7."
+  },
+  "why": {
+    "simples": "To know if search is good, we give it a test with an answer key: questions whose answers we already know the location of.\nRecall@k is the grade: for each question, how many right chunks showed up in the first k.",
+    "dev": "Recall@k = right chunks in the top k ÷ right chunks in the key, averaged over questions. It measures search apart from the LLM: if the chunk doesn’t arrive, no prompt saves the answer.\nBuild the set from real questions (logs, tickets, HR queries), include synonyms, acronyms and compound questions, and run it on every PR touching clean-up, chunking, embedding model, weights or reranker. Tools like Ragas, TruLens or a simple script do this.",
+    "especialista": "Recall@k says whether the chunk arrived; MRR and nDCG say at which rank, which matters if you send few chunks to the LLM. After search, evaluate generation separately: faithfulness to context and answer relevance.\nWith 9 questions each one is worth 11 points: the number swings a lot. Use tens to hundreds, hold out a set you don’t tune weights on (to avoid overfitting) and track by slice (acronym, synonym, compound)."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: keyword mode and k = 1.",
+      "cmd": "time to break it: run evaluate --mode keyword --k 1"
+    },
+    "success": "Broken: in {mode} mode with k = {k}, mean recall dropped to {meanPct}% ({misses} questions missing chunks). That number would fail the assistant before production.",
+    "calm": "Mean recall {meanPct}% in {mode} mode with k = {k}. To break it, use a pure mode and a small k."
+  },
+  "hints": {
+    "ui": [
+      "Move the controls; the scene updates by itself.",
+      "The red line is the 80% goal; each bar is a question from the key.",
+      "Keyword mode, k = 1."
+    ],
+    "cmd": [
+      "The set name is optional; the flags do the work.",
+      "--mode vector, keyword or hybrid; --k 1 to 6; --weight 0 to 1.",
+      "evaluate --mode keyword --k 1"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Modes: vector, keyword or hybrid.",
+    "aboveMax.k": "Up to k = 6.",
+    "belowMin.k": "k starts at 1.",
+    "aboveMax.weight": "Weight goes from 0 to 1."
+  },
+  "controls": {
+    "arg": "Test set",
+    "mode": "Search mode",
+    "k": "k",
+    "weight": "Vector weight (hybrid)"
+  },
+  "scene": {
+    "label": "Search evaluation",
+    "empty": "Run to evaluate.",
+    "vec": "vector",
+    "kw": "keyword",
+    "hyb": "hybrid",
+    "chart": "Recall@k per question",
+    "goal": "80% goal",
+    "recallK": "recall@k %",
+    "table": "Answer key",
+    "question": "question",
+    "goodNote": "Goal met: search delivers the right chunks to the LLM for most questions.",
+    "lowNote": "Below goal: for several questions the right chunk never reaches the LLM.",
+    "simNote": "Simulated mode: hand-written vectors, real BM25. Use \"In the browser\" to measure with real embeddings."
+  },
+  "data": {
+    "chunkTexts": [
+      "Vacation must be requested through the employee portal 30 days in advance and needs the manager’s approval.",
+      "Vacation can be split into up to three periods: one of at least 14 days and the others of at least 5 days each.",
+      "Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.",
+      "The meal allowance (VR) is R$ 45 per working day; anyone may swap it for the grocery allowance (VA) of the same value.",
+      "The health plan covers spouses and children up to 24 as dependents, with co-payment on appointments.",
+      "The PLR profit share is paid in March, proportional to how well company and team goals were met the previous year.",
+      "Remote work is allowed up to 2 days a week, agreed with the manager at the start of each month.",
+      "Anyone with remote days gets a R$ 120 monthly home office allowance, paid with the salary.",
+      "Work expenses are reimbursed with an invoice uploaded in the expenses app within 30 days.",
+      "Home internet and electricity aren’t reimbursable: those costs are already covered by the home office allowance.",
+      "To change your portal password, go to My profile > Security or call IT extension 4000.",
+      "To use the VPN, install the corporate app and select the AUR-VPN-02 profile."
+    ],
+    "questions": [
+      "How far in advance do I request vacation?",
+      "Can I split my vacation?",
+      "When is the PLR paid?",
+      "Which VPN profile do I use?",
+      "Who can be a dependent on the health plan?",
+      "Can I claim my home internet?",
+      "How long before should I tell them I’ll take time off?",
+      "Can I sell part of my vacation and how much VR do I get per day?",
+      "I forgot my password, what do I do?"
+    ],
+    "golds": [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        5
+      ],
+      [
+        11
+      ],
+      [
+        4
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        0
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        10
+      ]
+    ],
+    "semMatrix": [
+      [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ]
+    ],
+    "stop": [
+      "what",
+      "which",
+      "how",
+      "when",
+      "where",
+      "can",
+      "could",
+      "the",
+      "for",
+      "with",
+      "does",
+      "did",
+      "was",
+      "my",
+      "your",
+      "that",
+      "this",
+      "get",
+      "have",
+      "has",
+      "and",
+      "you",
+      "do",
+      "to",
+      "of",
+      "in",
+      "is",
+      "an",
+      "on",
+      "a",
+      "i",
+      "it",
+      "me",
+      "long",
+      "far",
+      "far",
+      "should",
+      "tell",
+      "them",
+      "ll"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Write 20 real questions about your documents and note, for each, the chunks that answer it (the key).",
+      "For each search mode, take the top k chunks and compute recall = right found ÷ right in the key.",
+      "Average it and build a mode × k table."
+    ],
+    "ok": "you have one number per configuration and can say \"hybrid with k = 3 gives X%\"; when you change the pipeline, rerun and see if it improved."
+  }
+}

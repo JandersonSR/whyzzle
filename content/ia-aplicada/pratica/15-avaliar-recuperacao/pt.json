@@ -1,0 +1,323 @@
+{
+  "title": "Medir a busca: recall@k",
+  "subtitle": "Um conjunto de perguntas com gabarito decide, não a intuição",
+  "mission": "Antes de pôr o assistente da Aurora em produção, meça a busca com 9 perguntas que têm gabarito (os trechos certos). Compare os três modos e escolha o k que deixa o recall acima de 80%.",
+  "predict": {
+    "question": "com k = 2, qual modo tem o maior recall médio nas 9 perguntas?",
+    "options": {
+      "vector": "Vetor",
+      "keyword": "Palavra-chave",
+      "hybrid": "Híbrida"
+    }
+  },
+  "feedback": {
+    "right": "isso: o vetor erra as siglas, a palavra-chave erra os sinônimos, e a híbrida pega a maior parte dos dois. Agora é um número, não uma impressão.",
+    "wrong": "a híbrida vence: cada modo puro erra um tipo de pergunta e a mistura cobre os dois. Olhe as três métricas lado a lado.",
+    "skipped": "sem palpite? Compare as três métricas no topo da cena."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode e compare os três números do topo; troque o modo para ver cada pergunta.",
+    "cmd": "palpite anotado. Rode avaliar e compare os três números; depois --modo vetor e --modo palavra."
+  },
+  "tryNext": {
+    "ui": "Mexa no k de 1 a 4. A partir de quanto a híbrida passa de 80%? E o peso: existe um valor que melhora?",
+    "cmd": "Rode avaliar --k 1, --k 3 e depois --peso 0.3 e --peso 0.7."
+  },
+  "why": {
+    "simples": "Para saber se a busca é boa, a gente faz uma prova com gabarito: perguntas cujas respostas já sabemos onde estão.\nRecall@k é a nota: de cada pergunta, quantos trechos certos apareceram entre os k primeiros.",
+    "dev": "Recall@k = trechos certos no top k ÷ trechos certos no gabarito, com média nas perguntas. Ele mede a busca isolada do LLM: se o trecho não chega, nenhum prompt salva a resposta.\nMonte o conjunto com perguntas reais (logs, tickets, dúvidas do RH), inclua sinônimos, siglas e perguntas compostas, e rode em todo PR que mexer em limpeza, fatiamento, modelo de embedding, pesos ou reranker. Ferramentas como Ragas, TruLens ou um script simples fazem isso.",
+    "especialista": "Recall@k diz se o trecho chegou; MRR e nDCG dizem em que posição, o que importa se você manda poucos trechos ao LLM. Depois da busca, avalie a geração separado: fidelidade ao contexto e relevância da resposta.\nCom 9 perguntas, cada uma vale 11 pontos: o número oscila muito. Use dezenas a centenas, separe um conjunto que você não usa para calibrar pesos (para não superajustar) e acompanhe por fatia (sigla, sinônimo, composta)."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: modo palavra e k = 1.",
+      "cmd": "hora de quebrar: rode avaliar --modo palavra --k 1"
+    },
+    "success": "Quebrou: no modo {mode} com k = {k}, o recall médio caiu para {meanPct}% ({misses} perguntas sem todos os trechos). Esse número reprovaria o assistente antes de ir para produção.",
+    "calm": "Recall médio {meanPct}% no modo {mode} com k = {k}. Para quebrar, use um modo puro e k pequeno."
+  },
+  "hints": {
+    "ui": [
+      "Mexa nos controles; a cena atualiza sozinha.",
+      "A linha vermelha é a meta de 80%; cada barra é uma pergunta do gabarito.",
+      "Modo palavra, k = 1."
+    ],
+    "cmd": [
+      "O nome do conjunto é opcional; os flags fazem o trabalho.",
+      "--modo vetor, palavra ou hibrida; --k de 1 a 6; --peso de 0 a 1.",
+      "avaliar --modo palavra --k 1"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Modos: vetor, palavra ou hibrida.",
+    "aboveMax.k": "Até k = 6.",
+    "belowMin.k": "k começa em 1.",
+    "aboveMax.weight": "O peso vai de 0 a 1."
+  },
+  "controls": {
+    "arg": "Conjunto de teste",
+    "mode": "Modo de busca",
+    "k": "k",
+    "weight": "Peso do vetor (híbrida)"
+  },
+  "scene": {
+    "label": "Avaliação da busca",
+    "empty": "Rode para avaliar.",
+    "vec": "vetor",
+    "kw": "palavra-chave",
+    "hyb": "híbrida",
+    "chart": "Recall@k por pergunta",
+    "goal": "meta 80%",
+    "recallK": "recall@k %",
+    "table": "Gabarito",
+    "question": "pergunta",
+    "goodNote": "Passou da meta: a busca entrega os trechos certos para o LLM na maioria das perguntas.",
+    "lowNote": "Abaixo da meta: em várias perguntas o trecho certo nem chega ao LLM.",
+    "simNote": "Modo simulado: vetores escritos à mão, BM25 de verdade. Use \"No navegador\" para medir com embeddings reais."
+  },
+  "data": {
+    "chunkTexts": [
+      "As férias devem ser solicitadas pelo portal do colaborador com 30 dias de antecedência e dependem da aprovação do gestor.",
+      "É possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.",
+      "O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+      "O vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.",
+      "O plano de saúde cobre cônjuge e filhos até 24 anos como dependentes, com coparticipação nas consultas.",
+      "A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+      "O trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.",
+      "Quem tem dias de trabalho remoto recebe um auxílio home office de R$ 120 por mês, pago junto com o salário.",
+      "Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.",
+      "Internet e energia de casa não são reembolsáveis: esses custos já são cobertos pelo auxílio home office.",
+      "Para trocar a senha do portal, use Meu perfil > Segurança ou ligue no ramal 4000 da TI.",
+      "Para acessar a VPN, instale o app corporativo e selecione o perfil AUR-VPN-02."
+    ],
+    "questions": [
+      "Com quanta antecedência eu peço férias?",
+      "Posso dividir minhas férias?",
+      "Quando sai a PLR?",
+      "Qual perfil de VPN eu uso?",
+      "Quem pode ser dependente no plano de saúde?",
+      "Posso pedir reembolso da internet de casa?",
+      "Quanto tempo antes devo avisar que vou descansar?",
+      "Posso vender parte das férias e quanto recebo de VR por dia?",
+      "Esqueci minha senha, o que faço?"
+    ],
+    "golds": [
+      [
+        0
+      ],
+      [
+        1
+      ],
+      [
+        5
+      ],
+      [
+        11
+      ],
+      [
+        4
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        0
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        10
+      ]
+    ],
+    "semMatrix": [
+      [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ]
+    ],
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "quanta",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "uma",
+      "uns",
+      "umas",
+      "tem",
+      "faco",
+      "fazer",
+      "devo",
+      "eu",
+      "de",
+      "do",
+      "da",
+      "das",
+      "dos",
+      "no",
+      "na",
+      "nos",
+      "nas",
+      "o",
+      "a",
+      "os",
+      "as",
+      "e",
+      "ou",
+      "em",
+      "ao",
+      "se",
+      "sai",
+      "vou"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Escreva 20 perguntas reais sobre seus documentos e anote, para cada uma, os trechos que respondem (o gabarito).",
+      "Para cada modo de busca, pegue os k primeiros trechos e calcule recall = certos encontrados ÷ certos no gabarito.",
+      "Faça a média e monte uma tabela modo × k."
+    ],
+    "ok": "você tem um número por configuração e consegue dizer \"híbrida com k = 3 dá X%\"; ao mudar algo no pipeline, roda de novo e vê se melhorou."
+  }
+}

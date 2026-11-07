@@ -1,0 +1,225 @@
+{
+  "id": "p-avaliar-recuperacao",
+  "order": 15,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "rag",
+    "avaliacao",
+    "recall-at-k",
+    "conjunto-de-teste"
+  ],
+  "requires": [
+    "p-perguntas-compostas"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "avaliar",
+      "en": "evaluate"
+    },
+    "arg": {
+      "name": "set",
+      "required": false,
+      "ui": "text",
+      "default": {
+        "pt": "manual-aurora",
+        "en": "aurora-handbook"
+      }
+    },
+    "flags": [
+      {
+        "name": "mode",
+        "alias": {
+          "pt": "modo",
+          "en": "mode"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "vector",
+            "pt": "vetor",
+            "en": "vector"
+          },
+          {
+            "id": "keyword",
+            "pt": "palavra",
+            "en": "keyword"
+          },
+          {
+            "id": "hybrid",
+            "pt": "hibrida",
+            "en": "hybrid"
+          }
+        ],
+        "default": "hybrid",
+        "ui": "select"
+      },
+      {
+        "name": "k",
+        "alias": {
+          "pt": "k",
+          "en": "k"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 6,
+        "default": 2,
+        "ui": "slider"
+      },
+      {
+        "name": "weight",
+        "alias": {
+          "pt": "peso",
+          "en": "weight"
+        },
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "default": 0.5,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "vector",
+      "keyword",
+      "hybrid"
+    ],
+    "answer": "hybrid"
+  },
+  "break": {
+    "flag": "lowRecall"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "real": false,
+        "realMatrix": []
+      },
+      "compute": {
+        "vecM": "real ? realMatrix : semMatrix",
+        "kwM": "bm25all(questions, chunkTexts, stop)",
+        "vM": "minmaxall(vecM)",
+        "hM": "blendall(vM, kwM, weight)",
+        "M": "mode == 'vector' ? vM : (mode == 'keyword' ? kwM : hM)",
+        "recs": "recallall(M, golds, k)",
+        "mean": "sum(recs) / len(recs)",
+        "meanV": "sum(recallall(vM, golds, k)) / len(golds)",
+        "meanK": "sum(recallall(kwM, golds, k)) / len(golds)",
+        "meanH": "sum(recallall(hM, golds, k)) / len(golds)"
+      },
+      "cases": [
+        {
+          "when": "mean >= 0.8",
+          "flags": [
+            "good"
+          ]
+        },
+        {
+          "when": "mean < 0.8",
+          "flags": [
+            "lowRecall"
+          ]
+        },
+        {
+          "when": "meanH >= meanV && meanH >= meanK",
+          "flags": [
+            "hybridBest"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "meanPct": "round(mean * 100)",
+            "k": "k",
+            "mode": "mode",
+            "misses": "len(recs) - count(recs, 1)"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@vec",
+              "value": "=round(meanV * 100)",
+              "format": "pct",
+              "tone": "=mode == 'vector' ? 'info' : 'dim'"
+            },
+            {
+              "label": "@kw",
+              "value": "=round(meanK * 100)",
+              "format": "pct",
+              "tone": "=mode == 'keyword' ? 'info' : 'dim'"
+            },
+            {
+              "label": "@hyb",
+              "value": "=round(meanH * 100)",
+              "format": "pct",
+              "tone": "=mode == 'hybrid' ? 'info' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "label": "@chart",
+          "labels": "=range(len(recs), 1)",
+          "max": 100,
+          "threshold": {
+            "value": 80,
+            "label": "@goal"
+          },
+          "series": [
+            {
+              "name": "@recallK",
+              "values": "=roundall(scale(recs, 100), 0)"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@question",
+            "@recallK"
+          ],
+          "rows": "=zip(questions, roundall(scale(recs, 100), 0))"
+        },
+        {
+          "type": "note",
+          "tone": "=mean >= 0.8 ? 'ok' : 'bad'",
+          "text": "=mean >= 0.8 ? '@goodNote' : '@lowNote'"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Xenova/multilingual-e5-small",
+      "op": "embedmatrix",
+      "args": {
+        "queries": "questions",
+        "against": "chunkTexts",
+        "queryPrefix": "query: ",
+        "passagePrefix": "passage: "
+      }
+    }
+  }
+}

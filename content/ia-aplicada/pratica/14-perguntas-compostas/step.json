@@ -1,0 +1,229 @@
+{
+  "id": "p-perguntas-compostas",
+  "order": 14,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "rag",
+    "multi-documento",
+    "decomposicao",
+    "consultas"
+  ],
+  "requires": [
+    "p-citar-e-recusar"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "perguntar",
+      "en": "ask"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Posso vender parte das férias e quanto recebo de VR por dia?",
+        "en": "Can I sell part of my vacation and how much VR do I get per day?"
+      },
+      "examples": [
+        {
+          "pt": "Posso vender parte das férias e quanto recebo de VR por dia?",
+          "en": "Can I sell part of my vacation and how much VR do I get per day?"
+        },
+        {
+          "pt": "Posso pedir reembolso da internet de casa?",
+          "en": "Can I claim my home internet?"
+        },
+        {
+          "pt": "Com quanta antecedência eu peço férias?",
+          "en": "How far in advance do I request vacation?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "top",
+        "alias": {
+          "pt": "top",
+          "en": "top"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 6,
+        "default": 2,
+        "ui": "slider"
+      },
+      {
+        "name": "queries",
+        "alias": {
+          "pt": "consultas",
+          "en": "queries"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 2,
+        "default": 2,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "both",
+      "one"
+    ],
+    "answer": "one"
+  },
+  "break": {
+    "flag": "partial"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realMatrix": []
+      },
+      "compute": {
+        "subs": "split(text, splitter)",
+        "q1": "subs[0]",
+        "q2": "len(subs) > 1 ? subs[1] : subs[0]",
+        "queriesList": "[text, q1, q2]",
+        "v0": "real ? realMatrix[0] : roundall(lookup(semSims, text, affine(clampall(scale(overlapall(text, chunkTexts, stop), 4), 0, 1), 0.7, 0.2)), 3)",
+        "v1": "real ? realMatrix[1] : roundall(lookup(semSims, q1, affine(clampall(scale(overlapall(q1, chunkTexts, stop), 4), 0, 1), 0.7, 0.2)), 3)",
+        "v2": "real ? realMatrix[2] : roundall(lookup(semSims, q2, affine(clampall(scale(overlapall(q2, chunkTexts, stop), 4), 0, 1), 0.7, 0.2)), 3)",
+        "h0": "v0",
+        "h1": "v1",
+        "h2": "v2",
+        "two": "queries == 2 && len(subs) > 1",
+        "per": "max(1, ceil(top / 2))",
+        "found": "two ? unique(concat(topk(h1, per), topk(h2, per))) : topk(h0, top)",
+        "gold": "lookup(goldMap, text, [])",
+        "r": "recall(found, gold)"
+      },
+      "cases": [
+        {
+          "when": "r == 1",
+          "flags": [
+            "complete"
+          ]
+        },
+        {
+          "when": "r < 1",
+          "flags": [
+            "partial"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "recallPct": "round(r * 100)",
+            "parts": "len(gold)",
+            "got": "round(r * len(gold))",
+            "queries": "two ? 2 : 1"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "when": "=two",
+          "steps": [
+            {
+              "label": "@q",
+              "tone": "info"
+            },
+            {
+              "label": "=q1",
+              "sub": "@sub1",
+              "tone": "neutral"
+            },
+            {
+              "label": "=q2",
+              "sub": "@sub2",
+              "tone": "neutral"
+            },
+            {
+              "label": "@merge",
+              "sub": "='top ' + top",
+              "tone": "=r == 1 ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "when": "=!two",
+          "steps": [
+            {
+              "label": "@q",
+              "tone": "info"
+            },
+            {
+              "label": "=text",
+              "sub": "@single",
+              "tone": "neutral"
+            },
+            {
+              "label": "@merge",
+              "sub": "='top ' + top",
+              "tone": "=r == 1 ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "#",
+            "@source",
+            "@chunk"
+          ],
+          "rows": "=zip(scale(found, 1), pickall(chunkSources, found), pickall(chunkTexts, found))",
+          "tones": "=fill(len(found), r == 1 ? 'ok' : 'warn')"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@recall",
+              "value": "=round(r * 100)",
+              "format": "pct",
+              "tone": "=r == 1 ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@queries",
+              "value": "=two ? 2 : 1",
+              "format": "int",
+              "tone": "neutral"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Xenova/multilingual-e5-small",
+      "op": "embedmatrix",
+      "args": {
+        "queries": "queriesList",
+        "against": "chunkTexts",
+        "queryPrefix": "query: ",
+        "passagePrefix": "passage: "
+      }
+    }
+  }
+}

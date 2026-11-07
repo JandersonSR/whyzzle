@@ -1,0 +1,323 @@
+{
+  "title": "Cite the source and know when to refuse",
+  "subtitle": "Answers with [n] to check, and \"I don’t know\" when the handbook doesn’t say",
+  "mission": "Aurora’s HR assistant will answer real employees. Make it cite the chunk behind each answer and refuse when the handbook doesn’t cover the topic, instead of making things up.",
+  "predict": {
+    "question": "someone asks the gym’s opening hours, which aren’t in the handbook. With refusal on, the assistant…",
+    "options": {
+      "refuse": "Says it couldn’t find it and forwards to HR",
+      "invent": "Makes up hours",
+      "cite": "Answers citing a chunk"
+    }
+  },
+  "feedback": {
+    "right": "right: no chunk passed the confidence threshold, and the refusal instruction says to answer \"couldn’t find it\". An honest \"don’t know\" beats made-up hours.",
+    "wrong": "with refusal on it says it couldn’t find it and forwards. Without that instruction, the model tends to answer with no basis: the hallucination you’ll trigger at the end.",
+    "skipped": "no guess? Run the gym question."
+  },
+  "coach": {
+    "ui": "guess noted. Run the gym question; then one from the handbook and look for the [n] at the end.",
+    "cmd": "guess noted. Run answer \"What are the company gym’s opening hours?\" and then a handbook question."
+  },
+  "tryNext": {
+    "ui": "Turn off \"Cite the source\" and note the warning: the answer may be right, but nobody can check it.",
+    "cmd": "Run answer --cite no and compare with --cite yes."
+  },
+  "why": {
+    "simples": "A good clerk says where the information came from (\"it’s in item 3 of the handbook\") and admits when they don’t know.\nThe assistant does the same: it answers only from the chunks, shows the chunk number and, if nothing fits, hands over to a person.",
+    "dev": "In the prompt: numbered chunks, an instruction to answer only from them, a citation format ([n]) and a fixed refusal sentence. In code: check that every cited [n] exists among the chunks sent, detect the refusal sentence and only show the answer if it passes.\nTwo gates against hallucination: before the LLM (search similarity threshold) and after (valid citation). Providers also offer native citation features, such as the Anthropic API’s Citations, which return the exact passage used.",
+    "especialista": "Citing doesn’t guarantee faithfulness: the model can cite [2] and say something chunk 2 doesn’t. Evaluate with a judge (LLM or human) whether each sentence is supported by the cited chunk, measuring faithfulness apart from relevance.\nCalibrate refusal with real out-of-scope questions: refusing too much frustrates, too little invents HR policy. Log refusals and questions with no good chunk: they become the list of what’s missing from the docs."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: turn off \"Refuse without basis\" and ask the gym hours.",
+      "cmd": "time to break it: run answer \"What are the company gym’s opening hours?\" --refuse no"
+    },
+    "success": "Broken: confidence was {confPct}% (below {limitPct}%) and the assistant still answered \"{out}\". Without a refusal instruction and gate, it fills the gap by making things up.",
+    "calm": "Confidence {confPct}% against a {limitPct}% threshold. To break it, turn refusal off and ask something not in the handbook."
+  },
+  "hints": {
+    "ui": [
+      "Pick a question and hit Run.",
+      "\"Threshold\" is the minimum similarity for the assistant to answer; below it, it refuses (if refusal is on).",
+      "Refusal off, gym question."
+    ],
+    "cmd": [
+      "The question goes in quotes, after answer.",
+      "--cite and --refuse take yes or no; --threshold goes from 0.5 to 0.99.",
+      "answer \"What are the company gym’s opening hours?\" --refuse no"
+    ]
+  },
+  "errors": {
+    "notBool.cite": "Use yes or no.",
+    "notBool.refuse": "Use yes or no.",
+    "belowMin.limit": "Below 0.5 almost anything passes.",
+    "aboveMax.limit": "Above 0.99 nothing passes."
+  },
+  "controls": {
+    "arg": "Question",
+    "cite": "Cite the source",
+    "refuse": "Refuse without basis",
+    "limit": "Minimum confidence"
+  },
+  "scene": {
+    "label": "HR assistant",
+    "empty": "Run to answer.",
+    "retrieve": "Retrieve",
+    "confidence": "Confidence",
+    "generate": "Generate",
+    "check": "Check",
+    "simShort": "simulated",
+    "refusedShort": "refused",
+    "citedShort": "cited",
+    "noCite": "no source",
+    "context": "What the model gets",
+    "chkGrounded": "Answered only from the handbook",
+    "whyGrounded": "no chunk passed the threshold and it answered anyway",
+    "chkCited": "Showed where it came from",
+    "whyCited": "the answer has no [n]; nobody can check it",
+    "simNote": "Simulated mode: canned answers. Use \"Your key\" or \"In the browser\" to generate with a real LLM."
+  },
+  "data": {
+    "chunkTexts": [
+      "Vacation must be requested through the employee portal 30 days in advance and needs the manager’s approval.",
+      "Vacation can be split into up to three periods: one of at least 14 days and the others of at least 5 days each.",
+      "Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.",
+      "The meal allowance (VR) is R$ 45 per working day; anyone may swap it for the grocery allowance (VA) of the same value.",
+      "The health plan covers spouses and children up to 24 as dependents, with co-payment on appointments.",
+      "The PLR profit share is paid in March, proportional to how well company and team goals were met the previous year.",
+      "Remote work is allowed up to 2 days a week, agreed with the manager at the start of each month.",
+      "Anyone with remote days gets a R$ 120 monthly home office allowance, paid with the salary.",
+      "Work expenses are reimbursed with an invoice uploaded in the expenses app within 30 days.",
+      "Home internet and electricity aren’t reimbursable: those costs are already covered by the home office allowance.",
+      "To change your portal password, go to My profile > Security or call IT extension 4000.",
+      "To use the VPN, install the corporate app and select the AUR-VPN-02 profile."
+    ],
+    "numbered": [
+      "[1] Vacation must be requested through the employee portal 30 days in advance and needs the manager’s approval.",
+      "[2] Vacation can be split into up to three periods: one of at least 14 days and the others of at least 5 days each.",
+      "[3] Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.",
+      "[4] The meal allowance (VR) is R$ 45 per working day; anyone may swap it for the grocery allowance (VA) of the same value.",
+      "[5] The health plan covers spouses and children up to 24 as dependents, with co-payment on appointments.",
+      "[6] The PLR profit share is paid in March, proportional to how well company and team goals were met the previous year.",
+      "[7] Remote work is allowed up to 2 days a week, agreed with the manager at the start of each month.",
+      "[8] Anyone with remote days gets a R$ 120 monthly home office allowance, paid with the salary.",
+      "[9] Work expenses are reimbursed with an invoice uploaded in the expenses app within 30 days.",
+      "[10] Home internet and electricity aren’t reimbursable: those costs are already covered by the home office allowance.",
+      "[11] To change your portal password, go to My profile > Security or call IT extension 4000.",
+      "[12] To use the VPN, install the corporate app and select the AUR-VPN-02 profile."
+    ],
+    "semSims": {
+      "How far in advance do I request vacation?": [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Can I split my vacation?": [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "When is the PLR paid?": [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Which VPN profile do I use?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      "Who can be a dependent on the health plan?": [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Can I claim my home internet?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      "How long before should I tell them I’ll take time off?": [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Can I sell part of my vacation and how much VR do I get per day?": [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "I forgot my password, what do I do?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ],
+      "What are the company gym’s opening hours?": [
+        0.73,
+        0.71,
+        0.71,
+        0.72,
+        0.73,
+        0.72,
+        0.74,
+        0.73,
+        0.71,
+        0.72,
+        0.71,
+        0.71
+      ]
+    },
+    "stop": [
+      "what",
+      "which",
+      "how",
+      "when",
+      "where",
+      "can",
+      "could",
+      "the",
+      "for",
+      "with",
+      "does",
+      "did",
+      "was",
+      "my",
+      "your",
+      "that",
+      "this",
+      "get",
+      "have",
+      "has",
+      "and",
+      "you",
+      "do",
+      "to",
+      "of",
+      "in",
+      "is",
+      "an",
+      "on",
+      "a",
+      "i",
+      "it",
+      "me",
+      "long",
+      "far",
+      "far",
+      "should",
+      "tell",
+      "them",
+      "ll"
+    ],
+    "answers": {
+      "How far in advance do I request vacation?": "Request it in the employee portal 30 days in advance; your manager must approve.",
+      "When is the PLR paid?": "The PLR is paid in March, based on the previous year’s goals.",
+      "Who can be a dependent on the health plan?": "Spouses and children up to 24, with co-payment on appointments.",
+      "I forgot my password, what do I do?": "Change it in My profile > Security or call extension 4000."
+    },
+    "invented": {
+      "What are the company gym’s opening hours?": "The gym is open 6 am to 10 pm, Monday to Saturday."
+    },
+    "inventedDefault": "Yes, that’s allowed for all employees.",
+    "refusal": "I couldn’t find that in the handbook. I’ll forward your question to HR.",
+    "refusalMark": "couldn’t find",
+    "systems": {
+      "cr": "Answer in English, in one or two sentences, using only the numbered chunks. End each sentence with the chunk number in brackets, like [3]. If the chunks don’t answer, say exactly: \"I couldn’t find that in the handbook. I’ll forward your question to HR.\"",
+      "cn": "Answer in English, in one or two sentences, using only the numbered chunks. End each sentence with the chunk number in brackets, like [3].",
+      "nr": "Answer in English, in one or two sentences, using only the numbered chunks. If the chunks don’t answer, say exactly: \"I couldn’t find that in the handbook. I’ll forward your question to HR.\"",
+      "nn": "Answer in English, in one or two sentences, using only the numbered chunks."
+    },
+    "systemShown": "instructions: chunks only, [n], refusal",
+    "qLabel": "Question"
+  },
+  "recipe": {
+    "steps": [
+      "Build a prompt with 3 numbered chunks from a document of yours and the instruction \"answer only from the chunks, cite [n] and, if there’s no answer, say exactly: I couldn’t find it\".",
+      "Ask 3 questions the chunks answer and 2 they don’t, on an LLM with your key.",
+      "In code, extract the [n] with a regular expression and check that each number is among the chunks sent."
+    ],
+    "ok": "the 3 answers carry valid [n] and the 2 off-topic questions get the refusal sentence, with no made-up information."
+  }
+}

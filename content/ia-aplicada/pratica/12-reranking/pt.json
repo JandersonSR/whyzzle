@@ -1,0 +1,315 @@
+{
+  "title": "Reranking: a segunda opinião",
+  "subtitle": "Buscar muitos candidatos rápido (vetor) e reordenar poucos com cuidado",
+  "mission": "A pergunta \"Posso pedir reembolso da internet de casa?\" precisa de dois trechos: o que diz que não reembolsa e o do auxílio home office. Use um reranker para colocar os dois no top 2 e descubra quantos candidatos ele precisa receber.",
+  "predict": {
+    "question": "sem reranker, o top 2 da busca híbrida traz os dois trechos da resposta?",
+    "options": {
+      "yes": "Traz os dois",
+      "no": "Traz só um"
+    }
+  },
+  "feedback": {
+    "right": "isso: a busca rápida põe na frente o trecho de reembolso de despesas, porque ele parece muito com a pergunta, mas não responde. O auxílio home office fica em 3º e cai fora do top 2.",
+    "wrong": "só um: o trecho de reembolso de despesas parece muito com a pergunta e toma o 1º lugar sem responder nada. O do auxílio, que completa a resposta, fica em 3º.",
+    "skipped": "sem palpite? Rode com o reranker desligado e olhe o resultado final."
+  },
+  "coach": {
+    "ui": "palpite anotado. Desligue o reranker e rode; depois ligue de novo.",
+    "cmd": "palpite anotado. Rode reordenar --rerank nao e depois --rerank sim."
+  },
+  "tryNext": {
+    "ui": "Agora a pergunta das férias + VR, com 6 candidatos e com 3. Para um reranker real, escolha \"Sua chave\" ou \"No navegador\".",
+    "cmd": "Rode reordenar \"Posso vender parte das férias e quanto recebo de VR por dia?\" --candidatos 3."
+  },
+  "why": {
+    "simples": "A busca rápida é como passar o olho numa estante e separar 6 livros que parecem certos. O reranker é ler a orelha de cada um com calma e escolher os 2 melhores.\nSó que ele só escolhe entre os que você separou: se o livro certo ficou na estante, não tem milagre.",
+    "dev": "Recuperação em dois estágios: um recuperador barato (vetor, BM25 ou híbrido) traz k candidatos, e um reranker mais caro lê pergunta e trecho juntos e dá uma nota de relevância. Rerankers dedicados (cross-encoders como bge-reranker, ou APIs como Cohere Rerank e Voyage) são mais rápidos e estáveis que pedir a um LLM.\nO recall final nunca passa do recall dos candidatos: aumente k até o trecho certo quase sempre estar entre eles, e pague a latência do reranker só nesses k.",
+    "especialista": "Embeddings de dois lados (bi-encoder) comparam vetores calculados separadamente; o cross-encoder vê pergunta e trecho na mesma passada e capta relações finas (negação, \"não é reembolsável\"). Por isso é mais preciso e não serve para buscar no índice inteiro.\nMeça o par (k, reranker) com recall@n e latência p95. LLM como reranker funciona, mas varia com o prompt e pode devolver JSON inválido; trate a falha voltando à ordem original. Modelos pequenos (1B) reordenam mal: use-os só para demonstrar."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: deixe o reranker ligado e baixe os candidatos para 2.",
+      "cmd": "hora de quebrar: rode reordenar --candidatos 2"
+    },
+    "success": "Quebrou: com só {n} candidatos, o trecho do auxílio nem chegou ao reranker. Ele reordenou o que tinha e o recall ficou em {recallPct}%. O reranker não acha o que a primeira busca deixou para trás.",
+    "calm": "Recall {recallPct}% com {n} candidatos e top {top}. Para quebrar, dê ao reranker menos candidatos do que a resposta precisa."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma pergunta e aperte Rodar.",
+      "\"Candidatos\" é quantos trechos a busca rápida entrega ao reranker; \"top\" é quantos seguem para o LLM.",
+      "Reranker ligado, candidatos 2."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de reordenar.",
+      "--candidatos de 1 a 12; --rerank sim ou nao; --top de 1 a 5.",
+      "reordenar --candidatos 2"
+    ]
+  },
+  "errors": {
+    "aboveMax.candidates": "O manual só tem 12 trechos.",
+    "belowMin.candidates": "Pelo menos 1 candidato.",
+    "notBool.rerank": "Use sim ou nao.",
+    "aboveMax.top": "Até 5 trechos para o LLM."
+  },
+  "controls": {
+    "arg": "Pergunta",
+    "candidates": "Candidatos da busca rápida",
+    "rerank": "Reranker ligado",
+    "top": "Trechos para o LLM (top)"
+  },
+  "scene": {
+    "label": "Busca em dois estágios",
+    "empty": "Rode para buscar e reordenar.",
+    "stage1": "Busca vetorial",
+    "stage2": "Reranker",
+    "final": "Para o LLM",
+    "simShort": "simulado",
+    "off": "desligado",
+    "cands": "Candidatos",
+    "chunk": "trecho",
+    "hyb": "similaridade %",
+    "rr": "reranker %",
+    "finalTable": "Vão para o LLM",
+    "recall": "trechos certos no final",
+    "inCands": "trechos certos entre os candidatos",
+    "failNote": "O modelo não devolveu JSON com notas; mantive a ordem da busca.",
+    "simNote": "Estágio 1 é busca vetorial simulada (similaridades escritas à mão). O reranker simulado sabe quais trechos respondem. Use \"Sua chave\" ou \"No navegador\" para um reranker de verdade."
+  },
+  "data": {
+    "chunkTexts": [
+      "As férias devem ser solicitadas pelo portal do colaborador com 30 dias de antecedência e dependem da aprovação do gestor.",
+      "É possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.",
+      "O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+      "O vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.",
+      "O plano de saúde cobre cônjuge e filhos até 24 anos como dependentes, com coparticipação nas consultas.",
+      "A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+      "O trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.",
+      "Quem tem dias de trabalho remoto recebe um auxílio home office de R$ 120 por mês, pago junto com o salário.",
+      "Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.",
+      "Internet e energia de casa não são reembolsáveis: esses custos já são cobertos pelo auxílio home office.",
+      "Para trocar a senha do portal, use Meu perfil > Segurança ou ligue no ramal 4000 da TI.",
+      "Para acessar a VPN, instale o app corporativo e selecione o perfil AUR-VPN-02."
+    ],
+    "semSims": {
+      "Com quanta antecedência eu peço férias?": [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso dividir minhas férias?": [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Quando sai a PLR?": [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Qual perfil de VPN eu uso?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      "Quem pode ser dependente no plano de saúde?": [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso pedir reembolso da internet de casa?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      "Quanto tempo antes devo avisar que vou descansar?": [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso vender parte das férias e quanto recebo de VR por dia?": [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Esqueci minha senha, o que faço?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ]
+    },
+    "goldMap": {
+      "Com quanta antecedência eu peço férias?": [
+        0
+      ],
+      "Posso dividir minhas férias?": [
+        1
+      ],
+      "Quando sai a PLR?": [
+        5
+      ],
+      "Qual perfil de VPN eu uso?": [
+        11
+      ],
+      "Quem pode ser dependente no plano de saúde?": [
+        4
+      ],
+      "Posso pedir reembolso da internet de casa?": [
+        9,
+        7
+      ],
+      "Quanto tempo antes devo avisar que vou descansar?": [
+        0
+      ],
+      "Posso vender parte das férias e quanto recebo de VR por dia?": [
+        2,
+        3
+      ],
+      "Esqueci minha senha, o que faço?": [
+        10
+      ]
+    },
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "quanta",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "uma",
+      "uns",
+      "umas",
+      "tem",
+      "faco",
+      "fazer",
+      "devo",
+      "eu",
+      "de",
+      "do",
+      "da",
+      "das",
+      "dos",
+      "no",
+      "na",
+      "nos",
+      "nas",
+      "o",
+      "a",
+      "os",
+      "as",
+      "e",
+      "ou",
+      "em",
+      "ao",
+      "se",
+      "sai",
+      "vou"
+    ],
+    "rerankSys": "Você avalia trechos de um manual de RH. Para a pergunta, dê uma nota de 0 a 10 a cada trecho numerado conforme ele ajuda a responder. Responda só com JSON: {\"scores\":[n1,n2,...]} na ordem dos trechos."
+  },
+  "recipe": {
+    "steps": [
+      "Pegue 3 perguntas suas cuja resposta precise de dois trechos.",
+      "Busque 10 candidatos com sua busca híbrida e passe pergunta + candidatos a um reranker (o modelo BAAI/bge-reranker-base com sentence-transformers, ou uma API de rerank).",
+      "Compare o top 3 antes e depois de reordenar."
+    ],
+    "ok": "depois do reranker, os dois trechos de cada resposta estão no top 3, e com 2 candidatos só isso não acontece."
+  }
+}

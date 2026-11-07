@@ -1,0 +1,324 @@
+{
+  "title": "Perguntas com duas partes",
+  "subtitle": "Uma busca só traz um assunto; quebre a pergunta e junte os resultados",
+  "mission": "Colaboradores perguntam duas coisas de uma vez: \"posso vender férias e quanto é o VR?\". Faça a busca trazer os trechos das duas partes, quebrando a pergunta em consultas menores.",
+  "predict": {
+    "question": "com uma única busca e top 2, a pergunta das férias + VR traz os trechos dos dois assuntos?",
+    "options": {
+      "both": "Traz os dois",
+      "one": "Traz só o das férias"
+    }
+  },
+  "feedback": {
+    "right": "isso: o vetor de uma pergunta composta fica dominado pelo assunto mais forte (férias), e os outros trechos de férias tomam o lugar do VR.",
+    "wrong": "traz só o das férias: o assunto mais forte domina a busca e os outros trechos de férias empurram o VR para fora do top 2.",
+    "skipped": "sem palpite? Rode com --consultas 1 e olhe o que vem."
+  },
+  "coach": {
+    "ui": "palpite anotado. Deixe \"Consultas\" em 1 e rode; depois em 2.",
+    "cmd": "palpite anotado. Rode perguntar --consultas 1 e depois --consultas 2."
+  },
+  "tryNext": {
+    "ui": "Agora a pergunta da internet de casa: ela tem uma parte só, mas a resposta precisa de dois trechos. Quebrar ajuda? Tente top 3.",
+    "cmd": "Rode perguntar \"Posso pedir reembolso da internet de casa?\" --top 3."
+  },
+  "why": {
+    "simples": "Quando alguém pergunta duas coisas juntas, a busca costuma se agarrar na mais forte e esquecer a outra.\nO truque é separar em duas perguntas, buscar cada uma e juntar o que voltou, como quem faz duas listas de compras para dois mercados.",
+    "dev": "Decomposição de consulta: um passo (regra simples ou um LLM) quebra a pergunta em subperguntas; cada uma vai para a busca, e os resultados são unidos sem repetir e reordenados (RRF ou reranker) antes de ir para o LLM.\nVariações: multi-query (o LLM gera reformulações da mesma pergunta) e HyDE (gera uma resposta hipotética e busca por ela). Todas custam chamadas a mais: use quando o recall das perguntas compostas estiver baixo.",
+    "especialista": "Nem toda resposta multi-documento vem de uma pergunta composta: \"posso pedir reembolso da internet?\" precisa da regra (não reembolsa) e da razão (o auxílio cobre), que a pergunta não menciona. Aí ajudam top-k maior com reranker, ligar trechos relacionados no índice (referências cruzadas) ou busca iterativa, em que o modelo lê o primeiro trecho e decide buscar de novo.\nAvalie com perguntas rotuladas com todos os trechos necessários e meça recall completo (todos os trechos), não só \"pelo menos um\"."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: volte \"Consultas\" para 1 com a pergunta das férias + VR.",
+      "cmd": "hora de quebrar: rode perguntar --consultas 1"
+    },
+    "success": "Quebrou: com uma consulta só, vieram {got} de {parts} trechos necessários. O assistente responderia metade da pergunta e ignoraria a outra.",
+    "calm": "{got} de {parts} trechos com {queries} consulta(s). Para quebrar, use uma consulta só numa pergunta de duas partes."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma pergunta e aperte Rodar.",
+      "\"Consultas 2\" quebra a pergunta no \"e\" e busca cada parte separado.",
+      "Consultas 1 com a pergunta das férias + VR."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de perguntar.",
+      "--consultas 1 ou 2; --top quantos trechos no total.",
+      "perguntar --consultas 1"
+    ]
+  },
+  "errors": {
+    "aboveMax.queries": "Até 2 consultas neste exercício.",
+    "belowMin.queries": "Pelo menos 1 consulta.",
+    "aboveMax.top": "Até 6 trechos."
+  },
+  "controls": {
+    "arg": "Pergunta",
+    "top": "Trechos no total (top)",
+    "queries": "Consultas"
+  },
+  "scene": {
+    "label": "Busca com decomposição",
+    "empty": "Rode para buscar.",
+    "q": "Pergunta",
+    "sub1": "consulta 1",
+    "sub2": "consulta 2",
+    "single": "consulta única",
+    "merge": "Juntar",
+    "table": "Trechos encontrados",
+    "source": "seção",
+    "chunk": "trecho",
+    "recall": "trechos necessários encontrados",
+    "queries": "consultas",
+    "simNote": "Busca vetorial, como na lição do índice. Modo simulado: similaridades escritas à mão. Use \"No navegador\" para embeddings reais de cada consulta."
+  },
+  "data": {
+    "chunkTexts": [
+      "As férias devem ser solicitadas pelo portal do colaborador com 30 dias de antecedência e dependem da aprovação do gestor.",
+      "É possível dividir as férias em até três períodos: um deles com pelo menos 14 dias e os demais com pelo menos 5 dias cada.",
+      "O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+      "O vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.",
+      "O plano de saúde cobre cônjuge e filhos até 24 anos como dependentes, com coparticipação nas consultas.",
+      "A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+      "O trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.",
+      "Quem tem dias de trabalho remoto recebe um auxílio home office de R$ 120 por mês, pago junto com o salário.",
+      "Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.",
+      "Internet e energia de casa não são reembolsáveis: esses custos já são cobertos pelo auxílio home office.",
+      "Para trocar a senha do portal, use Meu perfil > Segurança ou ligue no ramal 4000 da TI.",
+      "Para acessar a VPN, instale o app corporativo e selecione o perfil AUR-VPN-02."
+    ],
+    "chunkSources": [
+      "Férias",
+      "Férias",
+      "Férias",
+      "Benefícios",
+      "Benefícios",
+      "Benefícios",
+      "Trabalho remoto",
+      "Trabalho remoto",
+      "Reembolso",
+      "Reembolso",
+      "TI",
+      "TI"
+    ],
+    "semSims": {
+      "Com quanta antecedência eu peço férias?": [
+        0.89,
+        0.81,
+        0.8,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso dividir minhas férias?": [
+        0.82,
+        0.88,
+        0.81,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Quando sai a PLR?": [
+        0.72,
+        0.71,
+        0.71,
+        0.8,
+        0.79,
+        0.78,
+        0.72,
+        0.78,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Qual perfil de VPN eu uso?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.82,
+        0.79
+      ],
+      "Quem pode ser dependente no plano de saúde?": [
+        0.72,
+        0.71,
+        0.71,
+        0.76,
+        0.9,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso pedir reembolso da internet de casa?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.8,
+        0.86,
+        0.83,
+        0.71,
+        0.71
+      ],
+      "Quanto tempo antes devo avisar que vou descansar?": [
+        0.86,
+        0.8,
+        0.79,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Posso vender parte das férias e quanto recebo de VR por dia?": [
+        0.82,
+        0.81,
+        0.84,
+        0.79,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.71,
+        0.71
+      ],
+      "Esqueci minha senha, o que faço?": [
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.72,
+        0.71,
+        0.71,
+        0.71,
+        0.89,
+        0.8
+      ]
+    },
+    "goldMap": {
+      "Com quanta antecedência eu peço férias?": [
+        0
+      ],
+      "Posso dividir minhas férias?": [
+        1
+      ],
+      "Quando sai a PLR?": [
+        5
+      ],
+      "Qual perfil de VPN eu uso?": [
+        11
+      ],
+      "Quem pode ser dependente no plano de saúde?": [
+        4
+      ],
+      "Posso pedir reembolso da internet de casa?": [
+        9,
+        7
+      ],
+      "Quanto tempo antes devo avisar que vou descansar?": [
+        0
+      ],
+      "Posso vender parte das férias e quanto recebo de VR por dia?": [
+        2,
+        3
+      ],
+      "Esqueci minha senha, o que faço?": [
+        10
+      ]
+    },
+    "stop": [
+      "qual",
+      "quais",
+      "como",
+      "quando",
+      "quanto",
+      "quantos",
+      "quanta",
+      "onde",
+      "posso",
+      "pode",
+      "para",
+      "por",
+      "pro",
+      "com",
+      "minha",
+      "minhas",
+      "meu",
+      "meus",
+      "sua",
+      "seu",
+      "que",
+      "uma",
+      "uns",
+      "umas",
+      "tem",
+      "faco",
+      "fazer",
+      "devo",
+      "eu",
+      "de",
+      "do",
+      "da",
+      "das",
+      "dos",
+      "no",
+      "na",
+      "nos",
+      "nas",
+      "o",
+      "a",
+      "os",
+      "as",
+      "e",
+      "ou",
+      "em",
+      "ao",
+      "se",
+      "sai",
+      "vou"
+    ],
+    "splitter": " e "
+  },
+  "recipe": {
+    "steps": [
+      "Escreva 3 perguntas de duas partes sobre um documento seu e marque os trechos de cada parte.",
+      "Busque cada pergunta inteira (top 2) e anote quantos trechos certos vieram.",
+      "Peça a um LLM: \"quebre esta pergunta em subperguntas independentes, uma por linha\"; busque cada uma (top 1) e junte."
+    ],
+    "ok": "com a pergunta inteira falta trecho em pelo menos uma; com as subperguntas, as 3 trazem os trechos das duas partes."
+  }
+}

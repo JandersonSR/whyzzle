@@ -1,0 +1,246 @@
+{
+  "id": "p-citar-e-recusar",
+  "order": 13,
+  "track": "pratica",
+  "minutes": 15,
+  "tags": [
+    "rag",
+    "citacao",
+    "recusa",
+    "alucinacao"
+  ],
+  "requires": [
+    "p-reranking"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "responder",
+      "en": "answer"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Com quanta antecedência eu peço férias?",
+        "en": "How far in advance do I request vacation?"
+      },
+      "examples": [
+        {
+          "pt": "Com quanta antecedência eu peço férias?",
+          "en": "How far in advance do I request vacation?"
+        },
+        {
+          "pt": "Quando sai a PLR?",
+          "en": "When is the PLR paid?"
+        },
+        {
+          "pt": "Quem pode ser dependente no plano de saúde?",
+          "en": "Who can be a dependent on the health plan?"
+        },
+        {
+          "pt": "Qual o horário da academia da empresa?",
+          "en": "What are the company gym’s opening hours?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "cite",
+        "alias": {
+          "pt": "citar",
+          "en": "cite"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "refuse",
+        "alias": {
+          "pt": "recusar",
+          "en": "refuse"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "limit",
+        "alias": {
+          "pt": "limite",
+          "en": "threshold"
+        },
+        "type": "number",
+        "min": 0.5,
+        "max": 0.99,
+        "step": 0.01,
+        "default": 0.78,
+        "ui": "slider"
+      }
+    ]
+  },
+  "predict": {
+    "options": [
+      "refuse",
+      "invent",
+      "cite"
+    ],
+    "answer": "refuse"
+  },
+  "break": {
+    "flag": "hallucinated"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realOutput": ""
+      },
+      "compute": {
+        "vec": "roundall(lookup(semSims, text, affine(clampall(scale(overlapall(text, chunkTexts, stop), 4), 0, 1), 0.7, 0.2)), 3)",
+        "conf": "vec[argmax(vec)]",
+        "hyb": "blend(minmax(vec), bm25(text, chunkTexts, stop), 0.5)",
+        "top": "topk(hyb, 2)",
+        "ctxText": "join(pickall(numbered, top), '\n')",
+        "sysKey": "(cite ? 'c' : 'n') + (refuse ? 'r' : 'n')",
+        "grounded": "conf >= limit",
+        "cited0": "len(top) ? ' [' + (top[0] + 1) + ']' : ''",
+        "simOut": "grounded ? lookup(answers, text, len(top) ? chunkTexts[top[0]] : '') + (cite ? cited0 : '') : (refuse ? refusal : lookup(invented, text, inventedDefault))",
+        "out": "real ? realOutput : simOut",
+        "refused": "real ? includes(lower(realOutput), lower(refusalMark)) : (!grounded && refuse)",
+        "cites": "refs(out)",
+        "cited": "len(cites) > 0"
+      },
+      "cases": [
+        {
+          "when": "!refused",
+          "flags": [
+            "answered"
+          ]
+        },
+        {
+          "when": "refused",
+          "flags": [
+            "refused"
+          ]
+        },
+        {
+          "when": "!refused && cited",
+          "flags": [
+            "cited"
+          ]
+        },
+        {
+          "when": "!refused && !cited",
+          "flags": [
+            "uncited"
+          ]
+        },
+        {
+          "when": "!grounded && !refused",
+          "flags": [
+            "hallucinated"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "confPct": "round(conf * 100)",
+            "limitPct": "round(limit * 100)",
+            "out": "out"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@retrieve",
+              "sub": "='top 2'",
+              "tone": "info"
+            },
+            {
+              "label": "@confidence",
+              "sub": "=round(conf * 100) + '% / ' + round(limit * 100) + '%'",
+              "tone": "=grounded ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@generate",
+              "sub": "=real ? 'LLM' : '@simShort'",
+              "tone": "neutral"
+            },
+            {
+              "label": "@check",
+              "sub": "=refused ? '@refusedShort' : (cited ? '@citedShort' : '@noCite')",
+              "tone": "=!grounded && !refused ? 'bad' : (refused ? 'warn' : (cited ? 'ok' : 'warn'))"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@context",
+          "lines": "=concat(['~ ' + systemShown], pickall(numbered, top))"
+        },
+        {
+          "type": "note",
+          "tone": "=!grounded && !refused ? 'bad' : (refused ? 'warn' : (cited ? 'ok' : 'warn'))",
+          "text": "=out"
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkGrounded",
+              "ok": "=grounded || refused",
+              "why": "@whyGrounded"
+            },
+            {
+              "label": "@chkCited",
+              "ok": "=refused || cited",
+              "why": "@whyCited"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "chat",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "sysKey",
+        "user": "{ctxText}\n\n{qLabel}: {text}",
+        "maxTokens": 160
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "chat",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "sysKey",
+        "user": "{ctxText}\n\n{qLabel}: {text}",
+        "maxTokens": 160
+      }
+    }
+  }
+}

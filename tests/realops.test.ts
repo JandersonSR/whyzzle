@@ -61,6 +61,32 @@ describe('real ops feed the declarative lessons', () => {
     expect((await runReal('p-ferramentas-de-verdade', 'agente "salário da Ana" --passos 1', { chat: async () => replies[i++] })).flags).toContain('limit');
   });
 
+  it('embedmatrix: real query × chunk similarities drive recall@k', async () => {
+    const l = lesson('p-avaliar-recuperacao');
+    const golds = l.locale.pt.data.golds as number[][];
+    const hot = (ids: number[]) => Array.from({ length: 12 }, (_, j) => (ids.includes(j) ? 1 : 0));
+    const embed = async (texts: string[]) => texts.map((_, i) => (i < golds.length ? hot(golds[i]) : hot([i - golds.length])));
+    const r = await runReal('p-avaliar-recuperacao', 'avaliar --modo vetor --k 2', { embed });
+    expect(r.vars?.meanPct).toBe(100);
+    expect(r.flags).toContain('good');
+  });
+
+  it('rerank: real LLM scores reorder candidates; a broken reply falls back', async () => {
+    const good = await runReal('p-reranking', 'reordenar', { chat: async () => '{"scores":[0,10,9,0,0,0]}' });
+    expect(good.flags).toContain('found');
+    expect(good.flags).not.toContain('rerankFailed');
+    const bad = await runReal('p-reranking', 'reordenar', { chat: async () => 'não sei' });
+    expect(bad.flags).toContain('rerankFailed');
+  });
+
+  it('chat: citations and refusals are read from the real answer', async () => {
+    const cited = await runReal('p-citar-e-recusar', 'responder', { chat: async () => 'Peça pelo portal com 30 dias de antecedência [1].' });
+    expect(cited.flags).toContain('cited');
+    const refused = await runReal('p-citar-e-recusar', 'responder "Qual o horário da academia da empresa?"', { chat: async () => 'Não encontrei isso no manual. Vou encaminhar sua pergunta para o RH.' });
+    expect(refused.flags).toContain('refused');
+    expect(refused.flags).not.toContain('hallucinated');
+  });
+
   it('helpers: JSON extraction, schema validation and safe tools', () => {
     expect(extractJson('blá {"a":1} blá')).toEqual({ a: 1 });
     expect(extractJson('sem json')).toBeNull();

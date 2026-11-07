@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Separar recuperação rápida de reordenação cuidadosa.",
+      "Entender que o reranker depende dos candidatos.",
+      "Escolher k pelo recall dos candidatos."
+    ],
+    "minutes": 20,
+    "activity": "Um aluno lê 6 trechos em voz alta rápido; outro escolhe os 2 melhores com calma. Depois repitam com só 2 trechos e vejam o que se perde.",
+    "discussion": [
+      "Quanto de latência o seu produto aguenta para ganhar precisão?",
+      "Por que um LLM é um reranker caro?"
+    ],
+    "misconceptions": [
+      "\"O reranker conserta a busca ruim.\" Ele só reordena o que recebeu."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Separate fast retrieval from careful reranking.",
+      "See that the reranker depends on its candidates.",
+      "Pick k by candidate recall."
+    ],
+    "minutes": 20,
+    "activity": "One student reads 6 chunks aloud quickly; another calmly picks the best 2. Repeat with only 2 chunks and see what’s lost.",
+    "discussion": [
+      "How much latency can your product take to gain precision?",
+      "Why is an LLM an expensive reranker?"
+    ],
+    "misconceptions": [
+      "\"The reranker fixes bad search.\" It only reorders what it gets."
+    ]
+  }
+}
