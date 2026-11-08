@@ -125,7 +125,9 @@ export function chatRequest(c: KeyConfig, messages: ChatMessage[], opts: ChatOpt
         init: {
           method: 'POST',
           headers: anthropicHeaders(c.key),
-          body: JSON.stringify({ model: c.model, max_tokens: max, ...(system ? { system } : {}), messages: turns, ...(opts.temperature !== undefined ? { temperature: opts.temperature } : {}) }),
+          // Current Claude models choose sampling themselves and may reject temperature/top_p,
+          // and adaptive thinking would spend the token budget before any text: keep both out.
+          body: JSON.stringify({ model: c.model, max_tokens: max, ...(system ? { system } : {}), messages: turns, thinking: { type: 'disabled' } }),
         },
       };
     case 'openai':

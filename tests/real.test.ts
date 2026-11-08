@@ -67,7 +67,7 @@ describe('your-key providers', () => {
     const r = chatRequest({ provider: 'anthropic', key: 'k', model: 'm', remember: false }, msgs, { max_tokens: 50 });
     expect(r.url).toBe('https://api.anthropic.com/v1/messages');
     expect(r.init.headers).toMatchObject({ 'x-api-key': 'k', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' });
-    expect(JSON.parse(String(r.init.body))).toEqual({ model: 'm', max_tokens: 50, system: 'S', messages: [{ role: 'user', content: 'U' }] });
+    expect(JSON.parse(String(r.init.body))).toEqual({ model: 'm', max_tokens: 50, system: 'S', messages: [{ role: 'user', content: 'U' }], thinking: { type: 'disabled' } });
     expect(parseChat('anthropic', { content: [{ type: 'text', text: 'oi' }] })).toBe('oi');
   });
 
