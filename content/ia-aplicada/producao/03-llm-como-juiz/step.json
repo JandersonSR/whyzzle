@@ -1,0 +1,318 @@
+{
+  "id": "r-llm-como-juiz",
+  "order": 3,
+  "track": "producao",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "avaliacao",
+    "llm-como-juiz",
+    "calibracao",
+    "kappa",
+    "rubrica"
+  ],
+  "requires": [
+    "r-metricas-de-rag"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "julgar",
+      "en": "judge"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Ótima pergunta! Na Aurora você pode vender até metade das suas férias. É só pedir ao seu gestor com antecedência e o valor entra no pagamento seguinte. Aproveite seu descanso!",
+        "en": "Great question! At Aurora you can sell up to half of your vacation. Just ask your manager in advance and the money comes in the next payment. Enjoy your rest!"
+      },
+      "examples": [
+        {
+          "pt": "Ótima pergunta! Na Aurora você pode vender até metade das suas férias. É só pedir ao seu gestor com antecedência e o valor entra no pagamento seguinte. Aproveite seu descanso!",
+          "en": "Great question! At Aurora you can sell up to half of your vacation. Just ask your manager in advance and the money comes in the next payment. Enjoy your rest!"
+        },
+        {
+          "pt": "Até um terço das férias, pedindo junto com a solicitação das férias [1].",
+          "en": "Up to one third of your vacation, asking together with the vacation request [1]."
+        },
+        {
+          "pt": "Até 1/3 [1].",
+          "en": "Up to 1/3 [1]."
+        },
+        {
+          "pt": "Não encontrei isso no manual. Vou encaminhar sua pergunta para o RH.",
+          "en": "I couldn’t find that in the handbook. I’ll forward your question to HR."
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "rubric",
+        "alias": {
+          "pt": "rubrica",
+          "en": "rubric"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "vague",
+            "pt": "vaga",
+            "en": "vague"
+          },
+          {
+            "id": "criteria",
+            "pt": "criterios",
+            "en": "criteria"
+          }
+        ],
+        "default": "criteria",
+        "ui": "select"
+      },
+      {
+        "name": "examples",
+        "alias": {
+          "pt": "exemplos",
+          "en": "examples"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "fooled"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realFields": {},
+        "realValid": false,
+        "nAnswers": 50,
+        "humanFail": 8
+      },
+      "compute": {
+        "rec": "lookup(answers, text, unknownAnswer)",
+        "known": "rec.known",
+        "cfg": "rubric + (examples ? '1' : '0')",
+        "agg": "lookup(aggs, cfg, aggs.criteria0)",
+        "simV": "lookup(rec.v, cfg, '')",
+        "verdict": "real ? (realValid ? realFields.verdict : 'invalid') : simV",
+        "human": "rec.human",
+        "agreePct": "agg.agreePct",
+        "kappaOk": "agg.kappa >= 0.6",
+        "same": "human != '' && verdict == human",
+        "verdictKey": "verdict == 'pass' ? '@vPass' : (verdict == 'fail' ? '@vFail' : (verdict == 'invalid' ? '@vInvalid' : '@vNone'))",
+        "humanKey": "human == 'pass' ? '@vPass' : (human == 'fail' ? '@vFail' : '@vNone')",
+        "rubricL": "rubric == 'vague' ? rubricVague : rubricCriteria"
+      },
+      "cases": [
+        {
+          "when": "!known && !real",
+          "error": "unknownAnswer"
+        },
+        {
+          "when": "agreePct >= 80 && agg.kappa < 0.4",
+          "flags": [
+            "fooled"
+          ]
+        },
+        {
+          "when": "!kappaOk",
+          "flags": [
+            "untrusted"
+          ]
+        },
+        {
+          "when": "kappaOk",
+          "flags": [
+            "trusted"
+          ]
+        },
+        {
+          "when": "human != '' && verdict == human",
+          "flags": [
+            "agrees"
+          ]
+        },
+        {
+          "when": "human != '' && verdict != human && verdict != 'invalid'",
+          "flags": [
+            "disagrees"
+          ]
+        },
+        {
+          "when": "real && !realValid",
+          "flags": [
+            "judgeBroken"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "agreePct": "agreePct",
+            "kappaS": "agg.kappaS",
+            "alwaysPct": "alwaysPct",
+            "fp": "agg.fp",
+            "humanFail": "humanFail",
+            "nAnswers": "nAnswers",
+            "humanKappaS": "humanKappaS",
+            "rubricL": "rubricL"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@sAnswer",
+              "sub": "=real ? '@subAny' : '@subExample'",
+              "tone": "info"
+            },
+            {
+              "label": "@sJudge",
+              "sub": "=(rubric == 'vague' ? '@subVague' : '@subCriteria')",
+              "tone": "neutral"
+            },
+            {
+              "label": "@sVerdict",
+              "sub": "=verdictKey",
+              "tone": "=human == '' ? 'neutral' : (same ? 'ok' : 'bad')"
+            },
+            {
+              "label": "@sHuman",
+              "sub": "=humanKey",
+              "tone": "neutral"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "label": "@aggLabel",
+          "items": [
+            {
+              "label": "@mAgree",
+              "value": "=agreePct",
+              "format": "pct",
+              "tone": "info"
+            },
+            {
+              "label": "@mKappa",
+              "value": "=agg.kappaS",
+              "tone": "=kappaOk ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@mAlways",
+              "value": "=alwaysPct",
+              "format": "pct",
+              "tone": "dim"
+            },
+            {
+              "label": "@mHumans",
+              "value": "=humanKappaS",
+              "tone": "dim"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@confLabel",
+          "columns": [
+            "@colJudge",
+            "@colHPass",
+            "@colHFail"
+          ],
+          "rows": "=[['@rowJPass', agg.tp, agg.fp], ['@rowJFail', agg.fn, agg.tn]]",
+          "tones": "=['neutral', 'neutral']",
+          "caption": "@confCaption"
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkKappa",
+              "ok": "=kappaOk",
+              "why": "@whyKappa"
+            },
+            {
+              "label": "@chkThis",
+              "ok": "=human == '' || same",
+              "why": "@whyThis"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=real && realValid",
+          "tone": "info",
+          "text": "=str(realFields.reason)"
+        },
+        {
+          "type": "note",
+          "when": "=real && !realValid",
+          "tone": "warn",
+          "text": "@brokenNote"
+        },
+        {
+          "type": "note",
+          "when": "=real",
+          "tone": "info",
+          "text": "@realNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "yes",
+      "no"
+    ],
+    "answer": "no"
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "json",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "cfg",
+        "user": "{qLabel}: {question}\n{ctxLabel}: {context}\n{aLabel}: {text}",
+        "schema": {
+          "verdict": "enum:pass|fail",
+          "reason": "string"
+        }
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "json",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "cfg",
+        "user": "{qLabel}: {question}\n{ctxLabel}: {context}\n{aLabel}: {text}",
+        "schema": {
+          "verdict": "enum:pass|fail",
+          "reason": "string"
+        }
+      }
+    }
+  }
+}

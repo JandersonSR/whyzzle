@@ -1,0 +1,278 @@
+{
+  "id": "r-metricas-de-rag",
+  "order": 2,
+  "track": "producao",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "avaliacao",
+    "rag",
+    "fidelidade",
+    "relevancia",
+    "ragas"
+  ],
+  "requires": [
+    "r-conjunto-de-avaliacao-versionado"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "medir",
+      "en": "measure"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Não. Internet e energia de casa não são reembolsáveis: esse custo já é coberto pelo auxílio home office de R$ 120 por mês.",
+        "en": "No. Home internet and electricity aren’t reimbursable: that cost is already covered by the R$ 120 monthly home office allowance."
+      },
+      "examples": [
+        {
+          "pt": "Não. Internet e energia de casa não são reembolsáveis: esse custo já é coberto pelo auxílio home office de R$ 120 por mês.",
+          "en": "No. Home internet and electricity aren’t reimbursable: that cost is already covered by the R$ 120 monthly home office allowance."
+        },
+        {
+          "pt": "Pode sim! Envie a conta de internet pelo app de despesas em até 30 dias e o valor volta junto com o salário.",
+          "en": "Yes, you can! Upload the internet bill in the expenses app within 30 days and the money comes back with your salary."
+        },
+        {
+          "pt": "Na Aurora, o trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.",
+          "en": "At Aurora, remote work is allowed up to 2 days a week, agreed with the manager at the start of each month."
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "metrics",
+        "alias": {
+          "pt": "metricas",
+          "en": "metrics"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "relevance",
+            "pt": "relevancia",
+            "en": "relevance"
+          },
+          {
+            "id": "faithfulness",
+            "pt": "fidelidade",
+            "en": "faithfulness"
+          }
+        ],
+        "default": [
+          "relevance",
+          "faithfulness"
+        ],
+        "ui": "checkboxes"
+      },
+      {
+        "name": "limit",
+        "alias": {
+          "pt": "limite",
+          "en": "threshold"
+        },
+        "type": "number",
+        "min": 0.5,
+        "max": 0.95,
+        "step": 0.01,
+        "default": 0.8,
+        "ui": "slider"
+      }
+    ]
+  },
+  "break": {
+    "flag": "fooled"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realSims": []
+      },
+      "compute": {
+        "rec": "lookup(answers, text, unknownAnswer)",
+        "known": "rec.known",
+        "answerList": "[text]",
+        "rel": "real && len(realSims) > 0 ? realSims[0] : rec.rel",
+        "faith": "rec.nClaims > 0 ? rec.nSup / rec.nClaims : 0",
+        "useRel": "includes(metrics, 'relevance')",
+        "useFaith": "includes(metrics, 'faithfulness')",
+        "relOk": "rel >= limit",
+        "faithOk": "faith >= limit",
+        "gatePass": "(!useRel || relOk) && (!useFaith || faithOk)",
+        "relPct": "round(rel * 100)",
+        "faithPct": "round(faith * 100)",
+        "limitPct": "round(limit * 100)",
+        "watched": "useRel && useFaith ? watchBoth : (useRel ? watchRel : (useFaith ? watchFaith : watchNone))",
+        "flaw": "rec.flaw"
+      },
+      "cases": [
+        {
+          "when": "!known && !real",
+          "error": "unknownAnswer"
+        },
+        {
+          "when": "known && gatePass && rec.bad",
+          "flags": [
+            "fooled"
+          ]
+        },
+        {
+          "when": "known && !gatePass && rec.bad",
+          "flags": [
+            "caught"
+          ]
+        },
+        {
+          "when": "known && gatePass && !rec.bad",
+          "flags": [
+            "passed"
+          ]
+        },
+        {
+          "when": "known && !gatePass && !rec.bad",
+          "flags": [
+            "falseAlarm"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "relPct": "relPct",
+            "faithPct": "faithPct",
+            "limitPct": "limitPct",
+            "nSup": "rec.nSup",
+            "nClaims": "rec.nClaims",
+            "watched": "watched",
+            "flaw": "flaw"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@sQuestion",
+              "sub": "=question",
+              "tone": "info"
+            },
+            {
+              "label": "@sContext",
+              "sub": "@subContext",
+              "tone": "neutral"
+            },
+            {
+              "label": "@sAnswer",
+              "sub": "=real ? '@subReal' : '@subSim'",
+              "tone": "neutral"
+            },
+            {
+              "label": "@sGate",
+              "sub": "=gatePass ? '@subPass' : '@subBlock'",
+              "tone": "=gatePass ? (known && rec.bad ? 'bad' : 'ok') : 'warn'"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mRel",
+              "value": "=relPct",
+              "format": "pct",
+              "tone": "=!useRel ? 'dim' : (relOk ? 'ok' : 'bad')"
+            },
+            {
+              "label": "@mFaith",
+              "value": "=known ? faithPct : '—'",
+              "format": "pct",
+              "tone": "=!useFaith ? 'dim' : (faithOk ? 'ok' : 'bad')"
+            },
+            {
+              "label": "@mLimit",
+              "value": "=limitPct",
+              "format": "pct",
+              "tone": "info"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@claimsTable",
+          "columns": [
+            "@colClaim",
+            "@colSup"
+          ],
+          "rows": "=zip(rec.claims, rec.supL)",
+          "tones": "=rec.tones",
+          "caption": "@claimsCaption"
+        },
+        {
+          "type": "checks",
+          "label": "@checks",
+          "items": [
+            {
+              "label": "@chkRel",
+              "ok": "=!useRel || relOk",
+              "why": "@whyRel"
+            },
+            {
+              "label": "@chkFaith",
+              "ok": "=!useFaith || faithOk",
+              "why": "@whyFaith"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=known && gatePass && rec.bad",
+          "tone": "bad",
+          "text": "@fooledNote"
+        },
+        {
+          "type": "note",
+          "when": "=real",
+          "tone": "info",
+          "text": "@realNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "high",
+      "low"
+    ],
+    "answer": "high"
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Xenova/multilingual-e5-small",
+      "op": "embed",
+      "args": {
+        "query": "question",
+        "against": "answerList",
+        "queryPrefix": "query: ",
+        "passagePrefix": "query: "
+      }
+    }
+  }
+}

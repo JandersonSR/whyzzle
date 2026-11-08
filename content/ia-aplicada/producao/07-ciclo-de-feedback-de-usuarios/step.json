@@ -1,0 +1,370 @@
+{
+  "id": "r-ciclo-de-feedback-de-usuarios",
+  "order": 7,
+  "track": "producao",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "avaliacao",
+    "feedback",
+    "producao",
+    "bajulacao",
+    "revisao-humana"
+  ],
+  "requires": [
+    "r-casos-dificeis-e-perguntas-sem-resposta"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "ciclo",
+      "en": "loop"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Ele disse que posso vender metade das férias, mas o RH falou que é um terço.",
+        "en": "It said I can sell half my vacation, but HR told me it’s one third."
+      },
+      "examples": [
+        {
+          "pt": "Ele disse que posso vender metade das férias, mas o RH falou que é um terço.",
+          "en": "It said I can sell half my vacation, but HR told me it’s one third."
+        },
+        {
+          "pt": "Perguntei do auxílio creche e ele não soube responder.",
+          "en": "I asked about the daycare allowance and it couldn’t answer."
+        },
+        {
+          "pt": "Acertou, mas a resposta veio seca demais.",
+          "en": "It got it right, but the answer was too curt."
+        },
+        {
+          "pt": "Perfeito, obrigado!",
+          "en": "Perfect, thanks!"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "optimize",
+        "alias": {
+          "pt": "otimizar",
+          "en": "optimize"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "accuracy",
+            "pt": "acerto",
+            "en": "accuracy"
+          },
+          {
+            "id": "thumbs",
+            "pt": "polegar",
+            "en": "thumbs"
+          }
+        ],
+        "default": "accuracy",
+        "ui": "select"
+      },
+      {
+        "name": "review",
+        "alias": {
+          "pt": "revisao",
+          "en": "review"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 100,
+        "default": 40,
+        "ui": "slider"
+      },
+      {
+        "name": "newCases",
+        "alias": {
+          "pt": "novos-casos",
+          "en": "new-cases"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "pleaser"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "real": false,
+        "realFields": {},
+        "realValid": false,
+        "acc0": 74,
+        "thumbs0": 70,
+        "weeks": 4,
+        "downsPerWeek": 18,
+        "downPatterns": 12,
+        "wrongRate": 0.15,
+        "wfrac": [
+          0,
+          0.25,
+          0.5,
+          0.75,
+          1
+        ],
+        "weekLabels": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      "compute": {
+        "pleasing": "optimize == 'thumbs'",
+        "foundWeek": "round(review * wrongRate)",
+        "found": "foundWeek * weeks",
+        "added": "newCases ? downPatterns + found : 0",
+        "accEnd": "pleasing ? 67 : (newCases ? acc0 + 2 + round(review / 20) : acc0 + 1)",
+        "thumbsEnd": "pleasing ? 82 : 73",
+        "likedWrong": "pleasing ? 14 : 6",
+        "likedWrongS": "review > 0 ? likedWrong + '%' : '?'",
+        "accSeries": "roundall(affine(wfrac, acc0, accEnd - acc0), 0)",
+        "thumbsSeries": "roundall(affine(wfrac, thumbs0, thumbsEnd - thumbs0), 0)",
+        "downs": "downsPerWeek * weeks",
+        "rec": "lookup(comments, text, unknownComment)",
+        "known": "rec.known",
+        "cat": "real ? (realValid ? realFields.category : 'invalid') : rec.sim",
+        "catL": "lookup(catNames, cat, cat)",
+        "addIt": "real ? (realValid && realFields.add_to_eval == true) : rec.simAdd",
+        "catRight": "cat == rec.expected",
+        "expL": "lookup(catNames, rec.expected, rec.expected)"
+      },
+      "cases": [
+        {
+          "when": "!known && !real",
+          "error": "unknownComment"
+        },
+        {
+          "when": "pleasing",
+          "flags": [
+            "pleaser"
+          ]
+        },
+        {
+          "when": "review == 0",
+          "flags": [
+            "blind"
+          ]
+        },
+        {
+          "when": "!pleasing && accEnd > acc0",
+          "flags": [
+            "improving"
+          ]
+        },
+        {
+          "when": "!pleasing && !newCases",
+          "flags": [
+            "notLocked"
+          ]
+        },
+        {
+          "when": "known && catRight",
+          "flags": [
+            "triagedRight"
+          ]
+        },
+        {
+          "when": "known && !catRight",
+          "flags": [
+            "triagedWrong"
+          ]
+        },
+        {
+          "when": "real && !realValid",
+          "flags": [
+            "invalidJson"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "acc0": "acc0",
+            "accEnd": "accEnd",
+            "thumbs0": "thumbs0",
+            "thumbsEnd": "thumbsEnd",
+            "found": "found",
+            "added": "added",
+            "downs": "downs",
+            "review": "review",
+            "likedWrongS": "likedWrongS",
+            "catL": "catL",
+            "expL": "expL"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "label": "@loopLabel",
+          "steps": [
+            {
+              "label": "@sSignals",
+              "sub": "@subSignals",
+              "tone": "info"
+            },
+            {
+              "label": "@sReview",
+              "sub": "=review > 0 ? '@subReview' : '@subNoReview'",
+              "tone": "=review > 0 ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@sCases",
+              "sub": "=newCases ? '@subAdded' : '@subNotAdded'",
+              "tone": "=newCases ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@sChange",
+              "sub": "=pleasing ? '@subThumbs' : '@subAccuracy'",
+              "tone": "=pleasing ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "label": "@chart",
+          "kind": "line",
+          "labels": "=weekLabels",
+          "max": 100,
+          "series": [
+            {
+              "label": "@serThumbs",
+              "values": "=thumbsSeries"
+            },
+            {
+              "label": "@serAcc",
+              "values": "=accSeries"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mThumbs",
+              "value": "=thumbs0 + '% → ' + thumbsEnd + '%'",
+              "tone": "info"
+            },
+            {
+              "label": "@mAcc",
+              "value": "=acc0 + '% → ' + accEnd + '%'",
+              "tone": "=accEnd > acc0 ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@mFound",
+              "value": "=found",
+              "format": "int",
+              "tone": "=review > 0 ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@mLikedWrong",
+              "value": "=likedWrongS",
+              "tone": "=review > 0 ? 'neutral' : 'warn'"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "label": "@triageLabel",
+          "steps": [
+            {
+              "label": "@sComment",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "@sCategory",
+              "sub": "=catL",
+              "tone": "=catRight ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@sToEval",
+              "sub": "=addIt ? '@subYes' : '@subNo'",
+              "tone": "neutral"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=pleasing",
+          "tone": "bad",
+          "text": "@pleaserNote"
+        },
+        {
+          "type": "note",
+          "when": "=review == 0",
+          "tone": "warn",
+          "text": "@blindNote"
+        },
+        {
+          "type": "note",
+          "when": "=real",
+          "tone": "info",
+          "text": "@realNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "up",
+      "down"
+    ],
+    "answer": "down"
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "json",
+      "args": {
+        "system": "{triageSys}",
+        "user": "{text}",
+        "schema": {
+          "category": "enum:wrong_answer|missing_doc|tone|praise|other",
+          "add_to_eval": "boolean"
+        }
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "json",
+      "args": {
+        "system": "{triageSys}",
+        "user": "{text}",
+        "schema": {
+          "category": "enum:wrong_answer|missing_doc|tone|praise|other",
+          "add_to_eval": "boolean"
+        }
+      }
+    }
+  }
+}

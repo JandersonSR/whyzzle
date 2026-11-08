@@ -1,0 +1,146 @@
+{
+  "title": "Regression tests in CI",
+  "subtitle": "Every PR that touches the assistant runs the set and can turn red",
+  "mission": "At Aurora, anyone on the team opens PRs on the assistant: prompt, model, chunk size. Now every PR runs set 2026-10 (60 questions, 20 of them critical: outside the handbook or delicate) on GitHub Actions, and the gate decides whether it can be merged. Tune the gate to block what gets worse and let through what gets better.",
+  "predict": {
+    "question": "the PR \"shorten the system prompt\" lowers the score from 85% to 83%, above the 80% threshold and within the 3-point max drop. CI…",
+    "options": {
+      "pass": "Goes green",
+      "block": "Goes red"
+    }
+  },
+  "feedback": {
+    "right": "right: the average barely moved, but 2 of the 20 critical questions started getting made-up answers. Critical cases don’t go into the average: one is enough to block.",
+    "wrong": "it goes red: the average barely moved, but 2 of the 20 critical questions started getting made-up answers. Critical cases don’t go into the average: one is enough to block.",
+    "skipped": "no guess? Run the short-prompt PR and read the log."
+  },
+  "coach": {
+    "ui": "guess noted. Pick the short-prompt PR and run with the default gate.",
+    "cmd": "guess noted. Run ci \"shorten the system prompt\" and read the log."
+  },
+  "tryNext": {
+    "ui": "Now the bigger-chunks PR: it improves things. Raise the threshold to 90% and watch the gate block an improvement.",
+    "cmd": "Run ci \"make chunks 200 words long\" --threshold 0.9 and see what the gate blocked."
+  },
+  "why": {
+    "simples": "Before serving a new dish, the kitchen tastes it. If the recipe changed (less salt, another supplier), it tastes again, always the same way. And some things must never happen, like peanuts in the dish of someone allergic: then it doesn’t matter how good the rest is.\nCI is that automatic tasting: every change to the assistant runs the same questions, and the merge only happens if the score doesn’t drop and no critical case fails.",
+    "dev": "The gate has three rules, each catching a kind of regression: an absolute minimum score (the cheaper model drops to 77%), a maximum drop against main (the baseline stored at the last merge) and critical cases that block on their own, outside the average (refusing what isn’t in the handbook, handing harassment to a person). The script exits non-zero when any fails, and GitHub Actions marks the job as failed; with a branch protection rule requiring that job, the merge is blocked.\nDon’t use a paths filter on a required check (a skipped workflow leaves the check Pending and blocks the PR); if cost matters, run a smaller smoke set. Pin the model version, keep the log of flipped cases and update baseline.json only after merging. LLM evaluation varies a little between runs: leave a few points of slack in the max drop and, for critical cases, run more than once before blaming the PR.",
+    "especialista": "Regressions also arrive without a PR. In January 2024, UK delivery firm DPD’s support chatbot swore at a customer and wrote a poem criticizing the company; DPD blamed an error after a system update and switched the AI part off. A provider model change, an index change or a dependency bump is a production change: run the same gate on a schedule (daily, say) and on every version bump, not only on PRs.\nCost matters: 60 questions with an LLM judge per PR is cheap; 5,000 isn’t. Keep a fast smoke set for every PR and the full one for merges to main or nightly. And remember the gate only catches what the set contains: a critical case nobody wrote blocks nothing (next lessons: hard cases and user feedback)."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: the short-prompt PR with critical cases turned off in the gate.",
+      "cmd": "time to break it: run ci \"shorten the system prompt\" --critical no"
+    },
+    "success": "Broken: CI went green and the PR \"{change}\" landed on main, but {damage}. The gate checked a score of at least {limitPct}%, a drop of up to {maxDrop} points and critical cases {critL}. A regression the gate doesn’t measure goes to production.",
+    "calm": "PR \"{change}\": {scorePct}% (main {basePct}%), critical {crit}/{nCrit}. To break it, let a regression through the gate."
+  },
+  "hints": {
+    "ui": [
+      "Pick a PR and run. The log shows what the gate checked.",
+      "Threshold is the minimum score; max drop is how many points it may fall against main; critical cases block on their own when on.",
+      "Short-prompt PR, critical cases off."
+    ],
+    "cmd": [
+      "The PR goes in quotes, after ci.",
+      "--threshold 0.5 to 0.95; --max-drop 0 to 20 points; --critical yes or no.",
+      "ci \"shorten the system prompt\" --critical no"
+    ]
+  },
+  "errors": {
+    "belowMin.limit": "Below 50% the gate accepts almost anything.",
+    "aboveMax.limit": "Above 95% almost no PR passes.",
+    "belowMin.maxDrop": "The drop goes from 0 to 20 points.",
+    "aboveMax.maxDrop": "More than 20 points of allowed drop is an open gate.",
+    "notBool.critical": "Use yes or no.",
+    "model.unknownChange": "Pick one of the four example PRs: only they have evaluation results in this lesson."
+  },
+  "controls": {
+    "arg": "Pull request",
+    "limit": "Minimum score",
+    "maxDrop": "Max drop against main (points)",
+    "critical": "Critical cases block"
+  },
+  "scene": {
+    "label": "Evaluation gate in CI",
+    "empty": "Run to open the PR.",
+    "sPR": "PR",
+    "sEval": "Evaluation",
+    "subEval": "2026-10 · 60 questions",
+    "sGate": "Gate",
+    "subGreen": "green",
+    "subRed": "red",
+    "sMain": "main",
+    "subMerged": "merged",
+    "subBlocked": "merge blocked",
+    "log": "eval job log",
+    "checks": "Gate rules",
+    "chkScore": "Minimum score",
+    "whyScore": "{scorePct}%, below {limitPct}%",
+    "chkDrop": "Drop against main",
+    "whyDrop": "dropped {drop} points; the max is {maxDrop}",
+    "chkCrit": "Critical cases",
+    "whyCrit": "{crit} of {nCrit} critical cases passed",
+    "whyCritOff": "off in the gate, and {crit} of {nCrit} critical cases passed",
+    "mScore": "PR score",
+    "mBase": "main score",
+    "mCrit": "critical",
+    "shippedNote": "Green, but it regressed: {damage}.",
+    "needlessNote": "This PR makes nothing worse (score {scorePct}%, main {basePct}%), and the gate blocked it anyway. A gate that’s too tight teaches the team to ignore red.",
+    "simNote": "Fixed lesson results for each PR on set 2026-10. In the recipe, the same gate runs for real on GitHub Actions."
+  },
+  "data": {
+    "changes": {
+      "shorten the system prompt": {
+        "known": true,
+        "hits": 50,
+        "crit": 18,
+        "regressed": true,
+        "damage": "2 of the 20 critical questions (outside the handbook or delicate) started getting made-up answers"
+      },
+      "switch to a cheaper model": {
+        "known": true,
+        "hits": 46,
+        "crit": 20,
+        "regressed": true,
+        "damage": "the score fell from 85% to 77%, 8 points down"
+      },
+      "make chunks 200 words long": {
+        "known": true,
+        "hits": 53,
+        "crit": 20,
+        "regressed": false,
+        "damage": ""
+      },
+      "fix a typo in the README": {
+        "known": true,
+        "hits": 51,
+        "crit": 20,
+        "regressed": false,
+        "damage": ""
+      }
+    },
+    "unknownChange": {
+      "known": false,
+      "hits": 0,
+      "crit": 0,
+      "regressed": false,
+      "damage": ""
+    },
+    "critOn": "required",
+    "critOff": "turned off",
+    "lineScore": "score below threshold",
+    "lineDrop": "dropped more than allowed vs main",
+    "lineCrit": "critical cases failed",
+    "lineCritOff": "critical cases failed, but the gate isn’t looking"
+  },
+  "recipe": {
+    "steps": [
+      "In the assistant’s repository (with assistant.py from the Practice mission and evals/rh/2026-10.jsonl from lesson 1), create gate.py. It runs the set, compares with main’s baseline and exits with an error if the score falls below the minimum, drops more than 3 points or any critical case (kind outside or sensitive) fails:\nimport json\nimport pathlib\nimport sys\n\nfrom assistant import handle\n\nSET = pathlib.Path(\"evals/rh/2026-10.jsonl\")\nMIN_SCORE = float(sys.argv[1]) if len(sys.argv) > 1 else 0.80\nMAX_DROP = 0.03\nEXPECTED = {\"answer\": \"answer\", \"outside\": \"refuse\", \"sensitive\": \"handoff\", \"clarify\": \"clarify\"}\n\ncases = [json.loads(line) for line in SET.read_text(encoding=\"utf-8\").splitlines() if line.strip()]\nBASELINE = pathlib.Path(\"evals/rh/baseline.json\")\nbaseline = json.loads(BASELINE.read_text()) if BASELINE.exists() else {\"score\": 0.0}\n\nfails = []\ncritical_fails = []\nfor case in cases:\n    r = handle(case[\"question\"])\n    ok = r[\"action\"] == EXPECTED[case[\"kind\"]]\n    if ok and case[\"kind\"] == \"answer\":\n        ok = bool(set(r[\"cited\"]) & set(case[\"gold\"]))\n    if not ok:\n        fails.append(case[\"id\"])\n        if case[\"kind\"] in (\"outside\", \"sensitive\"):\n            critical_fails.append(case[\"id\"])\n\nscore = 1 - len(fails) / len(cases)\nprint(f\"score {score:.0%} (main {baseline['score']:.0%}) | failed: {fails}\")\n\nproblems = []\nif score < MIN_SCORE:\n    problems.append(f\"score below {MIN_SCORE:.0%}\")\nif baseline[\"score\"] - score > MAX_DROP:\n    problems.append(f\"dropped more than {MAX_DROP:.0%} vs main\")\nif critical_fails:\n    problems.append(f\"critical cases failed: {critical_fails}\")\n\nif problems:\n    sys.exit(\"FAILED: \" + \"; \".join(problems))\nprint(\"PASSED\")",
+      "Run it on main (without baseline.json the drop isn’t checked) and store the baseline, replacing 0.85 with the score you got:\npython gate.py 0.0\necho '{\"score\": 0.85}' > evals/rh/baseline.json",
+      "Create .github/workflows/eval-rh.yml. It runs on every PR (no paths filter: if a required workflow is skipped, the check stays Pending and blocks the PR):\nname: eval-rh\n\non:\n  pull_request:\n\njobs:\n  eval:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n      - uses: actions/setup-python@v7\n        with:\n          python-version: \"3.12\"\n      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu\n      - run: pip install sentence-transformers rank_bm25 anthropic\n      - run: python gate.py 0.80\n        env:\n          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}",
+      "Store the key in Settings > Secrets and variables > Actions as ANTHROPIC_API_KEY (PRs from forks don’t get secrets). In Settings > Branches (or Settings > Rules > Rulesets), add a protection rule for main requiring the \"eval\" check. Then open a PR that deletes the refusal sentence from SYSTEM."
+    ],
+    "ok": "the PR’s eval job turns red with \"FAILED: critical cases failed: [...]\" and the merge button is blocked; when you undo the change, the job turns green with PASSED."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Usar feedback de usuários como fonte de casos, não como alvo.",
+      "Combinar polegar para baixo com revisão aleatória.",
+      "Versionar o conjunto com os casos achados."
+    ],
+    "minutes": 20,
+    "activity": "Distribua 20 cartões de \"conversa\" com resposta, se estava certa e se a pessoa gostou. Um grupo escolhe mudanças olhando só \"gostou\"; outro olha uma amostra sorteada de \"certa\". Comparem o que cada grupo consertou.",
+    "discussion": [
+      "Que sinal de satisfação a sua empresa já otimizou e se arrependeu?",
+      "Quem pode ler os comentários dos colaboradores, e por quanto tempo?"
+    ],
+    "misconceptions": [
+      "\"Mais polegar para cima é melhor qualidade.\" Pode ser só mais bajulação.",
+      "\"Se ninguém reclamou, está certo.\" Falhas silenciosas só aparecem na revisão aleatória."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Use user feedback as a source of cases, not as a target.",
+      "Combine thumbs-down with random review.",
+      "Version the set with the cases found."
+    ],
+    "minutes": 20,
+    "activity": "Hand out 20 \"conversation\" cards with the answer, whether it was right and whether the person liked it. One group picks changes looking only at \"liked\"; another looks at a random sample of \"right\". Compare what each group fixed.",
+    "discussion": [
+      "Which satisfaction signal has your company optimized and regretted?",
+      "Who may read employees’ comments, and for how long?"
+    ],
+    "misconceptions": [
+      "\"More thumbs-up means better quality.\" It may just be more flattery.",
+      "\"If nobody complained, it’s right.\" Silent failures only show up in random review."
+    ]
+  }
+}

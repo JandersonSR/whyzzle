@@ -114,9 +114,9 @@ Depende das etapas de plataforma PL1 a PL3.
 - [x] **Missão final da Prática**: assistente de RH que responde dúvidas a partir das políticas da empresa (fonte citada, recusa quando não sabe, triagem para humano), rodando no navegador.
 
 ### Produção (empresas e times)
-- [ ] → **Etapa R1 · Avaliação e qualidade** (7 lições): conjunto de avaliação versionado; métricas de RAG (fidelidade, relevância); LLM como juiz e sua calibração; testes de regressão no CI; testes A/B de prompt; casos difíceis e perguntas sem resposta; ciclo de feedback de usuários.
+- [x] **Etapa R1 · Avaliação e qualidade** (7 lições): conjunto de avaliação versionado; métricas de RAG (fidelidade, relevância); LLM como juiz e sua calibração; testes de regressão no CI; testes A/B de prompt; casos difíceis e perguntas sem resposta; ciclo de feedback de usuários.
+- [ ] → **Etapa R2 · Segurança, privacidade e governança** (7 lições): prompt injection direta e indireta; guardrails de entrada e saída; vazamento de dados e permissões por documento; dados pessoais e LGPD (minimização, retenção, base legal); jailbreak e red teaming; auditoria e rastreabilidade; política de uso de IA na empresa.
   - Em andamento: escrita das 7 lições começou (subagente); falta revisão independente e publicação.
-- [ ] **Etapa R2 · Segurança, privacidade e governança** (7 lições): prompt injection direta e indireta; guardrails de entrada e saída; vazamento de dados e permissões por documento; dados pessoais e LGPD (minimização, retenção, base legal); jailbreak e red teaming; auditoria e rastreabilidade; política de uso de IA na empresa.
 - [ ] **Etapa R3 · Custo, latência e operação** (7 lições): custo por token e por conversa; cache de prompt e de respostas; roteamento entre modelos; streaming e latência percebida; limites de taxa e filas; observabilidade de LLM (traces, custo, qualidade); incidentes e rollback de prompt.
 - [ ] **Etapa R4 · Casos reais de empresa** (8 lições): FAQ de RH; atendimento com triagem e passagem para humano; triagem de documentos; revisão de PR assistida; assistente de tech lead (reuniões, status, riscos); skills e regras para o LLM consultar a documentação e os sistemas internos; IA para análise de logs; plano de implantação e ROI.
 - [ ] **Missão final da Produção**: colocar no ar o assistente de atendimento de uma empresa fictícia, com avaliação no CI, guardrails, custo por conversa dentro do orçamento, LGPD atendida e painel de monitoramento.
@@ -408,6 +408,7 @@ Depende das etapas de plataforma PL1 a PL3.
 | nov/2026 | Plataforma · PL2 · modelo declarativo + 9 peças de cena reutilizáveis (galeria em /galeria) | Publicada |
 | nov/2026 | Plataforma · PL3 · executores no navegador (Transformers.js 4.3.2, WebLLM 0.2.87) e sua chave (Anthropic, OpenAI, Gemini, compatível); ativos nos passos 2 e 4 dos Fundamentos | Publicada |
 | nov/2026 | IA aplicada · Prática · P1 · 7 lições com modelos reais (tokenizador do GPT-4o, multilingual-e5-small, Llama 3.2 1B ou sua chave), todas só com dados | Publicada |
+| nov/2026 | IA aplicada · Produção · R1 · Avaliação e qualidade: 7 lições (conjunto versionado, métricas de RAG, LLM como juiz com kappa, regressão no CI, A/B sem espiar, casos difíceis, feedback de usuários) | Publicada |
 | nov/2026 | C# e ASP.NET Core · Fundamentos F1 + missão (tipos, fluxo, LINQ, records, nulabilidade, exceções, async/await; missão da calculadora de empréstimo; saídas conferidas no .NET 10) | Publicada |
 | nov/2026 | Contêineres e Kubernetes · Fundamentos F1 + missão (processo × contêiner × VM, imagem e camadas, Dockerfile, registro, por que orquestrar, cluster; missão do Dockerfile explicado linha a linha) | Publicada |
 | nov/2026 | IA aplicada · Prática · missão final: assistente de RH da Aurora (limpeza, busca híbrida, limite, citação, recusa, triagem e avaliação em 13 perguntas) | Publicada |
@@ -416,4 +417,4 @@ Depende das etapas de plataforma PL1 a PL3.
 | nov/2026 | Desenvolvimento assistido por IA · Fundamentos F1 + missão (padaria Pão de Mel: autocompletar × chat × agente, contexto, especificação, revisão, quando não usar, ética e autoria; missão do bug 0,1 × 3) | Publicada |
 | nov/2026 | IA aplicada · Prática · P2 · RAG de verdade: 8 lições sobre o manual da Aurora (BM25 real, embeddings e5 no navegador, reranker por LLM, citação e recusa, recall@k) | Publicada |
 
-**Próxima etapa:** IA aplicada · Produção · R1 (Avaliação e qualidade).
+**Próxima etapa:** IA aplicada · Produção · R2 (Segurança, privacidade e governança).

@@ -45,7 +45,7 @@
     },
     {
       "id": "producao",
-      "status": "soon",
+      "status": "ready",
       "title": {
         "pt": "Produção",
         "en": "Production"

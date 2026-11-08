@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Calcular tamanho de amostra antes do teste.",
+      "Ler z e p de duas proporções.",
+      "Explicar por que espiar e parar cedo engana."
+    ],
+    "minutes": 25,
+    "activity": "Cada grupo joga uma moeda 10 vezes e anota caras; depois junta os resultados da turma toda. Compare a proporção de cada grupo com a da turma e discuta qual grupo \"parou cedo\".",
+    "discussion": [
+      "Que métrica de guarda o assistente de RH não pode piorar?",
+      "Quem decide o efeito mínimo que vale a pena, e com que argumento?"
+    ],
+    "misconceptions": [
+      "\"Deu p < 0,05 no segundo dia, já podemos parar.\" Parar na primeira olhada boa infla o falso positivo e o efeito.",
+      "\"p alto prova que não há diferença.\" Pode ser só amostra pequena."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Compute sample size before the test.",
+      "Read z and p for two proportions.",
+      "Explain why peeking and stopping early misleads."
+    ],
+    "minutes": 25,
+    "activity": "Each group flips a coin 10 times and writes down heads; then pool the whole class’s results. Compare each group’s proportion with the class’s and discuss which group \"stopped early\".",
+    "discussion": [
+      "Which guardrail metric must the HR assistant not make worse?",
+      "Who decides the minimum effect worth having, and with what argument?"
+    ],
+    "misconceptions": [
+      "\"We got p < 0.05 on day two, we can stop.\" Stopping at the first good look inflates false positives and the effect.",
+      "\"A high p proves there’s no difference.\" It may just be a small sample."
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "title": "A versioned evaluation set",
+  "subtitle": "Scores only compare on the same ruler: same questions, same version",
+  "mission": "Aurora’s HR assistant passed the 13-question mission and is going to production. The team kept those 13 as set 2026-06 and, after the pilot, built 2026-10, with 60 questions: the 13 from the mission plus 47 taken from the logs (labeled by HR). Now prompt v3 arrived and someone already posted in the channel: \"v3 scored 85%, v2 had 92%, it got worse!\". Compare the versions the right way and find out whether v3 really got worse.",
+  "predict": {
+    "question": "v3 scored 85% on 2026-10 (60 questions); v2 had scored 92% on 2026-06 (13). Running both on the same 2026-10, who wins?",
+    "options": {
+      "v3": "v3",
+      "v2": "v2",
+      "tie": "A tie"
+    }
+  },
+  "feedback": {
+    "right": "right: on the same 2026-10, v3 scores 85% and v2 scores 75%. v3 is 10 points better; v2’s 92% came from a smaller, easier set.",
+    "wrong": "v3 wins: on the same 2026-10 it scores 85% and v2 scores 75%. v2’s 92% came from 2026-06, with 13 easy mission questions. Different set, different ruler.",
+    "skipped": "no guess? Run the default comparison, which puts both versions on 2026-10."
+  },
+  "coach": {
+    "ui": "guess noted. Keep both sets at 2026-10 and run.",
+    "cmd": "guess noted. Run compare \"v3\" and read both table rows."
+  },
+  "tryNext": {
+    "ui": "Now turn on \"leak\": someone copied set questions into the prompt as examples. Watch the score jump while the holdout stays put.",
+    "cmd": "Run compare \"v3\" --leak yes and compare the score with the holdout."
+  },
+  "why": {
+    "simples": "Comparing grades from different exams doesn’t tell you who studied more. If class A took the easy exam and class B the hard one, a 9 and a 7 don’t compare.\nAI is the same: the set of questions is the exam. It gets a version number, is stored and doesn’t change behind your back. To know whether the new prompt is better, run the new and the old one on the same version of the exam. And no cheating: exam questions pasted into the prompt give a high score and teach nothing.",
+    "dev": "Treat the evaluation set like code: one file per version (evals/rh/2026-10.jsonl), in git, with a stable id per case, a kind (answer, refuse, hand off) and an answer key. A published version is never edited: a fix becomes a new version, with a note on what changed. Every result stores the prompt, the model, the set name and a hash of the file, and the comparison script refuses results with different hashes.\nWhen the set grows, rerun the baseline on it: v2 drops from 92% to 75% not because it got worse, but because the exam got closer to real life. Also keep a holdout, questions nobody uses to tune prompts, and check it before celebrating.",
+    "especialista": "Three details separate a useful set from a pretty number. Contamination: few-shot examples, test cases used for debugging or questions leaked into fine-tuning make the model \"memorize\" the exam; the score rises on the set and not on the holdout (here, 98% against the same 85%). That’s why the holdout stays out of reach of whoever tunes the prompt, and gets refreshed from time to time.\nRepresentativeness: the 13 mission questions were the ones the team imagined; 47 came from pilot logs, in proportions close to production. Record where each case came from and resample when usage changes. Size and noise: with 60 cases each case is worth 1.7 points, so 2 or 3 point differences may be noise; look at the cases that flipped (OK to XX and back), not just the mean, and grow the set where decisions are tight."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: keep v3 on 2026-10 and switch the base set to 2026-06.",
+      "cmd": "time to break it: run compare \"v3\" --base-set 2026-06"
+    },
+    "success": "Broken: the dashboard shows {cand} at {candPct}% on {candSetL} and {base} at {basePct}% on {baseSetL}, a {shownS} point difference between different exams. On the same {candSetL}, {cand} scores {cleanPct}% and {base} scores {baseOnCandPct}%. That’s the number that counts.",
+    "calm": "{cand}: {candPct}% on {candSetL} · {base}: {basePct}% on {baseSetL}. To break it, compare scores from different versions of the set."
+  },
+  "hints": {
+    "ui": [
+      "Pick the candidate prompt and the base one, and each side’s set version.",
+      "The comparison is only fair with the same set on both sides. The holdout is 20 fresh questions nobody used to tune anything.",
+      "Candidate v3 on 2026-10, base v2 on 2026-06."
+    ],
+    "cmd": [
+      "The candidate prompt goes in quotes: \"v1\", \"v2\" or \"v3\".",
+      "--base picks the reference prompt; --set and --base-set pick each side’s version (2026-06 or 2026-10); --leak yes pastes test questions into the prompt.",
+      "compare \"v3\" --base-set 2026-06"
+    ]
+  },
+  "errors": {
+    "notInEnum.base": "\"{value}\" is not a prompt. Use: {options}.",
+    "notInEnum.set": "\"{value}\" is not a set version. Use: {options}.",
+    "notInEnum.baseSet": "\"{value}\" is not a set version. Use: {options}.",
+    "notBool.leak": "Use yes or no.",
+    "model.unknownPrompt": "This project only has prompts v1, v2 and v3."
+  },
+  "controls": {
+    "arg": "Candidate prompt",
+    "base": "Base prompt",
+    "set": "Candidate’s set",
+    "baseSet": "Base’s set",
+    "leak": "Test questions in the prompt"
+  },
+  "scene": {
+    "label": "Comparing prompt versions",
+    "empty": "Run to compare.",
+    "cmpTable": "What the dashboard compares",
+    "colWho": "side",
+    "colPrompt": "prompt",
+    "colSet": "set",
+    "colScore": "correct",
+    "rowCand": "candidate",
+    "rowBase": "base",
+    "mShown": "difference shown (points)",
+    "mHold": "holdout: candidate · base",
+    "checks": "Is the comparison valid?",
+    "chkSame": "Same set version on both sides",
+    "whySame": "{candSetL} against {baseSetL}: different exams",
+    "chkLeak": "No test question inside the prompt",
+    "whyLeak": "the prompt holds set questions as examples: the score measures memory",
+    "chkHold": "On the holdout, the candidate isn’t behind",
+    "whyHold": "holdout: {holdCPct}% against {holdBPct}%",
+    "mismatchNote": "Different sets. On the same {candSetL}: {cand} {cleanPct}% and {base} {baseOnCandPct}%.",
+    "leakNote": "With test questions in the prompt, {cand} went to {candPct}% on {candSetL}; without them, {cleanPct}%. On the holdout it stayed at {holdCPct}%, as before.",
+    "fairNote": "Fair comparison on {candSetL}: {cand} {candPct}% and {base} {basePct}% ({shownS} points). With {candN} cases, each case is worth about {stepPts} point(s).",
+    "simNote": "Fixed lesson scores (each prompt’s hits on each set), no model called. In your project they come from the recipe’s evaluation script."
+  },
+  "data": {
+    "langCode": "en"
+  },
+  "recipe": {
+    "steps": [
+      "Create the evals/rh/ folder and save the set as one file per version, one question per line (JSON Lines). Start with the Practice mission questions and add real questions from the logs, labeled by HR. Example of evals/rh/2026-10.jsonl:\n{\"id\": \"rh-001\", \"question\": \"How far in advance do I request vacation?\", \"kind\": \"answer\", \"gold\": [0]}\n{\"id\": \"rh-010\", \"question\": \"What are the company gym’s opening hours?\", \"kind\": \"outside\", \"gold\": []}\n{\"id\": \"rh-012\", \"question\": \"My manager is harassing me. What do I do?\", \"kind\": \"sensitive\", \"gold\": []}",
+      "Create run_eval.py next to the Practice mission’s assistant.py (any handle(question) function that returns action and cited works). It runs the set, saves the result with the file’s name and hash and prints the score:\nimport argparse\nimport hashlib\nimport json\nimport os\nimport pathlib\n\nfrom assistant import handle\n\np = argparse.ArgumentParser()\np.add_argument(\"--prompt\", required=True)  # label of the prompt version, e.g. v3\np.add_argument(\"--set\", required=True)  # set file, e.g. evals/rh/2026-10.jsonl\nargs = p.parse_args()\n\npath = pathlib.Path(args.set)\ndigest = hashlib.sha256(path.read_bytes()).hexdigest()[:12]\ncases = [json.loads(line) for line in path.read_text(encoding=\"utf-8\").splitlines() if line.strip()]\nexpected = {\"answer\": \"answer\", \"outside\": \"refuse\", \"sensitive\": \"handoff\", \"clarify\": \"clarify\"}\n\ncorrect = 0\nfor case in cases:\n    r = handle(case[\"question\"])\n    ok = r[\"action\"] == expected[case[\"kind\"]]\n    if ok and case[\"kind\"] == \"answer\":\n        ok = bool(set(r[\"cited\"]) & set(case[\"gold\"]))\n    correct += ok\n    print((\"OK \" if ok else \"XX \") + case[\"id\"])\n\nout = {\"prompt\": args.prompt, \"model\": os.environ.get(\"CLAUDE_MODEL\", \"claude-haiku-5-5\"), \"set\": path.stem, \"sha256\": digest, \"correct\": correct, \"total\": len(cases)}\npathlib.Path(\"results\").mkdir(exist_ok=True)\npathlib.Path(f\"results/{args.prompt}__{path.stem}.json\").write_text(json.dumps(out))\nprint(f\"{args.prompt} @ {path.stem} ({digest}): {correct}/{len(cases)}\")",
+      "Create compare.py, which only compares results from the same set file:\nimport json\nimport sys\n\na, b = (json.load(open(name)) for name in sys.argv[1:3])\nif a[\"sha256\"] != b[\"sha256\"]:\n    sys.exit(f\"different sets: {a['set']} ({a['sha256']}) x {b['set']} ({b['sha256']})\")\n\npa = a[\"correct\"] / a[\"total\"]\npb = b[\"correct\"] / b[\"total\"]\nprint(f\"{a['prompt']} {pa:.0%} x {b['prompt']} {pb:.0%} on {a['set']}: {100 * (pa - pb):+.1f} points\")",
+      "Run both versions on the same set and compare (swap SYSTEM in assistant.py between runs):\npython run_eval.py --prompt v2 --set evals/rh/2026-10.jsonl\npython run_eval.py --prompt v3 --set evals/rh/2026-10.jsonl\npython compare.py results/v3__2026-10.json results/v2__2026-10.json\nThen try comparing against a 2026-06 result and watch the script refuse."
+    ],
+    "ok": "compare.py prints the difference in points when both results come from the same file, and exits with \"different sets\" when one of them came from another version of the set."
+  }
+}

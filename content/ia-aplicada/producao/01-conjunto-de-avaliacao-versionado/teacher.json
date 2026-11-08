@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Versionar o conjunto de avaliação como código.",
+      "Comparar versões de prompt só na mesma versão do conjunto.",
+      "Reconhecer contaminação e usar um holdout."
+    ],
+    "minutes": 20,
+    "activity": "Duas equipes fazem \"provas\" diferentes (uma com 5 perguntas fáceis, outra com 15 mais difíceis) e anunciam a nota. A turma discute quem foi melhor; depois as duas fazem a mesma prova e comparam de novo.",
+    "discussion": [
+      "Quem pode editar o conjunto de avaliação na sua empresa, e como isso fica registrado?",
+      "O que vocês fariam se a nota subisse no conjunto e não no holdout?"
+    ],
+    "misconceptions": [
+      "\"A nota caiu, então o prompt piorou.\" Talvez a prova tenha mudado; compare na mesma versão.",
+      "\"Usar as perguntas do teste como exemplo ajuda o modelo.\" Ajuda a decorar a prova, não a responder pergunta nova."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Version the evaluation set like code.",
+      "Compare prompt versions only on the same set version.",
+      "Recognize contamination and use a holdout."
+    ],
+    "minutes": 20,
+    "activity": "Two teams take different \"exams\" (one with 5 easy questions, another with 15 harder ones) and announce their grades. The class debates who did better; then both take the same exam and compare again.",
+    "discussion": [
+      "Who may edit the evaluation set at your company, and how is that recorded?",
+      "What would you do if the score rose on the set and not on the holdout?"
+    ],
+    "misconceptions": [
+      "\"The score dropped, so the prompt got worse.\" Maybe the exam changed; compare on the same version.",
+      "\"Using test questions as examples helps the model.\" It helps memorize the exam, not answer new questions."
+    ]
+  }
+}

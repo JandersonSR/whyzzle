@@ -1,0 +1,149 @@
+{
+  "title": "Ciclo de feedback de usuários",
+  "subtitle": "Polegar para baixo, revisão humana e casos novos no conjunto, sem ensinar o assistente a agradar",
+  "mission": "O assistente está no ar: são cerca de 2.000 conversas por semana, e umas 3% recebem polegar para cima ou para baixo, às vezes com comentário. O time tem 4 semanas e precisa decidir três coisas: o que otimizar (aprovação ou acerto medido no 2026-11), quantas conversas sorteadas o RH revisa por semana e se as falhas viram casos novos de avaliação. Monte o ciclo e faça o acerto subir.",
+  "predict": {
+    "question": "se o time mudar o prompt toda semana para maximizar o polegar para cima, o acerto medido no conjunto 2026-11…",
+    "options": {
+      "up": "Sobe junto",
+      "down": "Cai"
+    }
+  },
+  "feedback": {
+    "right": "isso: a aprovação vai de 70% para 82% e o acerto cai de 74% para 67%. O prompt que agrada responde com mais certeza e recusa menos, inclusive quando devia recusar.",
+    "wrong": "cai: a aprovação vai de 70% para 82% e o acerto cai de 74% para 67%. O prompt que agrada responde com mais certeza e recusa menos, inclusive quando devia recusar.",
+    "skipped": "sem palpite? Rode otimizando pelo acerto e depois pelo polegar, e compare as duas linhas do gráfico."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com o ciclo padrão (otimizar acerto, revisão de 40 por semana) e olhe o gráfico.",
+    "cmd": "palpite anotado. Rode ciclo e olhe as duas linhas do gráfico."
+  },
+  "tryNext": {
+    "ui": "Agora zere a revisão aleatória: você só vê quem reclamou. Quantas respostas erradas o time deixa de achar?",
+    "cmd": "Rode ciclo --revisao 0 e compare as falhas achadas."
+  },
+  "why": {
+    "simples": "Opinião de cliente é ouro, mas engana: quem reclama é pouca gente, e muita gente agradece uma resposta errada que soou simpática. Se você mudar o restaurante só para ganhar mais \"curti\", ele pode passar a servir sobremesa para todo mundo e esquecer o prato principal.\nO ciclo bom usa o polegar para achar problemas, pede para uma pessoa conferir uma amostra sorteada e transforma cada erro achado em pergunta nova da prova. A nota que manda continua sendo a da prova.",
+    "dev": "Três fontes, cada uma com seu viés: polegar para baixo com comentário (pouco volume, muito sinal, viés de quem reclama), revisão humana de uma amostra aleatória (acha as falhas silenciosas, aquelas que ninguém reclamou) e métricas automáticas no tráfego (recusas, encaminhamentos, perguntas repetidas). Toda semana: fila de revisão com os polegares para baixo + N conversas sorteadas, o RH marca veredito, feedback e categoria de avaliação, e o que é falha vira caso numa versão nova do conjunto (2026-12), com a origem registrada.\nA decisão de produto continua no conjunto: o polegar entra como métrica de guarda e como fonte de casos, não como alvo. Uma triagem automática dos comentários (a da lição, em JSON com categorias fechadas) ajuda a priorizar, mas o \"vira teste ou não\" passa por uma pessoa. Registre também o que falta no manual: \"auxílio creche\" não é bug do prompt, é documento que o RH precisa escrever.",
+    "especialista": "Otimizar direto pelo polegar tem precedente público. Em abril de 2025, a OpenAI reverteu uma atualização do GPT-4o que deixou o modelo bajulador; no relato da empresa, a atualização acrescentou um sinal de recompensa baseado no polegar para cima e para baixo do ChatGPT, e o conjunto das mudanças enfraqueceu o sinal principal que segurava a bajulação. As avaliações offline e os testes A/B não pegaram. A lição para um time pequeno é a mesma: aprovação é um alvo fácil de inflar.\nO feedback também é dado pessoal: o comentário pode trazer saúde, salário ou conflito com o gestor. Defina quem lê a fila de revisão, por quanto tempo os logs ficam guardados e o que é anonimizado antes de virar caso de teste (troque nomes e números antes de gravar no conjunto). E feche o ciclo com quem reclamou quando der: quem vê o problema corrigido volta a dar feedback."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: mude o que o time otimiza para o polegar para cima.",
+      "cmd": "hora de quebrar: rode ciclo --otimizar polegar"
+    },
+    "success": "Quebrou: otimizando pelo polegar, a aprovação subiu de {thumbs0}% para {thumbsEnd}% em 4 semanas e o acerto no conjunto 2026-11 caiu de {acc0}% para {accEnd}%. O assistente aprendeu a agradar: responde com mais certeza e recusa menos, inclusive quando devia recusar.",
+    "calm": "Em 4 semanas: acerto {acc0}% → {accEnd}%, aprovação {thumbs0}% → {thumbsEnd}%, {found} falhas silenciosas achadas e {added} casos novos. Para quebrar, otimize pelo sinal errado."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o que otimizar, quanto revisar e rode. O comentário de exemplo mostra a triagem de uma mensagem.",
+      "Revisão aleatória acha falhas que ninguém reclamou; casos novos travam a correção no conjunto. O polegar mede o quanto a pessoa gostou, não se estava certo.",
+      "Otimizar: polegar."
+    ],
+    "cmd": [
+      "O comentário vai entre aspas, depois de ciclo.",
+      "--otimizar acerto ou polegar; --revisao de 0 a 100 conversas por semana; --novos-casos sim ou nao.",
+      "ciclo --otimizar polegar"
+    ]
+  },
+  "errors": {
+    "notInEnum.optimize": "\"{value}\" não é uma opção. Use: {options}.",
+    "belowMin.review": "A revisão vai de 0 a 100 conversas por semana.",
+    "aboveMax.review": "Mais de 100 por semana não cabe na agenda do RH desta lição.",
+    "notInteger.review": "Conversas inteiras, por favor.",
+    "notBool.newCases": "Use sim ou nao.",
+    "model.unknownComment": "No modo simulado, use um dos quatro comentários de exemplo. Com \"Sua chave\" ou \"No navegador\", qualquer comentário vai para a triagem real."
+  },
+  "controls": {
+    "arg": "Comentário de um colaborador",
+    "optimize": "O que o time otimiza",
+    "review": "Conversas sorteadas revisadas por semana",
+    "newCases": "Falhas viram casos no conjunto"
+  },
+  "scene": {
+    "label": "Quatro semanas em produção",
+    "empty": "Rode para simular o ciclo.",
+    "loopLabel": "O ciclo",
+    "sSignals": "Sinais",
+    "subSignals": "{downs} polegares para baixo",
+    "sReview": "Revisão",
+    "subReview": "{review} sorteadas/semana",
+    "subNoReview": "só quem reclamou",
+    "sCases": "Conjunto",
+    "subAdded": "+{added} casos (2026-12)",
+    "subNotAdded": "nada entra",
+    "sChange": "Mudança",
+    "subThumbs": "para agradar",
+    "subAccuracy": "para acertar",
+    "chart": "Semana a semana (%)",
+    "serThumbs": "polegar para cima",
+    "serAcc": "acerto no 2026-11",
+    "mThumbs": "aprovação",
+    "mAcc": "acerto no 2026-11",
+    "mFound": "falhas silenciosas achadas",
+    "mLikedWrong": "polegar para cima em resposta errada",
+    "triageLabel": "Triagem deste comentário",
+    "sComment": "Comentário",
+    "sCategory": "Categoria",
+    "sToEval": "Vira teste?",
+    "subYes": "sim",
+    "subNo": "não",
+    "pleaserNote": "A aprovação subiu para {thumbsEnd}% e o acerto caiu para {accEnd}%. Polegar é sinal para achar problema, não alvo.",
+    "blindNote": "Sem revisão aleatória, o time só vê os {downs} polegares para baixo. Resposta errada que ninguém reclamou (ou que ganhou polegar para cima) fica invisível.",
+    "realNote": "A triagem deste comentário vem do modelo real, em JSON com categorias fechadas. O gráfico continua com os números da lição.",
+    "simNote": "Modo simulado: 4 semanas com números da lição (cerca de 15% das conversas sorteadas têm resposta errada). Use \"Sua chave\" ou \"No navegador\" para triar um comentário com um modelo real."
+  },
+  "data": {
+    "catNames": {
+      "wrong_answer": "resposta errada",
+      "missing_doc": "falta no manual",
+      "tone": "tom",
+      "praise": "elogio",
+      "other": "outro",
+      "invalid": "JSON inválido"
+    },
+    "triageSys": "Você faz a triagem de comentários de colaboradores sobre o assistente de RH da Aurora. Classifique o comentário numa categoria: wrong_answer (o assistente disse algo errado), missing_doc (o assunto não está no manual), tone (resposta certa, mas o jeito incomodou), praise (elogio) ou other. add_to_eval é true quando o caso deve virar teste no conjunto de avaliação (resposta errada ou assunto que falta no manual). Responda só com JSON: {\"category\":\"...\",\"add_to_eval\":true}.",
+    "comments": {
+      "Ele disse que posso vender metade das férias, mas o RH falou que é um terço.": {
+        "known": true,
+        "expected": "wrong_answer",
+        "sim": "wrong_answer",
+        "simAdd": true
+      },
+      "Perguntei do auxílio creche e ele não soube responder.": {
+        "known": true,
+        "expected": "missing_doc",
+        "sim": "missing_doc",
+        "simAdd": true
+      },
+      "Acertou, mas a resposta veio seca demais.": {
+        "known": true,
+        "expected": "tone",
+        "sim": "tone",
+        "simAdd": false
+      },
+      "Perfeito, obrigado!": {
+        "known": true,
+        "expected": "praise",
+        "sim": "praise",
+        "simAdd": false
+      }
+    },
+    "unknownComment": {
+      "known": false,
+      "expected": "",
+      "sim": "",
+      "simAdd": false
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Guarde cada conversa do assistente num log semanal em JSON Lines, com a avaliação e o comentário quando houver (troque nomes e números pessoais antes de gravar). Exemplo de linha de logs/2026-W46.jsonl:\n{\"id\": \"c-1042\", \"question\": \"Quantos dias de férias posso vender?\", \"answer\": \"Até metade das férias.\", \"rating\": \"down\", \"comment\": \"O RH disse que é um terço.\"}",
+      "Crie review_queue.py, que monta a fila da semana: todos os polegares para baixo e mais 40 conversas sorteadas (o sorteio usa a semana como semente, então dá para repetir):\nimport csv\nimport json\nimport random\nimport sys\n\nweek = sys.argv[1]  # e.g. 2026-W46\nconvs = [json.loads(line) for line in open(f\"logs/{week}.jsonl\", encoding=\"utf-8\") if line.strip()]\ndown = [c for c in convs if c.get(\"rating\") == \"down\"]\ndown_ids = {c[\"id\"] for c in down}\nothers = [c for c in convs if c[\"id\"] not in down_ids]\nrandom.seed(week)\nsample = random.sample(others, min(40, len(others)))\n\nwith open(f\"review-{week}.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as f:\n    w = csv.writer(f)\n    w.writerow([\"id\", \"source\", \"question\", \"answer\", \"comment\", \"verdict\", \"feedback\", \"category\", \"kind\", \"gold\", \"add_to_eval\"])\n    for c in down:\n        w.writerow([c[\"id\"], \"thumbs_down\", c[\"question\"], c[\"answer\"], c.get(\"comment\", \"\")] + [\"\"] * 6)\n    for c in sample:\n        w.writerow([c[\"id\"], \"random\", c[\"question\"], c[\"answer\"], \"\"] + [\"\"] * 6)\nprint(f\"{len(down)} thumbs-down + {len(sample)} random conversations in review-{week}.csv\")",
+      "Rode e entregue o CSV ao RH, que preenche verdict (ok ou wrong), feedback (wrong_answer, missing_doc, tone, praise ou other), category (a categoria de avaliação, como answerable ou false_premise), kind (answer, outside, sensitive ou clarify), gold (índices dos trechos certos, separados por ponto e vírgula; vazio se não for do tipo answer) e add_to_eval (yes ou no):\npython review_queue.py 2026-W46",
+      "Crie add_cases.py, que gera a versão nova do conjunto com os casos marcados (a versão antiga fica como está):\nimport csv\nimport json\nimport sys\n\nreview, old, new = sys.argv[1:4]\ntext = open(old, encoding=\"utf-8\").read().rstrip(\"\\n\") + \"\\n\"\nadded = 0\nwith open(new, \"w\", encoding=\"utf-8\") as out:\n    out.write(text)\n    for row in csv.DictReader(open(review, encoding=\"utf-8\")):\n        if row[\"add_to_eval\"].strip().lower() != \"yes\":\n            continue\n        gold = [int(x) for x in row[\"gold\"].replace(\";\", \",\").split(\",\") if x.strip()]\n        case = {\"id\": \"fb-\" + row[\"id\"], \"question\": row[\"question\"], \"kind\": row[\"kind\"], \"gold\": gold,\n                \"category\": row[\"category\"], \"feedback\": row[\"feedback\"], \"source\": row[\"source\"]}\n        out.write(json.dumps(case, ensure_ascii=False) + \"\\n\")\n        added += 1\nprint(f\"{new}: {added} new cases on top of {old}\")\nRode:\npython add_cases.py review-2026-W46.csv evals/rh/2026-11.jsonl evals/rh/2026-12.jsonl"
+    ],
+    "ok": "review-2026-W46.csv traz os polegares para baixo e 40 conversas sorteadas; depois da revisão, add_cases.py cria o 2026-12.jsonl com o 2026-11 inteiro mais os casos marcados yes, e a próxima comparação de prompts usa essa versão nos dois lados."
+  }
+}

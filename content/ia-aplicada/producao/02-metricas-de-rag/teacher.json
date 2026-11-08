@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Distinguir relevância de fidelidade.",
+      "Calcular fidelidade como afirmações sustentadas ÷ afirmações.",
+      "Combinar métricas num portão."
+    ],
+    "minutes": 20,
+    "activity": "Cada dupla recebe uma pergunta, quatro trechos e três respostas. Uma pessoa sublinha cada afirmação e marca se está nos trechos; a outra dá nota de 0 a 10 para \"responde à pergunta\". Comparem as duas notas de cada resposta.",
+    "discussion": [
+      "Qual erro é pior para o RH: resposta no tema e inventada, ou verdadeira e fora do tema?",
+      "Quem confere o juiz que separa as afirmações?"
+    ],
+    "misconceptions": [
+      "\"Se a resposta fala do assunto, está certa.\" Relevância não mede verdade.",
+      "\"Fidelidade 100% é resposta perfeita.\" Pode ser fiel e não responder."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell relevance from faithfulness.",
+      "Compute faithfulness as supported claims ÷ claims.",
+      "Combine metrics in a gate."
+    ],
+    "minutes": 20,
+    "activity": "Each pair gets a question, four chunks and three answers. One person underlines each claim and marks whether it’s in the chunks; the other rates \"answers the question\" 0 to 10. Compare both scores for each answer.",
+    "discussion": [
+      "Which error is worse for HR: on-topic and made up, or true and off-topic?",
+      "Who checks the judge that splits the claims?"
+    ],
+    "misconceptions": [
+      "\"If the answer is on topic, it’s right.\" Relevance doesn’t measure truth.",
+      "\"100% faithfulness is a perfect answer.\" It can be faithful and not answer."
+    ]
+  }
+}

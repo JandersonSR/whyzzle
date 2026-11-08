@@ -1,0 +1,270 @@
+{
+  "id": "r-testes-de-regressao-no-ci",
+  "order": 4,
+  "track": "producao",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "avaliacao",
+    "ci",
+    "regressao",
+    "github-actions",
+    "portao"
+  ],
+  "requires": [
+    "r-llm-como-juiz"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "ci",
+      "en": "ci"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "encurtar o prompt de sistema",
+        "en": "shorten the system prompt"
+      },
+      "examples": [
+        {
+          "pt": "encurtar o prompt de sistema",
+          "en": "shorten the system prompt"
+        },
+        {
+          "pt": "trocar para um modelo mais barato",
+          "en": "switch to a cheaper model"
+        },
+        {
+          "pt": "aumentar os trechos para 200 palavras",
+          "en": "make chunks 200 words long"
+        },
+        {
+          "pt": "corrigir um erro de digitação no README",
+          "en": "fix a typo in the README"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "limit",
+        "alias": {
+          "pt": "limite",
+          "en": "threshold"
+        },
+        "type": "number",
+        "min": 0.5,
+        "max": 0.95,
+        "step": 0.01,
+        "default": 0.8,
+        "ui": "slider"
+      },
+      {
+        "name": "maxDrop",
+        "alias": {
+          "pt": "queda",
+          "en": "max-drop"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 20,
+        "default": 3,
+        "ui": "slider"
+      },
+      {
+        "name": "critical",
+        "alias": {
+          "pt": "criticos",
+          "en": "critical"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "shipped"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "nCases": 60,
+        "nCrit": 20,
+        "baseHits": 51
+      },
+      "compute": {
+        "rec": "lookup(changes, text, unknownChange)",
+        "known": "rec.known",
+        "scorePct": "round(rec.hits / nCases * 100)",
+        "basePct": "round(baseHits / nCases * 100)",
+        "limitPct": "round(limit * 100)",
+        "drop": "basePct - scorePct",
+        "okScore": "scorePct >= limitPct",
+        "okDrop": "drop <= maxDrop",
+        "critAll": "rec.crit == nCrit",
+        "okCrit": "!critical || critAll",
+        "isGreen": "okScore && okDrop && okCrit",
+        "critL": "critical ? critOn : critOff",
+        "logLines": "concat(['$ python gate.py ' + limit, '~ score ' + scorePct + '% (main ' + basePct + '%) · critical ' + rec.crit + '/' + nCrit], okScore ? [] : ['! ' + lineScore], okDrop ? [] : ['! ' + lineDrop], okCrit ? [] : ['! ' + lineCrit], (!critical && !critAll) ? ['? ' + lineCritOff] : [], [isGreen ? '+ PASSED' : '! FAILED'])"
+      },
+      "cases": [
+        {
+          "when": "!known",
+          "error": "unknownChange"
+        },
+        {
+          "when": "known && isGreen",
+          "flags": [
+            "green"
+          ]
+        },
+        {
+          "when": "known && !isGreen",
+          "flags": [
+            "red"
+          ]
+        },
+        {
+          "when": "known && isGreen && rec.regressed",
+          "flags": [
+            "shipped"
+          ]
+        },
+        {
+          "when": "known && !isGreen && rec.regressed",
+          "flags": [
+            "blocked"
+          ]
+        },
+        {
+          "when": "known && !isGreen && !rec.regressed",
+          "flags": [
+            "needless"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "change": "text",
+            "damage": "rec.damage",
+            "scorePct": "scorePct",
+            "basePct": "basePct",
+            "limitPct": "limitPct",
+            "maxDrop": "maxDrop",
+            "critL": "critL",
+            "crit": "rec.crit",
+            "nCrit": "nCrit",
+            "drop": "drop"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@sPR",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "@sEval",
+              "sub": "@subEval",
+              "tone": "neutral"
+            },
+            {
+              "label": "@sGate",
+              "sub": "=isGreen ? '@subGreen' : '@subRed'",
+              "tone": "=isGreen ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@sMain",
+              "sub": "=isGreen ? '@subMerged' : '@subBlocked'",
+              "tone": "=isGreen && rec.regressed ? 'bad' : (isGreen ? 'ok' : 'warn')"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@log",
+          "lines": "=logLines"
+        },
+        {
+          "type": "checks",
+          "label": "@checks",
+          "items": [
+            {
+              "label": "@chkScore",
+              "ok": "=okScore",
+              "why": "@whyScore"
+            },
+            {
+              "label": "@chkDrop",
+              "ok": "=okDrop",
+              "why": "@whyDrop"
+            },
+            {
+              "label": "@chkCrit",
+              "ok": "=critical ? critAll : !rec.regressed || critAll",
+              "why": "=critical ? '@whyCrit' : '@whyCritOff'"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mScore",
+              "value": "=scorePct",
+              "format": "pct",
+              "tone": "=okScore ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@mBase",
+              "value": "=basePct",
+              "format": "pct",
+              "tone": "dim"
+            },
+            {
+              "label": "@mCrit",
+              "value": "=rec.crit + ' / ' + nCrit",
+              "tone": "=critAll ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=isGreen && rec.regressed",
+          "tone": "bad",
+          "text": "@shippedNote"
+        },
+        {
+          "type": "note",
+          "when": "=!isGreen && !rec.regressed",
+          "tone": "warn",
+          "text": "@needlessNote"
+        },
+        {
+          "type": "note",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "pass",
+      "block"
+    ],
+    "answer": "block"
+  }
+}
