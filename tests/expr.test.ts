@@ -72,6 +72,11 @@ describe('expression language', () => {
     expect(ev('mul([1, 2], [3, 4])')).toEqual([3, 8]);
     expect(ev('cumsum([1, 2, 3])')).toEqual([1, 3, 6]);
     expect(ev('maxall([[1, 5], [7, 2]])')).toEqual([5, 7]);
+    expect(ev("where([true, false], ['a', 'b'], 'x')")).toEqual(['a', 'x']);
+    expect(ev('addall([1, 2], [3, 4])')).toEqual([4, 6]);
+    expect(ev('maskfilter([1, 2, 3], [1, 0, 1])')).toEqual([1, 3]);
+    expect(ev("fmt(1234.5, 2, 'pt')")).toBe('1.234,50');
+    expect(ev("fmt(1234.5, 1, 'en')")).toBe('1,234.5');
     expect(ev('geall([0.7, 0.8], 0.75)')).toEqual([false, true]);
     expect(ev('ltall([0.7, 0.8], 0.75)')).toEqual([true, false]);
     expect(ev('pickrows([[1], [2], [3]], [2, 0])')).toEqual([[3], [1]]);

@@ -343,6 +343,15 @@ const FUNCS: Record<string, (args: Value[], rng: () => number) => Value> = {
   ltall: ([list, x]) => arr(list).map((v) => num(v) < num(x)),
   /** Rows of a matrix (or items of a list) at the given indices. */
   pickrows: ([m, idxs]) => arr(idxs).map((i) => arr(m)[num(i)]),
+  /** Per item: a[i] where mask[i] is truthy, else b[i] (a or b may be a single value). */
+  where: ([mask, a, b]) => arr(mask).map((m, i) => (m ? (Array.isArray(a) ? a[i] : a) : Array.isArray(b) ? b[i] : b) as Value),
+  /** a[i] + b[i], item by item. */
+  addall: ([a, b]) => arr(a).map((v, i) => num(v) + num(Array.isArray(b) ? b[i] : b)),
+  /** Items whose mask is truthy. */
+  maskfilter: ([list, mask]) => arr(list).filter((_, i) => Boolean(arr(mask)[i])),
+  /** Number as text with fixed decimals and the language's separators: fmt(1234.5, 2, 'pt') → "1.234,50". */
+  fmt: ([x, d, lang]) =>
+    num(x).toLocaleString(String(lang ?? 'pt') === 'en' ? 'en-US' : 'pt-BR', { minimumFractionDigits: num(d ?? 0), maximumFractionDigits: num(d ?? 0) }),
   /** 1 for each item that is in the set, else 0. */
   memberall: ([list, set]) => arr(list).map((x) => (arr(set).includes(x) ? 1 : 0)),
   /** Prefixes each text: `yes` when it contains any pattern (case-insensitive), else `no`. */
