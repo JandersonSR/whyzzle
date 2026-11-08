@@ -176,7 +176,8 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 6. System design e sistemas distribuídos
 - **Fundamentos**
-  - [ ] F1 · Como sistemas grandes funcionam (6): cliente e servidor; escalar vertical × horizontal; balanceador; cache; banco e réplica; fila.
+  - [ ] → F1 · Como sistemas grandes funcionam (6): cliente e servidor; escalar vertical × horizontal; balanceador; cache; banco e réplica; fila.
+    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão independente e publicação.
   - [ ] Missão: desenhar um encurtador de links para uma escola.
 - **Prática**
   - [ ] P1 · Método de system design (7): requisitos; estimativas de capacidade; API; modelo de dados; blocos de construção; gargalos; trade-offs.
