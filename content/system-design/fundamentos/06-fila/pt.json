@@ -1,0 +1,106 @@
+{
+  "title": "Fila",
+  "subtitle": "Pegue a senha e vá sentar: a cozinha trabalha no ritmo dela e o balcão continua livre",
+  "mission": "No recreio de 10 minutos, chegam 9 pedidos de lanche por segundo. Cada cozinheiro faz 2 lanches por segundo, e hoje são 3. No modo fila, o balcão anota o pedido, entrega uma senha e a cozinha vai tirando os pedidos da fila. No modo síncrono, o aluno fica parado no balcão até o lanche sair. No meio do recreio, um cozinheiro sai e volta (reinicia), e os 4 pedidos que estavam com ele voltam para a fila. Compare os dois modos, a quantidade de cozinheiros e um limite para a fila.",
+  "predict": {
+    "question": "chegam 9 pedidos por segundo e a cozinha faz 6. Com fila, o que acontece com quem pede?",
+    "options": {
+      "error": "Recebe um erro: a cozinha não dá conta",
+      "ticket": "Recebe a senha na hora, mas o lanche demora mais",
+      "instant": "Recebe o lanche na hora: a fila resolve tudo"
+    }
+  },
+  "feedback": {
+    "right": "isso! O balcão responde em 20 ms, porque só anota e entrega a senha. Mas a fila cresce 3 pedidos por segundo: no fim do recreio são 1.800 esperando, e o último lanche sai uns 5 minutos depois. A fila absorve o pico; ela não cria cozinheiros.",
+    "wrong": "olhe as métricas: o balcão responde em 20 ms e ninguém recebe erro, mas 1.800 pedidos ficam esperando no fim do recreio e o último espera uns 5 minutos. Fila não faz a cozinha mais rápida; ela só impede o balcão de travar.",
+    "skipped": "sem palpite? Rode e compare a resposta do balcão com a espera do último lanche."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode e olhe a resposta do balcão, os pedidos na fila e o gráfico.",
+    "cmd": "palpite anotado. Rode atender e olhe as métricas e o gráfico da fila."
+  },
+  "tryNext": {
+    "ui": "Agora coloque 5 cozinheiros. Depois volte para 3 e limite a fila em 300 pedidos.",
+    "cmd": "Rode atender --cozinheiros 5 e depois atender --limite-fila 300."
+  },
+  "why": {
+    "simples": "Sem fila, o aluno fica parado no balcão esperando o lanche. Se a cozinha é mais lenta que os pedidos, o balcão enche de gente parada, e até quem só queria olhar o cardápio não consegue chegar perto. O problema da cozinha vira problema do balcão.\nCom fila, o balcão só anota, entrega a senha e libera o aluno. A cozinha tira os pedidos na ordem, no ritmo dela. O pico do recreio vira uma fila que cresce e depois esvazia.\nMas fila não é mágica: se chegam 9 e saem 6 por segundo, ela cresce sem parar enquanto durar o pico. Às vezes o mais honesto é dizer \"volte daqui a pouco\" quando ela passa do limite, em vez de prometer um lanche que vai chegar frio.",
+    "dev": "Uma fila desacopla quem produz de quem consome: a API grava a mensagem e responde 202 (aceito) ou devolve um número de acompanhamento, e workers processam depois. Isso protege a API de picos e de dependências lentas, e permite escalar os workers separadamente (aqui, 5 cozinheiros = 10 lanches/s, mais que os 9 que chegam).\nTrês cuidados: 1) back-pressure, ou seja, um limite de fila com rejeição educada (429, \"tente de novo em X segundos\") ou com o produtor desacelerando, para a espera não crescer sem fim; 2) idempotência, porque a maioria das filas entrega pelo menos uma vez: se o worker cai depois de fazer o lanche e antes de confirmar (ack), a mensagem volta e o lanche sai em dobro, a não ser que o worker reconheça o número do pedido; 3) monitorar a profundidade e a idade da mensagem mais velha, não só se a fila está no ar.",
+    "especialista": "A conta da fila é a Lei de Little: itens na fila = taxa de chegada × tempo de espera. Se a taxa de chegada passa da capacidade, a fila cresce linearmente e a espera junto, até o pico acabar ou a memória acabar. Por isso dimensione os consumidores pela taxa de pico e pelo tempo aceitável de esvaziar o atraso acumulado, e escale pelos sinais certos (profundidade e idade da mensagem mais velha, não CPU).\nNo modo síncrono, o recurso que acaba primeiro costuma ser o pool de threads ou de conexões do servidor: pedidos lentos seguram threads, e pedidos rápidos e sem relação passam a falhar (é a falha em cascata). Defesas: tempos-limite curtos, bulkheads (pools separados por dependência), circuit breaker e shedding de carga.\nEm filas reais, prefira um broker com confirmação (RabbitMQ, SQS, Kafka, Redis Streams com XACK): um simples POP remove a mensagem na leitura e ela some se o worker cair no meio. E mensagens que sempre falham vão para uma DLQ, para não travar a fila."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: troque a fila pelo modo síncrono, com o aluno esperando no balcão.",
+      "cmd": "hora de quebrar: rode atender --modo sincrono"
+    },
+    "success": "Quebrou: sem fila, cada aluno fica preso no balcão até o lanche sair. A cozinha faz {kRate} lanches/s e chegam 9: os atendentes do balcão ficaram todos ocupados esperando, {errPct}% dos pedidos estouraram o tempo-limite e até quem só queria ver o cardápio levou erro.",
+    "calm": "Balcão respondendo em {counterMs} ms, {errPct}% de erro, {backlog} pedidos na fila no fim do recreio e o último esperando {waitMin} min. Para quebrar, troque a fila pelo modo síncrono."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o modo, quantos cozinheiros, o limite da fila e se o cozinheiro reconhece pedido repetido.",
+      "Sem fila, quem espera a cozinha ocupa o balcão.",
+      "Escolha o modo \"sincrono\" com 3 cozinheiros."
+    ],
+    "cmd": [
+      "O nome é opcional; --modo, --cozinheiros, --limite-fila e --idempotente também.",
+      "--modo aceita fila ou sincrono.",
+      "atender --modo sincrono"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Use fila ou sincrono.",
+    "belowMin.workers": "Pelo menos 1 cozinheiro, senão ninguém come.",
+    "aboveMax.workers": "Até 10 cozinheiros: a cozinha da escola é pequena.",
+    "belowMin.maxQueue": "O limite não fica negativo. 0 é sem limite.",
+    "aboveMax.maxQueue": "Até 5000 pedidos nesta simulação.",
+    "notBool.idem": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Nome da fila",
+    "mode": "Modo",
+    "workers": "Cozinheiros",
+    "maxQueue": "Limite da fila (0 = sem limite)",
+    "idem": "Cozinheiro reconhece pedido repetido"
+  },
+  "scene": {
+    "label": "O recreio na cantina",
+    "empty": "Rode para abrir o recreio.",
+    "counterM": "resposta do balcão (p95)",
+    "errM": "pedidos com erro",
+    "backlogM": "pedidos na fila no fim do recreio",
+    "waitM": "espera do último pedido",
+    "queueLabel": "Fila de pedidos (simulado)",
+    "counter": "balcão",
+    "emptyQueue": "fila vazia",
+    "kitchen": "cozinha: {workers} cozinheiro(s)",
+    "kitchenRate": "{kRate} lanches/s",
+    "restart": "cozinheiro que reiniciou",
+    "idemOn": "reconhece o número do pedido",
+    "idemOff": "faz de novo o que voltou",
+    "chartLabel": "Pedidos esperando na fila, minuto a minuto (o recreio acaba no minuto 10)",
+    "series": "na fila",
+    "flowLabel": "Modo síncrono: o aluno espera no balcão (simulado)",
+    "student": "Aluno",
+    "counterL": "Balcão",
+    "threadsSub": "50 atendentes, cada um preso até o lanche sair",
+    "kitchenL": "Cozinha",
+    "jamNote": "Balcão travado: chegam 9 pedidos/s e saem {kRate}. Os atendentes ficam todos esperando a cozinha, {errPct}% dos pedidos estouram o tempo-limite e qualquer outro pedido, até \"ver cardápio\", também falha.",
+    "syncSlowNote": "Sem erro, porque a cozinha ({kRate}/s) é mais rápida que os pedidos. Mas cada aluno fica até {counterMs} ms parado no balcão, e qualquer lentidão da cozinha vira fila no balcão.",
+    "backlogNote": "Ninguém recebeu erro, mas a fila cresceu até {backlog} pedidos: o último lanche sai {waitMin} min depois do fim do recreio. A fila absorveu o pico; faltaram cozinheiros.",
+    "limitNote": "Back-pressure: com a fila no limite, {rejected} pedidos ({rejectPct}%) ouviram \"volte em 1 minuto\" (429) em vez de esperar um lanche que chegaria frio. A espera máxima caiu para {waitMin} min.",
+    "dupNote": "O cozinheiro reiniciou e os {dups} pedidos que estavam com ele voltaram para a fila. Como ninguém confere o número do pedido, eles foram feitos (e cobrados) duas vezes.",
+    "okNote": "A cozinha dá conta do pico: a fila não acumula e o pedido repetido do cozinheiro que reiniciou foi reconhecido."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Suba um Redis para servir de fila:\ndocker run -d --name fila redis:8",
+      "Num terminal, seja a cozinha: espere o próximo pedido (o 0 é esperar para sempre):\ndocker exec -it fila redis-cli BRPOP pedidos 0",
+      "Em outro terminal, seja o balcão: anote um pedido e veja a cozinha recebê-lo na hora:\ndocker exec fila redis-cli LPUSH pedidos pastel",
+      "Agora sem cozinha ligada, anote três pedidos, conte a fila e tire o primeiro:\ndocker exec fila redis-cli LPUSH pedidos coxinha suco bolo\ndocker exec fila redis-cli LLEN pedidos\ndocker exec fila redis-cli RPOP pedidos",
+      "Repare: o RPOP tira o pedido da fila no momento da leitura. Se a cozinha caísse logo depois, o pedido sumiria. Por isso filas de verdade têm confirmação (ack). Limpe: docker rm -f fila"
+    ],
+    "ok": "a cozinha imprime 1) \"pedidos\" e 2) \"pastel\" assim que o balcão faz o LPUSH; depois o LLEN responde (integer) 3 e o RPOP devolve \"coxinha\", o primeiro que entrou."
+  }
+}

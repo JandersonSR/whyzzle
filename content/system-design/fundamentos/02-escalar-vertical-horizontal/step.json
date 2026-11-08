@@ -1,0 +1,265 @@
+{
+  "id": "sd-escalar-vertical-horizontal",
+  "order": 2,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "escalabilidade",
+    "vertical",
+    "horizontal",
+    "ponto-unico-de-falha",
+    "gargalo"
+  ],
+  "requires": [
+    "sd-cliente-servidor"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "escalar",
+      "en": "scale"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "sorveteria",
+        "en": "ice-cream-shop"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "machines",
+        "alias": {
+          "pt": "maquinas",
+          "en": "machines"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 10,
+        "default": 4,
+        "ui": "slider"
+      },
+      {
+        "name": "size",
+        "alias": {
+          "pt": "tamanho",
+          "en": "size"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "s",
+            "pt": "p",
+            "en": "s"
+          },
+          {
+            "id": "m",
+            "pt": "m",
+            "en": "m"
+          },
+          {
+            "id": "l",
+            "pt": "g",
+            "en": "l"
+          },
+          {
+            "id": "xl",
+            "pt": "gg",
+            "en": "xl"
+          }
+        ],
+        "default": "m",
+        "ui": "select"
+      },
+      {
+        "name": "peak",
+        "alias": {
+          "pt": "pico",
+          "en": "peak"
+        },
+        "type": "int",
+        "min": 500,
+        "max": 8000,
+        "step": 100,
+        "default": 2000,
+        "ui": "slider"
+      },
+      {
+        "name": "failure",
+        "alias": {
+          "pt": "falha",
+          "en": "failure"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "outage"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "mult": {
+          "s": 1,
+          "m": 2,
+          "l": 4,
+          "xl": 8
+        },
+        "perUnit": 400,
+        "pricePerUnit": 100,
+        "dbCap": 3000
+      },
+      "compute": {
+        "capEach": "perUnit * lookup(mult, size, 1)",
+        "cap": "machines * capEach",
+        "capAfter": "failure ? (machines - 1) * capEach : cap",
+        "servedBefore": "min(peak, cap, dbCap)",
+        "served": "min(peak, capAfter, dbCap)",
+        "errPct": "round((1 - served / peak) * 100, 1)",
+        "cost": "machines * pricePerUnit * lookup(mult, size, 1)",
+        "dbLimit": "dbCap < min(peak, capAfter)",
+        "rows": "slice([[text + '-1', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, failure ? '@down' : '@up'], [text + '-2', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, '@up'], [text + '-3', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, '@up'], [text + '-4', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, '@up'], [text + '-5', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, '@up'], [text + '-6', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, '@up'], [text + '-7', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, '@up'], [text + '-8', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, '@up'], [text + '-9', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, '@up'], [text + '-10', size == 's' ? '@szS' : (size == 'm' ? '@szM' : (size == 'l' ? '@szL' : '@szXL')), capEach, '@up']], 0, machines)",
+        "tones": "concat([failure ? 'bad' : 'neutral'], fill(machines - 1, 'neutral'))"
+      },
+      "cases": [
+        {
+          "when": "capAfter == 0",
+          "flags": [
+            "outage"
+          ]
+        },
+        {
+          "when": "errPct > 0 && capAfter > 0",
+          "flags": [
+            "degraded"
+          ]
+        },
+        {
+          "when": "dbLimit",
+          "flags": [
+            "dbBound"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "cap": "cap",
+            "capAfter": "capAfter",
+            "errPct": "errPct",
+            "cost": "cost",
+            "served": "served"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@capM",
+              "value": "=cap",
+              "format": "int",
+              "tone": "=cap >= peak ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@afterM",
+              "value": "=capAfter",
+              "format": "int",
+              "tone": "=capAfter >= peak ? 'ok' : (capAfter == 0 ? 'bad' : 'warn')"
+            },
+            {
+              "label": "@errM",
+              "value": "=errPct",
+              "format": "pct",
+              "tone": "=errPct > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@costM",
+              "value": "=cost",
+              "format": "int",
+              "tone": "info"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "label": "@chartLabel",
+          "kind": "line",
+          "labels": [
+            "13h",
+            "14h",
+            "15h",
+            "16h",
+            "17h"
+          ],
+          "series": [
+            {
+              "label": "@series",
+              "values": "=[servedBefore, servedBefore, served, served, served]"
+            }
+          ],
+          "threshold": {
+            "value": "=peak",
+            "label": "@peakLine"
+          }
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@colMachine",
+            "@colSize",
+            "@colCap",
+            "@colState"
+          ],
+          "rows": "=rows",
+          "tones": "=tones",
+          "caption": "@tableCap"
+        },
+        {
+          "type": "note",
+          "when": "=capAfter == 0",
+          "tone": "bad",
+          "text": "@outageNote"
+        },
+        {
+          "type": "note",
+          "when": "=dbLimit",
+          "tone": "warn",
+          "text": "@dbNote"
+        },
+        {
+          "type": "note",
+          "when": "=errPct > 0 && capAfter > 0 && !dbLimit",
+          "tone": "warn",
+          "text": "@shortNote"
+        },
+        {
+          "type": "note",
+          "when": "=errPct == 0",
+          "tone": "ok",
+          "text": "@okNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "giant",
+      "four",
+      "both"
+    ],
+    "answer": "four"
+  }
+}

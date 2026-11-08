@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Explicar o modelo pedido e resposta entre cliente e servidor.",
+      "Calcular o tempo de uma página a partir das idas e voltas.",
+      "Entender por que um servidor sem estado é mais fácil de reiniciar e multiplicar."
+    ],
+    "minutes": 15,
+    "activity": "Teatro da cantina: um aluno é o servidor no fundo da sala, outro é o cliente na porta. Cada pedido exige caminhar até o servidor e voltar. Cronometrem uma \"página\" com 3 pedidos em sequência, depois com o servidor no meio da sala. Na segunda rodada, o servidor guarda de cabeça quem pagou; troquem o servidor no meio e vejam o que se perde.",
+    "discussion": [
+      "Por que um servidor muito rápido não salva uma página que faz muitos pedidos em fila?",
+      "Onde você guardaria a informação de quem está logado, se a escola tivesse dois servidores?"
+    ],
+    "misconceptions": [
+      "\"Se o servidor é rápido, o app é rápido.\" A rede e o número de idas e voltas costumam pesar mais.",
+      "\"Guardar a sessão na memória é mais simples e pronto.\" Funciona só até o primeiro reinício ou o segundo servidor."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explain the request and response model between client and server.",
+      "Work out a page’s time from its round trips.",
+      "Understand why a stateless server is easier to restart and multiply."
+    ],
+    "minutes": 15,
+    "activity": "Canteen play: one student is the server at the back of the room, another is the client at the door. Each request means walking to the server and back. Time a \"page\" with 3 requests in sequence, then with the server in the middle of the room. In round two, the server keeps in their head who paid; swap the server midway and see what gets lost.",
+    "discussion": [
+      "Why doesn’t a very fast server save a page that makes many requests in a row?",
+      "Where would you keep who is logged in if the school had two servers?"
+    ],
+    "misconceptions": [
+      "\"If the server is fast, the app is fast.\" The network and the number of round trips usually weigh more.",
+      "\"Keeping the session in memory is simpler, done.\" It only works until the first restart or the second server."
+    ]
+  }
+}

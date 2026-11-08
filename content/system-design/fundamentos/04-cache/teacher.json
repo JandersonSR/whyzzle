@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Explicar o que é cache e por que ele alivia o banco.",
+      "Usar TTL e invalidação para controlar dado velho.",
+      "Reconhecer o estouro de cache e uma defesa (trava)."
+    ],
+    "minutes": 20,
+    "activity": "Cardápio na parede: um aluno é a cozinha (demora 10 segundos para responder) e a turma pergunta o cardápio. Rodada 1: todo mundo pergunta à cozinha. Rodada 2: a cozinha escreve no quadro, com validade de 1 minuto. Rodada 3: o preço muda e ninguém apaga o quadro. Rodada 4: o quadro é apagado e todos correm juntos à cozinha.",
+    "discussion": [
+      "Que informações da escola poderiam ficar \"na parede\" por um dia inteiro? E quais nunca?",
+      "O que é pior: o cardápio velho por 1 minuto ou a cozinha travada por 1 minuto?"
+    ],
+    "misconceptions": [
+      "\"Cache sempre deixa tudo certo e mais rápido.\" Ele deixa mais rápido e pode deixar errado, se não for invalidado.",
+      "\"TTL curto resolve dado velho.\" Ajuda, mas o certo é apagar a cópia quando o dado muda."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explain what a cache is and why it relieves the database.",
+      "Use TTL and invalidation to control stale data.",
+      "Recognize a cache stampede and one defense (a lock)."
+    ],
+    "minutes": 20,
+    "activity": "Menu on the wall: one student is the kitchen (takes 10 seconds to answer) and the class asks for the menu. Round 1: everybody asks the kitchen. Round 2: the kitchen writes it on the board, valid for 1 minute. Round 3: the price changes and nobody erases the board. Round 4: the board is erased and everyone runs to the kitchen together.",
+    "discussion": [
+      "Which school information could stay \"on the wall\" for a whole day? And which never?",
+      "What’s worse: an old menu for 1 minute or a jammed kitchen for 1 minute?"
+    ],
+    "misconceptions": [
+      "\"A cache always makes everything correct and faster.\" It makes things faster and can make them wrong, if not invalidated.",
+      "\"A short TTL solves stale data.\" It helps, but the right thing is deleting the copy when the data changes."
+    ]
+  }
+}

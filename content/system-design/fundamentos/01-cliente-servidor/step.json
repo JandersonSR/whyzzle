@@ -1,0 +1,274 @@
+{
+  "id": "sd-cliente-servidor",
+  "order": 1,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "cliente-servidor",
+    "http",
+    "latencia",
+    "sessao",
+    "stateless"
+  ],
+  "requires": [],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "pedir",
+      "en": "request"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "/cardapio",
+        "en": "/menu"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "distance",
+        "alias": {
+          "pt": "distancia",
+          "en": "distance"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "near",
+            "pt": "perto",
+            "en": "near"
+          },
+          {
+            "id": "far",
+            "pt": "longe",
+            "en": "far"
+          }
+        ],
+        "default": "far",
+        "ui": "select"
+      },
+      {
+        "name": "trips",
+        "alias": {
+          "pt": "idas",
+          "en": "trips"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 20,
+        "default": 3,
+        "ui": "slider"
+      },
+      {
+        "name": "session",
+        "alias": {
+          "pt": "sessao",
+          "en": "session"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "store",
+            "pt": "loja",
+            "en": "store"
+          },
+          {
+            "id": "memory",
+            "pt": "memoria",
+            "en": "memory"
+          },
+          {
+            "id": "token",
+            "pt": "token",
+            "en": "token"
+          }
+        ],
+        "default": "store",
+        "ui": "select"
+      },
+      {
+        "name": "restart",
+        "alias": {
+          "pt": "reinicio",
+          "en": "restart"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "sessionsLost"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "rtts": {
+          "near": 20,
+          "far": 150
+        },
+        "serverMs": 20,
+        "loggedIn": 120,
+        "paths": [
+          "/precos",
+          "/saldo",
+          "/fotos",
+          "/avisos"
+        ]
+      },
+      "compute": {
+        "rtt": "lookup(rtts, distance, 150)",
+        "per": "rtt + serverMs",
+        "pageMs": "trips * per",
+        "isMem": "session == 'memory'",
+        "lost": "isMem && restart ? loggedIn : 0",
+        "kept": "loggedIn - lost",
+        "rows": "slice([[1, text, per], [2, paths[0], 2 * per], [3, paths[1], 3 * per], [4, paths[2], 4 * per], [5, paths[3], 5 * per]], 0, min(trips, 5))"
+      },
+      "cases": [
+        {
+          "when": "lost > 0",
+          "flags": [
+            "sessionsLost"
+          ]
+        },
+        {
+          "when": "pageMs > 1000",
+          "flags": [
+            "slowPage"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "pageMs": "pageMs",
+            "per": "per",
+            "lost": "lost",
+            "kept": "kept",
+            "rtt": "rtt"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@pageM",
+              "value": "=pageMs",
+              "format": "ms",
+              "tone": "=pageMs > 1000 ? 'bad' : (pageMs > 300 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@tripsM",
+              "value": "=trips",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@rttM",
+              "value": "=rtt",
+              "format": "ms",
+              "tone": "=rtt > 100 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@lostM",
+              "value": "=lost",
+              "format": "int",
+              "tone": "=lost > 0 ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "@client",
+              "sub": "@clientSub",
+              "tone": "info"
+            },
+            {
+              "label": "@net",
+              "sub": "@netSub",
+              "tone": "=rtt > 100 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@server",
+              "sub": "@serverSub",
+              "tone": "=lost > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@sessions",
+              "sub": "=isMem ? '@sessMem' : (session == 'token' ? '@sessToken' : '@sessStore')",
+              "tone": "=isMem ? (restart ? 'bad' : 'warn') : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "#",
+            "@colReq",
+            "@colEnds"
+          ],
+          "rows": "=rows",
+          "caption": "@tableCap"
+        },
+        {
+          "type": "terminal",
+          "label": "@termLabel",
+          "lines": [
+            "='$ curl -i https://cantina.example' + text",
+            "HTTP/1.1 200 OK",
+            "Content-Type: application/json",
+            "=session == 'token' ? 'Set-Cookie: token=eyJhbGciOi...; HttpOnly; Secure' : 'Set-Cookie: sessao=8f3a91c2...; HttpOnly; Secure'",
+            "=lost > 0 ? '@termLost' : '@termKept'"
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=lost > 0",
+          "tone": "bad",
+          "text": "@lostNote"
+        },
+        {
+          "type": "note",
+          "when": "=isMem && !restart",
+          "tone": "warn",
+          "text": "@memNote"
+        },
+        {
+          "type": "note",
+          "when": "=pageMs > 1000",
+          "tone": "warn",
+          "text": "@slowNote"
+        },
+        {
+          "type": "note",
+          "when": "=!isMem && pageMs <= 1000",
+          "tone": "ok",
+          "text": "@okNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "serverOnly",
+      "oneTrip",
+      "threeTrips"
+    ],
+    "answer": "threeTrips"
+  }
+}

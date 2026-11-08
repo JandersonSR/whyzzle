@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Explicar como uma fila desacopla quem pede de quem faz.",
+      "Prever o crescimento da fila quando a chegada passa da capacidade.",
+      "Reconhecer back-pressure e idempotência como cuidados obrigatórios."
+    ],
+    "minutes": 20,
+    "activity": "Senha da cantina: metade da turma faz pedidos em papeizinhos, três alunos são cozinheiros (cada um \"faz\" um pedido a cada 5 segundos). Rodada 1: quem pede fica em pé esperando o lanche. Rodada 2: quem pede deixa o papel numa caixa (a fila) e volta a sentar. Contem quantos estão em pé em cada rodada e quantos papéis sobram na caixa.",
+    "discussion": [
+      "O que a escola deveria fazer quando a caixa de pedidos fica cheia demais?",
+      "Como o cozinheiro sabe que um pedido repetido já foi feito?"
+    ],
+    "misconceptions": [
+      "\"Fila deixa tudo mais rápido.\" Ela deixa a resposta rápida; o trabalho continua levando o mesmo tempo, ou mais.",
+      "\"Se está na fila, não se perde.\" Depende de confirmação: um POP simples some com o pedido se o worker cair."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explain how a queue decouples who asks from who does the work.",
+      "Predict queue growth when arrivals exceed capacity.",
+      "Recognize back-pressure and idempotency as must-haves."
+    ],
+    "minutes": 20,
+    "activity": "Canteen ticket: half the class writes orders on slips, three students are cooks (each \"makes\" one order every 5 seconds). Round 1: whoever orders stands waiting for the snack. Round 2: whoever orders drops the slip in a box (the queue) and sits back down. Count how many are standing in each round and how many slips are left in the box.",
+    "discussion": [
+      "What should the school do when the order box gets too full?",
+      "How does the cook know a repeated order was already made?"
+    ],
+    "misconceptions": [
+      "\"A queue makes everything faster.\" It makes the response fast; the work still takes the same time, or more.",
+      "\"If it’s in the queue, it can’t get lost.\" That depends on acknowledgements: a plain POP loses the order if the worker crashes."
+    ]
+  }
+}

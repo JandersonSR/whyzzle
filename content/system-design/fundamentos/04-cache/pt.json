@@ -1,0 +1,99 @@
+{
+  "title": "Cache",
+  "subtitle": "O cardápio pregado na parede: ninguém precisa perguntar para a cozinha, até o preço mudar",
+  "mission": "Na hora do almoço, o app da cantina recebe 2.000 leituras por segundo, espalhadas por 20 páginas (cardápio do dia, preços, alergênicos…). Montar cada página no banco leva 200 ms, e o banco aguenta 500 consultas por segundo (um pool de 100 conexões). Às 10h o preço do pastel muda. Ajuste o cache: por quanto tempo guardar (TTL), se apaga a cópia quando o preço muda, e se só um pedido vai buscar no banco quando a cópia vence.",
+  "predict": {
+    "question": "com um cache de 30 segundos, de cada 100 pedidos de cardápio, quantos ainda vão até o banco?",
+    "options": {
+      "half": "Uns 50: o cache ajuda pela metade",
+      "ten": "Uns 10",
+      "lessThanOne": "Menos de 1"
+    }
+  },
+  "feedback": {
+    "right": "isso! Cada página é pedida 100 vezes por segundo, mas só vai ao banco uma vez a cada 30 segundos: 20 páginas ÷ 30 s ≈ 0,67 consulta por segundo, contra 2.000 leituras. É 0,03%: três em cada 10 mil.",
+    "wrong": "olhe a métrica de pedidos que vão ao banco: 0,03%. Cada página é pedida 100 vezes por segundo, mas só é montada de novo quando a cópia vence, a cada 30 s. Com dados muito pedidos, até um TTL curto corta quase tudo.",
+    "skipped": "sem palpite? Rode e olhe quantos pedidos chegam ao banco."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode e olhe a porcentagem que vai ao banco e as consultas por segundo.",
+    "cmd": "palpite anotado. Rode cachear e olhe a primeira métrica."
+  },
+  "tryNext": {
+    "ui": "Agora coloque o TTL em 0 (sem cache). Depois volte para 30 e desligue a trava.",
+    "cmd": "Rode cachear --ttl 0 e depois cachear --trava nao."
+  },
+  "why": {
+    "simples": "Cache é guardar perto uma cópia do que todo mundo pergunta. Em vez de cada aluno ir até a cozinha perguntar o cardápio, a tia prega o cardápio na parede. A cozinha responde uma vez, a parede responde mil.\nO TTL é a validade da cópia: depois de 30 segundos, alguém busca na cozinha de novo. O problema é quando a cozinha muda o preço e a parede continua com o antigo. Por isso, quando o preço muda, o certo é arrancar o papel da parede (invalidar), e não esperar ele vencer.\nE tem a corrida: se o papel cai e 20 alunos correm juntos para a cozinha perguntar a mesma coisa, a cozinha trava. A trava é combinar que só um vai perguntar e os outros esperam ele voltar.",
+    "dev": "O padrão mais comum é o cache-aside: a aplicação procura no cache; se não acha (miss), lê do banco, grava no cache com TTL e responde. Na escrita, atualiza o banco e apaga a chave (DEL), para a próxima leitura buscar o dado novo. Apagar costuma ser mais seguro que regravar o valor, porque duas escritas concorrentes podem gravar no cache na ordem errada.\nO TTL é o limite de quanto tempo um dado velho pode viver se a invalidação falhar, então use os dois: invalidação na escrita e TTL como rede de segurança. Para evitar que todas as chaves vençam juntas, some um pequeno sorteio ao TTL (jitter). E só cacheie o que é lido muito mais do que muda; dado por usuário e com permissão pede chave que inclua o usuário.",
+    "especialista": "O estouro de cache (cache stampede, ou dogpile) acontece quando uma chave quente vence e todos os pedidos daquele instante vão ao banco ao mesmo tempo. Defesas: single-flight ou trava por chave (no Redis, SET chave valor NX PX 5000 para só um reconstruir), servir o valor velho enquanto um reconstrói em segundo plano (stale-while-revalidate), renovar antes de vencer com uma probabilidade que sobe perto do fim (expiração antecipada probabilística) e jitter no TTL.\nOutros cuidados: o cache vazio depois de um reinício (cache frio) pode derrubar o banco, então aqueça ou limite a reconstrução; política de despejo quando a memória enche (no Redis, maxmemory-policy, como allkeys-lru); chaves inexistentes também podem ser cacheadas por pouco tempo, para um robô não martelar o banco pedindo ids que não existem; e cache não é fonte da verdade: o sistema precisa funcionar, mais lento, sem ele."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: guarde o cardápio por 1 hora e não apague a cópia quando o preço mudar.",
+      "cmd": "hora de quebrar: rode cachear --ttl 3600 --invalidar nao"
+    },
+    "success": "Quebrou: o preço do pastel mudou às 10h, mas a cópia no cache não foi apagada e vale por {staleS} s. Por até {staleMin} minutos, os alunos veem o preço velho no app e o novo no caixa. Cache rápido e errado é só um erro rápido.",
+    "calm": "{missPct}% dos pedidos vão ao banco ({dbQps} consultas/s), o pior momento espera {worstMs} ms e o preço velho dura no máximo {staleS} s. Para quebrar, guarde o cardápio por 1 hora sem invalidar."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o TTL, se a cópia é apagada quando o dado muda e se existe trava.",
+      "TTL longo sem invalidação deixa o dado velho vivo por muito tempo.",
+      "Coloque o TTL em 3600 e desligue invalidar."
+    ],
+    "cmd": [
+      "O nome da chave é opcional; --ttl (segundos), --invalidar e --trava também.",
+      "--invalidar e --trava aceitam sim ou nao.",
+      "cachear --ttl 3600 --invalidar nao"
+    ]
+  },
+  "errors": {
+    "belowMin.ttl": "O TTL não fica negativo. 0 é sem cache.",
+    "aboveMax.ttl": "Até 3600 segundos (1 hora) nesta simulação.",
+    "notBool.invalidate": "Use sim ou nao.",
+    "notBool.lock": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Chave no cache",
+    "ttl": "TTL (segundos; 0 = sem cache)",
+    "invalidate": "Apagar a cópia quando o preço muda",
+    "lock": "Só um pedido reconstrói (trava)"
+  },
+  "scene": {
+    "label": "O cardápio no horário de almoço",
+    "empty": "Rode para abrir o cardápio.",
+    "missM": "pedidos que vão ao banco",
+    "dbM": "consultas ao banco por segundo",
+    "worstM": "pior espera, quando a cópia vence",
+    "staleM": "segundos com preço velho",
+    "flowLabel": "O caminho de uma leitura (simulado)",
+    "student": "Aluno",
+    "db": "Banco",
+    "ttlSub": "TTL {ttl} s",
+    "off": "desligado",
+    "dbSub": "{dbQps} consultas/s",
+    "chartLabel": "Consultas abertas no banco ao mesmo tempo, no primeiro minuto (simulado)",
+    "series": "consultas simultâneas",
+    "poolLine": "pool do banco: 100 conexões",
+    "termLabel": "Terminal (simulado)",
+    "tInval": "~ 10:00 o preço mudou → DEL na chave; o próximo pedido busca no banco",
+    "tNoInval": "? 10:00 o preço mudou no banco, mas a chave continua lá até o TTL acabar",
+    "tNoCache": "! sem cache: todo pedido monta a página no banco",
+    "staleNote": "Preço velho no ar por até {staleMin} minutos: o cache não sabe que o banco mudou, e ninguém avisou.",
+    "staleShortNote": "Sem invalidação, o preço velho pode durar até {staleS} s. Às vezes isso é aceitável (um placar, um contador de visitas); preço no caixa geralmente não é.",
+    "stampedeNote": "Estouro de cache: quando as 20 páginas vencem juntas, uns 400 pedidos vão ao banco no mesmo instante, contra um pool de 100 conexões. O pior pedido espera {worstMs} ms.",
+    "meltNote": "Sem cache, 2.000 consultas/s num banco que aguenta 500: {errPct}% dos pedidos dão erro e o resto espera na fila.",
+    "okNote": "Cópia curta, apagada quando o preço muda e reconstruída por um pedido só: o banco quase nem percebe o almoço."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Suba um Redis e abra o cliente dele:\ndocker run -d --name cache redis:8\ndocker exec -it cache redis-cli",
+      "Grave o cardápio com validade de 30 segundos e leia de volta:\nSET cardapio:hoje \"pastel 6,00\" EX 30\nGET cardapio:hoje\nTTL cardapio:hoje\nRepita o TTL algumas vezes: o número desce. Depois de 30 s, o GET devolve (nil).",
+      "Agora a invalidação: grave por 1 hora e apague quando o \"preço mudar\":\nSET cardapio:hoje \"pastel 6,00\" EX 3600\nDEL cardapio:hoje\nGET cardapio:hoje",
+      "Veja a contagem de acertos e erros do cache:\nINFO stats\nProcure as linhas keyspace_hits e keyspace_misses. Saia com exit e limpe: docker rm -f cache"
+    ],
+    "ok": "o GET devolve \"pastel 6,00\", o TTL desce a cada vez e, depois de 30 s, o GET devolve (nil); o DEL responde (integer) 1 e o GET seguinte dá (nil); no INFO stats, keyspace_hits e keyspace_misses contam os seus acertos e erros."
+  }
+}

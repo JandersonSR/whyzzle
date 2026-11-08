@@ -1,0 +1,106 @@
+{
+  "title": "Queue",
+  "subtitle": "Take a ticket and go sit down: the kitchen works at its own pace and the counter stays free",
+  "mission": "During the 10-minute recess, 9 snack orders arrive per second. Each cook makes 2 snacks per second, and today there are 3. In queue mode, the counter writes down the order, hands out a ticket and the kitchen takes orders from the queue. In sync mode, the student stands at the counter until the snack comes out. Halfway through recess, a cook steps out and comes back (restarts), and the 4 orders they were holding go back to the queue. Compare both modes, the number of cooks and a limit for the queue.",
+  "predict": {
+    "question": "9 orders arrive per second and the kitchen makes 6. With a queue, what happens to whoever orders?",
+    "options": {
+      "error": "Gets an error: the kitchen can’t keep up",
+      "ticket": "Gets the ticket right away, but the snack takes longer",
+      "instant": "Gets the snack right away: the queue solves everything"
+    }
+  },
+  "feedback": {
+    "right": "right! The counter answers in 20 ms, because it only writes down the order and hands out the ticket. But the queue grows 3 orders per second: at the end of recess 1,800 are waiting, and the last snack comes out about 5 minutes later. The queue absorbs the peak; it doesn’t create cooks.",
+    "wrong": "look at the metrics: the counter answers in 20 ms and nobody gets an error, but 1,800 orders are waiting at the end of recess and the last one waits about 5 minutes. A queue doesn’t make the kitchen faster; it only keeps the counter from jamming.",
+    "skipped": "no guess? Run it and compare the counter’s answer with the last snack’s wait."
+  },
+  "coach": {
+    "ui": "guess noted. Run it and look at the counter’s answer, the orders in the queue and the chart.",
+    "cmd": "guess noted. Run serve and look at the metrics and the queue chart."
+  },
+  "tryNext": {
+    "ui": "Now use 5 cooks. Then go back to 3 and limit the queue to 300 orders.",
+    "cmd": "Run serve --cooks 5 and then serve --queue-limit 300."
+  },
+  "why": {
+    "simples": "Without a queue, the student stands at the counter waiting for the snack. If the kitchen is slower than the orders, the counter fills with people standing around, and even those who just wanted to look at the menu can’t get close. The kitchen’s problem becomes the counter’s problem.\nWith a queue, the counter just writes it down, hands out the ticket and frees the student. The kitchen takes orders in sequence, at its own pace. The recess peak becomes a queue that grows and then empties.\nBut a queue isn’t magic: if 9 come in and 6 go out per second, it keeps growing as long as the peak lasts. Sometimes the most honest thing is saying \"come back in a bit\" once it passes a limit, instead of promising a snack that will arrive cold.",
+    "dev": "A queue decouples producers from consumers: the API stores the message and answers 202 (accepted) or returns a tracking number, and workers process it later. That protects the API from peaks and slow dependencies, and lets you scale workers separately (here, 5 cooks = 10 snacks/s, more than the 9 arriving).\nThree concerns: 1) back-pressure, meaning a queue limit with a polite rejection (429, \"try again in X seconds\") or with the producer slowing down, so the wait doesn’t grow forever; 2) idempotency, because most queues deliver at least once: if a worker crashes after making the snack and before confirming (ack), the message comes back and the snack is made twice, unless the worker recognizes the order number; 3) monitoring depth and the age of the oldest message, not just whether the queue is up.",
+    "especialista": "The queue math is Little’s Law: items in the queue = arrival rate × waiting time. If the arrival rate exceeds capacity, the queue grows linearly and so does the wait, until the peak ends or memory does. So size consumers by peak rate and by an acceptable time to drain the accumulated backlog, and scale on the right signals (depth and age of the oldest message, not CPU).\nIn sync mode, the resource that runs out first is usually the server’s thread or connection pool: slow requests hold threads, and fast, unrelated requests start failing (a cascading failure). Defenses: short timeouts, bulkheads (separate pools per dependency), circuit breakers and load shedding.\nWith real queues, prefer a broker with acknowledgements (RabbitMQ, SQS, Kafka, Redis Streams with XACK): a plain POP removes the message on read, and it’s gone if the worker crashes midway. And messages that always fail go to a DLQ, so they don’t jam the queue."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: swap the queue for sync mode, with the student waiting at the counter.",
+      "cmd": "time to break it: run serve --mode sync"
+    },
+    "success": "Broken: without a queue, each student is stuck at the counter until the snack comes out. The kitchen makes {kRate} snacks/s and 9 arrive: every counter clerk got stuck waiting, {errPct}% of orders hit the timeout and even those who only wanted to see the menu got an error.",
+    "calm": "Counter answering in {counterMs} ms, {errPct}% errors, {backlog} orders in the queue at the end of recess and the last one waiting {waitMin} min. To break it, swap the queue for sync mode."
+  },
+  "hints": {
+    "ui": [
+      "Pick the mode, how many cooks, the queue limit and whether the cook recognizes a repeated order.",
+      "Without a queue, whoever waits for the kitchen takes up the counter.",
+      "Pick \"sync\" mode with 3 cooks."
+    ],
+    "cmd": [
+      "The name is optional; so are --mode, --cooks, --queue-limit and --idempotent.",
+      "--mode takes queue or sync.",
+      "serve --mode sync"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Use queue or sync.",
+    "belowMin.workers": "At least 1 cook, or nobody eats.",
+    "aboveMax.workers": "Up to 10 cooks: the school kitchen is small.",
+    "belowMin.maxQueue": "The limit can’t be negative. 0 means no limit.",
+    "aboveMax.maxQueue": "Up to 5000 orders in this simulation.",
+    "notBool.idem": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Queue name",
+    "mode": "Mode",
+    "workers": "Cooks",
+    "maxQueue": "Queue limit (0 = no limit)",
+    "idem": "Cook recognizes a repeated order"
+  },
+  "scene": {
+    "label": "Recess at the canteen",
+    "empty": "Run to start recess.",
+    "counterM": "counter response (p95)",
+    "errM": "orders with errors",
+    "backlogM": "orders queued at the end of recess",
+    "waitM": "wait of the last order",
+    "queueLabel": "Order queue (simulated)",
+    "counter": "counter",
+    "emptyQueue": "empty queue",
+    "kitchen": "kitchen: {workers} cook(s)",
+    "kitchenRate": "{kRate} snacks/s",
+    "restart": "cook who restarted",
+    "idemOn": "recognizes the order number",
+    "idemOff": "remakes what came back",
+    "chartLabel": "Orders waiting in the queue, minute by minute (recess ends at minute 10)",
+    "series": "queued",
+    "flowLabel": "Sync mode: the student waits at the counter (simulated)",
+    "student": "Student",
+    "counterL": "Counter",
+    "threadsSub": "50 clerks, each stuck until the snack comes out",
+    "kitchenL": "Kitchen",
+    "jamNote": "Counter jammed: 9 orders/s come in and {kRate} go out. Every clerk is stuck waiting for the kitchen, {errPct}% of orders hit the timeout and any other request, even \"see menu\", fails too.",
+    "syncSlowNote": "No errors, because the kitchen ({kRate}/s) is faster than the orders. But each student stands at the counter for up to {counterMs} ms, and any kitchen slowdown becomes a line at the counter.",
+    "backlogNote": "Nobody got an error, but the queue grew to {backlog} orders: the last snack comes out {waitMin} min after recess ends. The queue absorbed the peak; there weren’t enough cooks.",
+    "limitNote": "Back-pressure: with the queue at its limit, {rejected} orders ({rejectPct}%) heard \"come back in 1 minute\" (429) instead of waiting for a snack that would arrive cold. The longest wait dropped to {waitMin} min.",
+    "dupNote": "The cook restarted and the {dups} orders they were holding went back to the queue. Since nobody checks the order number, they were made (and charged) twice.",
+    "okNote": "The kitchen keeps up with the peak: the queue doesn’t pile up and the repeated orders from the cook who restarted were recognized."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Start Redis to act as a queue:\ndocker run -d --name fila redis:8",
+      "In one terminal, be the kitchen: wait for the next order (0 means wait forever):\ndocker exec -it fila redis-cli BRPOP pedidos 0",
+      "In another terminal, be the counter: write down an order and watch the kitchen receive it right away:\ndocker exec fila redis-cli LPUSH pedidos pastel",
+      "Now with no kitchen running, write down three orders, count the queue and take the first one:\ndocker exec fila redis-cli LPUSH pedidos coxinha suco bolo\ndocker exec fila redis-cli LLEN pedidos\ndocker exec fila redis-cli RPOP pedidos",
+      "Notice: RPOP removes the order from the queue at read time. If the kitchen crashed right after, the order would vanish. That’s why real queues have acknowledgements (ack). Clean up: docker rm -f fila"
+    ],
+    "ok": "the kitchen prints 1) \"pedidos\" and 2) \"pastel\" as soon as the counter runs LPUSH; then LLEN answers (integer) 3 and RPOP returns \"coxinha\", the first one in."
+  }
+}

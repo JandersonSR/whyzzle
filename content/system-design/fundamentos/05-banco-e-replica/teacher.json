@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Explicar o papel do primário e das réplicas de leitura.",
+      "Calcular quantas réplicas uma carga de leitura precisa.",
+      "Reconhecer o atraso de replicação e garantir que quem escreveu leia o próprio dado."
+    ],
+    "minutes": 20,
+    "activity": "Caderno e fotocópias: um aluno é a secretaria com o caderno oficial; três têm \"fotocópias\" que só são atualizadas quando um mensageiro leva o recado (contem 5 segundos). A turma consulta as cópias. Um aluno muda um dado no caderno e corre para conferir numa cópia antes do mensageiro chegar.",
+    "discussion": [
+      "Que dados da escola podem ser lidos de uma cópia atrasada? Quais precisam vir do caderno oficial?",
+      "Por que mais fotocópias não ajudam a secretaria a escrever mais rápido?"
+    ],
+    "misconceptions": [
+      "\"A réplica é igual ao primário a todo instante.\" Ela fica um pouco atrás, e às vezes bem atrás.",
+      "\"Réplica também serve de backup.\" Ela copia os erros também; backup é outra coisa."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explain the role of the primary and of read replicas.",
+      "Work out how many replicas a read load needs.",
+      "Recognize replication lag and make sure whoever wrote reads their own data."
+    ],
+    "minutes": 20,
+    "activity": "Notebook and photocopies: one student is the office with the official notebook; three have \"photocopies\" that are only updated when a messenger carries the note (count 5 seconds). The class looks things up in the copies. One student changes something in the notebook and runs to check a copy before the messenger arrives.",
+    "discussion": [
+      "Which school data can be read from a lagging copy? Which must come from the official notebook?",
+      "Why don’t more photocopies help the office write faster?"
+    ],
+    "misconceptions": [
+      "\"The replica equals the primary at every moment.\" It lags a little, and sometimes a lot.",
+      "\"A replica also works as a backup.\" It copies the mistakes too; backup is something else."
+    ]
+  }
+}

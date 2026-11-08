@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Diferenciar escalar vertical (máquina maior) de horizontal (mais máquinas).",
+      "Reconhecer um ponto único de falha e a regra N+1.",
+      "Perceber que o gargalo muda de lugar quando uma parte cresce."
+    ],
+    "minutes": 15,
+    "activity": "Sorveteria na sala: a turma tem 40 \"pedidos\" (papeizinhos) para atender em 1 minuto. Rodada 1: um aluno muito rápido atende sozinho, e no meio da rodada ele \"queima\" (senta). Rodada 2: quatro alunos normais dividem a fila e um deles senta no meio. Rodada 3: oito alunos, mas todos precisam pegar o sorvete na mesma caixa, uma pessoa por vez.",
+    "discussion": [
+      "Que coisas da escola são um ponto único de falha (só uma chave, só uma pessoa sabe a senha)?",
+      "Por que contratar mais atendentes não adiantou na rodada 3?"
+    ],
+    "misconceptions": [
+      "\"Máquina maior resolve tudo.\" Ela tem teto e continua sendo uma só.",
+      "\"Dobrar as máquinas dobra a capacidade.\" Só até a parte compartilhada (banco, freezer) virar o gargalo."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell scaling up (a bigger machine) from scaling out (more machines).",
+      "Recognize a single point of failure and the N+1 rule.",
+      "Notice that the bottleneck moves when one part grows."
+    ],
+    "minutes": 15,
+    "activity": "Ice-cream shop in the classroom: the class has 40 \"orders\" (slips of paper) to serve in 1 minute. Round 1: one very fast student serves alone, and halfway through they \"burn out\" (sit down). Round 2: four regular students split the line and one sits down midway. Round 3: eight students, but all must take the ice cream from the same box, one person at a time.",
+    "discussion": [
+      "Which things at school are a single point of failure (only one key, only one person knows the password)?",
+      "Why didn’t hiring more servers help in round 3?"
+    ],
+    "misconceptions": [
+      "\"A bigger machine solves everything.\" It has a ceiling and is still just one.",
+      "\"Doubling the machines doubles capacity.\" Only until the shared part (database, freezer) becomes the bottleneck."
+    ]
+  }
+}

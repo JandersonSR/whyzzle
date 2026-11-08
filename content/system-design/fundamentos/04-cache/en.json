@@ -1,0 +1,99 @@
+{
+  "title": "Cache",
+  "subtitle": "The menu pinned on the wall: nobody has to ask the kitchen, until the price changes",
+  "mission": "At lunchtime, the canteen app gets 2,000 reads per second, spread over 20 pages (today’s menu, prices, allergens…). Building each page in the database takes 200 ms, and the database handles 500 queries per second (a pool of 100 connections). At 10 am the price of the pastel changes. Tune the cache: how long to keep it (TTL), whether to delete the copy when the price changes, and whether only one request goes to the database when the copy expires.",
+  "predict": {
+    "question": "with a 30-second cache, out of every 100 menu requests, how many still go to the database?",
+    "options": {
+      "half": "About 50: the cache helps by half",
+      "ten": "About 10",
+      "lessThanOne": "Less than 1"
+    }
+  },
+  "feedback": {
+    "right": "right! Each page is requested 100 times per second, but only goes to the database once every 30 seconds: 20 pages ÷ 30 s ≈ 0.67 queries per second, against 2,000 reads. That’s 0.03%: three in every 10,000.",
+    "wrong": "look at the metric for requests that reach the database: 0.03%. Each page is requested 100 times per second, but only rebuilt when the copy expires, every 30 s. With heavily read data, even a short TTL cuts almost everything.",
+    "skipped": "no guess? Run it and see how many requests reach the database."
+  },
+  "coach": {
+    "ui": "guess noted. Run it and look at the share that reaches the database and the queries per second.",
+    "cmd": "guess noted. Run cache and look at the first metric."
+  },
+  "tryNext": {
+    "ui": "Now set the TTL to 0 (no cache). Then go back to 30 and turn the lock off.",
+    "cmd": "Run cache --ttl 0 and then cache --lock no."
+  },
+  "why": {
+    "simples": "A cache is keeping a nearby copy of what everybody asks. Instead of every student walking to the kitchen to ask for the menu, the cook pins the menu on the wall. The kitchen answers once, the wall answers a thousand times.\nThe TTL is the copy’s expiry: after 30 seconds, someone fetches from the kitchen again. The problem is when the kitchen changes the price and the wall still shows the old one. So when the price changes, the right move is to tear the paper off the wall (invalidate), not wait for it to expire.\nAnd there’s the stampede: if the paper falls and 20 students run to the kitchen together to ask the same thing, the kitchen jams. The lock is agreeing that only one goes to ask and the others wait for them to come back.",
+    "dev": "The most common pattern is cache-aside: the app looks in the cache; on a miss, it reads from the database, stores it in the cache with a TTL and answers. On writes, it updates the database and deletes the key (DEL), so the next read fetches fresh data. Deleting is usually safer than rewriting the value, because two concurrent writes can store into the cache in the wrong order.\nThe TTL bounds how long stale data can live if invalidation fails, so use both: invalidation on write and TTL as a safety net. To keep all keys from expiring together, add a small random amount to the TTL (jitter). And only cache what is read far more than it changes; per-user, permission-bound data needs a key that includes the user.",
+    "especialista": "A cache stampede (or dogpile) happens when a hot key expires and every request at that instant goes to the database at once. Defenses: single-flight or a per-key lock (in Redis, SET key value NX PX 5000 so only one rebuilds), serving the stale value while one rebuilds in the background (stale-while-revalidate), refreshing before expiry with a probability that rises near the end (probabilistic early expiration) and TTL jitter.\nOther concerns: an empty cache after a restart (cold cache) can knock the database over, so warm it up or throttle rebuilds; an eviction policy for when memory fills up (in Redis, maxmemory-policy, such as allkeys-lru); missing keys can be cached briefly too, so a bot can’t hammer the database asking for ids that don’t exist; and the cache isn’t the source of truth: the system must work, slower, without it."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: keep the menu for 1 hour and don’t delete the copy when the price changes.",
+      "cmd": "time to break it: run cache --ttl 3600 --invalidate no"
+    },
+    "success": "Broken: the pastel’s price changed at 10 am, but the cached copy wasn’t deleted and is valid for {staleS} s. For up to {staleMin} minutes, students see the old price in the app and the new one at the register. A fast, wrong cache is just a fast mistake.",
+    "calm": "{missPct}% of requests reach the database ({dbQps} queries/s), the worst moment waits {worstMs} ms and the old price lasts at most {staleS} s. To break it, keep the menu for 1 hour without invalidating."
+  },
+  "hints": {
+    "ui": [
+      "Pick the TTL, whether the copy is deleted when data changes and whether there is a lock.",
+      "A long TTL without invalidation keeps stale data alive for a long time.",
+      "Set the TTL to 3600 and turn invalidate off."
+    ],
+    "cmd": [
+      "The key name is optional; so are --ttl (seconds), --invalidate and --lock.",
+      "--invalidate and --lock take yes or no.",
+      "cache --ttl 3600 --invalidate no"
+    ]
+  },
+  "errors": {
+    "belowMin.ttl": "The TTL can’t be negative. 0 means no cache.",
+    "aboveMax.ttl": "Up to 3600 seconds (1 hour) in this simulation.",
+    "notBool.invalidate": "Use yes or no.",
+    "notBool.lock": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Cache key",
+    "ttl": "TTL (seconds; 0 = no cache)",
+    "invalidate": "Delete the copy when the price changes",
+    "lock": "Only one request rebuilds (lock)"
+  },
+  "scene": {
+    "label": "The menu at lunchtime",
+    "empty": "Run to open the menu.",
+    "missM": "requests that reach the database",
+    "dbM": "database queries per second",
+    "worstM": "worst wait, when the copy expires",
+    "staleM": "seconds with the old price",
+    "flowLabel": "The path of a read (simulated)",
+    "student": "Student",
+    "db": "Database",
+    "ttlSub": "TTL {ttl} s",
+    "off": "off",
+    "dbSub": "{dbQps} queries/s",
+    "chartLabel": "Queries open in the database at once, during the first minute (simulated)",
+    "series": "concurrent queries",
+    "poolLine": "database pool: 100 connections",
+    "termLabel": "Terminal (simulated)",
+    "tInval": "~ 10:00 the price changed → DEL on the key; the next request goes to the database",
+    "tNoInval": "? 10:00 the price changed in the database, but the key stays until the TTL runs out",
+    "tNoCache": "! no cache: every request builds the page in the database",
+    "staleNote": "Old price live for up to {staleMin} minutes: the cache doesn’t know the database changed, and nobody told it.",
+    "staleShortNote": "Without invalidation, the old price can last up to {staleS} s. Sometimes that’s acceptable (a scoreboard, a visit counter); a price at the register usually isn’t.",
+    "stampedeNote": "Cache stampede: when the 20 pages expire together, about 400 requests hit the database at the same instant, against a pool of 100 connections. The worst request waits {worstMs} ms.",
+    "meltNote": "Without a cache, 2,000 queries/s on a database that handles 500: {errPct}% of requests fail and the rest wait in line.",
+    "okNote": "A short-lived copy, deleted when the price changes and rebuilt by a single request: the database barely notices lunch."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Start Redis and open its client:\ndocker run -d --name cache redis:8\ndocker exec -it cache redis-cli",
+      "Store the menu with a 30-second expiry and read it back:\nSET cardapio:hoje \"pastel 6,00\" EX 30\nGET cardapio:hoje\nTTL cardapio:hoje\nRepeat TTL a few times: the number goes down. After 30 s, GET returns (nil).",
+      "Now invalidation: store it for 1 hour and delete it when the \"price changes\":\nSET cardapio:hoje \"pastel 6,00\" EX 3600\nDEL cardapio:hoje\nGET cardapio:hoje",
+      "See the cache’s hit and miss counters:\nINFO stats\nLook for the keyspace_hits and keyspace_misses lines. Leave with exit and clean up: docker rm -f cache"
+    ],
+    "ok": "GET returns \"pastel 6,00\", TTL goes down each time and, after 30 s, GET returns (nil); DEL answers (integer) 1 and the next GET gives (nil); in INFO stats, keyspace_hits and keyspace_misses count your hits and misses."
+  }
+}
