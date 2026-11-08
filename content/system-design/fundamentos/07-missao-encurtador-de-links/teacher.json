@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Combinar escala horizontal, balanceador, cache, réplica e fila num desenho só.",
+      "Fazer uma estimativa de capacidade com números.",
+      "Justificar cada peça com o problema que ela resolve e o que ela custa."
+    ],
+    "minutes": 30,
+    "activity": "Em grupos, consertem o desenho e depois apresentem em 3 minutos, no quadro, o caminho de um clique: do celular do pai até o formulário, dizendo o número de cada etapa (pedidos/s, uso, custo). Bônus: cada grupo escolhe uma peça e conta o que aconteceria se ela caísse no meio do pico.",
+    "discussion": [
+      "Qual peça do desenho é o novo ponto único de falha?",
+      "Por que o desenho mais barato acabou sendo o mais caro?"
+    ],
+    "misconceptions": [
+      "\"Mais servidores resolvem qualquer lentidão.\" Se o banco é o gargalo, servidores a mais só mandam mais pedidos para ele.",
+      "\"Id difícil de adivinhar protege dado privado.\" Ajuda contra curiosos; dado privado precisa de login e permissão."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Combine scaling out, load balancing, caching, replication and queues in a single design.",
+      "Build a capacity estimate with numbers.",
+      "Justify each piece by the problem it solves and what it costs."
+    ],
+    "minutes": 30,
+    "activity": "In groups, fix the design and then present, in 3 minutes on the board, the path of one click: from a parent’s phone to the form, giving each step’s number (requests/s, utilization, cost). Bonus: each group picks a piece and tells what would happen if it failed mid-peak.",
+    "discussion": [
+      "Which piece of the design is the new single point of failure?",
+      "Why did the cheapest design end up being the most expensive?"
+    ],
+    "misconceptions": [
+      "\"More servers fix any slowness.\" If the database is the bottleneck, extra servers just send it more requests.",
+      "\"A hard-to-guess id protects private data.\" It helps against the curious; private data needs login and permissions."
+    ]
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "title": "Escalar vertical × horizontal",
+  "subtitle": "Dia de calor na sorveteria: um atendente gigante ou vários atendentes normais?",
+  "mission": "A sorveteria da escola vende pelo app e o pico do calor (15h) chega a 2.000 pedidos por segundo. Com o mesmo dinheiro (R$ 800 por mês), dá para alugar 1 máquina gg ou 4 máquinas m. Às 15h, uma máquina queima. Compare as duas escolhas e descubra também quando comprar mais máquinas deixa de ajudar.",
+  "predict": {
+    "question": "mesmo custo: 1 máquina gg (8 vezes mais forte) ou 4 máquinas m. Às 15h uma máquina queima. Quem continua vendendo sorvete?",
+    "options": {
+      "giant": "A gg: ela é muito mais forte",
+      "four": "As 4 m: perder uma ainda deixa três",
+      "both": "As duas, porque custam o mesmo"
+    }
+  },
+  "feedback": {
+    "right": "isso! Com 4 máquinas, perder uma derruba a capacidade de 3.200 para 2.400 pedidos/s, ainda acima do pico de 2.000. A máquina gg sozinha é um ponto único de falha: quando ela queima, a capacidade vai a zero.",
+    "wrong": "olhe o gráfico: as 4 máquinas m caem de 3.200 para 2.400 pedidos/s às 15h e ainda cobrem o pico de 2.000. A gg sozinha tem a mesma força no total, mas quando queima não sobra ninguém.",
+    "skipped": "sem palpite? Rode e olhe a capacidade depois da falha."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com 4 máquinas m e olhe a linha depois das 15h.",
+    "cmd": "palpite anotado. Rode escalar e olhe a capacidade depois da falha."
+  },
+  "tryNext": {
+    "ui": "Agora coloque 10 máquinas gg e suba o pico para 8.000: veja quem vira o gargalo.",
+    "cmd": "Rode escalar --maquinas 10 --tamanho gg --pico 8000 e veja quem vira o gargalo."
+  },
+  "why": {
+    "simples": "Escalar vertical é trocar o atendente por um super-atendente: uma máquina maior, com mais processador e memória. É simples, o código nem percebe. Mas tem teto (não existe atendente infinito) e, se ele passar mal, a sorveteria fecha.\nEscalar horizontal é contratar mais atendentes iguais e dividir a fila entre eles. Se um sai, os outros continuam. Dá para crescer quase sem teto, mas precisa de alguém organizando a fila (o balanceador, próxima lição) e de atendentes que não guardam nada de cabeça (servidores sem estado, lição 1).\nE cuidado: se todos os atendentes pegam sorvete do mesmo freezer, contratar mais gente não adianta quando o freezer é o mais lento. O gargalo muda de lugar.",
+    "dev": "Na nuvem, escalar vertical costuma exigir reiniciar a máquina com outro tamanho (minutos fora do ar, a não ser que haja outra cobrindo), e os tamanhos têm limite. Escalar horizontal exige que a aplicação seja sem estado: sessão, arquivos enviados e filas de trabalho ficam fora do servidor.\nO autoscaling liga máquinas sozinho olhando uma métrica (CPU, pedidos por segundo, tamanho da fila), mas ele demora: precisa perceber a subida, ligar a máquina, a aplicação aquecer e passar na checagem de saúde. Pico que chega em segundos (como um link viral) passa antes da ajuda chegar, então mantenha folga ou agende o aumento antes de eventos conhecidos. E regra de bolso: tenha N+1, capacidade para aguentar a perda de uma máquina no pico.",
+    "especialista": "Escalar horizontal não é linear para sempre. Tudo que é compartilhado (banco, cache, um lock, uma fila única) vira o novo gargalo, e coordenação entre nós custa: modelos como a Lei de Amdahl e a Universal Scalability Law mostram a curva achatando, e às vezes descendo, quando a contenção cresce. Por isso o passo seguinte é dividir o estado: réplicas de leitura, cache, particionamento (sharding) por chave.\nAutoscaling também tem armadilhas: oscilação (liga e desliga sem parar, resolvida com janelas de estabilização), limites de cota da conta, partida a frio, e o escalonamento que piora o gargalo de baixo (mais servidores = mais conexões no mesmo banco). Escale olhando a métrica que realmente satura, e teste o pico antes do dia."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: gaste o mesmo dinheiro numa máquina só, gg, e deixe ela queimar às 15h.",
+      "cmd": "hora de quebrar: rode escalar --maquinas 1 --tamanho gg"
+    },
+    "success": "Quebrou: tudo dependia de uma máquina só. Quando ela queimou às 15h, a capacidade foi a zero e {errPct}% dos pedidos do pico ficaram sem sorvete. Gastar R$ {cost} por mês numa máquina só comprou capacidade, não resistência.",
+    "calm": "Capacidade de {cap} pedidos/s, {capAfter}/s depois da falha, {errPct}% dos pedidos perdidos, por R$ {cost} por mês. Para quebrar, gaste o mesmo numa máquina gg só e deixe ela queimar."
+  },
+  "hints": {
+    "ui": [
+      "Escolha quantas máquinas, o tamanho de cada uma e o pico de pedidos.",
+      "Uma máquina só, por maior que seja, é um ponto único de falha.",
+      "Escolha 1 máquina gg, com a falha ligada."
+    ],
+    "cmd": [
+      "O nome é opcional; --maquinas, --tamanho, --pico e --falha também.",
+      "--tamanho aceita p, m, g ou gg (1, 2, 4 ou 8 vezes a força da p).",
+      "escalar --maquinas 1 --tamanho gg"
+    ]
+  },
+  "errors": {
+    "belowMin.machines": "Pelo menos 1 máquina, senão nem a sorveteria abre.",
+    "aboveMax.machines": "Até 10 máquinas nesta simulação.",
+    "notInEnum.size": "Use p, m, g ou gg.",
+    "belowMin.peak": "O pico vai de 500 a 8.000 pedidos por segundo.",
+    "aboveMax.peak": "O pico vai de 500 a 8.000 pedidos por segundo.",
+    "notBool.failure": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Nome da loja",
+    "machines": "Quantas máquinas",
+    "size": "Tamanho de cada máquina",
+    "peak": "Pico de pedidos por segundo",
+    "failure": "Uma máquina queima às 15h"
+  },
+  "scene": {
+    "label": "A sorveteria no dia mais quente",
+    "empty": "Rode para abrir a sorveteria.",
+    "capM": "capacidade (pedidos/s)",
+    "afterM": "capacidade depois da falha",
+    "errM": "pedidos perdidos no pico",
+    "costM": "custo por mês (R$, simulado)",
+    "chartLabel": "Pedidos atendidos por segundo (simulado)",
+    "series": "atendidos/s",
+    "peakLine": "pico: {peak}/s",
+    "tableLabel": "As máquinas",
+    "colMachine": "máquina",
+    "colSize": "tamanho",
+    "colCap": "pedidos/s",
+    "colState": "estado",
+    "szS": "p",
+    "szM": "m",
+    "szL": "g",
+    "szXL": "gg",
+    "up": "no ar",
+    "down": "queimou",
+    "tableCap": "Cada tamanho dobra a força e o preço do anterior. O banco atrás de todas aguenta 3.000 pedidos/s. Números simulados.",
+    "outageNote": "Fechou tudo: a única máquina queimou e não sobrou ninguém para atender. Isso é um ponto único de falha.",
+    "dbNote": "Máquinas sobrando, sorvete faltando: o banco aguenta só 3.000 pedidos/s, e mais máquinas na frente dele não mudam isso. O gargalo mudou de lugar.",
+    "shortNote": "Depois da falha, sobraram {capAfter} pedidos/s para um pico de {peak}/s: faltou folga para perder uma máquina (N+1).",
+    "okNote": "Nenhum pedido perdido: mesmo sem uma máquina, sobram {capAfter} pedidos/s para um pico de {peak}/s."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Crie uma pasta escola-escala com dois arquivos. O compose.yaml:\nname: escola\nservices:\n  app:\n    image: traefik/whoami\n  lb:\n    image: nginx:1.30\n    ports:\n      - \"8080:80\"\n    volumes:\n      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro\n    depends_on:\n      - app",
+      "E o nginx.conf, que manda os pedidos para o serviço app (um nome que pode valer vários contêineres):\nupstream app {\n    server app:80;\n}\nserver {\n    listen 80;\n    location / {\n        proxy_pass http://app;\n    }\n}",
+      "Suba com três réplicas do app (escalar horizontal):\ndocker compose up -d --scale app=3\nRepita várias vezes curl http://localhost:8080 (no Windows PowerShell, curl.exe) e olhe a linha Hostname.",
+      "Volte para uma réplica. O nginx descobre os endereços do app quando liga, então reinicie ele:\ndocker compose up -d --scale app=1\ndocker compose restart lb\nRepita o curl: agora o Hostname é sempre o mesmo.",
+      "Desligue tudo: docker compose down"
+    ],
+    "ok": "com 3 réplicas, o Hostname alterna entre três valores diferentes (são os ids curtos dos contêineres do app); com 1 réplica e o lb reiniciado, o Hostname não muda mais."
+  }
+}

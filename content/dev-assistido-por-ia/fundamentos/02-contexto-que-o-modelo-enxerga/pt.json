@@ -25,7 +25,7 @@
   },
   "why": {
     "simples": "A IA não lê o seu computador inteiro. Ela lê uma \"mesa\" de papéis que você (ou a ferramenta) coloca na frente dela: isso é o contexto. Se o papel com a resposta não está na mesa, ela responde com o que acha, e acha com muita confiança.\nE a mesa tem tamanho: se você joga um calhamaço enorme em cima, outros papéis caem no chão.",
-    "dev": "O contexto é tudo que vai para o modelo numa chamada: instruções, arquivos, mensagens anteriores, saídas de comandos. Ele é medido em tokens e tem limite (a janela de contexto), que muda de modelo para modelo. Os números aqui são de brinquedo.\nArquivos de regras do repositório entram em toda sessão: AGENTS.md (formato aberto lido por várias ferramentas: Cursor, agentes do Copilot e o Claude Code quando não há CLAUDE.md), CLAUDE.md no Claude Code, .github/copilot-instructions.md no Copilot e .cursor/rules no Cursor. Coloque ali o que o código não diz sozinho: regras do negócio, comandos de teste, convenções. E nunca jogue arquivo gerado (bundle, .min.js, lock) no contexto.",
+    "dev": "O contexto é tudo que vai para o modelo numa chamada: instruções, arquivos, mensagens anteriores, saídas de comandos. Ele é medido em tokens e tem limite (a janela de contexto), que muda de modelo para modelo. Os números aqui são de brinquedo.\nArquivos de regras do repositório entram em toda sessão: AGENTS.md (formato aberto lido por várias ferramentas: Cursor e agentes do Copilot; o Claude Code lê o CLAUDE.md, que pode importar o AGENTS.md com a linha @AGENTS.md), CLAUDE.md no Claude Code, .github/copilot-instructions.md no Copilot e .cursor/rules no Cursor. Coloque ali o que o código não diz sozinho: regras do negócio, comandos de teste, convenções. E nunca jogue arquivo gerado (bundle, .min.js, lock) no contexto.",
     "especialista": "Caber na janela não garante uso: estudos como \"Lost in the Middle\" (Liu et al.) mostraram que modelos aproveitam pior informações no meio de contextos longos do que no começo ou no fim. Contexto enxuto e relevante ganha de contexto gigante.\nCada ferramenta lida com o excesso do seu jeito (cortar, resumir a conversa, buscar só trechos), e nenhuma faz caber o que não cabe; neste simulador, o que entrou primeiro sai primeiro. A documentação do Claude Code lembra que CLAUDE.md é tratado como contexto, não como configuração obrigatória: para garantir uma regra, use mecanismos que executam (hooks, testes, CI). Arquivos de regras curtos e específicos são seguidos com mais consistência."
   },
   "break": {
@@ -112,7 +112,7 @@
   },
   "recipe": {
     "steps": [
-      "Num projeto seu, crie um AGENTS.md na raiz com 3 linhas: como rodar os testes, uma regra do negócio (ex.: \"valores sempre em centavos\") e uma convenção de nomes. O Claude Code também lê o AGENTS.md (se não houver CLAUDE.md); no Copilot há ainda .github/copilot-instructions.md.",
+      "Num projeto seu, crie um AGENTS.md na raiz com 3 linhas: como rodar os testes, uma regra do negócio (ex.: \"valores sempre em centavos\") e uma convenção de nomes. O Claude Code lê o CLAUDE.md: crie um com a linha @AGENTS.md para ele usar as mesmas regras; no Copilot há ainda .github/copilot-instructions.md.",
       "Abra uma conversa nova no agente da sua ferramenta e pergunte algo que só a regra responde, como: em que unidade guardamos os preços?",
       "No Claude Code, rode /context para ver quais arquivos de memória entraram. Depois apague a regra, abra outra conversa e faça a mesma pergunta."
     ],

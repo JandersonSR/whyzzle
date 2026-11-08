@@ -1,0 +1,1891 @@
+{
+  "id": "sd-balanceador",
+  "order": 3,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "balanceador",
+    "load-balancer",
+    "health-check",
+    "l4",
+    "l7",
+    "round-robin"
+  ],
+  "requires": [
+    "sd-escalar-vertical-horizontal"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "balancear",
+      "en": "balance"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "cantina-online",
+        "en": "canteen-online"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "algo",
+        "alias": {
+          "pt": "algoritmo",
+          "en": "algorithm"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "rr",
+            "pt": "round-robin",
+            "en": "round-robin"
+          },
+          {
+            "id": "lc",
+            "pt": "menos-conexoes",
+            "en": "least-conn"
+          },
+          {
+            "id": "hash",
+            "pt": "ip-hash",
+            "en": "ip-hash"
+          }
+        ],
+        "default": "rr",
+        "ui": "select"
+      },
+      {
+        "name": "problem",
+        "alias": {
+          "pt": "problema",
+          "en": "problem"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "none",
+            "pt": "nenhum",
+            "en": "none"
+          },
+          {
+            "id": "dead",
+            "pt": "morto",
+            "en": "dead"
+          },
+          {
+            "id": "err500",
+            "pt": "erro500",
+            "en": "error500"
+          },
+          {
+            "id": "slow",
+            "pt": "lento",
+            "en": "slow"
+          }
+        ],
+        "default": "dead",
+        "ui": "select"
+      },
+      {
+        "name": "check",
+        "alias": {
+          "pt": "checagem",
+          "en": "check"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "none",
+            "pt": "nenhuma",
+            "en": "none"
+          },
+          {
+            "id": "tcp",
+            "pt": "tcp",
+            "en": "tcp"
+          },
+          {
+            "id": "http",
+            "pt": "http",
+            "en": "http"
+          }
+        ],
+        "default": "http",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "blackhole"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "lb": {
+          "rr-none-none": {
+            "errPct": 0.0,
+            "failed": 0,
+            "p95": 120,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "ok",
+              "ok"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tAllOk"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "rr-none-tcp": {
+            "errPct": 0.0,
+            "failed": 0,
+            "p95": 120,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "ok",
+              "ok"
+            ],
+            "term": [
+              "@tTcp",
+              "@tAllOk"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "rr-none-http": {
+            "errPct": 0.0,
+            "failed": 0,
+            "p95": 120,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "ok",
+              "ok"
+            ],
+            "term": [
+              "@tHttp",
+              "@tAllOk"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "rr-dead-none": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 120,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stDead",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "bad",
+              "ok"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tNoCheckFail"
+            ],
+            "blackhole": true,
+            "hotspot": false,
+            "over": false
+          },
+          "rr-dead-tcp": {
+            "errPct": 0.56,
+            "failed": 1000,
+            "p95": 240,
+            "detects": true,
+            "share2": 0,
+            "shares": [
+              50,
+              0,
+              50
+            ],
+            "rows": [
+              [
+                "app-1",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stOut",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "dim",
+              "ok"
+            ],
+            "term": [
+              "@tTcp",
+              "@tDeadOut"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "rr-dead-http": {
+            "errPct": 0.56,
+            "failed": 1000,
+            "p95": 240,
+            "detects": true,
+            "share2": 0,
+            "shares": [
+              50,
+              0,
+              50
+            ],
+            "rows": [
+              [
+                "app-1",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stOut",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "dim",
+              "ok"
+            ],
+            "term": [
+              "@tHttp",
+              "@tDeadOut"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "rr-err500-none": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 120,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@st500",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "bad",
+              "ok"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tNoCheckFail"
+            ],
+            "blackhole": true,
+            "hotspot": false,
+            "over": false
+          },
+          "rr-err500-tcp": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 120,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@st500",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "bad",
+              "ok"
+            ],
+            "term": [
+              "@tTcp",
+              "@t500Tcp"
+            ],
+            "blackhole": true,
+            "hotspot": false,
+            "over": false
+          },
+          "rr-err500-http": {
+            "errPct": 0.56,
+            "failed": 1000,
+            "p95": 240,
+            "detects": true,
+            "share2": 0,
+            "shares": [
+              50,
+              0,
+              50
+            ],
+            "rows": [
+              [
+                "app-1",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stOut",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "dim",
+              "ok"
+            ],
+            "term": [
+              "@tHttp",
+              "@t500Http"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "rr-slow-none": {
+            "errPct": 10.0,
+            "failed": 18000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "bad",
+              "ok"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tNoCheckSlow"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": true
+          },
+          "rr-slow-tcp": {
+            "errPct": 10.0,
+            "failed": 18000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "bad",
+              "ok"
+            ],
+            "term": [
+              "@tTcp",
+              "@tSlowPass"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": true
+          },
+          "rr-slow-http": {
+            "errPct": 10.0,
+            "failed": 18000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "bad",
+              "ok"
+            ],
+            "term": [
+              "@tHttp",
+              "@tSlowPass"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": true
+          },
+          "lc-none-none": {
+            "errPct": 0.0,
+            "failed": 0,
+            "p95": 120,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "ok",
+              "ok"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tAllOk"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-none-tcp": {
+            "errPct": 0.0,
+            "failed": 0,
+            "p95": 120,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "ok",
+              "ok"
+            ],
+            "term": [
+              "@tTcp",
+              "@tAllOk"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-none-http": {
+            "errPct": 0.0,
+            "failed": 0,
+            "p95": 120,
+            "detects": false,
+            "share2": 33,
+            "shares": [
+              33,
+              33,
+              33
+            ],
+            "rows": [
+              [
+                "app-1",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-2",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ],
+              [
+                "app-3",
+                "33%",
+                "@stOk",
+                "120 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "ok",
+              "ok"
+            ],
+            "term": [
+              "@tHttp",
+              "@tAllOk"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-dead-none": {
+            "errPct": 50.0,
+            "failed": 90000,
+            "p95": 96,
+            "detects": false,
+            "share2": 50,
+            "shares": [
+              25,
+              50,
+              25
+            ],
+            "rows": [
+              [
+                "app-1",
+                "25%",
+                "@stOk",
+                "96 ms"
+              ],
+              [
+                "app-2",
+                "50%",
+                "@stDead",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "25%",
+                "@stOk",
+                "96 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "bad",
+              "ok"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tNoCheckFail"
+            ],
+            "blackhole": true,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-dead-tcp": {
+            "errPct": 0.83,
+            "failed": 1500,
+            "p95": 240,
+            "detects": true,
+            "share2": 0,
+            "shares": [
+              50,
+              0,
+              50
+            ],
+            "rows": [
+              [
+                "app-1",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stOut",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "dim",
+              "ok"
+            ],
+            "term": [
+              "@tTcp",
+              "@tDeadOut"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-dead-http": {
+            "errPct": 0.83,
+            "failed": 1500,
+            "p95": 240,
+            "detects": true,
+            "share2": 0,
+            "shares": [
+              50,
+              0,
+              50
+            ],
+            "rows": [
+              [
+                "app-1",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stOut",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "dim",
+              "ok"
+            ],
+            "term": [
+              "@tHttp",
+              "@tDeadOut"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-err500-none": {
+            "errPct": 50.0,
+            "failed": 90000,
+            "p95": 96,
+            "detects": false,
+            "share2": 50,
+            "shares": [
+              25,
+              50,
+              25
+            ],
+            "rows": [
+              [
+                "app-1",
+                "25%",
+                "@stOk",
+                "96 ms"
+              ],
+              [
+                "app-2",
+                "50%",
+                "@st500",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "25%",
+                "@stOk",
+                "96 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "bad",
+              "ok"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tNoCheckFail"
+            ],
+            "blackhole": true,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-err500-tcp": {
+            "errPct": 50.0,
+            "failed": 90000,
+            "p95": 96,
+            "detects": false,
+            "share2": 50,
+            "shares": [
+              25,
+              50,
+              25
+            ],
+            "rows": [
+              [
+                "app-1",
+                "25%",
+                "@stOk",
+                "96 ms"
+              ],
+              [
+                "app-2",
+                "50%",
+                "@st500",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "25%",
+                "@stOk",
+                "96 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "bad",
+              "ok"
+            ],
+            "term": [
+              "@tTcp",
+              "@t500Tcp"
+            ],
+            "blackhole": true,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-err500-http": {
+            "errPct": 0.83,
+            "failed": 1500,
+            "p95": 240,
+            "detects": true,
+            "share2": 0,
+            "shares": [
+              50,
+              0,
+              50
+            ],
+            "rows": [
+              [
+                "app-1",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stOut",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "50%",
+                "@stOk",
+                "240 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "dim",
+              "ok"
+            ],
+            "term": [
+              "@tHttp",
+              "@t500Http"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-slow-none": {
+            "errPct": 0.0,
+            "failed": 0,
+            "p95": 498,
+            "detects": false,
+            "share2": 15,
+            "shares": [
+              43,
+              15,
+              43
+            ],
+            "rows": [
+              [
+                "app-1",
+                "43%",
+                "@stOk",
+                "166 ms"
+              ],
+              [
+                "app-2",
+                "15%",
+                "@stSlow",
+                "498 ms"
+              ],
+              [
+                "app-3",
+                "43%",
+                "@stOk",
+                "166 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "warn",
+              "ok"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tNoCheckSlow"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-slow-tcp": {
+            "errPct": 0.0,
+            "failed": 0,
+            "p95": 498,
+            "detects": false,
+            "share2": 15,
+            "shares": [
+              43,
+              15,
+              43
+            ],
+            "rows": [
+              [
+                "app-1",
+                "43%",
+                "@stOk",
+                "166 ms"
+              ],
+              [
+                "app-2",
+                "15%",
+                "@stSlow",
+                "498 ms"
+              ],
+              [
+                "app-3",
+                "43%",
+                "@stOk",
+                "166 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "warn",
+              "ok"
+            ],
+            "term": [
+              "@tTcp",
+              "@tSlowPass"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "lc-slow-http": {
+            "errPct": 0.0,
+            "failed": 0,
+            "p95": 498,
+            "detects": false,
+            "share2": 15,
+            "shares": [
+              43,
+              15,
+              43
+            ],
+            "rows": [
+              [
+                "app-1",
+                "43%",
+                "@stOk",
+                "166 ms"
+              ],
+              [
+                "app-2",
+                "15%",
+                "@stSlow",
+                "498 ms"
+              ],
+              [
+                "app-3",
+                "43%",
+                "@stOk",
+                "166 ms"
+              ]
+            ],
+            "tones": [
+              "ok",
+              "warn",
+              "ok"
+            ],
+            "term": [
+              "@tHttp",
+              "@tSlowPass"
+            ],
+            "blackhole": false,
+            "hotspot": false,
+            "over": false
+          },
+          "hash-none-none": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "dim",
+              "dim"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tAllOk",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-none-tcp": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "dim",
+              "dim"
+            ],
+            "term": [
+              "@tTcp",
+              "@tAllOk",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-none-http": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "dim",
+              "dim"
+            ],
+            "term": [
+              "@tHttp",
+              "@tAllOk",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-dead-none": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stDead",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "bad",
+              "dim"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tNoCheckFail",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-dead-tcp": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": true,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stOut",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "dim",
+              "dim"
+            ],
+            "term": [
+              "@tTcp",
+              "@tDeadOut",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-dead-http": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": true,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stOut",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "dim",
+              "dim"
+            ],
+            "term": [
+              "@tHttp",
+              "@tDeadOut",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-err500-none": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@st500",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "bad",
+              "dim"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tNoCheckFail",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-err500-tcp": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@st500",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "bad",
+              "dim"
+            ],
+            "term": [
+              "@tTcp",
+              "@t500Tcp",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-err500-http": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": true,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stOut",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "dim",
+              "dim"
+            ],
+            "term": [
+              "@tHttp",
+              "@t500Http",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-slow-none": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "dim",
+              "dim"
+            ],
+            "term": [
+              "@tNoCheck",
+              "@tNoCheckSlow",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-slow-tcp": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "dim",
+              "dim"
+            ],
+            "term": [
+              "@tTcp",
+              "@tSlowPass",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          },
+          "hash-slow-http": {
+            "errPct": 33.33,
+            "failed": 60000,
+            "p95": 5000,
+            "detects": false,
+            "share2": 0,
+            "shares": [
+              100,
+              0,
+              0
+            ],
+            "rows": [
+              [
+                "app-1",
+                "100%",
+                "@stOver",
+                "5000 ms"
+              ],
+              [
+                "app-2",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ],
+              [
+                "app-3",
+                "0%",
+                "@stIdle",
+                "@dash"
+              ]
+            ],
+            "tones": [
+              "bad",
+              "dim",
+              "dim"
+            ],
+            "term": [
+              "@tHttp",
+              "@tSlowPass",
+              "@tHash"
+            ],
+            "blackhole": false,
+            "hotspot": true,
+            "over": true
+          }
+        }
+      },
+      "compute": {
+        "r": "lookup(lb, algo + '-' + problem + '-' + check, 0)",
+        "errPct": "r.errPct",
+        "failed": "r.failed",
+        "p95": "r.p95",
+        "detects": "r.detects",
+        "share2": "r.share2",
+        "isHot": "r.hotspot",
+        "isHole": "r.blackhole",
+        "isOver": "r.over"
+      },
+      "cases": [
+        {
+          "when": "isHole",
+          "flags": [
+            "blackhole"
+          ]
+        },
+        {
+          "when": "isHot",
+          "flags": [
+            "hotspot"
+          ]
+        },
+        {
+          "when": "isOver",
+          "flags": [
+            "overload"
+          ]
+        },
+        {
+          "when": "detects",
+          "flags": [
+            "detected"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "errPct": "errPct",
+            "failed": "failed",
+            "p95": "p95",
+            "share2": "share2",
+            "probTxt": "lookup(probTexts, problem, '')",
+            "checkTxt": "lookup(checkTexts, check, '')"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@errM",
+              "value": "=errPct",
+              "format": "pct",
+              "tone": "=errPct >= 5 ? 'bad' : (errPct > 0 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@failedM",
+              "value": "=failed",
+              "format": "int",
+              "tone": "=failed > 5000 ? 'bad' : (failed > 0 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@p95M",
+              "value": "=p95",
+              "format": "ms",
+              "tone": "=p95 > 1000 ? 'bad' : (p95 > 300 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@outM",
+              "value": "=detects ? 10 : (problem == 'dead' || problem == 'err500' ? '@never' : '@dash')",
+              "tone": "=detects ? 'ok' : (problem == 'dead' || problem == 'err500' ? 'bad' : 'dim')"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@colServer",
+            "@colShare",
+            "@colState",
+            "p95"
+          ],
+          "rows": "=r.rows",
+          "tones": "=r.tones",
+          "caption": "@tableCap"
+        },
+        {
+          "type": "chart",
+          "label": "@chartLabel",
+          "kind": "bar",
+          "labels": [
+            "app-1",
+            "app-2",
+            "app-3"
+          ],
+          "series": [
+            {
+              "label": "@series",
+              "values": "=r.shares"
+            }
+          ],
+          "max": 100
+        },
+        {
+          "type": "terminal",
+          "label": "@termLabel",
+          "lines": "=r.term"
+        },
+        {
+          "type": "note",
+          "when": "=isHole",
+          "tone": "bad",
+          "text": "@holeNote"
+        },
+        {
+          "type": "note",
+          "when": "=isHole && algo == 'lc'",
+          "tone": "warn",
+          "text": "@lcHoleNote"
+        },
+        {
+          "type": "note",
+          "when": "=isHot",
+          "tone": "warn",
+          "text": "@hashNote"
+        },
+        {
+          "type": "note",
+          "when": "=problem == 'slow' && algo == 'rr'",
+          "tone": "warn",
+          "text": "@slowRrNote"
+        },
+        {
+          "type": "note",
+          "when": "=detects && !isHot",
+          "tone": "ok",
+          "text": "@detectNote"
+        },
+        {
+          "type": "note",
+          "when": "=problem == 'none' && !isHot",
+          "tone": "ok",
+          "text": "@calmNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "zero",
+      "few",
+      "third"
+    ],
+    "answer": "few"
+  }
+}

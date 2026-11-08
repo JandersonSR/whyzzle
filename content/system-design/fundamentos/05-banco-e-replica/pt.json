@@ -1,0 +1,111 @@
+{
+  "title": "Banco e réplica",
+  "subtitle": "O caderno oficial da secretaria e as fotocópias espalhadas pela escola: rápidas de ler, mas sempre um pouco atrasadas",
+  "mission": "Semana de matrícula: o sistema da secretaria recebe 1.500 leituras por segundo (boletim, horário, cadastro) e 100 escritas por segundo. Cada servidor de banco aguenta 1.000 operações por segundo. As escritas vão sempre para o banco principal (primário); as leituras podem ir para réplicas, que recebem as mudanças com um pouco de atraso. A Ana salva o telefone novo e recarrega a página 300 ms depois. Escolha quantas réplicas usar e de onde vem a leitura logo depois de uma escrita.",
+  "predict": {
+    "question": "cada banco aguenta 1.000 operações/s. Com 1.500 leituras/s, qual é o mínimo de réplicas de leitura para ninguém ficar sem resposta?",
+    "options": {
+      "one": "1 réplica: ela tira as leituras do primário",
+      "two": "2 réplicas: as leituras precisam ser divididas",
+      "three": "3 réplicas, para garantir"
+    }
+  },
+  "feedback": {
+    "right": "isso! Com 1 réplica, ela recebe 1.400 leituras/s (as outras 100 são de quem acabou de salvar e vão ao primário) e aguenta 1.000. Com 2, cada uma fica com 700/s, 70% da capacidade, e o p95 cai para 50 ms. A tabela mostra cada caso.",
+    "wrong": "olhe a tabela: com 1 réplica, ela recebe 1.400 leituras/s e aguenta 1.000, então estoura. Com 2, cada uma fica com 700/s. Mais réplicas dão folga, mas o mínimo é 2.",
+    "skipped": "sem palpite? Rode e olhe a tabela de réplicas."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com 2 réplicas e olhe a tabela: ela mostra também 0, 1 e 3.",
+    "cmd": "palpite anotado. Rode replicar e olhe a tabela de réplicas."
+  },
+  "tryNext": {
+    "ui": "Agora deixe só 1 réplica. Depois volte para 2, leia da réplica e baixe o atraso para 100 ms.",
+    "cmd": "Rode replicar --replicas 1 e depois replicar --ler-apos-escrita replica --atraso 100."
+  },
+  "why": {
+    "simples": "O primário é o caderno oficial da secretaria: só ele recebe as mudanças, para não existirem dois cadernos discordando. As réplicas são fotocópias que ficam nas outras salas. Muita gente consulta ao mesmo tempo e ninguém precisa fazer fila na secretaria.\nSó que a fotocópia é atualizada depois: existe um atraso entre escrever no caderno e a cópia mudar. Para quase tudo, tudo bem: o horário da semana pode estar meio segundo atrasado. Mas se a Ana acabou de mudar o telefone e vai conferir, ela precisa ler no caderno oficial. Senão ela vê o número velho, acha que não salvou e salva de novo.\nE repare: fotocópia ajuda quem lê. Quem escreve continua indo ao mesmo caderno.",
+    "dev": "Na replicação primário-réplica, o primário grava cada mudança no seu log (no PostgreSQL, o WAL) e as réplicas aplicam esse log. Na replicação assíncrona, o primário confirma a escrita sem esperar as réplicas, então elas ficam um pouco atrás (o lag): milissegundos num dia calmo, segundos ou mais sob carga ou rede ruim.\nPara não ler o próprio dado velho (read-your-writes): mande ao primário as leituras de quem acabou de escrever (por alguns segundos, ou na mesma sessão), ou leia da réplica só depois que ela alcançou a posição do log da sua escrita. Réplica não escala escrita: para isso existem particionamento (sharding) e filas. E acompanhe o lag (no PostgreSQL, a view pg_stat_replication mostra replay_lag) com alerta.",
+    "especialista": "Replicação síncrona elimina o lag para quem confirma (o primário espera ao menos uma réplica gravar), mas cada escrita fica mais lenta e, se a réplica síncrona some, as escritas podem parar: é uma troca entre durabilidade, latência e disponibilidade. Com assíncrona, um failover pode perder as últimas escritas confirmadas que ainda não tinham chegado à réplica promovida.\nFailover tem suas próprias armadilhas: detectar a queda sem falso positivo, promover uma réplica só (evitar dois primários, o split-brain), redirecionar as conexões e reconstruir o antigo primário como réplica. Ferramentas como Patroni e os bancos gerenciados da nuvem cuidam disso. Outras garantias que importam para o usuário: leituras monotônicas (não voltar no tempo ao trocar de réplica) e ordem causal. Lembre também que réplicas não protegem contra erro humano: um DELETE errado é replicado fielmente, então backup e recuperação até um ponto no tempo continuam necessários."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: leia da réplica logo depois de salvar.",
+      "cmd": "hora de quebrar: rode replicar --ler-apos-escrita replica"
+    },
+    "success": "Quebrou: a Ana salvou o telefone novo no primário e, 300 ms depois, recarregou a página lendo de uma réplica que estava {lag} ms atrasada. Ela viu o número antigo, achou que não tinha salvado e salvou de novo. Quem acabou de escrever precisa ler do caderno oficial.",
+    "calm": "Leituras com p95 de {p95Read} ms, {errPct}% de erro e o banco mais ocupado com {readNode} operações/s. Para quebrar, leia da réplica logo depois de salvar."
+  },
+  "hints": {
+    "ui": [
+      "Escolha quantas réplicas, o atraso delas e de onde vem a leitura logo depois de salvar.",
+      "A réplica recebe a mudança depois do primário.",
+      "Escolha ler após escrita na \"replica\", com o atraso de 500 ms."
+    ],
+    "cmd": [
+      "O nome é opcional; --replicas, --atraso (ms) e --ler-apos-escrita também.",
+      "--ler-apos-escrita aceita primario ou replica.",
+      "replicar --ler-apos-escrita replica"
+    ]
+  },
+  "errors": {
+    "belowMin.replicas": "Não existe réplica negativa. 0 é só o primário.",
+    "aboveMax.replicas": "Até 5 réplicas nesta simulação.",
+    "belowMin.lag": "O atraso não fica negativo: a réplica não lê o futuro.",
+    "aboveMax.lag": "Até 5000 ms nesta simulação.",
+    "notInEnum.rywRead": "Use primario ou replica."
+  },
+  "controls": {
+    "arg": "Sistema",
+    "replicas": "Réplicas de leitura",
+    "lag": "Atraso da réplica (ms)",
+    "rywRead": "Leitura logo depois de salvar vem do"
+  },
+  "scene": {
+    "label": "A secretaria na semana de matrícula",
+    "empty": "Rode para abrir a matrícula.",
+    "p95M": "p95 das leituras",
+    "errM": "leituras sem resposta (no banco mais cheio)",
+    "busyM": "banco mais ocupado (operações/s, de 1.000)",
+    "lagM": "atraso da réplica",
+    "dash": "—",
+    "flowLabel": "Salvar e conferir (simulado)",
+    "write": "Ana salva",
+    "writeSub": "telefone novo",
+    "primary": "Primário",
+    "primarySub": "{primaryLoad} operações/s",
+    "replicasL": "Réplicas",
+    "replSub": "{replicas} × {perReplica} leituras/s, {lag} ms atrás",
+    "noRepl": "nenhuma",
+    "reread": "Ana recarrega",
+    "readPrimary": "300 ms depois, lê do primário",
+    "readReplica": "300 ms depois, lê de uma réplica",
+    "tableLabel": "Quantas réplicas aguentam a semana?",
+    "colReplicas": "réplicas",
+    "colBusiest": "mais cheio (ops/s)",
+    "colState": "estado",
+    "stOk": "aguenta",
+    "stOver": "estoura",
+    "tableCap": "Cada banco aguenta 1.000 operações/s. Com 0 réplicas, o primário faz tudo. Números simulados.",
+    "termLabel": "No primário (simulado)",
+    "tPrimary": "+ Ana relê do primário: telefone novo",
+    "tStale": "! Ana relê da réplica, que ainda não recebeu a mudança: telefone antigo",
+    "tFresh": "? Ana relê da réplica e, desta vez, a mudança já chegou",
+    "staleNote": "A réplica está {lag} ms atrás e a Ana relê em 300 ms: ela vê o telefone antigo. Leia do primário logo depois de escrever.",
+    "fragileNote": "Funcionou porque o atraso ({lag} ms) está abaixo dos 300 ms da Ana. No primeiro pico, o atraso sobe e o número antigo volta a aparecer.",
+    "overNote": "O banco mais ocupado recebe {readNode} operações/s e aguenta 1.000: {errPct}% das leituras ficam sem resposta.",
+    "okNote": "As leituras estão divididas e a Ana confere o próprio dado no primário: rápido e certo."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Crie uma pasta escola-banco com dois arquivos. O replicacao.sh roda uma vez, quando o primário é criado. Salve-o com final de linha LF (no VS Code, clique em CRLF na barra de status e escolha LF), senão o script falha no Linux:\n#!/bin/bash\n# libera conexões de replicação vindas da rede do compose\necho \"host replication all all scram-sha-256\" >> \"$PGDATA/pg_hba.conf\"",
+      "E o compose.yaml. A réplica copia o primário com pg_basebackup (-R deixa ela configurada como réplica) e depois liga em modo só leitura:\nname: escola-banco\nservices:\n  primary:\n    image: postgres:18\n    environment:\n      POSTGRES_PASSWORD: segredo\n    volumes:\n      - ./replicacao.sh:/docker-entrypoint-initdb.d/replicacao.sh:ro\n  replica:\n    image: postgres:18\n    user: postgres\n    environment:\n      PGPASSWORD: segredo\n    depends_on:\n      - primary\n    command:\n      - bash\n      - -c\n      - |\n        until pg_basebackup -h primary -U postgres -D /tmp/replica -R -X stream; do\n          rm -rf /tmp/replica\n          sleep 2\n        done\n        exec postgres -D /tmp/replica",
+      "Suba e espere a réplica ficar pronta:\ndocker compose up -d\ndocker compose logs -f replica\nNos primeiros segundos o log mostra algumas linhas de erro do pg_basebackup (could not connect, Connection refused) enquanto o primário inicializa: é esperado, ele tenta de novo sozinho. Quando aparecer database system is ready to accept read-only connections, saia com Ctrl+C. Se o erro no pg_hba.conf entry for replication connection se repetir sem parar, o replicacao.sh foi salvo com CRLF: converta para LF, rode docker compose down -v e suba de novo.",
+      "No primário, veja a réplica conectada e grave um dado:\ndocker compose exec primary psql -U postgres -c \"SELECT client_addr, state FROM pg_stat_replication;\"\ndocker compose exec primary psql -U postgres -c \"CREATE TABLE alunos (id int PRIMARY KEY, telefone text); INSERT INTO alunos VALUES (42, '15 99999-0000');\"",
+      "Na réplica, leia o dado e tente escrever:\ndocker compose exec replica psql -U postgres -c \"SELECT * FROM alunos;\"\ndocker compose exec replica psql -U postgres -c \"INSERT INTO alunos VALUES (43, '15 98888-0000');\"",
+      "Desligue tudo: docker compose down"
+    ],
+    "ok": "o pg_stat_replication do primário mostra uma linha com state streaming; o SELECT na réplica devolve o aluno 42; e o INSERT na réplica falha com ERROR: cannot execute INSERT in a read-only transaction."
+  }
+}

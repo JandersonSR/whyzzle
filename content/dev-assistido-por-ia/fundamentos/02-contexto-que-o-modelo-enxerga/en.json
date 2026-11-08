@@ -25,7 +25,7 @@
   },
   "why": {
     "simples": "The AI doesn’t read your whole computer. It reads a \"desk\" of papers that you (or the tool) put in front of it: that’s the context. If the paper with the answer isn’t on the desk, it answers with what it thinks, and it thinks with a lot of confidence.\nAnd the desk has a size: drop a huge brick of paper on it and other papers fall on the floor.",
-    "dev": "Context is everything sent to the model in one call: instructions, files, earlier messages, command output. It’s measured in tokens and has a limit (the context window) that varies by model. The numbers here are toy numbers.\nRepository rules files go into every session: AGENTS.md (an open format read by several tools: Cursor, Copilot’s agents and Claude Code when there’s no CLAUDE.md), CLAUDE.md in Claude Code, .github/copilot-instructions.md in Copilot and .cursor/rules in Cursor. Put there what the code doesn’t say by itself: business rules, test commands, conventions. And never throw generated files (bundles, .min.js, lock files) into the context.",
+    "dev": "Context is everything sent to the model in one call: instructions, files, earlier messages, command output. It’s measured in tokens and has a limit (the context window) that varies by model. The numbers here are toy numbers.\nRepository rules files go into every session: AGENTS.md (an open format read by several tools: Cursor and Copilot’s agents; Claude Code reads CLAUDE.md, which can import AGENTS.md with the line @AGENTS.md), CLAUDE.md in Claude Code, .github/copilot-instructions.md in Copilot and .cursor/rules in Cursor. Put there what the code doesn’t say by itself: business rules, test commands, conventions. And never throw generated files (bundles, .min.js, lock files) into the context.",
     "especialista": "Fitting in the window doesn’t guarantee use: studies such as \"Lost in the Middle\" (Liu et al.) showed models use information in the middle of long contexts worse than at the start or end. Lean, relevant context beats giant context.\nEach tool handles overflow its own way (cutting, summarizing the conversation, retrieving only snippets), and none makes what doesn’t fit fit; in this simulator, first in is first out. Claude Code’s docs point out that CLAUDE.md is treated as context, not enforced configuration: to guarantee a rule, use mechanisms that execute (hooks, tests, CI). Short, specific rules files are followed more consistently."
   },
   "break": {
@@ -112,7 +112,7 @@
   },
   "recipe": {
     "steps": [
-      "In a project of yours, create an AGENTS.md at the root with 3 lines: how to run the tests, one business rule (e.g., \"amounts always in cents\") and one naming convention. Claude Code also reads AGENTS.md (if there is no CLAUDE.md); Copilot also has .github/copilot-instructions.md.",
+      "In a project of yours, create an AGENTS.md at the root with 3 lines: how to run the tests, one business rule (e.g., \"amounts always in cents\") and one naming convention. Claude Code reads CLAUDE.md: create one with the line @AGENTS.md so it uses the same rules; Copilot also has .github/copilot-instructions.md.",
       "Open a new conversation with your tool’s agent and ask something only the rule answers, like: what unit do we store prices in?",
       "In Claude Code, run /context to see which memory files were loaded. Then delete the rule, open another conversation and ask the same question."
     ],

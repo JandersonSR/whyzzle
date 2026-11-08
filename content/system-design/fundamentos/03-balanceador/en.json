@@ -1,0 +1,128 @@
+{
+  "title": "Load balancer",
+  "subtitle": "The canteen line monitor: splits students among the registers and pulls the register that stopped",
+  "mission": "At recess, the canteen app gets 300 requests per second for 10 minutes, split by a load balancer among three servers (app-1, app-2 and app-3). Today app-2 died right at the start. The balancer runs a health check every 5 seconds and pulls whoever fails twice in a row. Find out how many requests fail, then try other problems, other checks and other algorithms.",
+  "predict": {
+    "question": "app-2 died and the HTTP health check is on. How many recess requests fail?",
+    "options": {
+      "zero": "None: the balancer knows right away",
+      "few": "Almost none: only those that arrive before it notices",
+      "third": "A third: each server gets a third"
+    }
+  },
+  "feedback": {
+    "right": "right! During the 10 seconds the check needs to be sure (2 failures, one every 5 s), app-2 still gets a third of the requests: 10 s × 100 requests/s = 1,000 errors, or 0.56% of recess. After that, it leaves the rotation and the other two split everything.",
+    "wrong": "look at the table and the error metric: the check isn’t instant. For 10 seconds (2 failures in a row, every 5 s), app-2 still gets a third: 1,000 errors, 0.56% of recess. Then it leaves the rotation and nobody else fails.",
+    "skipped": "no guess? Run it and look at how many requests failed and how long app-2 stayed in the rotation."
+  },
+  "coach": {
+    "ui": "guess noted. Run it and look at the failed requests and the time to pull app-2.",
+    "cmd": "guess noted. Run balance and look at the servers table."
+  },
+  "tryNext": {
+    "ui": "Now pick the error500 problem with the tcp check. Then switch the algorithm to ip-hash.",
+    "cmd": "Run balance --problem error500 --check tcp and then balance --algorithm ip-hash."
+  },
+  "why": {
+    "simples": "The load balancer is the canteen line monitor: it stands at the door and sends each student to a register. With round-robin, it’s one each, in turn. With least-connections, it goes to the register with the fewest people.\nBut the monitor is only good if it watches the registers. The health check is the monitor asking every 5 seconds: \"all good there?\". If a register doesn’t answer twice, it stops sending people there. Without a check, the monitor keeps sending a third of the students to a closed register.\nAnd there are shallow checks and real checks: seeing whether the register’s light is on (TCP) is different from ordering a test snack (HTTP). A register with its light on and a broken card machine passes the first and fails the second.",
+    "dev": "A layer 4 (L4) balancer looks at TCP/UDP connections: address and port. It’s fast and doesn’t open the content. A layer 7 (L7) one understands HTTP: it can route by path or header, terminate TLS, retry a request on another server and check health with a GET /health that expects 200.\nActive checks are the balancer asking from time to time (interval, timeout, how many failures to pull and how many successes to bring back). Passive checks are it noticing failures in real requests: in open-source nginx, max_fails and fail_timeout do this (the default is 1 failure in 10 s pulls the server for 10 s); nginx’s active check is an NGINX Plus feature, and HAProxy and Envoy have both.\nA good /health tests what the server needs to serve (does the database answer?), without being heavy or taking every server down together when an optional dependency fails.",
+    "especialista": "Algorithms have side effects. Least-connections favors the server that answers fastest, which is great until it answers fast because it’s returning errors: the broken server attracts more traffic (the black hole effect). ip-hash pins each client to a server, but behind NAT (a school, a company, a mobile carrier) thousands of people share one IP and everything lands on a single server. Cookie affinity and consistent hashing (which moves few keys when a server joins or leaves) are alternatives.\nRetrying on another server hides failures, but it’s only safe for idempotent operations (GET, or POST with an idempotency key), and unlimited retries multiply load at exactly the worst moment: use a retry budget. Finally, the balancer is also a part that fails: in production it’s redundant (active-passive pair, virtual IP, anycast or the cloud’s managed service)."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: turn off the health check with app-2 dead.",
+      "cmd": "time to break it: run balance --check none"
+    },
+    "success": "Broken: app-2 {probTxt}, and {checkTxt}. The balancer kept sending {share2}% of the requests to it: {errPct}% errors at recess, {failed} requests lost. A monitor who doesn’t really look sends students to a register that can’t serve them.",
+    "calm": "{errPct}% errors ({failed} requests in 10 minutes of recess) and a p95 of {p95} ms. To break it, turn off the health check with app-2 dead."
+  },
+  "hints": {
+    "ui": [
+      "Pick the algorithm, app-2’s problem and the kind of health check.",
+      "With nobody watching, the balancer doesn’t know a server stopped.",
+      "Pick the \"none\" check, with the \"dead\" problem."
+    ],
+    "cmd": [
+      "The name is optional; so are --algorithm, --problem and --check.",
+      "--check takes none, tcp or http.",
+      "balance --check none"
+    ]
+  },
+  "errors": {
+    "notInEnum.algo": "Use round-robin, least-conn or ip-hash.",
+    "notInEnum.problem": "Use none, dead, error500 or slow.",
+    "notInEnum.check": "Use none, tcp or http."
+  },
+  "controls": {
+    "arg": "Service name",
+    "algo": "Algorithm",
+    "problem": "What happened to app-2",
+    "check": "Health check"
+  },
+  "scene": {
+    "label": "Recess at the load balancer",
+    "empty": "Run to open the canteen.",
+    "errM": "failed requests",
+    "failedM": "requests lost in 10 min",
+    "p95M": "p95 of the successful ones",
+    "outM": "seconds to pull app-2",
+    "never": "never",
+    "tableLabel": "The servers behind the balancer",
+    "colServer": "server",
+    "colShare": "gets",
+    "colState": "state",
+    "stOk": "ok",
+    "stDead": "dead",
+    "st500": "gives 500",
+    "stOut": "out",
+    "stSlow": "slow",
+    "stOver": "full",
+    "stIdle": "idle",
+    "dash": "—",
+    "tableCap": "300 requests/s for 10 minutes. Each server handles 200/s; the slow one, 70/s. Simulated numbers.",
+    "chartLabel": "Share of traffic each server gets (%)",
+    "series": "% of requests",
+    "termLabel": "Balancer log (simulated)",
+    "tNoCheck": "~ health check: off",
+    "tTcp": "~ TCP check on port 80 every 5 s; 2 failures = pulled",
+    "tHttp": "~ GET /health check every 5 s, expects 200; 2 failures = pulled",
+    "tNoCheckFail": "! app-2 stays in the rotation: nobody is watching",
+    "tNoCheckSlow": "? app-2 is slow, but nobody is measuring",
+    "tAllOk": "+ app-1, app-2 and app-3 healthy",
+    "tDeadOut": "! app-2: connection refused twice: pulled in 10 s",
+    "t500Tcp": "? app-2: port 80 opens, so the TCP check passes (but every request gets a 500)",
+    "t500Http": "! app-2: GET /health → 500 twice: pulled in 10 s",
+    "tSlowPass": "? app-2 answers the check in 60 ms: it’s \"healthy\", just slow",
+    "tHash": "? ip-hash: everyone leaves through the school’s IP, so everything goes to app-1",
+    "holeNote": "app-2 {probTxt} and still gets {share2}% of the requests: {errPct}% errors. It’s a black hole: requests go in and don’t come back.",
+    "lcHoleNote": "Worse with least-connections: the broken server answers (with an error) faster than the others, always has fewer open connections and attracts half the traffic.",
+    "hashNote": "ip-hash at a school: all students leave through the same public IP (NAT), so the hash sends 100% to app-1. It gets 300/s and handles 200/s.",
+    "slowRrNote": "Round-robin ignores speed: the slow app-2 gets the same share as the others and drowns. Least-connections sends it less.",
+    "detectNote": "The check pulled app-2 in 10 s. Only the requests in that window failed; afterwards, app-1 and app-3 split everything.",
+    "calmNote": "A quiet day: three healthy servers, each with a share of recess."
+  },
+  "data": {
+    "probTexts": {
+      "none": "was healthy",
+      "dead": "died",
+      "err500": "answered 500 to every request",
+      "slow": "was slow"
+    },
+    "checkTexts": {
+      "none": "there was no health check",
+      "tcp": "the TCP check only saw the open port",
+      "http": "the HTTP check didn’t notice"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Create a folder escola-lb with two files. The compose.yaml (two servers and an nginx in front):\nname: escola\nservices:\n  app1:\n    image: traefik/whoami\n  app2:\n    image: traefik/whoami\n  lb:\n    image: nginx:1.30\n    ports:\n      - \"8080:80\"\n    volumes:\n      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro\n    depends_on:\n      - app1\n      - app2",
+      "And the nginx.conf. max_fails and fail_timeout are nginx’s passive check; proxy_connect_timeout avoids waiting too long for a server that vanished:\nupstream cantina {\n    server app1:80 max_fails=1 fail_timeout=10s;\n    server app2:80 max_fails=1 fail_timeout=10s;\n}\nserver {\n    listen 80;\n    location / {\n        proxy_pass http://cantina;\n        proxy_connect_timeout 2s;\n    }\n}",
+      "Start it and repeat the curl a few times, looking at the Hostname line (in Windows PowerShell, curl.exe):\ndocker compose up -d\ncurl http://localhost:8080",
+      "Run a fake recess with ab, which ships in the official Apache image, inside the compose network (-l accepts responses of different lengths):\ndocker run --rm --network escola_default httpd:2.4 ab -l -n 2000 -c 20 http://lb/\nLook at the Failed requests and 95% lines.",
+      "Kill a server and keep asking:\ndocker compose stop app1\ncurl http://localhost:8080\nThe first request may take up to 2 s (nginx tries app1, gives up and goes to app2); after that they go straight to app2. Every 10 s nginx tries app1 again, and one request takes ~2 s (still no error). If app1 comes back with another IP, nginx only finds it again after docker compose restart lb. Alternative without restarting: in nginx 1.27.3 or newer (open source), resolver 127.0.0.11; plus zone cantina 64k; inside the upstream and server app1:80 resolve; make nginx follow DNS changes.",
+      "Shut everything down: docker compose down"
+    ],
+    "ok": "with both up, the Hostname alternates between two values; ab ends with Failed requests: 0 and shows the 95% line’s time; with app1 stopped, every response comes from the same Hostname and none fails (now and then one takes about 2 s)."
+  }
+}

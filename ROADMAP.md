@@ -176,11 +176,10 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 6. System design e sistemas distribuídos
 - **Fundamentos**
-  - [ ] → F1 · Como sistemas grandes funcionam (6): cliente e servidor; escalar vertical × horizontal; balanceador; cache; banco e réplica; fila.
-    - Em andamento: lições escritas, falta gerador final e testes (branch wip/system-design-f1); falta revisão independente e publicação.
-  - [ ] Missão: desenhar um encurtador de links para uma escola.
+  - [x] F1 · Como sistemas grandes funcionam (6): cliente e servidor; escalar vertical × horizontal; balanceador; cache; banco e réplica; fila.
+  - [x] Missão: desenhar um encurtador de links para uma escola.
 - **Prática**
-  - [ ] P1 · Método de system design (7): requisitos; estimativas de capacidade; API; modelo de dados; blocos de construção; gargalos; trade-offs.
+  - [ ] → P1 · Método de system design (7): requisitos; estimativas de capacidade; API; modelo de dados; blocos de construção; gargalos; trade-offs.
   - [ ] P2 · Sistemas distribuídos a fundo (8): tempo e relógios; consistência; replicação; consenso; transações distribuídas; partições de rede; idempotência; falhas parciais.
   - [ ] Missão: desenhar um sistema de pagamentos com saga e consistência.
 - **Produção**
@@ -409,6 +408,7 @@ Depende das etapas de plataforma PL1 a PL3.
 | nov/2026 | Plataforma · PL2 · modelo declarativo + 9 peças de cena reutilizáveis (galeria em /galeria) | Publicada |
 | nov/2026 | Plataforma · PL3 · executores no navegador (Transformers.js 4.3.2, WebLLM 0.2.87) e sua chave (Anthropic, OpenAI, Gemini, compatível); ativos nos passos 2 e 4 dos Fundamentos | Publicada |
 | nov/2026 | IA aplicada · Prática · P1 · 7 lições com modelos reais (tokenizador do GPT-4o, multilingual-e5-small, Llama 3.2 1B ou sua chave), todas só com dados | Publicada |
+| nov/2026 | System design · Fundamentos F1 + missão (cliente e servidor, escalar, balanceador, cache, réplica, fila; missão do encurtador de links da escola) | Publicada |
 | nov/2026 | IA aplicada · Produção · R1 · Avaliação e qualidade: 7 lições (conjunto versionado, métricas de RAG, LLM como juiz com kappa, regressão no CI, A/B sem espiar, casos difíceis, feedback de usuários) | Publicada |
 | nov/2026 | C# e ASP.NET Core · Fundamentos F1 + missão (tipos, fluxo, LINQ, records, nulabilidade, exceções, async/await; missão da calculadora de empréstimo; saídas conferidas no .NET 10) | Publicada |
 | nov/2026 | Contêineres e Kubernetes · Fundamentos F1 + missão (processo × contêiner × VM, imagem e camadas, Dockerfile, registro, por que orquestrar, cluster; missão do Dockerfile explicado linha a linha) | Publicada |

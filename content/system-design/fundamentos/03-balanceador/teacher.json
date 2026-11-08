@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Explicar o que um balanceador faz e por que ele precisa de checagem de saúde.",
+      "Diferenciar checagem TCP (L4) de checagem HTTP (L7).",
+      "Reconhecer efeitos colaterais de round-robin, menos-conexões e ip-hash."
+    ],
+    "minutes": 20,
+    "activity": "Fiscal da cantina: um aluno é o balanceador na porta e três são caixas. O fiscal manda os \"pedidos\" em rodízio. No meio, um caixa fecha sem avisar (vira de costas). Rodada 1: o fiscal não olha. Rodada 2: a cada 5 segundos ele pergunta \"tudo certo?\". Rodada 3: o caixa continua de frente, mas responde \"não tenho troco\" para todos; o fiscal só checa se ele está de frente.",
+    "discussion": [
+      "Que pergunta o fiscal deveria fazer para descobrir o caixa sem troco?",
+      "Por que mandar todos da mesma \"casa\" para o mesmo caixa dá problema numa escola?"
+    ],
+    "misconceptions": [
+      "\"O balanceador sabe na hora que um servidor caiu.\" Ele só sabe pelo que checa, e checar leva tempo.",
+      "\"Porta aberta é servidor saudável.\" Um servidor pode aceitar a conexão e responder erro em tudo."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explain what a load balancer does and why it needs a health check.",
+      "Tell a TCP (L4) check from an HTTP (L7) check.",
+      "Recognize side effects of round-robin, least-connections and ip-hash."
+    ],
+    "minutes": 20,
+    "activity": "Canteen monitor: one student is the balancer at the door and three are registers. The monitor sends \"orders\" in turn. Midway, a register closes without warning (turns their back). Round 1: the monitor doesn’t look. Round 2: every 5 seconds they ask \"all good?\". Round 3: the register keeps facing forward but says \"no change\" to everybody; the monitor only checks whether they’re facing forward.",
+    "discussion": [
+      "What question should the monitor ask to find the register with no change?",
+      "Why does sending everyone from the same \"house\" to the same register cause trouble at a school?"
+    ],
+    "misconceptions": [
+      "\"The balancer knows instantly that a server went down.\" It only knows what it checks, and checking takes time.",
+      "\"An open port means a healthy server.\" A server can accept the connection and answer errors to everything."
+    ]
+  }
+}

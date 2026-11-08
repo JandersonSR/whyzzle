@@ -1,0 +1,304 @@
+{
+  "id": "sd-fila",
+  "order": 6,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "fila",
+    "assincrono",
+    "back-pressure",
+    "idempotencia",
+    "desacoplamento"
+  ],
+  "requires": [
+    "sd-escalar-vertical-horizontal"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "atender",
+      "en": "serve"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "pedidos-do-recreio",
+        "en": "recess-orders"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "mode",
+        "alias": {
+          "pt": "modo",
+          "en": "mode"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "queue",
+            "pt": "fila",
+            "en": "queue"
+          },
+          {
+            "id": "sync",
+            "pt": "sincrono",
+            "en": "sync"
+          }
+        ],
+        "default": "queue",
+        "ui": "select"
+      },
+      {
+        "name": "workers",
+        "alias": {
+          "pt": "cozinheiros",
+          "en": "cooks"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 10,
+        "default": 3,
+        "ui": "slider"
+      },
+      {
+        "name": "maxQueue",
+        "alias": {
+          "pt": "limite-fila",
+          "en": "queue-limit"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 5000,
+        "step": 50,
+        "default": 0,
+        "ui": "slider"
+      },
+      {
+        "name": "idem",
+        "alias": {
+          "pt": "idempotente",
+          "en": "idempotent"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "counterJam"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "arrival": 9,
+        "durS": 600,
+        "perCook": 2,
+        "held": 4
+      },
+      "compute": {
+        "isQueue": "mode == 'queue'",
+        "kRate": "workers * perCook",
+        "growth": "max(0, arrival - kRate)",
+        "backlogRaw": "growth * durS",
+        "limited": "maxQueue > 0 && backlogRaw > maxQueue",
+        "qcap": "maxQueue > 0 ? maxQueue : 1000000",
+        "backlog": "isQueue ? (limited ? maxQueue : backlogRaw) : 0",
+        "rejected": "isQueue && limited ? backlogRaw - maxQueue : 0",
+        "rejectPct": "round(rejected / (arrival * durS) * 100, 1)",
+        "waitMin": "isQueue ? round(backlog / kRate / 60, 1) : 0",
+        "counterMs": "isQueue ? 20 : (kRate > arrival ? round(1000 * max(0.5, 3 / (kRate - arrival))) : 30000)",
+        "errPct": "!isQueue && kRate < arrival ? round((arrival - kRate) / arrival * 100, 1) : 0",
+        "isJam": "!isQueue && kRate < arrival",
+        "dups": "isQueue && !idem ? held : 0",
+        "series6": "[min(qcap, growth * 60 * 0), min(qcap, growth * 60 * 2), min(qcap, growth * 60 * 4), min(qcap, growth * 60 * 6), min(qcap, growth * 60 * 8), min(qcap, growth * 60 * 10), max(0, backlog - kRate * 60 * 2), max(0, backlog - kRate * 60 * 4)]"
+      },
+      "cases": [
+        {
+          "when": "isJam",
+          "flags": [
+            "counterJam"
+          ]
+        },
+        {
+          "when": "backlog > 0",
+          "flags": [
+            "queueGrew"
+          ]
+        },
+        {
+          "when": "rejected > 0",
+          "flags": [
+            "shedLoad"
+          ]
+        },
+        {
+          "when": "dups > 0",
+          "flags": [
+            "duplicates"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "kRate": "kRate",
+            "backlog": "backlog",
+            "waitMin": "waitMin",
+            "errPct": "errPct",
+            "rejected": "rejected",
+            "rejectPct": "rejectPct",
+            "counterMs": "counterMs",
+            "dups": "dups"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@counterM",
+              "value": "=counterMs",
+              "format": "ms",
+              "tone": "=counterMs > 2000 ? 'bad' : (counterMs > 500 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@errM",
+              "value": "=errPct",
+              "format": "pct",
+              "tone": "=errPct > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@backlogM",
+              "value": "=backlog",
+              "format": "int",
+              "tone": "=backlog > 0 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@waitM",
+              "value": "=waitMin",
+              "format": "min",
+              "tone": "=waitMin > 3 ? 'warn' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "queue",
+          "when": "=isQueue",
+          "label": "@queueLabel",
+          "producer": "@counter",
+          "empty": "@emptyQueue",
+          "messages": "=backlog",
+          "consumers": [
+            {
+              "label": "@kitchen",
+              "note": "@kitchenRate",
+              "tone": "=growth > 0 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@restart",
+              "note": "=idem ? '@idemOn' : '@idemOff'",
+              "tone": "=idem ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "when": "=isQueue",
+          "label": "@chartLabel",
+          "kind": "line",
+          "labels": [
+            "0",
+            "2",
+            "4",
+            "6",
+            "8",
+            "10",
+            "12",
+            "14"
+          ],
+          "series": [
+            {
+              "label": "@series",
+              "values": "=series6"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "when": "=!isQueue",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "@student",
+              "tone": "info"
+            },
+            {
+              "label": "@counterL",
+              "sub": "@threadsSub",
+              "tone": "=isJam ? 'bad' : 'warn'"
+            },
+            {
+              "label": "@kitchenL",
+              "sub": "@kitchenRate",
+              "tone": "=isJam ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=isJam",
+          "tone": "bad",
+          "text": "@jamNote"
+        },
+        {
+          "type": "note",
+          "when": "=!isQueue && !isJam",
+          "tone": "warn",
+          "text": "@syncSlowNote"
+        },
+        {
+          "type": "note",
+          "when": "=isQueue && backlog > 0 && !limited",
+          "tone": "warn",
+          "text": "@backlogNote"
+        },
+        {
+          "type": "note",
+          "when": "=limited",
+          "tone": "info",
+          "text": "@limitNote"
+        },
+        {
+          "type": "note",
+          "when": "=dups > 0",
+          "tone": "bad",
+          "text": "@dupNote"
+        },
+        {
+          "type": "note",
+          "when": "=isQueue && backlog == 0 && dups == 0",
+          "tone": "ok",
+          "text": "@okNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "error",
+      "ticket",
+      "instant"
+    ],
+    "answer": "ticket"
+  }
+}

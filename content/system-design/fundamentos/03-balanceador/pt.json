@@ -1,0 +1,128 @@
+{
+  "title": "Balanceador de carga",
+  "subtitle": "O fiscal da fila da cantina: divide os alunos entre os caixas e tira da roda o caixa que parou",
+  "mission": "No recreio, o app da cantina recebe 300 pedidos por segundo durante 10 minutos, divididos por um balanceador entre três servidores (app-1, app-2 e app-3). Hoje o app-2 morreu logo no começo. O balanceador faz uma checagem de saúde a cada 5 segundos e tira da roda quem falha 2 vezes seguidas. Descubra quantos pedidos dão erro, e depois teste outros problemas, outras checagens e outros algoritmos.",
+  "predict": {
+    "question": "o app-2 morreu e a checagem de saúde HTTP está ligada. Quantos pedidos do recreio dão erro?",
+    "options": {
+      "zero": "Nenhum: o balanceador já sabe na hora",
+      "few": "Quase nenhum: só os que chegam até ele perceber",
+      "third": "Um terço: cada servidor recebe um terço"
+    }
+  },
+  "feedback": {
+    "right": "isso! Durante os 10 segundos que a checagem leva para ter certeza (2 falhas, uma a cada 5 s), o app-2 ainda recebe um terço dos pedidos: 10 s × 100 pedidos/s = 1.000 erros, ou 0,56% do recreio. Depois disso, ele sai da roda e os outros dois dividem tudo.",
+    "wrong": "olhe a tabela e a métrica de erros: a checagem não é instantânea. Por 10 segundos (2 falhas seguidas, a cada 5 s), o app-2 ainda recebe um terço: 1.000 erros, 0,56% do recreio. Depois ele sai da roda e não erra mais ninguém.",
+    "skipped": "sem palpite? Rode e olhe quantos pedidos falharam e por quanto tempo o app-2 ficou na roda."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode e olhe os pedidos com erro e o tempo até tirar o app-2 da roda.",
+    "cmd": "palpite anotado. Rode balancear e olhe a tabela dos servidores."
+  },
+  "tryNext": {
+    "ui": "Agora escolha o problema erro500 com a checagem tcp. Depois troque o algoritmo para ip-hash.",
+    "cmd": "Rode balancear --problema erro500 --checagem tcp e depois balancear --algoritmo ip-hash."
+  },
+  "why": {
+    "simples": "O balanceador é o fiscal da fila da cantina: ele fica na porta e manda cada aluno para um caixa. No round-robin, é um para cada, em rodízio. No menos-conexões, vai para o caixa com menos gente.\nMas o fiscal só é bom se olha os caixas. A checagem de saúde é ele perguntando a cada 5 segundos: \"tudo certo aí?\". Se o caixa não responde duas vezes, ele para de mandar gente para lá. Sem checagem, o fiscal continua mandando um terço dos alunos para um caixa fechado.\nE existe checagem rasa e checagem de verdade: ver se a luz do caixa está acesa (TCP) é diferente de pedir um lanche de teste (HTTP). Um caixa com a luz acesa e a máquina de cartão quebrada passa na primeira e falha na segunda.",
+    "dev": "Um balanceador de camada 4 (L4) olha conexões TCP/UDP: endereço e porta. Ele é rápido e não abre o conteúdo. Um de camada 7 (L7) entende HTTP: pode rotear por caminho ou cabeçalho, terminar TLS, repetir um pedido em outro servidor e checar a saúde com um GET /health que espera 200.\nChecagem ativa é o balanceador perguntando de tempos em tempos (intervalo, tempo-limite, quantas falhas para tirar e quantos acertos para devolver). Checagem passiva é ele notar falhas nos pedidos de verdade: no nginx open source, max_fails e fail_timeout fazem isso (o padrão é 1 falha em 10 s tira o servidor por 10 s); a checagem ativa do nginx é do NGINX Plus, e HAProxy e Envoy têm as duas.\nUm /health bom testa o que o servidor precisa para atender (o banco responde?), mas sem ser pesado nem derrubar todos os servidores juntos quando uma dependência opcional cai.",
+    "especialista": "Algoritmos têm efeitos colaterais. Menos-conexões favorece o servidor que responde mais rápido, o que é ótimo até ele responder rápido porque está devolvendo erro: o servidor quebrado atrai mais tráfego (o efeito buraco negro). ip-hash prende cada cliente a um servidor, mas atrás de NAT (uma escola, uma empresa, uma operadora móvel) milhares de pessoas saem pelo mesmo IP e tudo cai num servidor só. Afinidade por cookie e hash consistente (que move poucas chaves quando um servidor entra ou sai) são alternativas.\nRepetir pedidos em outro servidor esconde falhas, mas só é seguro em operações idempotentes (GET, ou POST com chave de idempotência), e repetição sem limite multiplica a carga justamente no pior momento: use orçamento de repetições. Por fim, o balanceador também é uma peça que falha: em produção ele é redundante (par ativo-passivo, IP virtual, anycast ou o serviço gerenciado da nuvem)."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: desligue a checagem de saúde com o app-2 morto.",
+      "cmd": "hora de quebrar: rode balancear --checagem nenhuma"
+    },
+    "success": "Quebrou: o app-2 {probTxt}, e {checkTxt}. O balanceador continuou mandando {share2}% dos pedidos para ele: {errPct}% de erro no recreio, {failed} pedidos perdidos. Fiscal que não olha direito manda aluno para caixa que não atende.",
+    "calm": "{errPct}% de erro ({failed} pedidos em 10 minutos de recreio) e p95 de {p95} ms. Para quebrar, desligue a checagem de saúde com o app-2 morto."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o algoritmo, o problema do app-2 e o tipo de checagem de saúde.",
+      "Sem ninguém olhando, o balanceador não sabe que um servidor parou.",
+      "Escolha a checagem \"nenhuma\", com o problema \"morto\"."
+    ],
+    "cmd": [
+      "O nome é opcional; --algoritmo, --problema e --checagem também.",
+      "--checagem aceita nenhuma, tcp ou http.",
+      "balancear --checagem nenhuma"
+    ]
+  },
+  "errors": {
+    "notInEnum.algo": "Use round-robin, menos-conexoes ou ip-hash.",
+    "notInEnum.problem": "Use nenhum, morto, erro500 ou lento.",
+    "notInEnum.check": "Use nenhuma, tcp ou http."
+  },
+  "controls": {
+    "arg": "Nome do serviço",
+    "algo": "Algoritmo",
+    "problem": "O que aconteceu com o app-2",
+    "check": "Checagem de saúde"
+  },
+  "scene": {
+    "label": "O recreio no balanceador",
+    "empty": "Rode para abrir a cantina.",
+    "errM": "pedidos com erro",
+    "failedM": "pedidos perdidos em 10 min",
+    "p95M": "p95 dos que deram certo",
+    "outM": "segundos até tirar o app-2",
+    "never": "nunca",
+    "tableLabel": "Os servidores atrás do balanceador",
+    "colServer": "servidor",
+    "colShare": "recebe",
+    "colState": "estado",
+    "stOk": "ok",
+    "stDead": "morto",
+    "st500": "dá 500",
+    "stOut": "fora",
+    "stSlow": "lento",
+    "stOver": "lotado",
+    "stIdle": "parado",
+    "dash": "—",
+    "tableCap": "300 pedidos/s por 10 minutos. Cada servidor aguenta 200/s; o lento, 70/s. Números simulados.",
+    "chartLabel": "Parte do tráfego que cada servidor recebe (%)",
+    "series": "% dos pedidos",
+    "termLabel": "Registro do balanceador (simulado)",
+    "tNoCheck": "~ checagem de saúde: desligada",
+    "tTcp": "~ checagem TCP na porta 80 a cada 5 s; 2 falhas = fora",
+    "tHttp": "~ checagem GET /health a cada 5 s, espera 200; 2 falhas = fora",
+    "tNoCheckFail": "! app-2 continua na roda: ninguém está olhando",
+    "tNoCheckSlow": "? app-2 lento, mas ninguém está medindo",
+    "tAllOk": "+ app-1, app-2 e app-3 saudáveis",
+    "tDeadOut": "! app-2: conexão recusada 2 vezes: fora da roda em 10 s",
+    "t500Tcp": "? app-2: a porta 80 abre, então a checagem TCP passa (mas todo pedido recebe 500)",
+    "t500Http": "! app-2: GET /health → 500 duas vezes: fora da roda em 10 s",
+    "tSlowPass": "? app-2 responde a checagem em 60 ms: está \"saudável\", só que lento",
+    "tHash": "? ip-hash: todo mundo sai pelo IP da escola, então tudo vai para o app-1",
+    "holeNote": "O app-2 {probTxt} e continua recebendo {share2}% dos pedidos: {errPct}% de erro. É um buraco negro: o pedido entra e não volta.",
+    "lcHoleNote": "Pior com menos-conexões: o servidor quebrado responde (com erro) mais rápido que os outros, fica sempre com menos conexões abertas e atrai metade do tráfego.",
+    "hashNote": "ip-hash numa escola: os alunos saem todos pelo mesmo IP público (NAT), então o hash manda 100% para o app-1. Ele recebe 300/s e aguenta 200/s.",
+    "slowRrNote": "Round-robin não olha a velocidade: o app-2 lento recebe a mesma parte que os outros e afoga. Menos-conexões manda menos para ele.",
+    "detectNote": "A checagem tirou o app-2 da roda em 10 s. Só os pedidos desse intervalo deram erro; depois, app-1 e app-3 dividem tudo.",
+    "calmNote": "Dia tranquilo: três servidores saudáveis, cada um com uma parte do recreio."
+  },
+  "data": {
+    "probTexts": {
+      "none": "estava saudável",
+      "dead": "morreu",
+      "err500": "respondia 500 em todo pedido",
+      "slow": "estava lento"
+    },
+    "checkTexts": {
+      "none": "não havia checagem de saúde",
+      "tcp": "a checagem TCP só via a porta aberta",
+      "http": "a checagem HTTP não percebeu"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Crie uma pasta escola-lb com dois arquivos. O compose.yaml (dois servidores e um nginx na frente):\nname: escola\nservices:\n  app1:\n    image: traefik/whoami\n  app2:\n    image: traefik/whoami\n  lb:\n    image: nginx:1.30\n    ports:\n      - \"8080:80\"\n    volumes:\n      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro\n    depends_on:\n      - app1\n      - app2",
+      "E o nginx.conf. max_fails e fail_timeout são a checagem passiva do nginx; proxy_connect_timeout evita esperar demais por um servidor que sumiu:\nupstream cantina {\n    server app1:80 max_fails=1 fail_timeout=10s;\n    server app2:80 max_fails=1 fail_timeout=10s;\n}\nserver {\n    listen 80;\n    location / {\n        proxy_pass http://cantina;\n        proxy_connect_timeout 2s;\n    }\n}",
+      "Suba e repita algumas vezes o curl, olhando a linha Hostname (no Windows PowerShell, curl.exe):\ndocker compose up -d\ncurl http://localhost:8080",
+      "Faça um recreio de mentira com o ab, que vem na imagem oficial do Apache, rodando dentro da rede do compose (-l aceita respostas de tamanhos diferentes):\ndocker run --rm --network escola_default httpd:2.4 ab -l -n 2000 -c 20 http://lb/\nOlhe as linhas Failed requests e 95%.",
+      "Mate um servidor e continue pedindo:\ndocker compose stop app1\ncurl http://localhost:8080\nO primeiro pedido pode demorar até 2 s (o nginx tenta o app1, desiste e vai para o app2); depois disso eles vão direto para o app2. A cada 10 s o nginx testa o app1 de novo, e um pedido demora ~2 s (ainda sem erro). Se o app1 voltar com outro IP, o nginx só o reencontra depois de docker compose restart lb. Alternativa sem reiniciar: no nginx 1.27.3 ou mais novo (open source), resolver 127.0.0.11; mais zone cantina 64k; dentro do upstream e server app1:80 resolve; fazem o nginx acompanhar mudanças de DNS.",
+      "Desligue tudo: docker compose down"
+    ],
+    "ok": "com os dois no ar, o Hostname alterna entre dois valores; o ab termina com Failed requests: 0 e mostra o tempo da linha 95%; com o app1 parado, todas as respostas vêm do mesmo Hostname e nenhuma dá erro (de tempos em tempos uma leva uns 2 s)."
+  }
+}

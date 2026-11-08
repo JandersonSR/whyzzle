@@ -1,0 +1,104 @@
+{
+  "title": "Scaling up vs scaling out",
+  "subtitle": "A hot day at the ice-cream shop: one giant server or several regular ones?",
+  "mission": "The school’s ice-cream shop sells through the app, and the heat peak (3 pm) reaches 2,000 orders per second. With the same money (R$ 800 a month), you can rent 1 xl machine or 4 m machines. At 3 pm, one machine burns out. Compare both choices and also find out when buying more machines stops helping.",
+  "predict": {
+    "question": "same cost: 1 xl machine (8 times stronger) or 4 m machines. At 3 pm one machine burns out. Who keeps selling ice cream?",
+    "options": {
+      "giant": "The xl: it’s much stronger",
+      "four": "The 4 m: losing one still leaves three",
+      "both": "Both, since they cost the same"
+    }
+  },
+  "feedback": {
+    "right": "right! With 4 machines, losing one drops capacity from 3,200 to 2,400 orders/s, still above the 2,000 peak. The lone xl machine is a single point of failure: when it burns out, capacity goes to zero.",
+    "wrong": "look at the chart: the 4 m machines drop from 3,200 to 2,400 orders/s at 3 pm and still cover the 2,000 peak. The lone xl has the same total power, but when it burns out there’s nobody left.",
+    "skipped": "no guess? Run it and look at the capacity after the failure."
+  },
+  "coach": {
+    "ui": "guess noted. Run with 4 m machines and look at the line after 3 pm.",
+    "cmd": "guess noted. Run scale and look at the capacity after the failure."
+  },
+  "tryNext": {
+    "ui": "Now use 10 xl machines and raise the peak to 8,000: see what becomes the bottleneck.",
+    "cmd": "Run scale --machines 10 --size xl --peak 8000 and see what becomes the bottleneck."
+  },
+  "why": {
+    "simples": "Scaling up (vertical) is swapping the server for a super-server: a bigger machine, with more CPU and memory. It’s simple, the code doesn’t even notice. But it has a ceiling (there’s no infinite server) and, if it gets sick, the shop closes.\nScaling out (horizontal) is hiring more identical servers and splitting the line among them. If one leaves, the others keep going. You can grow with almost no ceiling, but you need someone organizing the line (the load balancer, next lesson) and servers that keep nothing in their heads (stateless servers, lesson 1).\nAnd careful: if every server scoops from the same freezer, hiring more people doesn’t help once the freezer is the slowest part. The bottleneck moves.",
+    "dev": "In the cloud, scaling up usually means restarting the machine at another size (minutes offline, unless another one covers), and sizes have a limit. Scaling out requires a stateless app: sessions, uploaded files and work queues live outside the server.\nAutoscaling turns machines on by itself based on a metric (CPU, requests per second, queue length), but it takes time: it has to notice the rise, boot the machine, warm the app up and pass the health check. A peak that arrives in seconds (like a viral link) is over before help arrives, so keep headroom or schedule the increase before known events. And a rule of thumb: have N+1, enough capacity to survive losing one machine at peak.",
+    "especialista": "Scaling out isn’t linear forever. Everything shared (database, cache, a lock, a single queue) becomes the new bottleneck, and coordination between nodes costs: models like Amdahl’s Law and the Universal Scalability Law show the curve flattening, and sometimes going down, as contention grows. That’s why the next step is splitting state: read replicas, caches, partitioning (sharding) by key.\nAutoscaling has traps too: flapping (scaling up and down nonstop, fixed with stabilization windows), account quota limits, cold starts, and scaling that worsens the bottleneck below (more servers = more connections to the same database). Scale on the metric that actually saturates, and test the peak before the day."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: spend the same money on a single xl machine and let it burn out at 3 pm.",
+      "cmd": "time to break it: run scale --machines 1 --size xl"
+    },
+    "success": "Broken: everything depended on a single machine. When it burned out at 3 pm, capacity went to zero and {errPct}% of the peak orders got no ice cream. Spending R$ {cost} a month on a single machine bought capacity, not resilience.",
+    "calm": "Capacity of {cap} orders/s, {capAfter}/s after the failure, {errPct}% of orders lost, for R$ {cost} a month. To break it, spend the same on a single xl machine and let it burn out."
+  },
+  "hints": {
+    "ui": [
+      "Pick how many machines, the size of each and the order peak.",
+      "A single machine, however big, is a single point of failure.",
+      "Pick 1 xl machine, with the failure on."
+    ],
+    "cmd": [
+      "The name is optional; so are --machines, --size, --peak and --failure.",
+      "--size takes s, m, l or xl (1, 2, 4 or 8 times the strength of s).",
+      "scale --machines 1 --size xl"
+    ]
+  },
+  "errors": {
+    "belowMin.machines": "At least 1 machine, or the shop doesn’t even open.",
+    "aboveMax.machines": "Up to 10 machines in this simulation.",
+    "notInEnum.size": "Use s, m, l or xl.",
+    "belowMin.peak": "The peak goes from 500 to 8,000 orders per second.",
+    "aboveMax.peak": "The peak goes from 500 to 8,000 orders per second.",
+    "notBool.failure": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Shop name",
+    "machines": "How many machines",
+    "size": "Size of each machine",
+    "peak": "Peak orders per second",
+    "failure": "A machine burns out at 3 pm"
+  },
+  "scene": {
+    "label": "The ice-cream shop on the hottest day",
+    "empty": "Run to open the shop.",
+    "capM": "capacity (orders/s)",
+    "afterM": "capacity after the failure",
+    "errM": "orders lost at peak",
+    "costM": "cost per month (R$, simulated)",
+    "chartLabel": "Orders served per second (simulated)",
+    "series": "served/s",
+    "peakLine": "peak: {peak}/s",
+    "tableLabel": "The machines",
+    "colMachine": "machine",
+    "colSize": "size",
+    "colCap": "orders/s",
+    "colState": "state",
+    "szS": "s",
+    "szM": "m",
+    "szL": "l",
+    "szXL": "xl",
+    "up": "up",
+    "down": "burned out",
+    "tableCap": "Each size doubles the strength and the price of the previous one. The database behind them all handles 3,000 orders/s. Simulated numbers.",
+    "outageNote": "Everything closed: the only machine burned out and nobody was left to serve. That’s a single point of failure.",
+    "dbNote": "Plenty of machines, not enough ice cream: the database only handles 3,000 orders/s, and more machines in front of it don’t change that. The bottleneck moved.",
+    "shortNote": "After the failure, {capAfter} orders/s were left for a {peak}/s peak: not enough headroom to lose a machine (N+1).",
+    "okNote": "No orders lost: even without one machine, {capAfter} orders/s are left for a {peak}/s peak."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Create a folder escola-escala with two files. The compose.yaml:\nname: escola\nservices:\n  app:\n    image: traefik/whoami\n  lb:\n    image: nginx:1.30\n    ports:\n      - \"8080:80\"\n    volumes:\n      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro\n    depends_on:\n      - app",
+      "And the nginx.conf, which sends requests to the app service (a name that can stand for several containers):\nupstream app {\n    server app:80;\n}\nserver {\n    listen 80;\n    location / {\n        proxy_pass http://app;\n    }\n}",
+      "Start it with three replicas of app (scaling out):\ndocker compose up -d --scale app=3\nRepeat curl http://localhost:8080 several times (in Windows PowerShell, curl.exe) and look at the Hostname line.",
+      "Go back to one replica. nginx looks up app’s addresses when it starts, so restart it:\ndocker compose up -d --scale app=1\ndocker compose restart lb\nRepeat the curl: now the Hostname is always the same.",
+      "Shut everything down: docker compose down"
+    ],
+    "ok": "with 3 replicas, the Hostname alternates among three different values (the short ids of the app containers); with 1 replica and lb restarted, the Hostname no longer changes."
+  }
+}

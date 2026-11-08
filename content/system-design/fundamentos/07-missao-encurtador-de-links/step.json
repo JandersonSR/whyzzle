@@ -1,0 +1,376 @@
+{
+  "id": "sd-missao-encurtador",
+  "order": 7,
+  "track": "fundamentos",
+  "kind": "mission",
+  "minutes": 30,
+  "tags": [
+    "missao",
+    "capacidade",
+    "cache",
+    "replica",
+    "rate-limit",
+    "fila",
+    "encurtador"
+  ],
+  "requires": [
+    "sd-balanceador",
+    "sd-cache",
+    "sd-banco-replica",
+    "sd-fila"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "desenhar",
+      "en": "design"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "encurtador-da-escola",
+        "en": "school-shortener"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "servers",
+        "alias": {
+          "pt": "servidores",
+          "en": "servers"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 8,
+        "default": 1,
+        "ui": "slider"
+      },
+      {
+        "name": "cache",
+        "alias": {
+          "pt": "cache",
+          "en": "cache"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "replica",
+        "alias": {
+          "pt": "replica",
+          "en": "replica"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "ids",
+        "alias": {
+          "pt": "ids",
+          "en": "ids"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "seq",
+            "pt": "sequencial",
+            "en": "sequential"
+          },
+          {
+            "id": "random",
+            "pt": "aleatorio",
+            "en": "random"
+          }
+        ],
+        "default": "seq",
+        "ui": "select"
+      },
+      {
+        "name": "rateLimit",
+        "alias": {
+          "pt": "limite",
+          "en": "limit"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 20000,
+        "uiMax": 6000,
+        "step": 100,
+        "default": 0,
+        "ui": "slider"
+      },
+      {
+        "name": "clicks",
+        "alias": {
+          "pt": "cliques",
+          "en": "clicks"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "sync",
+            "pt": "sincrono",
+            "en": "sync"
+          },
+          {
+            "id": "queue",
+            "pt": "fila",
+            "en": "queue"
+          }
+        ],
+        "default": "sync",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "passed"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "R": 3000,
+        "bot": 400,
+        "lab": 600,
+        "newW": 5,
+        "capApp": 800,
+        "sApp": 20,
+        "capDb": 900,
+        "sDb": 10,
+        "hitRate": 0.75,
+        "batch": 100,
+        "budget": 3500,
+        "maxLimit": 3000,
+        "pServer": 300,
+        "pLb": 100,
+        "pCache": 150,
+        "pDb": 400,
+        "pReplica": 400,
+        "pQueue": 80
+      },
+      "compute": {
+        "botAllowed": "rateLimit == 0 ? bot : min(bot, rateLimit / 60)",
+        "labBlocked": "rateLimit > 0 && rateLimit < lab ? (lab - rateLimit) / 60 : 0",
+        "A": "round(R + botAllowed + newW)",
+        "hit": "cache ? hitRate : 0",
+        "miss": "1 - hit",
+        "readsDb": "R * miss + botAllowed",
+        "isSync": "clicks == 'sync'",
+        "writesDb": "(isSync ? R : R / batch) + newW",
+        "primLoad": "writesDb + (replica ? readsDb / 2 : readsDb)",
+        "repLoad": "replica ? readsDb / 2 : 0",
+        "appCap": "servers * capApp",
+        "pApp": "((A) / (appCap)) >= 0.98 ? 5000 : min(5000, round(3 * sApp / (1 - ((A) / (appCap)))))",
+        "pPrim": "((primLoad) / (capDb)) >= 0.98 ? 5000 : min(5000, round(3 * sDb / (1 - ((primLoad) / (capDb)))))",
+        "pRead": "replica ? max(((repLoad) / (capDb)) >= 0.98 ? 5000 : min(5000, round(3 * sDb / (1 - ((repLoad) / (capDb))))), pPrim) : pPrim",
+        "okApp": "((A) <= 0 ? 1 : min(1, (appCap) / (A)))",
+        "okPrim": "((primLoad) <= 0 ? 1 : min(1, (capDb) / (primLoad)))",
+        "okRead": "replica ? min(((repLoad) <= 0 ? 1 : min(1, (capDb) / (repLoad))), okPrim) : okPrim",
+        "p95": "min(5000, pApp + (cache ? 2 : 0) + (miss > 0.05 ? pRead : 0) + (isSync ? pPrim : 0))",
+        "okFrac": "okApp * (cache ? hit + miss * okRead : okRead) * (isSync ? okPrim : 1) * (1 - labBlocked / R)",
+        "errPct": "round((1 - okFrac) * 100, 2)",
+        "cost": "servers * pServer + (servers >= 2 ? pLb : 0) + (cache ? pCache : 0) + pDb + (replica ? pReplica : 0) + (isSync ? 0 : pQueue)",
+        "found": "ids == 'seq' ? round(botAllowed * 3600 * 0.9) : 0",
+        "uApp": "round(A / appCap * 100)",
+        "uPrim": "round(primLoad / capDb * 100)",
+        "uRep": "round(repLoad / capDb * 100)",
+        "okP95": "p95 <= 300",
+        "okErr": "errPct <= 0.5",
+        "n1Cap": "(servers - 1) * capApp",
+        "okN1": "servers >= 2 && n1Cap >= A",
+        "okIds": "ids == 'random'",
+        "okLimit": "rateLimit >= lab && rateLimit <= maxLimit",
+        "okCost": "cost <= budget",
+        "okCount": "(okP95 ? 1 : 0) + (okErr ? 1 : 0) + (okN1 ? 1 : 0) + (okIds ? 1 : 0) + (okLimit ? 1 : 0) + (okCost ? 1 : 0)"
+      },
+      "cases": [
+        {
+          "when": "okCount == 6",
+          "flags": [
+            "passed"
+          ]
+        },
+        {
+          "when": "!okErr",
+          "flags": [
+            "overloaded"
+          ]
+        },
+        {
+          "when": "!okIds",
+          "flags": [
+            "guessable"
+          ]
+        },
+        {
+          "when": "servers < 2",
+          "flags": [
+            "spof"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "A": "A",
+            "p95": "p95",
+            "errPct": "errPct",
+            "cost": "cost",
+            "found": "found",
+            "ok": "okCount",
+            "botNow": "round(botAllowed)"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "checks",
+          "label": "@checks",
+          "items": [
+            {
+              "label": "@cP95",
+              "ok": "=okP95",
+              "why": "@cP95Why"
+            },
+            {
+              "label": "@cErr",
+              "ok": "=okErr",
+              "why": "@cErrWhy"
+            },
+            {
+              "label": "@cN1",
+              "ok": "=okN1",
+              "why": "=servers < 2 ? '@cN1WhyOne' : '@cN1Why'"
+            },
+            {
+              "label": "@cIds",
+              "ok": "=okIds",
+              "why": "@cIdsWhy"
+            },
+            {
+              "label": "@cLimit",
+              "ok": "=okLimit",
+              "why": "=rateLimit == 0 ? '@cLimitWhy0' : (rateLimit < lab ? '@cLimitWhyLow' : '@cLimitWhyHigh')"
+            },
+            {
+              "label": "@cCost",
+              "ok": "=okCost",
+              "why": "@cCostWhy"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@rpsM",
+              "value": "=A",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@p95M",
+              "value": "=p95",
+              "format": "ms",
+              "tone": "=okP95 ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@errM",
+              "value": "=errPct",
+              "format": "pct",
+              "tone": "=okErr ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@costM",
+              "value": "=cost",
+              "format": "int",
+              "tone": "=okCost ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@foundM",
+              "value": "=found",
+              "format": "int",
+              "tone": "=found > 0 ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "@fUsers",
+              "sub": "@fUsersSub",
+              "tone": "info"
+            },
+            {
+              "label": "@fLimit",
+              "sub": "=rateLimit > 0 ? '@fLimitOn' : '@fOff'",
+              "tone": "=okLimit ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@fApps",
+              "sub": "=servers >= 2 ? '@fAppsLb' : '@fAppsOne'",
+              "tone": "=uApp >= 100 ? 'bad' : (okN1 ? 'ok' : 'warn')"
+            },
+            {
+              "label": "Cache",
+              "sub": "=cache ? '@fCacheOn' : '@fOff'",
+              "tone": "=cache ? 'ok' : 'dim'"
+            },
+            {
+              "label": "@fDb",
+              "sub": "=replica ? '@fDbRep' : '@fDbOne'",
+              "tone": "=uPrim >= 100 || uRep >= 100 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@fClicks",
+              "sub": "=isSync ? '@fClicksSync' : '@fClicksQueue'",
+              "tone": "=isSync ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "label": "@chartLabel",
+          "kind": "bar",
+          "labels": [
+            "@uAppL",
+            "@uPrimL",
+            "@uRepL"
+          ],
+          "series": [
+            {
+              "label": "@series",
+              "values": "=[uApp, uPrim, uRep]"
+            }
+          ],
+          "threshold": {
+            "value": 80,
+            "label": "@uLine"
+          }
+        },
+        {
+          "type": "terminal",
+          "label": "@terminal",
+          "lines": [
+            "=servers >= 2 ? '@tServersOk' : '@tServersOne'",
+            "=cache ? '@tCacheOn' : '@tCacheOff'",
+            "=replica ? '@tReplicaOn' : '@tReplicaOff'",
+            "=okIds ? '@tIdsOk' : '@tIdsSeq'",
+            "=rateLimit == 0 ? '@tLimitOff' : (okLimit ? '@tLimitOk' : (rateLimit < lab ? '@tLimitLow' : '@tLimitHigh'))",
+            "=isSync ? '@tClicksSync' : '@tClicksQueue'"
+          ]
+        }
+      ]
+    }
+  }
+}

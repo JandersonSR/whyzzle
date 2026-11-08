@@ -1,0 +1,269 @@
+{
+  "id": "sd-cache",
+  "order": 4,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "cache",
+    "ttl",
+    "cache-aside",
+    "invalidacao",
+    "stampede",
+    "redis"
+  ],
+  "requires": [
+    "sd-escalar-vertical-horizontal"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "cachear",
+      "en": "cache"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "cardapio-do-dia",
+        "en": "todays-menu"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "ttl",
+        "alias": {
+          "pt": "ttl",
+          "en": "ttl"
+        },
+        "type": "int",
+        "min": 0,
+        "max": 3600,
+        "uiMax": 600,
+        "step": 5,
+        "default": 30,
+        "ui": "slider"
+      },
+      {
+        "name": "invalidate",
+        "alias": {
+          "pt": "invalidar",
+          "en": "invalidate"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "lock",
+        "alias": {
+          "pt": "trava",
+          "en": "lock"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "stale"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "reads": 2000,
+        "keys": 20,
+        "queryMs": 200,
+        "appMs": 10,
+        "cacheMs": 1,
+        "pool": 100,
+        "dbCap": 500
+      },
+      "compute": {
+        "T": "max(ttl, 1)",
+        "perKey": "reads / keys",
+        "perExpiry": "lock ? 1 : perKey * queryMs / 1000",
+        "burstTotal": "keys * perExpiry",
+        "dbQps": "ttl == 0 ? reads : round(keys * perExpiry / ttl, 2)",
+        "missPct": "round(dbQps / reads * 100, 2)",
+        "worstMs": "ttl == 0 ? 5000 : (lock ? appMs + cacheMs + queryMs : appMs + queryMs * ceil(burstTotal / pool))",
+        "staleS": "invalidate ? 0 : ttl",
+        "staleMin": "round(staleS / 60, 1)",
+        "errPct": "ttl == 0 ? round((1 - dbCap / reads) * 100, 1) : 0",
+        "bins": "[ttl == 0 ? 400 : ((floor(5 / T) - floor(0 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(10 / T) - floor(5 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(15 / T) - floor(10 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(20 / T) - floor(15 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(25 / T) - floor(20 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(30 / T) - floor(25 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(35 / T) - floor(30 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(40 / T) - floor(35 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(45 / T) - floor(40 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(50 / T) - floor(45 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(55 / T) - floor(50 / T)) > 0 ? burstTotal : 0), ttl == 0 ? 400 : ((floor(60 / T) - floor(55 / T)) > 0 ? burstTotal : 0)]"
+      },
+      "cases": [
+        {
+          "when": "!invalidate && ttl > 300",
+          "flags": [
+            "stale"
+          ]
+        },
+        {
+          "when": "!invalidate && ttl > 0 && ttl <= 300",
+          "flags": [
+            "staleShort"
+          ]
+        },
+        {
+          "when": "!lock && ttl > 0",
+          "flags": [
+            "stampede"
+          ]
+        },
+        {
+          "when": "ttl == 0",
+          "flags": [
+            "dbMelt"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "missPct": "missPct",
+            "dbQps": "dbQps",
+            "worstMs": "worstMs",
+            "staleS": "staleS",
+            "staleMin": "staleMin",
+            "errPct": "errPct"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@missM",
+              "value": "=missPct",
+              "format": "pct",
+              "tone": "=missPct >= 5 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@dbM",
+              "value": "=dbQps",
+              "format": "num",
+              "tone": "=dbQps > dbCap ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@worstM",
+              "value": "=worstMs",
+              "format": "ms",
+              "tone": "=worstMs > 500 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@staleM",
+              "value": "=staleS",
+              "format": "int",
+              "tone": "=staleS > 300 ? 'bad' : (staleS > 0 ? 'warn' : 'ok')"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "@student",
+              "tone": "info"
+            },
+            {
+              "label": "App",
+              "sub": "10 ms",
+              "tone": "ok"
+            },
+            {
+              "label": "Cache",
+              "sub": "=ttl > 0 ? '@ttlSub' : '@off'",
+              "tone": "=ttl > 0 ? 'ok' : 'dim'"
+            },
+            {
+              "label": "@db",
+              "sub": "@dbSub",
+              "tone": "=dbQps > dbCap ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "label": "@chartLabel",
+          "kind": "bar",
+          "labels": [
+            "0s",
+            "5s",
+            "10s",
+            "15s",
+            "20s",
+            "25s",
+            "30s",
+            "35s",
+            "40s",
+            "45s",
+            "50s",
+            "55s"
+          ],
+          "series": [
+            {
+              "label": "@series",
+              "values": "=bins"
+            }
+          ],
+          "threshold": {
+            "value": "=pool",
+            "label": "@poolLine"
+          }
+        },
+        {
+          "type": "terminal",
+          "label": "@termLabel",
+          "lines": "=ttl > 0 ? ['$ redis-cli SET ' + text + ' \"pastel 6,00\" EX ' + ttl, 'OK', '$ redis-cli TTL ' + text, '(integer) ' + ttl, invalidate ? '@tInval' : '@tNoInval'] : ['@tNoCache']"
+        },
+        {
+          "type": "note",
+          "when": "=!invalidate && ttl > 300",
+          "tone": "bad",
+          "text": "@staleNote"
+        },
+        {
+          "type": "note",
+          "when": "=!invalidate && ttl > 0 && ttl <= 300",
+          "tone": "warn",
+          "text": "@staleShortNote"
+        },
+        {
+          "type": "note",
+          "when": "=!lock && ttl > 0",
+          "tone": "warn",
+          "text": "@stampedeNote"
+        },
+        {
+          "type": "note",
+          "when": "=ttl == 0",
+          "tone": "bad",
+          "text": "@meltNote"
+        },
+        {
+          "type": "note",
+          "when": "=ttl > 0 && invalidate && lock",
+          "tone": "ok",
+          "text": "@okNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "half",
+      "ten",
+      "lessThanOne"
+    ],
+    "answer": "lessThanOne"
+  }
+}

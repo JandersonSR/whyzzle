@@ -1,0 +1,106 @@
+{
+  "title": "Client and server",
+  "subtitle": "The student orders at the counter, the canteen delivers: and every round trip costs time",
+  "mission": "Mr. Zé’s Canteen got an app: the student orders a snack on their phone (the client) and the canteen’s server answers. The server answers in 20 ms, but it is hosted far away, 150 ms per round trip, and the page needs 3 requests in sequence. Find out how long the page takes to show up and what happens to logged-in students when the server restarts in the middle of recess.",
+  "formula": "page time ≈ requests in sequence × (network round trip + server time)",
+  "predict": {
+    "question": "the server answers in 20 ms and is 150 ms away per round trip. A page that needs 3 requests, one after the other, takes how long?",
+    "options": {
+      "serverOnly": "About 20 ms: the server is fast",
+      "oneTrip": "About 170 ms: one round trip plus the server",
+      "threeTrips": "About 510 ms: three round trips, each with the server"
+    }
+  },
+  "feedback": {
+    "right": "right! Each request pays the whole trip: 150 ms of network + 20 ms of server = 170 ms. Three in sequence is 510 ms. The fast server barely shows up in the sum; distance and the number of round trips are what matter.",
+    "wrong": "look at the table: each request only starts when the previous one comes back, and each pays 150 ms of network + 20 ms of server. 3 × 170 = 510 ms. A fast server doesn’t save you when it’s far away.",
+    "skipped": "no guess? Run it and look at the table: each row is a request and when it finishes."
+  },
+  "coach": {
+    "ui": "guess noted. Run it and compare the page time with the server time (20 ms).",
+    "cmd": "guess noted. Run request /menu and look at the requests table."
+  },
+  "tryNext": {
+    "ui": "Now set the distance to near, then raise the requests to 10: see which weighs more.",
+    "cmd": "Run request /menu --distance near and then request /menu --trips 10."
+  },
+  "why": {
+    "simples": "At the canteen, the student is the client: they ask. The counter is the server: it answers. The internet works the same way: the phone sends a request and the server sends back a response.\nThe time you feel isn’t just the cook’s. It’s the walk to the counter and back, for every request. If the app asks for the menu, waits, then asks for prices, waits, then the balance… that’s three walks. That’s why a faraway server or a page that makes many requests in a row is slow, even with a lightning-fast server.\nAnd there’s the counter’s memory: if Mr. Zé keeps in his head who already paid and steps out, his replacement knows nothing. Better to write it in a notebook everybody can see.",
+    "dev": "Every HTTP request pays at least one network round trip (RTT), plus the server time. Opening a new connection costs extra round trips (TCP and TLS), which is why reusing connections (keep-alive, HTTP/2) helps. Requests in sequence add up; independent requests can go in parallel, or become a single request.\nA stateless server keeps nothing important in its own memory between requests. The session lives outside it: in a shared store (Redis, a database) or in a signed token the client carries (a cookie with a JWT, for example). That way any server can answer any request, and restarting or replacing a server logs nobody out. A session in process memory works until the first restart, or until there is a second server.",
+    "especialista": "You can’t beat the speed of light: in fiber, the signal travels at about two thirds of the speed of light in a vacuum, so distance becomes a latency floor no code optimization removes. The ways out are getting close to the user (CDN, edge, nearest region) and cutting round trips: batching requests, sending along what will be asked next, caching on the client, avoiding chains of calls.\nOn sessions: a signed token removes state from the server, but revoking it is hard (the token is valid until it expires), so use short lifetimes and a way to refresh. A shared session store allows instant revocation, but it becomes a dependency that must be fast and redundant. Sticky sessions (pinning a user to one server) hide the problem and bite back on restarts and scaling."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: keep sessions in the server’s memory and let it restart.",
+      "cmd": "time to break it: run request /menu --session memory"
+    },
+    "success": "Broken: the server restarted and took with it the sessions living in its memory. {lost} students were logged out mid-order and their carts vanished. A good server is a forgetful server: what matters lives outside it.",
+    "calm": "Page in {pageMs} ms ({trips} request(s) of {per} ms each) and {kept} students stay logged in. To break it, keep sessions in the server’s memory and let it restart."
+  },
+  "hints": {
+    "ui": [
+      "Pick the distance, how many requests the page makes and where the session is kept.",
+      "Think of Mr. Zé keeping in his head who already paid.",
+      "Pick the \"memory\" session with restart on."
+    ],
+    "cmd": [
+      "The path is optional; so are --distance, --trips, --session and --restart.",
+      "--session takes store, memory or token.",
+      "request /menu --session memory"
+    ]
+  },
+  "errors": {
+    "notInEnum.distance": "Use near or far.",
+    "belowMin.trips": "At least 1 request, or the page doesn’t exist.",
+    "aboveMax.trips": "Up to 20 requests in this simulation (and that’s already a lot of walking to the counter).",
+    "notInEnum.session": "Use store, memory or token.",
+    "notBool.restart": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Requested path",
+    "distance": "Distance to the server",
+    "trips": "Requests in sequence on the page",
+    "session": "Where the session lives",
+    "restart": "The server restarts at recess"
+  },
+  "scene": {
+    "label": "The canteen app",
+    "empty": "Run to place the order.",
+    "pageM": "time until the page shows",
+    "tripsM": "requests in sequence",
+    "rttM": "network round trip",
+    "lostM": "students logged out",
+    "flowLabel": "The path of one request (simulated)",
+    "client": "Client",
+    "clientSub": "student’s phone",
+    "net": "Network",
+    "netSub": "{rtt} ms round trip",
+    "server": "Server",
+    "serverSub": "20 ms to answer",
+    "sessions": "Sessions",
+    "sessMem": "in the server’s memory",
+    "sessStore": "in a shared store",
+    "sessToken": "in a signed token, with the client",
+    "tableLabel": "The page’s requests, one after the other",
+    "colReq": "request",
+    "colEnds": "ends at (ms)",
+    "tableCap": "Shows up to 5 requests. Each one only starts when the previous one is back. Simulated numbers.",
+    "termLabel": "Terminal (simulated response)",
+    "termLost": "! 10:00 server restarted: in-memory sessions wiped",
+    "termKept": "~ the session doesn’t depend on this server’s memory",
+    "lostNote": "{lost} students logged out: the session lived in the server’s memory and the restart wiped it. With two servers it would be worse: half the requests would land on the server that doesn’t know the student.",
+    "memNote": "It works today, but the session is in the server’s memory: it vanishes on the first restart, and a second server can’t see anybody.",
+    "slowNote": "Over 1 second to open the page: that’s {trips} round trips in a row. Batch requests or ask in parallel.",
+    "okNote": "Nobody was logged out: the session doesn’t depend on the server’s memory, so it can restart or get siblings."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "With Docker installed, start a server that sends back everything it received:\ndocker run -d --name balcao -p 8080:80 traefik/whoami",
+      "Send a request and look at the whole response (in Windows PowerShell, type curl.exe instead of curl):\ncurl -i http://localhost:8080/menu\nThe first line is the response status. In the body, the server shows the request you sent: the method, the path and the headers.",
+      "Now pretend the server is far away: the wait parameter makes it wait before answering. Measure the total time:\ncurl -s -o /dev/null -w \"%{time_total}\\n\" \"http://localhost:8080/?wait=150ms\"\nRun it three times in a row and add them up: that’s the page with three requests in sequence. (In PowerShell, replace /dev/null with NUL.)",
+      "Close the counter: docker rm -f balcao"
+    ],
+    "ok": "curl -i starts with HTTP/1.1 200 OK and the body echoes your request (GET /menu HTTP/1.1, Host: localhost:8080, User-Agent: curl/…); with ?wait=150ms, each time_total is a little above 0.15, and three in a row add up to more than 0.45 s."
+  }
+}

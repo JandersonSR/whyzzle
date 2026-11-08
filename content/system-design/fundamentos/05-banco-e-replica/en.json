@@ -1,0 +1,111 @@
+{
+  "title": "Database and replica",
+  "subtitle": "The school office’s official notebook and the photocopies around the school: quick to read, but always a little behind",
+  "mission": "Enrollment week: the school office system gets 1,500 reads per second (report cards, timetables, records) and 100 writes per second. Each database server handles 1,000 operations per second. Writes always go to the main database (the primary); reads can go to replicas, which receive changes with a little delay. Ana saves her new phone number and reloads the page 300 ms later. Choose how many replicas to use and where the read right after a write comes from.",
+  "predict": {
+    "question": "each database handles 1,000 operations/s. With 1,500 reads/s, what’s the minimum number of read replicas so nobody goes unanswered?",
+    "options": {
+      "one": "1 replica: it takes the reads off the primary",
+      "two": "2 replicas: the reads need to be split",
+      "three": "3 replicas, to be safe"
+    }
+  },
+  "feedback": {
+    "right": "right! With 1 replica, it gets 1,400 reads/s (the other 100 belong to people who just saved and go to the primary) and handles 1,000. With 2, each gets 700/s, 70% of capacity, and p95 drops to 50 ms. The table shows each case.",
+    "wrong": "look at the table: with 1 replica, it gets 1,400 reads/s and handles 1,000, so it overflows. With 2, each gets 700/s. More replicas give headroom, but the minimum is 2.",
+    "skipped": "no guess? Run it and look at the replicas table."
+  },
+  "coach": {
+    "ui": "guess noted. Run with 2 replicas and look at the table: it also shows 0, 1 and 3.",
+    "cmd": "guess noted. Run replicate and look at the replicas table."
+  },
+  "tryNext": {
+    "ui": "Now keep only 1 replica. Then go back to 2, read from the replica and lower the lag to 100 ms.",
+    "cmd": "Run replicate --replicas 1 and then replicate --read-after-write replica --lag 100."
+  },
+  "why": {
+    "simples": "The primary is the school office’s official notebook: only it receives changes, so there are never two notebooks disagreeing. Replicas are photocopies kept in other rooms. Lots of people can look things up at once and nobody has to line up at the office.\nBut the photocopy is updated afterwards: there’s a delay between writing in the notebook and the copy changing. For almost everything, that’s fine: the weekly timetable can be half a second behind. But if Ana just changed her phone number and goes to check, she needs to read the official notebook. Otherwise she sees the old number, thinks it didn’t save and saves again.\nAnd notice: photocopies help readers. Writers still go to the same notebook.",
+    "dev": "In primary-replica replication, the primary writes every change to its log (in PostgreSQL, the WAL) and replicas apply that log. With asynchronous replication, the primary confirms the write without waiting for replicas, so they fall a little behind (the lag): milliseconds on a calm day, seconds or more under load or a bad network.\nTo avoid reading your own stale data (read-your-writes): send reads from whoever just wrote to the primary (for a few seconds, or within the same session), or read from the replica only after it has reached your write’s log position. Replicas don’t scale writes: that’s what partitioning (sharding) and queues are for. And track the lag (in PostgreSQL, the pg_stat_replication view shows replay_lag) with an alert.",
+    "especialista": "Synchronous replication removes the lag for confirmed writes (the primary waits for at least one replica to store them), but every write gets slower and, if the synchronous replica disappears, writes can stall: it’s a trade between durability, latency and availability. With asynchronous replication, a failover can lose the last confirmed writes that hadn’t reached the promoted replica yet.\nFailover has its own traps: detecting the outage without false positives, promoting only one replica (avoiding two primaries, the split-brain), redirecting connections and rebuilding the old primary as a replica. Tools like Patroni and the cloud’s managed databases handle this. Other guarantees that matter to users: monotonic reads (not going back in time when switching replicas) and causal ordering. Also remember replicas don’t protect against human error: a wrong DELETE is faithfully replicated, so backups and point-in-time recovery are still needed."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: read from the replica right after saving.",
+      "cmd": "time to break it: run replicate --read-after-write replica"
+    },
+    "success": "Broken: Ana saved her new number on the primary and, 300 ms later, reloaded the page reading from a replica that was {lag} ms behind. She saw the old number, thought it hadn’t saved and saved again. Whoever just wrote needs to read from the official notebook.",
+    "calm": "Reads with a p95 of {p95Read} ms, {errPct}% errors and the busiest database at {readNode} operations/s. To break it, read from the replica right after saving."
+  },
+  "hints": {
+    "ui": [
+      "Pick how many replicas, their lag and where the read right after saving comes from.",
+      "The replica gets the change after the primary.",
+      "Pick read-after-write on the \"replica\", with the 500 ms lag."
+    ],
+    "cmd": [
+      "The name is optional; so are --replicas, --lag (ms) and --read-after-write.",
+      "--read-after-write takes primary or replica.",
+      "replicate --read-after-write replica"
+    ]
+  },
+  "errors": {
+    "belowMin.replicas": "There’s no negative replica. 0 is the primary alone.",
+    "aboveMax.replicas": "Up to 5 replicas in this simulation.",
+    "belowMin.lag": "The lag can’t be negative: replicas don’t read the future.",
+    "aboveMax.lag": "Up to 5000 ms in this simulation.",
+    "notInEnum.rywRead": "Use primary or replica."
+  },
+  "controls": {
+    "arg": "System",
+    "replicas": "Read replicas",
+    "lag": "Replica lag (ms)",
+    "rywRead": "Read right after saving comes from the"
+  },
+  "scene": {
+    "label": "The school office during enrollment week",
+    "empty": "Run to open enrollment.",
+    "p95M": "read p95",
+    "errM": "unanswered reads (busiest database)",
+    "busyM": "busiest database (operations/s, of 1,000)",
+    "lagM": "replica lag",
+    "dash": "—",
+    "flowLabel": "Save and check (simulated)",
+    "write": "Ana saves",
+    "writeSub": "new phone number",
+    "primary": "Primary",
+    "primarySub": "{primaryLoad} operations/s",
+    "replicasL": "Replicas",
+    "replSub": "{replicas} × {perReplica} reads/s, {lag} ms behind",
+    "noRepl": "none",
+    "reread": "Ana reloads",
+    "readPrimary": "300 ms later, reads from the primary",
+    "readReplica": "300 ms later, reads from a replica",
+    "tableLabel": "How many replicas survive the week?",
+    "colReplicas": "replicas",
+    "colBusiest": "busiest (ops/s)",
+    "colState": "state",
+    "stOk": "holds",
+    "stOver": "overflows",
+    "tableCap": "Each database handles 1,000 operations/s. With 0 replicas, the primary does everything. Simulated numbers.",
+    "termLabel": "On the primary (simulated)",
+    "tPrimary": "+ Ana rereads from the primary: new number",
+    "tStale": "! Ana rereads from the replica, which hasn’t got the change yet: old number",
+    "tFresh": "? Ana rereads from the replica and, this time, the change has arrived",
+    "staleNote": "The replica is {lag} ms behind and Ana rereads in 300 ms: she sees the old number. Read from the primary right after writing.",
+    "fragileNote": "It worked because the lag ({lag} ms) is below Ana’s 300 ms. At the first peak, the lag rises and the old number shows up again.",
+    "overNote": "The busiest database gets {readNode} operations/s and handles 1,000: {errPct}% of reads go unanswered.",
+    "okNote": "Reads are split and Ana checks her own data on the primary: fast and correct."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Create a folder escola-banco with two files. replicacao.sh runs once, when the primary is created. Save it with LF line endings (in VS Code, click CRLF in the status bar and pick LF), or the script fails on Linux:\n#!/bin/bash\n# allow replication connections from the compose network\necho \"host replication all all scram-sha-256\" >> \"$PGDATA/pg_hba.conf\"",
+      "And the compose.yaml. The replica copies the primary with pg_basebackup (-R leaves it configured as a replica) and then starts in read-only mode:\nname: escola-banco\nservices:\n  primary:\n    image: postgres:18\n    environment:\n      POSTGRES_PASSWORD: segredo\n    volumes:\n      - ./replicacao.sh:/docker-entrypoint-initdb.d/replicacao.sh:ro\n  replica:\n    image: postgres:18\n    user: postgres\n    environment:\n      PGPASSWORD: segredo\n    depends_on:\n      - primary\n    command:\n      - bash\n      - -c\n      - |\n        until pg_basebackup -h primary -U postgres -D /tmp/replica -R -X stream; do\n          rm -rf /tmp/replica\n          sleep 2\n        done\n        exec postgres -D /tmp/replica",
+      "Start it and wait for the replica to be ready:\ndocker compose up -d\ndocker compose logs -f replica\nFor the first few seconds the log shows a few pg_basebackup error lines (could not connect, Connection refused) while the primary initializes: that is expected, it retries by itself. When database system is ready to accept read-only connections shows up, leave with Ctrl+C. If the error no pg_hba.conf entry for replication connection keeps repeating, replicacao.sh was saved with CRLF: convert it to LF, run docker compose down -v and start again.",
+      "On the primary, see the connected replica and write some data:\ndocker compose exec primary psql -U postgres -c \"SELECT client_addr, state FROM pg_stat_replication;\"\ndocker compose exec primary psql -U postgres -c \"CREATE TABLE alunos (id int PRIMARY KEY, telefone text); INSERT INTO alunos VALUES (42, '15 99999-0000');\"",
+      "On the replica, read the data and try to write:\ndocker compose exec replica psql -U postgres -c \"SELECT * FROM alunos;\"\ndocker compose exec replica psql -U postgres -c \"INSERT INTO alunos VALUES (43, '15 98888-0000');\"",
+      "Shut everything down: docker compose down"
+    ],
+    "ok": "the primary’s pg_stat_replication shows one row with state streaming; the SELECT on the replica returns student 42; and the INSERT on the replica fails with ERROR: cannot execute INSERT in a read-only transaction."
+  }
+}

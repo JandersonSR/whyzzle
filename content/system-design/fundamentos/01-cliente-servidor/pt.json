@@ -1,0 +1,106 @@
+{
+  "title": "Cliente e servidor",
+  "subtitle": "O aluno pede no balcão, a cantina entrega: e cada ida e volta custa tempo",
+  "mission": "A Cantina do Seu Zé ganhou um app: o aluno pede o lanche pelo celular (o cliente) e o servidor da cantina responde. O servidor responde em 20 ms, mas está hospedado longe, a 150 ms de ida e volta, e a página precisa de 3 pedidos em sequência. Descubra quanto tempo a página leva para aparecer e o que acontece com quem está logado quando o servidor reinicia no meio do recreio.",
+  "formula": "tempo da página ≈ pedidos em sequência × (ida e volta pela rede + tempo do servidor)",
+  "predict": {
+    "question": "o servidor responde em 20 ms e fica a 150 ms de ida e volta. Uma página que precisa de 3 pedidos, um depois do outro, leva quanto tempo?",
+    "options": {
+      "serverOnly": "Uns 20 ms: o servidor é rápido",
+      "oneTrip": "Uns 170 ms: uma ida e volta mais o servidor",
+      "threeTrips": "Uns 510 ms: três idas e voltas, cada uma com o servidor"
+    }
+  },
+  "feedback": {
+    "right": "isso! Cada pedido paga a viagem inteira: 150 ms de rede + 20 ms de servidor = 170 ms. Três em sequência são 510 ms. O servidor rápido quase não aparece na conta; quem manda é a distância e a quantidade de idas e voltas.",
+    "wrong": "olhe a tabela: cada pedido só começa quando o anterior volta, e cada um paga 150 ms de rede + 20 ms de servidor. 3 × 170 = 510 ms. O servidor rápido não salva quem está longe.",
+    "skipped": "sem palpite? Rode e olhe a tabela: cada linha é um pedido e quando ele termina."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode e compare o tempo da página com o tempo do servidor (20 ms).",
+    "cmd": "palpite anotado. Rode pedir /cardapio e olhe a tabela de pedidos."
+  },
+  "tryNext": {
+    "ui": "Agora mude a distância para perto, e depois suba os pedidos para 10: veja o que pesa mais.",
+    "cmd": "Rode pedir /cardapio --distancia perto e depois pedir /cardapio --idas 10."
+  },
+  "why": {
+    "simples": "Na cantina, o aluno é o cliente: ele pede. O balcão é o servidor: ele responde. Na internet é igual: o celular manda um pedido (request) e o servidor devolve uma resposta (response).\nO tempo que você sente não é só o do cozinheiro. É a caminhada até o balcão e de volta, a cada pedido. Se o app pede o cardápio, espera, depois pede os preços, espera, depois o saldo… são três caminhadas. Por isso servidor longe ou página que faz muitos pedidos em fila ficam lentos, mesmo com um servidor rapidíssimo.\nE tem a memória do balcão: se o Seu Zé guarda de cabeça quem já pagou e vai ao banheiro, o substituto não sabe de nada. Melhor anotar num caderno que todo mundo enxerga.",
+    "dev": "Cada pedido HTTP paga pelo menos uma ida e volta (RTT) da rede, mais o tempo do servidor. Abrir conexão nova custa mais idas e voltas (TCP e TLS), por isso reaproveitar conexões (keep-alive, HTTP/2) ajuda. Pedidos em sequência somam; pedidos independentes podem ir em paralelo, ou virar um pedido só.\nServidor stateless (sem estado) é o que não guarda nada importante na própria memória entre um pedido e outro. A sessão fica fora dele: numa loja compartilhada (Redis, banco) ou num token assinado que o próprio cliente carrega (cookie com JWT, por exemplo). Assim, qualquer servidor atende qualquer pedido, e reiniciar ou trocar o servidor não desloga ninguém. Sessão na memória do processo funciona até o primeiro reinício ou até existir um segundo servidor.",
+    "especialista": "Não dá para vencer a velocidade da luz: na fibra, o sinal anda a uns dois terços da velocidade da luz no vácuo, então distância vira um piso de latência que nenhuma otimização de código derruba. As saídas são chegar perto do usuário (CDN, borda, região mais próxima) e cortar idas e voltas: juntar pedidos, mandar junto o que vai ser pedido em seguida, cachear no cliente, evitar cascatas de chamadas.\nSobre sessão: token assinado tira o estado do servidor, mas revogar fica difícil (o token vale até expirar), então use validade curta e um jeito de renovar. Loja de sessão compartilhada permite revogar na hora, mas vira uma dependência que precisa ser rápida e redundante. Sticky session (prender o usuário a um servidor) esconde o problema e volta a morder no reinício e no escalonamento."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: guarde as sessões na memória do servidor e deixe ele reiniciar.",
+      "cmd": "hora de quebrar: rode pedir /cardapio --sessao memoria"
+    },
+    "success": "Quebrou: o servidor reiniciou e levou junto as sessões que moravam na memória dele. {lost} alunos foram deslogados no meio do pedido e o carrinho sumiu. Servidor bom é servidor que esquece: o que importa fica fora dele.",
+    "calm": "Página em {pageMs} ms ({trips} pedido(s) de {per} ms cada) e {kept} alunos continuam logados. Para quebrar, guarde as sessões na memória do servidor e deixe ele reiniciar."
+  },
+  "hints": {
+    "ui": [
+      "Escolha a distância, quantos pedidos a página faz e onde a sessão fica guardada.",
+      "Pense no Seu Zé guardando de cabeça quem já pagou.",
+      "Escolha a sessão \"memoria\" com o reinício ligado."
+    ],
+    "cmd": [
+      "O caminho é opcional; --distancia, --idas, --sessao e --reinicio também.",
+      "--sessao aceita loja, memoria ou token.",
+      "pedir /cardapio --sessao memoria"
+    ]
+  },
+  "errors": {
+    "notInEnum.distance": "Use perto ou longe.",
+    "belowMin.trips": "Pelo menos 1 pedido, senão a página nem existe.",
+    "aboveMax.trips": "Até 20 pedidos nesta simulação (e já é muita caminhada até o balcão).",
+    "notInEnum.session": "Use loja, memoria ou token.",
+    "notBool.restart": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Caminho pedido",
+    "distance": "Distância até o servidor",
+    "trips": "Pedidos em sequência na página",
+    "session": "Onde a sessão fica",
+    "restart": "O servidor reinicia no recreio"
+  },
+  "scene": {
+    "label": "O app da cantina",
+    "empty": "Rode para fazer o pedido.",
+    "pageM": "tempo até a página aparecer",
+    "tripsM": "pedidos em sequência",
+    "rttM": "ida e volta pela rede",
+    "lostM": "alunos deslogados",
+    "flowLabel": "O caminho de um pedido (simulado)",
+    "client": "Cliente",
+    "clientSub": "celular do aluno",
+    "net": "Rede",
+    "netSub": "{rtt} ms ida e volta",
+    "server": "Servidor",
+    "serverSub": "20 ms para responder",
+    "sessions": "Sessões",
+    "sessMem": "na memória do servidor",
+    "sessStore": "numa loja compartilhada",
+    "sessToken": "num token assinado, com o cliente",
+    "tableLabel": "Os pedidos da página, um depois do outro",
+    "colReq": "pedido",
+    "colEnds": "termina em (ms)",
+    "tableCap": "Mostra até 5 pedidos. Cada um só começa quando o anterior volta. Números simulados.",
+    "termLabel": "Terminal (resposta simulada)",
+    "termLost": "! 10:00 servidor reiniciado: sessões da memória apagadas",
+    "termKept": "~ a sessão não depende da memória deste servidor",
+    "lostNote": "{lost} alunos deslogados: a sessão morava na memória do servidor e o reinício apagou tudo. Com dois servidores seria pior: metade dos pedidos cairia no servidor que não conhece o aluno.",
+    "memNote": "Funciona hoje, mas a sessão está na memória do servidor: some no primeiro reinício, e um segundo servidor não enxerga ninguém.",
+    "slowNote": "Mais de 1 segundo para abrir a página: são {trips} idas e voltas em fila. Junte pedidos ou peça em paralelo.",
+    "okNote": "Ninguém foi deslogado: a sessão não depende da memória do servidor, então ele pode reiniciar ou ganhar irmãos."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Com o Docker instalado, suba um servidor que devolve tudo o que recebeu:\ndocker run -d --name balcao -p 8080:80 traefik/whoami",
+      "Faça um pedido e veja a resposta inteira (no Windows PowerShell, digite curl.exe em vez de curl):\ncurl -i http://localhost:8080/cardapio\nA primeira linha é o status da resposta. No corpo, o servidor mostra o pedido que você mandou: o método, o caminho e os cabeçalhos.",
+      "Agora finja que o servidor está longe: o parâmetro wait faz ele esperar antes de responder. Meça o tempo total:\ncurl -s -o /dev/null -w \"%{time_total}\\n\" \"http://localhost:8080/?wait=150ms\"\nRode três vezes seguidas e some: é a página com três pedidos em sequência. (No PowerShell, troque /dev/null por NUL.)",
+      "Desligue o balcão: docker rm -f balcao"
+    ],
+    "ok": "o curl -i começa com HTTP/1.1 200 OK e o corpo repete o seu pedido (GET /cardapio HTTP/1.1, Host: localhost:8080, User-Agent: curl/…); com ?wait=150ms, cada time_total fica um pouco acima de 0.15, e três seguidos passam de 0,45 s."
+  }
+}
