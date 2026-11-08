@@ -1,0 +1,332 @@
+{
+  "id": "r-conjunto-de-avaliacao-versionado",
+  "order": 1,
+  "track": "producao",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "avaliacao",
+    "eval",
+    "versionamento",
+    "holdout",
+    "contaminacao"
+  ],
+  "requires": [
+    "p-missao-assistente-de-rh"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "comparar",
+      "en": "compare"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "v3",
+        "en": "v3"
+      },
+      "examples": [
+        {
+          "pt": "v3",
+          "en": "v3"
+        },
+        {
+          "pt": "v2",
+          "en": "v2"
+        },
+        {
+          "pt": "v1",
+          "en": "v1"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "base",
+        "alias": {
+          "pt": "base",
+          "en": "base"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "v1",
+            "pt": "v1",
+            "en": "v1"
+          },
+          {
+            "id": "v2",
+            "pt": "v2",
+            "en": "v2"
+          },
+          {
+            "id": "v3",
+            "pt": "v3",
+            "en": "v3"
+          }
+        ],
+        "default": "v2",
+        "ui": "select"
+      },
+      {
+        "name": "set",
+        "alias": {
+          "pt": "conjunto",
+          "en": "set"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "s2606",
+            "pt": "2026-06",
+            "en": "2026-06"
+          },
+          {
+            "id": "s2610",
+            "pt": "2026-10",
+            "en": "2026-10"
+          }
+        ],
+        "default": "s2610",
+        "ui": "select"
+      },
+      {
+        "name": "baseSet",
+        "alias": {
+          "pt": "conjunto-base",
+          "en": "base-set"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "s2606",
+            "pt": "2026-06",
+            "en": "2026-06"
+          },
+          {
+            "id": "s2610",
+            "pt": "2026-10",
+            "en": "2026-10"
+          }
+        ],
+        "default": "s2610",
+        "ui": "select"
+      },
+      {
+        "name": "leak",
+        "alias": {
+          "pt": "vazar",
+          "en": "leak"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "mismatch"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "scores": {
+          "v1": {
+            "s2606": 11,
+            "s2610": 41,
+            "hold": 13
+          },
+          "v2": {
+            "s2606": 12,
+            "s2610": 45,
+            "hold": 15
+          },
+          "v3": {
+            "s2606": 12,
+            "s2610": 51,
+            "hold": 17
+          }
+        },
+        "sizes": {
+          "s2606": 13,
+          "s2610": 60
+        },
+        "leakHits": {
+          "s2606": 13,
+          "s2610": 59
+        },
+        "setLabels": {
+          "s2606": "2026-06",
+          "s2610": "2026-10"
+        },
+        "holdN": 20
+      },
+      "compute": {
+        "cand": "lower(text)",
+        "known": "includes(['v1', 'v2', 'v3'], cand)",
+        "candRow": "lookup(scores, cand, scores.v3)",
+        "baseRow": "lookup(scores, base, scores.v2)",
+        "candN": "lookup(sizes, set, 60)",
+        "baseN": "lookup(sizes, baseSet, 60)",
+        "cleanHits": "lookup(candRow, set, 0)",
+        "candHits": "leak ? lookup(leakHits, set, 0) : cleanHits",
+        "baseHits": "lookup(baseRow, baseSet, 0)",
+        "candPct": "round(candHits / candN * 100)",
+        "cleanPct": "round(cleanHits / candN * 100)",
+        "basePct": "round(baseHits / baseN * 100)",
+        "shown": "candPct - basePct",
+        "shownS": "(shown > 0 ? '+' : '') + shown",
+        "sameSet": "set == baseSet",
+        "baseOnCandPct": "round(lookup(baseRow, set, 0) / candN * 100)",
+        "candSetL": "lookup(setLabels, set, set)",
+        "baseSetL": "lookup(setLabels, baseSet, baseSet)",
+        "holdCPct": "round(candRow.hold / holdN * 100)",
+        "holdBPct": "round(baseRow.hold / holdN * 100)",
+        "stepPts": "floor(100 / candN) + dsep + round((100 / candN - floor(100 / candN)) * 10)"
+      },
+      "cases": [
+        {
+          "when": "!known",
+          "error": "unknownPrompt"
+        },
+        {
+          "when": "known && !sameSet",
+          "flags": [
+            "mismatch"
+          ]
+        },
+        {
+          "when": "known && leak",
+          "flags": [
+            "leaked"
+          ]
+        },
+        {
+          "when": "known && sameSet && !leak && shown > 0",
+          "flags": [
+            "better"
+          ]
+        },
+        {
+          "when": "known && sameSet && !leak && shown < 0",
+          "flags": [
+            "worse"
+          ]
+        },
+        {
+          "when": "known && sameSet && !leak && shown == 0",
+          "flags": [
+            "tie"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "cand": "cand",
+            "base": "base",
+            "candPct": "candPct",
+            "basePct": "basePct",
+            "cleanPct": "cleanPct",
+            "shownS": "shownS",
+            "candSetL": "candSetL",
+            "baseSetL": "baseSetL",
+            "baseOnCandPct": "baseOnCandPct",
+            "holdCPct": "holdCPct",
+            "holdBPct": "holdBPct",
+            "candN": "candN",
+            "stepPts": "stepPts"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "table",
+          "label": "@cmpTable",
+          "columns": [
+            "@colWho",
+            "@colPrompt",
+            "@colSet",
+            "@colScore"
+          ],
+          "rows": "=[['@rowCand', cand, candSetL, candHits + '/' + candN + ' · ' + candPct + '%'], ['@rowBase', base, baseSetL, baseHits + '/' + baseN + ' · ' + basePct + '%']]",
+          "tones": "=sameSet ? ['neutral', 'neutral'] : ['warn', 'warn']"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mShown",
+              "value": "=shownS",
+              "tone": "=sameSet && !leak ? (shown >= 0 ? 'ok' : 'bad') : 'warn'"
+            },
+            {
+              "label": "@mHold",
+              "value": "=holdCPct + '% · ' + holdBPct + '%'",
+              "tone": "=holdCPct >= holdBPct ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "label": "@checks",
+          "items": [
+            {
+              "label": "@chkSame",
+              "ok": "=sameSet",
+              "why": "@whySame"
+            },
+            {
+              "label": "@chkLeak",
+              "ok": "=!leak",
+              "why": "@whyLeak"
+            },
+            {
+              "label": "@chkHold",
+              "ok": "=holdCPct >= holdBPct",
+              "why": "@whyHold"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!sameSet",
+          "tone": "bad",
+          "text": "@mismatchNote"
+        },
+        {
+          "type": "note",
+          "when": "=leak",
+          "tone": "warn",
+          "text": "@leakNote"
+        },
+        {
+          "type": "note",
+          "when": "=sameSet && !leak",
+          "tone": "info",
+          "text": "@fairNote"
+        },
+        {
+          "type": "note",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "v3",
+      "v2",
+      "tie"
+    ],
+    "answer": "v3"
+  }
+}

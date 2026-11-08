@@ -1,0 +1,205 @@
+{
+  "title": "RAG metrics: faithfulness and relevance",
+  "subtitle": "Answering the topic isn’t the same as answering with what the handbook says",
+  "mission": "On set 2026-10, \"correct\" is still decided by hand by HR, and that doesn’t scale. The team wants two automatic scores per answer: relevance (does it answer the question?) and faithfulness (is every claim in the chunks search brought?). Measure three answers to the same question and find out what each metric lets through.",
+  "predict": {
+    "question": "the answer \"Yes, you can! Upload the internet bill…\" is wrong, but it talks exactly about what was asked. Its relevance is…",
+    "options": {
+      "high": "High, close to the right answer",
+      "low": "Low, because it’s wrong"
+    }
+  },
+  "feedback": {
+    "right": "right: 90% relevance, almost the right answer’s 92%. Relevance measures whether the answer is about the question, not whether it’s true. Faithfulness catches the lie: only 1 of the 3 claims is in the chunks.",
+    "wrong": "it’s high: 90%, almost the right answer’s 92%. Relevance measures whether the answer is about the question, not whether it’s true. Faithfulness catches the lie: only 1 of the 3 claims is in the chunks.",
+    "skipped": "no guess? Measure the answer that says \"Yes, you can!\" and look at both scores."
+  },
+  "coach": {
+    "ui": "guess noted. Pick the \"Yes, you can!\" answer and run with both metrics.",
+    "cmd": "guess noted. Run measure \"Yes, you can! Upload the internet bill in the expenses app within 30 days and the money comes back with your salary.\" and compare both scores."
+  },
+  "tryNext": {
+    "ui": "Now the answer about remote work: everything in it is true, but it doesn’t answer. Which metric catches it?",
+    "cmd": "Run measure \"At Aurora, remote work is allowed up to 2 days a week, agreed with the manager at the start of each month.\" and see which metric catches it."
+  },
+  "why": {
+    "simples": "Picture two teachers grading the same essay. One only asks \"is it on topic?\". The other checks \"is everything you wrote in the book?\". An on-topic essay full of made-up facts passes the first and fails the second. An all-true essay about something else does the opposite.\nThe assistant needs both: answer what was asked (relevance) and only with what the handbook says (faithfulness).",
+    "dev": "The two most used metrics for a RAG answer, in Ragas’ terms: faithfulness = answer claims supported by the retrieved context ÷ total claims. An LLM splits the answer into claims and checks each one against the chunks. Response relevancy in Ragas: an LLM generates questions from the answer (3 by default) and the metric is the mean cosine between their embeddings and the original question’s. Here we simplify to the cosine between question and answer.\nNeither is enough alone: put both in the gate, each with its threshold, and keep the failed claims in the report, which is what someone will read when the score drops. For search, use the retrieval metrics from the Practice lesson (recall@k) or Ragas’ context metrics (context precision and recall).",
+    "especialista": "These metrics are computed by models and inherit their flaws. Faithfulness depends on how the LLM splits claims (a sentence with three facts may become one claim) and how well it judges negation and numbers (\"up to one third\" versus \"half\"). Embedding relevance measures topical closeness: the wrong answer about internet sits close to the question, and the cosine of models like e5 sits in a high, narrow band, so the threshold is calibrated per model.\nBefore using one as a gate, measure the metric against human labels (next lesson: the judge needs testing too). And remember what they don’t measure: high faithfulness with the wrong context is an answer faithful to the wrong chunk; that’s why faithfulness goes with retrieval metrics, not instead of them."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: leave only relevance on and measure the \"Yes, you can!\" answer.",
+      "cmd": "time to break it: run measure \"Yes, you can! Upload the internet bill in the expenses app within 30 days and the money comes back with your salary.\" --metrics relevance"
+    },
+    "success": "Broken: the gate approved an answer that {flaw}. It had {relPct}% relevance and {faithPct}% faithfulness ({nSup} of {nClaims} claims supported by the chunks), and the gate watched {watched}, with a {limitPct}% threshold. Each metric covers the other’s blind spot.",
+    "calm": "Relevance {relPct}%, faithfulness {faithPct}%, threshold {limitPct}% (the gate watches {watched}). To break it, let a bad answer through with a single metric."
+  },
+  "hints": {
+    "ui": [
+      "Pick one of the three answers and run.",
+      "Relevance asks \"is it about the question?\"; faithfulness asks \"is every claim in the chunks?\". The gate approves when every metric that’s on is above the threshold.",
+      "Only relevance on, the \"Yes, you can!\" answer."
+    ],
+    "cmd": [
+      "The answer goes in quotes, after measure.",
+      "--metrics relevance,faithfulness (or just one, or none); --threshold from 0.5 to 0.95.",
+      "measure \"Yes, you can! Upload the internet bill in the expenses app within 30 days and the money comes back with your salary.\" --metrics relevance"
+    ]
+  },
+  "errors": {
+    "notInEnum.metrics": "\"{value}\" is not a metric. Use: {options}.",
+    "belowMin.limit": "Below 0.5 almost everything passes.",
+    "aboveMax.limit": "Above 0.95 nothing passes.",
+    "model.unknownAnswer": "In simulated mode, use one of the three example answers (their claims were checked by hand). With \"In the browser\", relevance is computed for real for any text."
+  },
+  "controls": {
+    "arg": "Assistant’s answer",
+    "metrics": "Metrics in the gate",
+    "limit": "Minimum score per metric"
+  },
+  "scene": {
+    "label": "Measuring an answer",
+    "empty": "Run to measure.",
+    "sQuestion": "Question",
+    "sContext": "Context",
+    "subContext": "3 chunks from search",
+    "sAnswer": "Answer",
+    "subSim": "claims checked",
+    "subReal": "real relevance (e5)",
+    "sGate": "Gate",
+    "subPass": "approved",
+    "subBlock": "blocked",
+    "mRel": "relevance",
+    "mFaith": "faithfulness",
+    "mLimit": "threshold",
+    "claimsTable": "Claims in the answer",
+    "colClaim": "claim",
+    "colSup": "in the chunks?",
+    "supYes": "yes",
+    "supNo": "no",
+    "claimsCaption": "faithfulness = {nSup} of {nClaims} claims supported",
+    "checks": "Quality gate",
+    "chkRel": "Relevance above the threshold",
+    "whyRel": "relevance {relPct}%, below {limitPct}%: it doesn’t answer what was asked",
+    "chkFaith": "Faithfulness above the threshold",
+    "whyFaith": "faithfulness {faithPct}%: some claims aren’t supported by the chunks",
+    "fooledNote": "The gate approved, but the answer {flaw}. It watched {watched}.",
+    "realNote": "Real relevance: cosine between question and answer with multilingual-e5-small, in your browser. That model’s scale is high and narrow, so its right threshold is different. Faithfulness still comes from the hand-checked claims.",
+    "simNote": "Simulated mode: claims and relevance hand-written for the three answers. Use \"In the browser\" for relevance with real embeddings."
+  },
+  "data": {
+    "question": "Can I get my home internet bill reimbursed?",
+    "answers": {
+      "No. Home internet and electricity aren’t reimbursable: that cost is already covered by the R$ 120 monthly home office allowance.": {
+        "id": "faith",
+        "known": true,
+        "rel": 0.92,
+        "claims": [
+          "internet isn’t reimbursable",
+          "covered by the home office allowance",
+          "R$ 120 monthly allowance"
+        ],
+        "sup": [
+          1,
+          1,
+          1
+        ],
+        "supL": [
+          "@supYes",
+          "@supYes",
+          "@supYes"
+        ],
+        "tones": [
+          "ok",
+          "ok",
+          "ok"
+        ],
+        "nSup": 3,
+        "nClaims": 3,
+        "bad": false,
+        "flaw": ""
+      },
+      "Yes, you can! Upload the internet bill in the expenses app within 30 days and the money comes back with your salary.": {
+        "id": "invent",
+        "known": true,
+        "rel": 0.9,
+        "claims": [
+          "internet bill is reimbursable",
+          "upload in the app within 30 days",
+          "money comes back with the salary"
+        ],
+        "sup": [
+          0,
+          1,
+          0
+        ],
+        "supL": [
+          "@supNo",
+          "@supYes",
+          "@supNo"
+        ],
+        "tones": [
+          "bad",
+          "ok",
+          "bad"
+        ],
+        "nSup": 1,
+        "nClaims": 3,
+        "bad": true,
+        "flaw": "makes up that home internet is reimbursable"
+      },
+      "At Aurora, remote work is allowed up to 2 days a week, agreed with the manager at the start of each month.": {
+        "id": "dodge",
+        "known": true,
+        "rel": 0.71,
+        "claims": [
+          "remote up to 2 days a week",
+          "agreed with the manager monthly"
+        ],
+        "sup": [
+          1,
+          1
+        ],
+        "supL": [
+          "@supYes",
+          "@supYes"
+        ],
+        "tones": [
+          "ok",
+          "ok"
+        ],
+        "nSup": 2,
+        "nClaims": 2,
+        "bad": true,
+        "flaw": "doesn’t answer the question"
+      }
+    },
+    "unknownAnswer": {
+      "id": "unknown",
+      "known": false,
+      "rel": 0,
+      "claims": [],
+      "sup": [],
+      "supL": [],
+      "tones": [],
+      "nSup": 0,
+      "nClaims": 0,
+      "bad": false,
+      "flaw": ""
+    },
+    "watchBoth": "relevance and faithfulness",
+    "watchRel": "relevance only",
+    "watchFaith": "faithfulness only",
+    "watchNone": "no metric"
+  },
+  "recipe": {
+    "steps": [
+      "Install the libraries and keep your Anthropic API key in the environment (in PowerShell: $env:ANTHROPIC_API_KEY = \"your-key\"):\npip install anthropic sentence-transformers\nexport ANTHROPIC_API_KEY=\"your-key\"",
+      "Save a case as case_invent.json (question, retrieved chunks and the answer to measure):\n{\"question\": \"Can I get my home internet bill reimbursed?\", \"context\": [\"Anyone with remote days gets a R$ 120 monthly home office allowance, paid with the salary.\", \"Work expenses are reimbursed with an invoice uploaded in the expenses app within 30 days.\", \"Home internet and electricity aren’t reimbursable: those costs are already covered by the home office allowance.\"], \"answer\": \"Yes, you can! Upload the internet bill in the expenses app within 30 days and the money comes back with your salary.\"}",
+      "Create rag_metrics.py. An LLM splits the answer into claims and says whether the context supports each one (faithfulness); relevance is the cosine between question and answer (a simplification of Ragas’ metric, which generates questions from the answer):\nimport json\nimport os\nimport sys\n\nfrom anthropic import Anthropic\nfrom sentence_transformers import SentenceTransformer\n\nMODEL = os.environ.get(\"CLAUDE_MODEL\", \"claude-haiku-5-5\")\nclient = Anthropic()\nembedder = SentenceTransformer(\"intfloat/multilingual-e5-small\")\n\nJUDGE = (\n    \"Split the ANSWER into short factual claims. For each claim, say whether the CONTEXT supports it. \"\n    'Reply only with JSON: {\"claims\": [{\"claim\": \"...\", \"supported\": true}]}'\n)\n\n\ndef faithfulness(context, answer):\n    reply = client.messages.create(\n        model=MODEL,\n        max_tokens=600,\n        system=JUDGE,\n        messages=[{\"role\": \"user\", \"content\": f\"CONTEXT:\\n{context}\\n\\nANSWER:\\n{answer}\"}],\n    )\n    text = \"\".join(b.text for b in reply.content if b.type == \"text\")\n    claims = json.loads(text[text.index(\"{\"): text.rindex(\"}\") + 1])[\"claims\"]\n    return sum(bool(c[\"supported\"]) for c in claims) / max(1, len(claims)), claims\n\n\ndef relevance(question, answer):\n    q, a = embedder.encode([\"query: \" + question, \"query: \" + answer], normalize_embeddings=True)\n    return float(q @ a)\n\n\ncase = json.load(open(sys.argv[1], encoding=\"utf-8\"))\nscore, claims = faithfulness(\"\\n\".join(case[\"context\"]), case[\"answer\"])\nfor c in claims:\n    print((\"+ \" if c[\"supported\"] else \"! \") + c[\"claim\"])\nprint(f\"faithfulness {score:.0%} | relevance {relevance(case['question'], case['answer']):.2f}\")",
+      "Run it with the answer that makes things up, then swap \"answer\" in the JSON for the faithful one and the one that dodges:\npython rag_metrics.py case_invent.json"
+    ],
+    "ok": "the made-up answer comes out with low faithfulness (the claim that internet is reimbursable marked with !) and relevance close to the faithful answer’s; the dodging one comes out with high faithfulness and lower relevance than the other two."
+  }
+}

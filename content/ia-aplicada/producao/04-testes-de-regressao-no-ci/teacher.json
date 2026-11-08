@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Rodar o conjunto de avaliação em cada PR.",
+      "Combinar nota mínima, queda máxima e casos críticos.",
+      "Reconhecer regressões que a média esconde."
+    ],
+    "minutes": 20,
+    "activity": "A turma escreve 3 regras de portão num cartaz. O professor anuncia PRs fictícios com nota, queda e casos críticos; a turma decide verde ou vermelho e confere se alguma regressão passou.",
+    "discussion": [
+      "Que caso, na sua empresa, deveria bloquear sozinho, mesmo com a média boa?",
+      "Quem pode mudar o limite do portão, e com que justificativa?"
+    ],
+    "misconceptions": [
+      "\"A média subiu, então pode subir.\" Um caso crítico quebrado vale mais que a média.",
+      "\"Portão mais rígido é sempre melhor.\" Ele barra melhorias e o time aprende a contorná-lo."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Run the evaluation set on every PR.",
+      "Combine minimum score, max drop and critical cases.",
+      "Recognize regressions the average hides."
+    ],
+    "minutes": 20,
+    "activity": "The class writes 3 gate rules on a poster. The teacher announces fictional PRs with score, drop and critical cases; the class decides green or red and checks whether any regression got through.",
+    "discussion": [
+      "Which case at your company should block on its own, even with a good average?",
+      "Who may change the gate threshold, and with what justification?"
+    ],
+    "misconceptions": [
+      "\"The average went up, so ship it.\" One broken critical case outweighs the average.",
+      "\"A stricter gate is always better.\" It blocks improvements and the team learns to work around it."
+    ]
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "title": "Métricas de RAG: fidelidade e relevância",
+  "subtitle": "Responder ao assunto não é o mesmo que responder com o que o manual diz",
+  "mission": "No conjunto 2026-10, \"acertou\" ainda é decidido à mão pelo RH, e isso não escala. O time quer duas notas automáticas por resposta: relevância (responde à pergunta?) e fidelidade (cada afirmação está nos trechos que a busca trouxe?). Meça três respostas à mesma pergunta e descubra o que cada métrica deixa passar.",
+  "predict": {
+    "question": "a resposta \"Pode sim! Envie a conta de internet pelo app…\" está errada, mas fala exatamente do assunto da pergunta. A relevância dela fica…",
+    "options": {
+      "high": "Alta, perto da resposta certa",
+      "low": "Baixa, porque está errada"
+    }
+  },
+  "feedback": {
+    "right": "isso: 90% de relevância, quase os 92% da resposta certa. Relevância mede se a resposta é sobre a pergunta, não se é verdade. Quem pega a mentira é a fidelidade: só 1 das 3 afirmações está nos trechos.",
+    "wrong": "fica alta: 90%, quase os 92% da resposta certa. Relevância mede se a resposta é sobre a pergunta, não se é verdade. Quem pega a mentira é a fidelidade: só 1 das 3 afirmações está nos trechos.",
+    "skipped": "sem palpite? Meça a resposta que diz \"Pode sim!\" e olhe as duas notas."
+  },
+  "coach": {
+    "ui": "palpite anotado. Escolha a resposta \"Pode sim!\" e rode com as duas métricas.",
+    "cmd": "palpite anotado. Rode medir \"Pode sim! Envie a conta de internet pelo app de despesas em até 30 dias e o valor volta junto com o salário.\" e compare as duas notas."
+  },
+  "tryNext": {
+    "ui": "Agora a resposta que fala de trabalho remoto: tudo nela é verdade, mas ela não responde. Qual métrica pega?",
+    "cmd": "Rode medir \"Na Aurora, o trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.\" e veja qual métrica pega."
+  },
+  "why": {
+    "simples": "Pense em dois professores corrigindo a mesma redação. Um só pergunta \"falou do tema?\". O outro confere \"cada coisa que você escreveu está no livro?\". Uma redação no tema, cheia de invenção, passa no primeiro e reprova no segundo. Uma redação toda verdadeira, mas sobre outro assunto, faz o contrário.\nO assistente precisa dos dois: responder ao que perguntaram (relevância) e só com o que o manual diz (fidelidade).",
+    "dev": "As duas métricas mais usadas para a resposta de um RAG, nos termos do Ragas: fidelidade (faithfulness) = afirmações da resposta sustentadas pelo contexto recuperado ÷ total de afirmações. Um LLM quebra a resposta em afirmações e confere cada uma contra os trechos. Relevância da resposta (response relevancy) no Ragas: um LLM gera perguntas a partir da resposta (3, por padrão) e a métrica é a média do cosseno entre os embeddings delas e o da pergunta original. Aqui simplificamos para o cosseno entre pergunta e resposta.\nNenhuma basta sozinha: ponha as duas no portão, cada uma com seu limite, e guarde as afirmações reprovadas no relatório, que é o que alguém vai ler quando a nota cair. Para a busca, use as métricas de recuperação da lição de Prática (recall@k) ou as de contexto do Ragas (precisão e recall de contexto).",
+    "especialista": "Essas métricas são feitas por modelos e herdam os defeitos deles. A fidelidade depende de como o LLM fatia as afirmações (uma frase com três fatos pode virar uma afirmação só) e de quão bem ele julga negação e números (\"até um terço\" contra \"metade\"). A relevância por embeddings mede proximidade de assunto: a resposta errada que fala de internet fica perto da pergunta, e o cosseno de modelos como o e5 fica numa faixa alta e estreita, então o limite se calibra por modelo.\nAntes de usar como portão, meça a métrica contra rótulos humanos (próxima lição: o juiz também precisa de prova). E lembre o que elas não medem: fidelidade alta com contexto errado é uma resposta fiel ao trecho errado; por isso a fidelidade anda junto com as métricas de recuperação, não no lugar delas."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: deixe só a relevância ligada e meça a resposta \"Pode sim!\".",
+      "cmd": "hora de quebrar: rode medir \"Pode sim! Envie a conta de internet pelo app de despesas em até 30 dias e o valor volta junto com o salário.\" --metricas relevancia"
+    },
+    "success": "Quebrou: o portão aprovou uma resposta que {flaw}. Ela teve relevância {relPct}% e fidelidade {faithPct}% ({nSup} de {nClaims} afirmações sustentadas pelos trechos), e o portão olhava {watched}, com limite de {limitPct}%. Cada métrica cobre o ponto cego da outra.",
+    "calm": "Relevância {relPct}%, fidelidade {faithPct}%, limite {limitPct}% (o portão olha {watched}). Para quebrar, deixe passar uma resposta ruim com uma métrica só."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma das três respostas e rode.",
+      "Relevância pergunta \"é sobre a pergunta?\"; fidelidade pergunta \"cada afirmação está nos trechos?\". O portão aprova quando todas as métricas ligadas passam do limite.",
+      "Só relevância ligada, resposta \"Pode sim!\"."
+    ],
+    "cmd": [
+      "A resposta vai entre aspas, depois de medir.",
+      "--metricas relevancia,fidelidade (ou só uma, ou nenhuma); --limite de 0,5 a 0,95.",
+      "medir \"Pode sim! Envie a conta de internet pelo app de despesas em até 30 dias e o valor volta junto com o salário.\" --metricas relevancia"
+    ]
+  },
+  "errors": {
+    "notInEnum.metrics": "\"{value}\" não é uma métrica. Use: {options}.",
+    "belowMin.limit": "Abaixo de 0,5 quase tudo passa.",
+    "aboveMax.limit": "Acima de 0,95 nada passa.",
+    "model.unknownAnswer": "No modo simulado, use uma das três respostas de exemplo (as afirmações delas foram conferidas à mão). Com \"No navegador\", a relevância é calculada de verdade para qualquer texto."
+  },
+  "controls": {
+    "arg": "Resposta do assistente",
+    "metrics": "Métricas no portão",
+    "limit": "Nota mínima de cada métrica"
+  },
+  "scene": {
+    "label": "Medir uma resposta",
+    "empty": "Rode para medir.",
+    "sQuestion": "Pergunta",
+    "sContext": "Contexto",
+    "subContext": "3 trechos da busca",
+    "sAnswer": "Resposta",
+    "subSim": "afirmações conferidas",
+    "subReal": "relevância real (e5)",
+    "sGate": "Portão",
+    "subPass": "aprovada",
+    "subBlock": "barrada",
+    "mRel": "relevância",
+    "mFaith": "fidelidade",
+    "mLimit": "limite",
+    "claimsTable": "Afirmações da resposta",
+    "colClaim": "afirmação",
+    "colSup": "nos trechos?",
+    "supYes": "sim",
+    "supNo": "não",
+    "claimsCaption": "fidelidade = {nSup} de {nClaims} afirmações sustentadas",
+    "checks": "Portão de qualidade",
+    "chkRel": "Relevância acima do limite",
+    "whyRel": "relevância {relPct}%, abaixo de {limitPct}%: não responde ao que foi perguntado",
+    "chkFaith": "Fidelidade acima do limite",
+    "whyFaith": "fidelidade {faithPct}%: há afirmações que os trechos não sustentam",
+    "fooledNote": "O portão aprovou, mas a resposta {flaw}. Ele olhava {watched}.",
+    "realNote": "Relevância real: cosseno entre a pergunta e a resposta no multilingual-e5-small, no seu navegador. A escala desse modelo é alta e estreita, então o limite certo para ele é outro. A fidelidade continua vindo das afirmações conferidas à mão.",
+    "simNote": "Modo simulado: afirmações e relevância escritas à mão para as três respostas. Use \"No navegador\" para a relevância com embeddings de verdade."
+  },
+  "data": {
+    "question": "Posso pedir reembolso da internet de casa?",
+    "answers": {
+      "Não. Internet e energia de casa não são reembolsáveis: esse custo já é coberto pelo auxílio home office de R$ 120 por mês.": {
+        "id": "faith",
+        "known": true,
+        "rel": 0.92,
+        "claims": [
+          "internet não é reembolsável",
+          "coberto pelo auxílio home office",
+          "auxílio de R$ 120 por mês"
+        ],
+        "sup": [
+          1,
+          1,
+          1
+        ],
+        "supL": [
+          "@supYes",
+          "@supYes",
+          "@supYes"
+        ],
+        "tones": [
+          "ok",
+          "ok",
+          "ok"
+        ],
+        "nSup": 3,
+        "nClaims": 3,
+        "bad": false,
+        "flaw": ""
+      },
+      "Pode sim! Envie a conta de internet pelo app de despesas em até 30 dias e o valor volta junto com o salário.": {
+        "id": "invent",
+        "known": true,
+        "rel": 0.9,
+        "claims": [
+          "conta de internet é reembolsável",
+          "envio pelo app em até 30 dias",
+          "o valor volta com o salário"
+        ],
+        "sup": [
+          0,
+          1,
+          0
+        ],
+        "supL": [
+          "@supNo",
+          "@supYes",
+          "@supNo"
+        ],
+        "tones": [
+          "bad",
+          "ok",
+          "bad"
+        ],
+        "nSup": 1,
+        "nClaims": 3,
+        "bad": true,
+        "flaw": "inventa que a internet de casa é reembolsável"
+      },
+      "Na Aurora, o trabalho remoto é permitido até 2 dias por semana, combinados com o gestor no início de cada mês.": {
+        "id": "dodge",
+        "known": true,
+        "rel": 0.71,
+        "claims": [
+          "remoto até 2 dias por semana",
+          "combinado com o gestor todo mês"
+        ],
+        "sup": [
+          1,
+          1
+        ],
+        "supL": [
+          "@supYes",
+          "@supYes"
+        ],
+        "tones": [
+          "ok",
+          "ok"
+        ],
+        "nSup": 2,
+        "nClaims": 2,
+        "bad": true,
+        "flaw": "não responde à pergunta"
+      }
+    },
+    "unknownAnswer": {
+      "id": "unknown",
+      "known": false,
+      "rel": 0,
+      "claims": [],
+      "sup": [],
+      "supL": [],
+      "tones": [],
+      "nSup": 0,
+      "nClaims": 0,
+      "bad": false,
+      "flaw": ""
+    },
+    "watchBoth": "relevância e fidelidade",
+    "watchRel": "só a relevância",
+    "watchFaith": "só a fidelidade",
+    "watchNone": "nenhuma métrica"
+  },
+  "recipe": {
+    "steps": [
+      "Instale as bibliotecas e guarde a chave da API da Anthropic (no PowerShell: $env:ANTHROPIC_API_KEY = \"sua-chave\"):\npip install anthropic sentence-transformers\nexport ANTHROPIC_API_KEY=\"sua-chave\"",
+      "Salve um caso como case_invent.json (pergunta, trechos recuperados e a resposta a medir):\n{\"question\": \"Posso pedir reembolso da internet de casa?\", \"context\": [\"Quem tem dias de trabalho remoto recebe um auxílio home office de R$ 120 por mês, pago junto com o salário.\", \"Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.\", \"Internet e energia de casa não são reembolsáveis: esses custos já são cobertos pelo auxílio home office.\"], \"answer\": \"Pode sim! Envie a conta de internet pelo app de despesas em até 30 dias e o valor volta junto com o salário.\"}",
+      "Crie rag_metrics.py. Um LLM quebra a resposta em afirmações e diz se o contexto sustenta cada uma (fidelidade); a relevância é o cosseno entre pergunta e resposta (uma simplificação da métrica do Ragas, que gera perguntas a partir da resposta):\nimport json\nimport os\nimport sys\n\nfrom anthropic import Anthropic\nfrom sentence_transformers import SentenceTransformer\n\nMODEL = os.environ.get(\"CLAUDE_MODEL\", \"claude-haiku-5-5\")\nclient = Anthropic()\nembedder = SentenceTransformer(\"intfloat/multilingual-e5-small\")\n\nJUDGE = (\n    \"Split the ANSWER into short factual claims. For each claim, say whether the CONTEXT supports it. \"\n    'Reply only with JSON: {\"claims\": [{\"claim\": \"...\", \"supported\": true}]}'\n)\n\n\ndef faithfulness(context, answer):\n    reply = client.messages.create(\n        model=MODEL,\n        max_tokens=600,\n        system=JUDGE,\n        messages=[{\"role\": \"user\", \"content\": f\"CONTEXT:\\n{context}\\n\\nANSWER:\\n{answer}\"}],\n    )\n    text = \"\".join(b.text for b in reply.content if b.type == \"text\")\n    claims = json.loads(text[text.index(\"{\"): text.rindex(\"}\") + 1])[\"claims\"]\n    return sum(bool(c[\"supported\"]) for c in claims) / max(1, len(claims)), claims\n\n\ndef relevance(question, answer):\n    q, a = embedder.encode([\"query: \" + question, \"query: \" + answer], normalize_embeddings=True)\n    return float(q @ a)\n\n\ncase = json.load(open(sys.argv[1], encoding=\"utf-8\"))\nscore, claims = faithfulness(\"\\n\".join(case[\"context\"]), case[\"answer\"])\nfor c in claims:\n    print((\"+ \" if c[\"supported\"] else \"! \") + c[\"claim\"])\nprint(f\"faithfulness {score:.0%} | relevance {relevance(case['question'], case['answer']):.2f}\")",
+      "Rode com a resposta que inventa e depois troque \"answer\" no JSON pela resposta fiel e pela que enrola:\npython rag_metrics.py case_invent.json"
+    ],
+    "ok": "a resposta que inventa sai com fidelidade baixa (a afirmação de que a internet é reembolsável marcada com !) e relevância parecida com a da resposta fiel; a que enrola sai com fidelidade alta e relevância menor que as outras duas."
+  }
+}

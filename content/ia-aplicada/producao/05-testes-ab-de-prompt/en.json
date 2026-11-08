@@ -1,0 +1,185 @@
+{
+  "title": "A/B testing a prompt",
+  "subtitle": "Sample size, significance and the danger of peeking at the score",
+  "mission": "The evaluation set says prompt B (answers in numbered steps) doesn’t make anything worse. What’s left is whether it helps real people. Aurora splits conversations 50/50: the metric is the rate of questions resolved, with no HR ticket opened within 48 hours. There are 400 conversations a day. Run the experiment for the right time and decide with numbers.",
+  "predict": {
+    "question": "on day 2, B is 9 points ahead with p = 0.008. If the test runs 14 days, B’s lead…",
+    "options": {
+      "holds": "Stays around 9 points",
+      "shrinks": "Shrinks, but B stays better",
+      "flips": "Flips: A wins"
+    }
+  },
+  "feedback": {
+    "right": "right: on day 14 the lead is 4 points (62% against 66%), with p of 0.002. Day 2’s 9 points were 4 of real effect and the rest luck with a small sample.",
+    "wrong": "it shrinks: on day 14 the lead is 4 points (62% against 66%), with p of 0.002. Day 2’s 9 points were 4 of real effect and the rest luck with a small sample.",
+    "skipped": "no guess? Run the 14 days and compare with day 2 on the chart."
+  },
+  "coach": {
+    "ui": "guess noted. Run with 14 days and no peeking; the chart shows the score day by day.",
+    "cmd": "guess noted. Run ab --days 14 and look at the chart."
+  },
+  "tryNext": {
+    "ui": "Now stop at day 5, no peeking: the difference seems to have vanished. Small samples fool you both ways.",
+    "cmd": "Run ab --days 5 and read the p."
+  },
+  "why": {
+    "simples": "Flip a coin 10 times and maybe you get 7 heads; that doesn’t prove the coin is loaded. With few conversations, a prompt can look much better just by luck.\nThat’s why an A/B test has two rules: decide beforehand how many conversations to look at, and only read the result at the end. Whoever peeks every day and stops on the first pretty day is picking luck.",
+    "dev": "Before starting, fix the metric, the minimum effect worth having (here, 4 points over 62%), α = 0.05 and 80% power. The two-proportion sample size formula gives about 2,257 conversations per arm: at 200 per arm per day, 12 days; Aurora rounds up to 14, two full weeks, because Monday isn’t like Saturday.\nAt the end, a two-proportion z test: z = (p_B − p_A) ÷ √(p(1 − p)(1/n_A + 1/n_B)), with pooled p. |z| ≥ 1.96 is p < 0.05. Randomize by person, not by message (the same person always stays in the same arm), log the arm on every conversation and track guardrail metrics (refusals, HR tickets, cost) that must not get worse.",
+    "especialista": "Peeking every day and stopping at the first p < 0.05 greatly increases the chance of a false positive: every look is another chance for luck to cross the line. If the team must look midway, use a method built for that (sequential tests or tests corrected for interim looks), not the repeated z test. And even when the effect is real, stopping early overestimates its size (here, 9 points against 4): the \"winner’s curse\".\nA/B measures what the metric measures, and nothing else. In April 2025, OpenAI rolled back a GPT-4o update that made the model too sycophantic; by the company’s own account, offline evaluations looked good and A/B tests suggested the few users who tried it liked it. Add guardrail metrics that catch what users don’t notice right away (wrong answers confirmed by HR, correct refusals) and read a sample of conversations from each arm before declaring victory."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: turn on \"peek\" and let the test stop on the first day with p < 0.05.",
+      "cmd": "time to break it: run ab --peek yes"
+    },
+    "success": "Broken: peeking every day, the test stopped on day {stopDay} with B {liftS} points ahead (p = {pS}), with {nS} conversations per arm, well below what was planned for {minDays} days. On day {refDay}, the lead is {trueLiftS} points. Peeking brought an early announcement and the wrong number.",
+    "calm": "Day {stopDay}: A {rateA}%, B {rateB}% ({liftS} points, p = {pS}). To break it, peek at the score and stop at the first pretty result."
+  },
+  "hints": {
+    "ui": [
+      "Pick how many days the test runs and hit Run.",
+      "\"Peek\" checks the score every day and stops at the first p < 0.05. The sample size formula asks for at least 12 days.",
+      "Peek on, 14 days."
+    ],
+    "cmd": [
+      "The experiment name goes in quotes (optional).",
+      "--days from 1 to 28; --peek yes or no.",
+      "ab --peek yes"
+    ]
+  },
+  "errors": {
+    "belowMin.days": "At least 1 day.",
+    "aboveMax.days": "This lesson has 28 days of data.",
+    "notInteger.days": "Whole days, please.",
+    "notBool.peek": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Experiment name",
+    "days": "Test days",
+    "peek": "Peek and stop at the first p < 0.05"
+  },
+  "scene": {
+    "label": "A/B test: A (current) against B (numbered steps)",
+    "empty": "Run to start the test.",
+    "mDay": "stopped on day",
+    "mA": "A resolved",
+    "mB": "B resolved",
+    "mLift": "B − A (points)",
+    "mP": "p",
+    "chart": "z statistic, day by day",
+    "zSeries": "z of B against A",
+    "zLine": "z = 1.96 (p = 0.05)",
+    "checks": "Can we decide?",
+    "chkSize": "Planned sample reached (12 days)",
+    "whySize": "stopped on day {stopDay}, with {nS} conversations per arm",
+    "chkSig": "p < 0.05",
+    "whySig": "p = {pS}: the difference still fits chance",
+    "chkPlan": "No stop from peeking",
+    "whyPlan": "the test stopped because someone peeked on day {stopDay}",
+    "peekNote": "Stopped on day {stopDay} with {liftS} points. With the planned time, the effect is {trueLiftS} on day {refDay}.",
+    "smallNote": "Only {days} day(s): fewer than the {minDays} the sample size formula asks for. A high p here means \"couldn’t tell\", not \"no difference\".",
+    "okNote": "Full sample and p = {pS}: B resolves {liftS} more points. Before going to 100%, check the guardrail metrics and read conversations from both arms.",
+    "simNote": "Lesson data: 200 conversations per arm per day, with A near 62% and B near 66% and the early noise hand-written. z and p are computed with the two-proportion formula."
+  },
+  "data": {
+    "liftStr": [
+      "+8.0",
+      "+9.0",
+      "+6.0",
+      "+3.5",
+      "+2.5",
+      "+2.8",
+      "+3.2",
+      "+3.5",
+      "+3.7",
+      "+3.8",
+      "+3.9",
+      "+4.0",
+      "+4.0",
+      "+4.0",
+      "+4.1",
+      "+4.0",
+      "+4.0",
+      "+3.9",
+      "+4.0",
+      "+4.0",
+      "+4.0",
+      "+4.1",
+      "+4.0",
+      "+4.0",
+      "+4.0",
+      "+4.0",
+      "+4.0",
+      "+4.0"
+    ],
+    "pStr": [
+      "0.098",
+      "0.008",
+      "0.030",
+      "0.147",
+      "0.246",
+      "0.150",
+      "0.077",
+      "0.039",
+      "0.020",
+      "0.012",
+      "0.007",
+      "0.004",
+      "0.003",
+      "0.002",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001",
+      "< 0.001"
+    ],
+    "nStr": [
+      "200",
+      "400",
+      "600",
+      "800",
+      "1,000",
+      "1,200",
+      "1,400",
+      "1,600",
+      "1,800",
+      "2,000",
+      "2,200",
+      "2,400",
+      "2,600",
+      "2,800",
+      "3,000",
+      "3,200",
+      "3,400",
+      "3,600",
+      "3,800",
+      "4,000",
+      "4,200",
+      "4,400",
+      "4,600",
+      "4,800",
+      "5,000",
+      "5,200",
+      "5,400",
+      "5,600"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Before turning the test on, write the plan: metric (question resolved with no ticket in 48 h), minimum effect (4 points), α = 0.05, 80% power, randomization per person and guardrail metrics. Create ab_check.py, with Python’s standard library only:\nimport math\nimport sys\nfrom statistics import NormalDist\n\n\ndef sample_size(p_a, lift, alpha=0.05, power=0.8):\n    p_b = p_a + lift\n    z = NormalDist().inv_cdf(1 - alpha / 2) + NormalDist().inv_cdf(power)\n    return math.ceil(z ** 2 * (p_a * (1 - p_a) + p_b * (1 - p_b)) / lift ** 2)\n\n\ndef two_proportions(s_a, n_a, s_b, n_b):\n    p_a = s_a / n_a\n    p_b = s_b / n_b\n    pooled = (s_a + s_b) / (n_a + n_b)\n    se = math.sqrt(pooled * (1 - pooled) * (1 / n_a + 1 / n_b))\n    z = (p_b - p_a) / se\n    return p_b - p_a, z, 2 * (1 - NormalDist().cdf(abs(z)))\n\n\nprint(\"per arm:\", sample_size(0.62, 0.04))\nif len(sys.argv) == 5:\n    s_a, n_a, s_b, n_b = map(int, sys.argv[1:5])\n    lift, z, p = two_proportions(s_a, n_a, s_b, n_b)\n    print(f\"lift {lift * 100:+.1f} points | z {z:.2f} | p {p:.4f}\")",
+      "Compute the sample per arm (with 200 conversations per arm per day, divide by 200 to get the days):\npython ab_check.py",
+      "At the end of the period, pass successes and totals for A and B. With the lesson’s day 14 numbers:\npython ab_check.py 1736 2800 1848 2800\nCompare with day 2’s:\npython ab_check.py 240 400 276 400"
+    ],
+    "ok": "the script prints \"per arm: 2257\"; with day 14’s numbers it shows lift +4.0 points, z 3.12 and p near 0.002; with day 2’s it shows lift +9.0 and p near 0.008, the inflated lead of stopping early."
+  }
+}

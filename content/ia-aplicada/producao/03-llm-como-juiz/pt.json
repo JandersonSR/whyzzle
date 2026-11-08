@@ -1,0 +1,206 @@
+{
+  "title": "LLM como juiz, com prova de calibração",
+  "subtitle": "Concordar muito não basta: compare com o acaso usando o kappa",
+  "mission": "Para não depender do RH a cada mudança, o time quer um LLM que dê \"passa\" ou \"não passa\" para cada resposta. Antes de deixar o juiz bloquear deploy, duas pessoas do RH rotularam 50 respostas (aprovaram 42, reprovaram 8) e o juiz julgou as mesmas 50. Ajuste a rubrica e os exemplos até o juiz merecer confiança, e descubra por que 86% de concordância pode ser quase nada.",
+  "predict": {
+    "question": "com rubrica vaga (\"a resposta é boa?\") e 3 exemplos rotulados, o juiz concorda com o RH em 88% das 50 respostas. Ele já serve para bloquear deploy (kappa de pelo menos 0,6)?",
+    "options": {
+      "yes": "Serve: 88% é muito",
+      "no": "Não serve ainda"
+    }
+  },
+  "feedback": {
+    "right": "isso: o kappa é só 0,44. Como o RH aprova 84% das respostas, um juiz que aprovasse tudo já concordaria 84%. Os 88% estão só 4 pontos acima do acaso.",
+    "wrong": "ainda não: o kappa é 0,44. Como o RH aprova 84% das respostas, um juiz que aprovasse tudo já concordaria 84%. Os 88% estão só 4 pontos acima do acaso.",
+    "skipped": "sem palpite? Rode com rubrica vaga e exemplos e olhe o kappa."
+  },
+  "coach": {
+    "ui": "palpite anotado. Escolha a rubrica vaga, ligue os exemplos e rode.",
+    "cmd": "palpite anotado. Rode julgar --rubrica vaga --exemplos sim e olhe o kappa."
+  },
+  "tryNext": {
+    "ui": "Agora rubrica com critérios e exemplos, e julgue a resposta curta \"Até 1/3 [1].\" com e sem exemplos. Para um juiz real, escolha \"Sua chave\" ou \"No navegador\".",
+    "cmd": "Rode julgar \"Até 1/3 [1].\" --exemplos sim e compare com o veredito do RH."
+  },
+  "why": {
+    "simples": "Um juiz robô é como um corretor novo de redação: antes de deixar ele corrigir sozinho, você dá a ele 50 redações que professores já corrigiram e confere se ele chega às mesmas notas.\nSó que contar acertos engana. Se quase todas as redações são boas, um corretor que dá \"aprovado\" para tudo acerta quase sempre, sem ler nada. O kappa desconta essa sorte: 0 é \"tanto faz\", 1 é \"concorda sempre\".",
+    "dev": "Kappa de Cohen: κ = (pₒ − pₑ) ÷ (1 − pₑ), onde pₒ é a concordância observada e pₑ é a concordância esperada por acaso, calculada pelas taxas de \"passa\" de cada lado. Com o RH aprovando 42 de 50, um juiz que aprova 49 tem pₑ ≈ 0,83: os 86% observados viram κ = 0,19.\nO que funciona na prática: rubrica com critérios explícitos e saída binária (passa ou não passa) em vez de nota de 1 a 10; poucos exemplos rotulados pelo RH, incluindo casos de fronteira (a resposta curta e certa); um juiz por critério quando eles conflitam; o motivo junto com o veredito. Meça o juiz contra rótulos humanos, guarde essas 50 como o \"conjunto do juiz\" versionado e meça de novo a cada troca de modelo ou de rubrica.",
+    "especialista": "O estudo do MT-Bench (Zheng et al., 2023) achou mais de 80% de concordância entre juízes fortes como o GPT-4 e preferências humanas, o mesmo nível entre humanos, e também vieses de posição, de verbosidade e de autopromoção. Os três aparecem em avaliação de RAG: a resposta longa e simpática da lição passa no juiz vago; ao comparar duas respostas, troque a ordem e só conte a vitória que se mantém; e evite que o mesmo modelo gere e julgue.\nUse a concordância entre as duas pessoas do RH como teto (aqui κ = 0,79): um juiz perto dela está bom, e cobrar mais que isso é cobrar do robô o que nem as pessoas fazem. Olhe a matriz de confusão, não só o κ: para um portão de deploy, aprovar resposta ruim (falso \"passa\") custa mais que reprovar uma boa, então ajuste a rubrica para errar para o lado da reprovação. A faixa \"substancial\" de Landis e Koch (0,61 a 0,80) é uma convenção, não uma lei: defina o mínimo do seu time e registre o motivo."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: rubrica vaga e sem exemplos.",
+      "cmd": "hora de quebrar: rode julgar --rubrica vaga"
+    },
+    "success": "Quebrou: o juiz concorda com o RH em {agreePct}% das {nAnswers} respostas, o que parece ótimo, mas o kappa é {kappaS}. Um juiz que aprovasse tudo concordaria {alwaysPct}%. Ele aprovou {fp} das {humanFail} respostas que o RH reprovou: como portão de deploy, deixaria passar quase todo erro.",
+    "calm": "Rubrica {rubricL}: concordância {agreePct}%, kappa {kappaS} (entre as duas pessoas do RH: {humanKappaS}). Para quebrar, deixe o juiz com cara de bom e kappa baixo."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma resposta e uma rubrica e rode. As métricas de cima valem para as 50 respostas.",
+      "Concordância conta acertos; o kappa desconta o que um juiz que aprova tudo acertaria por acaso. Exemplos rotulados ensinam onde fica a linha.",
+      "Rubrica vaga, sem exemplos."
+    ],
+    "cmd": [
+      "A resposta a julgar vai entre aspas, depois de julgar.",
+      "--rubrica vaga ou criterios; --exemplos sim ou nao.",
+      "julgar --rubrica vaga"
+    ]
+  },
+  "errors": {
+    "notInEnum.rubric": "\"{value}\" não é uma rubrica. Use: {options}.",
+    "notBool.examples": "Use sim ou nao.",
+    "model.unknownAnswer": "No modo simulado, julgue uma das quatro respostas de exemplo (o RH já rotulou essas). Com \"Sua chave\" ou \"No navegador\", o juiz real julga qualquer texto."
+  },
+  "controls": {
+    "arg": "Resposta a julgar",
+    "rubric": "Rubrica do juiz",
+    "examples": "3 exemplos rotulados pelo RH"
+  },
+  "scene": {
+    "label": "Juiz de respostas",
+    "empty": "Rode para julgar.",
+    "sAnswer": "Resposta",
+    "subExample": "exemplo rotulado",
+    "subAny": "qualquer texto",
+    "sJudge": "Juiz",
+    "subVague": "rubrica vaga",
+    "subCriteria": "3 critérios",
+    "sVerdict": "Veredito",
+    "sHuman": "RH disse",
+    "vPass": "passa",
+    "vFail": "não passa",
+    "vInvalid": "JSON inválido",
+    "vNone": "sem rótulo",
+    "aggLabel": "Nas 50 respostas rotuladas pelo RH",
+    "mAgree": "concordância com o RH",
+    "mKappa": "kappa de Cohen",
+    "mAlways": "juiz que aprova tudo",
+    "mHumans": "kappa entre as 2 pessoas",
+    "confLabel": "Matriz de confusão",
+    "colJudge": "juiz",
+    "colHPass": "RH: passa",
+    "colHFail": "RH: não",
+    "rowJPass": "passa",
+    "rowJFail": "não passa",
+    "confCaption": "o canto de cima à direita são respostas ruins que o juiz deixou passar ({fp} de {humanFail})",
+    "chkKappa": "Kappa de pelo menos 0,6 (regra do time)",
+    "whyKappa": "kappa {kappaS}: a concordância de {agreePct}% está perto do acaso ({alwaysPct}%)",
+    "chkThis": "Nesta resposta, o juiz concorda com o RH",
+    "whyThis": "o juiz e o RH discordaram nesta resposta",
+    "brokenNote": "O modelo não devolveu o JSON pedido ({\"verdict\": \"pass\" ou \"fail\"}). Juiz que não segue formato também é juiz descalibrado.",
+    "realNote": "O veredito desta resposta vem do modelo real, com a rubrica escolhida. As métricas das 50 respostas continuam sendo as da lição: para medir o seu juiz, rode a receita.",
+    "simNote": "Modo simulado: vereditos e matrizes escritos à mão para as 4 rubricas possíveis. Use \"Sua chave\" ou \"No navegador\" para um juiz de verdade nesta resposta."
+  },
+  "data": {
+    "question": "Quantos dias de férias posso vender?",
+    "context": "O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+    "qLabel": "Pergunta",
+    "ctxLabel": "Trecho do manual",
+    "aLabel": "Resposta",
+    "answers": {
+      "Até um terço das férias, pedindo junto com a solicitação das férias [1].": {
+        "known": true,
+        "v": {
+          "vague0": "pass",
+          "vague1": "pass",
+          "criteria0": "pass",
+          "criteria1": "pass"
+        },
+        "human": "pass"
+      },
+      "Ótima pergunta! Na Aurora você pode vender até metade das suas férias. É só pedir ao seu gestor com antecedência e o valor entra no pagamento seguinte. Aproveite seu descanso!": {
+        "known": true,
+        "v": {
+          "vague0": "pass",
+          "vague1": "pass",
+          "criteria0": "fail",
+          "criteria1": "fail"
+        },
+        "human": "fail"
+      },
+      "Até 1/3 [1].": {
+        "known": true,
+        "v": {
+          "vague0": "pass",
+          "vague1": "pass",
+          "criteria0": "fail",
+          "criteria1": "pass"
+        },
+        "human": "pass"
+      },
+      "Não encontrei isso no manual. Vou encaminhar sua pergunta para o RH.": {
+        "known": true,
+        "v": {
+          "vague0": "pass",
+          "vague1": "fail",
+          "criteria0": "fail",
+          "criteria1": "fail"
+        },
+        "human": "fail"
+      }
+    },
+    "unknownAnswer": {
+      "known": false,
+      "v": {},
+      "human": ""
+    },
+    "aggs": {
+      "vague0": {
+        "tp": 42,
+        "fp": 7,
+        "fn": 0,
+        "tn": 1,
+        "agreePct": 86,
+        "kappa": 0.19,
+        "kappaS": "0,19"
+      },
+      "vague1": {
+        "tp": 41,
+        "fp": 5,
+        "fn": 1,
+        "tn": 3,
+        "agreePct": 88,
+        "kappa": 0.44,
+        "kappaS": "0,44"
+      },
+      "criteria0": {
+        "tp": 40,
+        "fp": 3,
+        "fn": 2,
+        "tn": 5,
+        "agreePct": 90,
+        "kappa": 0.61,
+        "kappaS": "0,61"
+      },
+      "criteria1": {
+        "tp": 41,
+        "fp": 2,
+        "fn": 1,
+        "tn": 6,
+        "agreePct": 94,
+        "kappa": 0.76,
+        "kappaS": "0,76"
+      }
+    },
+    "alwaysPct": 84,
+    "humanKappaS": "0,79",
+    "rubricVague": "vaga",
+    "rubricCriteria": "com critérios",
+    "systems": {
+      "vague0": "Você avalia respostas do assistente de RH da Aurora. A resposta é boa? Responda só com JSON: {\"verdict\":\"pass|fail\",\"reason\":\"uma frase em português\"}.",
+      "vague1": "Você avalia respostas do assistente de RH da Aurora. A resposta é boa? Responda só com JSON: {\"verdict\":\"pass|fail\",\"reason\":\"uma frase em português\"}. Exemplos rotulados pelo RH: \"Pergunta: Quanto é o VR? Resposta: R$ 45 por dia útil [1].\" → pass (curta e certa basta). \"Pergunta: Quanto é o VR? Resposta: Uns R$ 50, depende do mês!\" → fail (não está no trecho). \"Pergunta: Quanto é o VR? Resposta: Não encontrei isso no manual.\" → fail (o trecho responde).",
+      "criteria0": "Você avalia respostas do assistente de RH da Aurora. Passa (pass) só se as três coisas forem verdade: 1) responde ao que foi perguntado; 2) toda afirmação está no trecho do manual; 3) não recusa quando o trecho responde. Qualquer falha: fail. Responda só com JSON: {\"verdict\":\"pass|fail\",\"reason\":\"uma frase em português\"}.",
+      "criteria1": "Você avalia respostas do assistente de RH da Aurora. Passa (pass) só se as três coisas forem verdade: 1) responde ao que foi perguntado; 2) toda afirmação está no trecho do manual; 3) não recusa quando o trecho responde. Qualquer falha: fail. Responda só com JSON: {\"verdict\":\"pass|fail\",\"reason\":\"uma frase em português\"}. Exemplos rotulados pelo RH: \"Pergunta: Quanto é o VR? Resposta: R$ 45 por dia útil [1].\" → pass (curta e certa basta). \"Pergunta: Quanto é o VR? Resposta: Uns R$ 50, depende do mês!\" → fail (não está no trecho). \"Pergunta: Quanto é o VR? Resposta: Não encontrei isso no manual.\" → fail (o trecho responde)."
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Separe 50 respostas reais do assistente (sem dados pessoais) e peça para duas pessoas do RH rotularem cada uma como pass ou fail, sem uma ver a outra. Salve as respostas e o rótulo final em judge_set.jsonl, um caso por linha:\n{\"question\": \"Quantos dias de férias posso vender?\", \"context\": \"O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.\", \"answer\": \"Ótima pergunta! Na Aurora você pode vender até metade das suas férias. É só pedir ao seu gestor com antecedência e o valor entra no pagamento seguinte. Aproveite seu descanso!\", \"human\": \"fail\"}",
+      "Escreva a rubrica em rubric.txt (critérios + exemplos rotulados), por exemplo:\nVocê avalia respostas do assistente de RH da Aurora. Passa (pass) só se as três coisas forem verdade: 1) responde ao que foi perguntado; 2) toda afirmação está no trecho do manual; 3) não recusa quando o trecho responde. Qualquer falha: fail. Responda só com JSON: {\"verdict\":\"pass|fail\",\"reason\":\"uma frase em português\"}. Exemplos rotulados pelo RH: \"Pergunta: Quanto é o VR? Resposta: R$ 45 por dia útil [1].\" → pass (curta e certa basta). \"Pergunta: Quanto é o VR? Resposta: Uns R$ 50, depende do mês!\" → fail (não está no trecho). \"Pergunta: Quanto é o VR? Resposta: Não encontrei isso no manual.\" → fail (o trecho responde).",
+      "Instale o SDK (pip install anthropic), guarde a chave em ANTHROPIC_API_KEY e crie judge_eval.py, que julga cada caso e calcula a concordância e o kappa contra o rótulo humano:\nimport json\nimport os\nimport sys\n\nfrom anthropic import Anthropic\n\nMODEL = os.environ.get(\"JUDGE_MODEL\", \"claude-haiku-5-5\")\nclient = Anthropic()\nRUBRIC = open(\"rubric.txt\", encoding=\"utf-8\").read()\n\n\ndef judge(case):\n    content = f\"Question: {case['question']}\\nChunk: {case['context']}\\nAnswer: {case['answer']}\"\n    reply = client.messages.create(\n        model=MODEL,\n        max_tokens=300,\n        system=RUBRIC,\n        messages=[{\"role\": \"user\", \"content\": content}],\n    )\n    text = \"\".join(b.text for b in reply.content if b.type == \"text\")\n    return json.loads(text[text.index(\"{\"): text.rindex(\"}\") + 1])[\"verdict\"]\n\n\ncases = [json.loads(line) for line in open(sys.argv[1], encoding=\"utf-8\") if line.strip()]\ntp = fp = fn = tn = 0\nfor case in cases:\n    j = judge(case) == \"pass\"\n    h = case[\"human\"] == \"pass\"\n    tp += j and h\n    fp += j and not h\n    fn += h and not j\n    tn += not j and not h\n\nn = len(cases)\npo = (tp + tn) / n\npe = ((tp + fp) / n) * ((tp + fn) / n) + ((fn + tn) / n) * ((fp + tn) / n)\nkappa = (po - pe) / (1 - pe) if pe < 1 else 0.0\nprint(f\"judge pass & human pass {tp} | judge pass & human fail {fp} | judge fail & human pass {fn} | both fail {tn}\")\nprint(f\"agreement {po:.0%} | Cohen's kappa {kappa:.2f}\")",
+      "Rode, depois troque rubric.txt por uma rubrica vaga (\"A resposta é boa?\" + o pedido de JSON) e rode de novo:\npython judge_eval.py judge_set.jsonl"
+    ],
+    "ok": "o script imprime a matriz e o kappa; a rubrica com critérios e exemplos tem kappa maior que a vaga, e você escolhe o mínimo do time olhando também quantas respostas ruins o juiz deixou passar."
+  }
+}

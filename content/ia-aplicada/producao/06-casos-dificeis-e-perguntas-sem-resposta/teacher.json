@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Montar uma taxonomia de casos difíceis a partir dos logs.",
+      "Medir a nota por categoria e pesar pelo tráfego.",
+      "Esperar recusa ou pergunta de volta quando não há resposta."
+    ],
+    "minutes": 20,
+    "activity": "A turma recebe 20 perguntas de um \"log\" fictício e as classifica em 6 categorias. Depois cada grupo escreve a resposta certa de uma categoria difícil (premissa falsa, ambígua, injeção).",
+    "discussion": [
+      "Que premissa falsa seria mais cara para a sua empresa?",
+      "Quando é melhor perguntar de volta do que responder?"
+    ],
+    "misconceptions": [
+      "\"Se acerta 90% das perguntas, acerta 90% em produção.\" Depende da mistura de perguntas.",
+      "\"Recusar é sempre falha.\" Para premissa falsa e fora do escopo, recusar é o acerto."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Build a taxonomy of hard cases from the logs.",
+      "Measure the score per category and weight it by traffic.",
+      "Expect refusal or a clarifying question when there’s no answer."
+    ],
+    "minutes": 20,
+    "activity": "The class gets 20 questions from a fictional \"log\" and sorts them into 6 categories. Then each group writes the right answer for one hard category (false premise, ambiguous, injection).",
+    "discussion": [
+      "Which false premise would cost your company the most?",
+      "When is it better to ask back than to answer?"
+    ],
+    "misconceptions": [
+      "\"If it gets 90% of questions right, it gets 90% in production.\" It depends on the question mix.",
+      "\"Refusing is always a failure.\" For false premises and out-of-scope questions, refusing is the right answer."
+    ]
+  }
+}

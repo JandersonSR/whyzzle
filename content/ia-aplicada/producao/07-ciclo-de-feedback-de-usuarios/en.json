@@ -1,0 +1,149 @@
+{
+  "title": "The user feedback loop",
+  "subtitle": "Thumbs-down, human review and new cases in the set, without teaching the assistant to please",
+  "mission": "The assistant is live: about 2,000 conversations a week, and around 3% get a thumbs-up or thumbs-down, sometimes with a comment. The team has 4 weeks and must decide three things: what to optimize (approval, or accuracy measured on 2026-11), how many random conversations HR reviews each week and whether failures become new evaluation cases. Build the loop and make accuracy go up.",
+  "predict": {
+    "question": "if the team changes the prompt every week to maximize thumbs-up, the accuracy measured on set 2026-11…",
+    "options": {
+      "up": "Goes up too",
+      "down": "Goes down"
+    }
+  },
+  "feedback": {
+    "right": "right: approval goes from 70% to 82% and accuracy drops from 79% to 72%. The pleasing prompt answers more confidently and refuses less, even when it should refuse.",
+    "wrong": "it goes down: approval goes from 70% to 82% and accuracy drops from 79% to 72%. The pleasing prompt answers more confidently and refuses less, even when it should refuse.",
+    "skipped": "no guess? Run optimizing for accuracy and then for thumbs, and compare both chart lines."
+  },
+  "coach": {
+    "ui": "guess noted. Run with the default loop (optimize accuracy, review 40 a week) and look at the chart.",
+    "cmd": "guess noted. Run loop and look at both chart lines."
+  },
+  "tryNext": {
+    "ui": "Now set the random review to zero: you only see who complained. How many wrong answers does the team stop finding?",
+    "cmd": "Run loop --review 0 and compare the failures found."
+  },
+  "why": {
+    "simples": "Customer opinions are gold, but they mislead: few people complain, and many thank you for a wrong answer that sounded nice. If you change the restaurant only to get more \"likes\", it may start serving everyone dessert and forget the main course.\nThe good loop uses thumbs to find problems, has a person check a random sample, and turns every error found into a new exam question. The score that rules is still the exam’s.",
+    "dev": "Three sources, each with its bias: thumbs-down with a comment (low volume, lots of signal, complainer bias), human review of a random sample (finds silent failures, the ones nobody complained about) and automatic metrics on traffic (refusals, handoffs, repeated questions). Every week: a review queue with the thumbs-down + N random conversations, HR marks verdict and category, and failures become cases in a new set version (2026-12), with their origin recorded.\nThe product decision stays with the set: thumbs are a guardrail metric and a source of cases, not a target. Automatic triage of comments (the lesson’s one, in JSON with closed categories) helps prioritize, but \"does it become a test\" goes through a person. Also record what’s missing from the handbook: \"daycare allowance\" isn’t a prompt bug, it’s a document HR needs to write.",
+    "especialista": "Optimizing straight for thumbs has a public precedent. In April 2025, OpenAI rolled back a GPT-4o update that made the model sycophantic; by the company’s account, the update added a reward signal based on ChatGPT thumbs-up and thumbs-down, and the changes together weakened the main signal that had kept sycophancy in check. Offline evaluations and A/B tests didn’t catch it. The lesson for a small team is the same: approval is an easy target to inflate.\nFeedback is also personal data: a comment may carry health, salary or a conflict with a manager. Decide who reads the review queue, how long logs are kept and what is anonymized before becoming a test case (replace names and numbers before saving to the set). And close the loop with whoever complained when you can: people who see their problem fixed keep giving feedback."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch what the team optimizes to thumbs-up.",
+      "cmd": "time to break it: run loop --optimize thumbs"
+    },
+    "success": "Broken: optimizing for thumbs, approval rose from {thumbs0}% to {thumbsEnd}% in 4 weeks and accuracy on set 2026-11 fell from {acc0}% to {accEnd}%. The assistant learned to please: it answers more confidently and refuses less, even when it should refuse.",
+    "calm": "In 4 weeks: accuracy {acc0}% → {accEnd}%, approval {thumbs0}% → {thumbsEnd}%, {found} silent failures found and {added} new cases. To break it, optimize for the wrong signal."
+  },
+  "hints": {
+    "ui": [
+      "Pick what to optimize, how much to review and run. The example comment shows the triage of one message.",
+      "Random review finds failures nobody complained about; new cases lock the fix into the set. Thumbs measure how much the person liked it, not whether it was right.",
+      "Optimize: thumbs."
+    ],
+    "cmd": [
+      "The comment goes in quotes, after loop.",
+      "--optimize accuracy or thumbs; --review from 0 to 100 conversations a week; --new-cases yes or no.",
+      "loop --optimize thumbs"
+    ]
+  },
+  "errors": {
+    "notInEnum.optimize": "\"{value}\" is not an option. Use: {options}.",
+    "belowMin.review": "Review goes from 0 to 100 conversations a week.",
+    "aboveMax.review": "More than 100 a week doesn’t fit this lesson’s HR schedule.",
+    "notInteger.review": "Whole conversations, please.",
+    "notBool.newCases": "Use yes or no.",
+    "model.unknownComment": "In simulated mode, use one of the four example comments. With \"Your key\" or \"In the browser\", any comment goes to the real triage."
+  },
+  "controls": {
+    "arg": "An employee’s comment",
+    "optimize": "What the team optimizes",
+    "review": "Random conversations reviewed per week",
+    "newCases": "Failures become set cases"
+  },
+  "scene": {
+    "label": "Four weeks in production",
+    "empty": "Run to simulate the loop.",
+    "loopLabel": "The loop",
+    "sSignals": "Signals",
+    "subSignals": "{downs} thumbs-down",
+    "sReview": "Review",
+    "subReview": "{review} random/week",
+    "subNoReview": "only complainers",
+    "sCases": "Set",
+    "subAdded": "+{added} cases (2026-12)",
+    "subNotAdded": "nothing goes in",
+    "sChange": "Change",
+    "subThumbs": "to please",
+    "subAccuracy": "to be right",
+    "chart": "Week by week (%)",
+    "serThumbs": "thumbs-up",
+    "serAcc": "accuracy on 2026-11",
+    "mThumbs": "approval",
+    "mAcc": "accuracy on 2026-11",
+    "mFound": "silent failures found",
+    "mLikedWrong": "thumbs-up on wrong answers",
+    "triageLabel": "Triage of this comment",
+    "sComment": "Comment",
+    "sCategory": "Category",
+    "sToEval": "Becomes a test?",
+    "subYes": "yes",
+    "subNo": "no",
+    "pleaserNote": "Approval rose to {thumbsEnd}% and accuracy fell to {accEnd}%. Thumbs are a signal to find problems, not a target.",
+    "blindNote": "With no random review, the team only sees the {downs} thumbs-down. A wrong answer nobody complained about (or that got a thumbs-up) stays invisible.",
+    "realNote": "This comment’s triage comes from the real model, in JSON with closed categories. The chart keeps the lesson’s numbers.",
+    "simNote": "Simulated mode: 4 weeks with lesson numbers (about 15% of random conversations have a wrong answer). Use \"Your key\" or \"In the browser\" to triage a comment with a real model."
+  },
+  "data": {
+    "catNames": {
+      "wrong_answer": "wrong answer",
+      "missing_doc": "missing from handbook",
+      "tone": "tone",
+      "praise": "praise",
+      "other": "other",
+      "invalid": "invalid JSON"
+    },
+    "triageSys": "You triage employee comments about Aurora’s HR assistant. Put the comment in one category: wrong_answer (the assistant said something wrong), missing_doc (the topic isn’t in the handbook), tone (right answer, but the way it said it bothered them), praise or other. add_to_eval is true when the case should become a test in the evaluation set (a wrong answer or a topic missing from the handbook). Reply only with JSON: {\"category\":\"...\",\"add_to_eval\":true}.",
+    "comments": {
+      "It said I can sell half my vacation, but HR told me it’s one third.": {
+        "known": true,
+        "expected": "wrong_answer",
+        "sim": "wrong_answer",
+        "simAdd": true
+      },
+      "I asked about the daycare allowance and it couldn’t answer.": {
+        "known": true,
+        "expected": "missing_doc",
+        "sim": "missing_doc",
+        "simAdd": true
+      },
+      "It got it right, but the answer was too curt.": {
+        "known": true,
+        "expected": "tone",
+        "sim": "tone",
+        "simAdd": false
+      },
+      "Perfect, thanks!": {
+        "known": true,
+        "expected": "praise",
+        "sim": "praise",
+        "simAdd": false
+      }
+    },
+    "unknownComment": {
+      "known": false,
+      "expected": "",
+      "sim": "",
+      "simAdd": false
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Store every assistant conversation in a weekly JSON Lines log, with the rating and comment when there is one (replace names and personal numbers before saving). Example line of logs/2026-W46.jsonl:\n{\"id\": \"c-1042\", \"question\": \"How much of my vacation can I sell?\", \"answer\": \"Up to half your vacation.\", \"rating\": \"down\", \"comment\": \"HR said it’s one third.\"}",
+      "Create review_queue.py, which builds the week’s queue: every thumbs-down plus 40 random conversations (the draw uses the week as its seed, so it can be repeated):\nimport csv\nimport json\nimport random\nimport sys\n\nweek = sys.argv[1]  # e.g. 2026-W46\nconvs = [json.loads(line) for line in open(f\"logs/{week}.jsonl\", encoding=\"utf-8\") if line.strip()]\ndown = [c for c in convs if c.get(\"rating\") == \"down\"]\ndown_ids = {c[\"id\"] for c in down}\nothers = [c for c in convs if c[\"id\"] not in down_ids]\nrandom.seed(week)\nsample = random.sample(others, min(40, len(others)))\n\nwith open(f\"review-{week}.csv\", \"w\", newline=\"\", encoding=\"utf-8\") as f:\n    w = csv.writer(f)\n    w.writerow([\"id\", \"source\", \"question\", \"answer\", \"comment\", \"verdict\", \"category\", \"add_to_eval\"])\n    for c in down:\n        w.writerow([c[\"id\"], \"thumbs_down\", c[\"question\"], c[\"answer\"], c.get(\"comment\", \"\"), \"\", \"\", \"\"])\n    for c in sample:\n        w.writerow([c[\"id\"], \"random\", c[\"question\"], c[\"answer\"], \"\", \"\", \"\", \"\"])\nprint(f\"{len(down)} thumbs-down + {len(sample)} random conversations in review-{week}.csv\")",
+      "Run it and hand the CSV to HR, who fills in verdict (ok or wrong), category and add_to_eval (yes or no):\npython review_queue.py 2026-W46",
+      "Create add_cases.py, which builds the new set version with the marked cases (the old version stays as it is):\nimport csv\nimport json\nimport sys\n\nreview, old, new = sys.argv[1:4]\ntext = open(old, encoding=\"utf-8\").read().rstrip(\"\\n\") + \"\\n\"\nadded = 0\nwith open(new, \"w\", encoding=\"utf-8\") as out:\n    out.write(text)\n    for row in csv.DictReader(open(review, encoding=\"utf-8\")):\n        if row[\"add_to_eval\"].strip().lower() != \"yes\":\n            continue\n        case = {\"id\": \"fb-\" + row[\"id\"], \"question\": row[\"question\"], \"category\": row[\"category\"], \"source\": row[\"source\"]}\n        out.write(json.dumps(case, ensure_ascii=False) + \"\\n\")\n        added += 1\nprint(f\"{new}: {added} new cases on top of {old}\")\nRun:\npython add_cases.py review-2026-W46.csv evals/rh/2026-11.jsonl evals/rh/2026-12.jsonl"
+    ],
+    "ok": "review-2026-W46.csv holds the thumbs-down plus 40 random conversations; after the review, add_cases.py creates 2026-12.jsonl with all of 2026-11 plus the cases marked yes, and the next prompt comparison uses that version on both sides."
+  }
+}

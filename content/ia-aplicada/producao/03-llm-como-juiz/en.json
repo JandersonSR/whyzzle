@@ -1,0 +1,206 @@
+{
+  "title": "LLM as a judge, with a calibration test",
+  "subtitle": "Agreeing a lot isn’t enough: compare with chance using kappa",
+  "mission": "So it doesn’t depend on HR at every change, the team wants an LLM that says \"pass\" or \"fail\" for each answer. Before letting the judge block deploys, two HR people labeled 50 answers (passed 42, failed 8) and the judge graded the same 50. Tune the rubric and examples until the judge deserves trust, and find out why 86% agreement can be almost nothing.",
+  "predict": {
+    "question": "with a vague rubric (\"is the answer good?\") and 3 labeled examples, the judge agrees with HR on 88% of the 50 answers. Is it good enough to block deploys (kappa of at least 0.6)?",
+    "options": {
+      "yes": "Yes: 88% is a lot",
+      "no": "Not yet"
+    }
+  },
+  "feedback": {
+    "right": "right: kappa is only 0.44. Since HR passes 84% of the answers, a judge that passed everything would already agree 84%. The 88% is only 4 points above chance.",
+    "wrong": "not yet: kappa is 0.44. Since HR passes 84% of the answers, a judge that passed everything would already agree 84%. The 88% is only 4 points above chance.",
+    "skipped": "no guess? Run with a vague rubric and examples and look at kappa."
+  },
+  "coach": {
+    "ui": "guess noted. Pick the vague rubric, turn examples on and run.",
+    "cmd": "guess noted. Run judge --rubric vague --examples yes and look at kappa."
+  },
+  "tryNext": {
+    "ui": "Now a rubric with criteria plus examples, and judge the short answer \"Up to 1/3 [1].\" with and without examples. For a real judge, pick \"Your key\" or \"In the browser\".",
+    "cmd": "Run judge \"Up to 1/3 [1].\" --examples yes and compare with HR’s verdict."
+  },
+  "why": {
+    "simples": "A robot judge is like a new essay grader: before letting it grade alone, you give it 50 essays teachers already graded and check whether it reaches the same marks.\nBut counting matches fools you. If almost every essay is good, a grader that says \"pass\" to all of them is right almost every time, without reading anything. Kappa discounts that luck: 0 means \"no better than chance\", 1 means \"always agrees\".",
+    "dev": "Cohen’s kappa: κ = (pₒ − pₑ) ÷ (1 − pₑ), where pₒ is the observed agreement and pₑ is the agreement expected by chance, from each side’s pass rate. With HR passing 42 of 50, a judge that passes 49 has pₑ ≈ 0.83: the observed 86% becomes κ = 0.19.\nWhat works in practice: a rubric with explicit criteria and a binary output (pass or fail) instead of a 1 to 10 score; a few examples labeled by HR, including borderline cases (the short, right answer); one judge per criterion when they conflict; the reason alongside the verdict. Measure the judge against human labels, keep those 50 as the versioned \"judge set\" and measure again whenever the model or rubric changes.",
+    "especialista": "The MT-Bench study (Zheng et al., 2023) found over 80% agreement between strong judges like GPT-4 and human preferences, the same level as between humans, and also position, verbosity and self-enhancement biases. All three show up in RAG evaluation: the lesson’s long, friendly answer passes the vague judge; when comparing two answers, swap the order and only count a win that holds; and avoid having the same model generate and judge.\nUse the agreement between the two HR people as the ceiling (here κ = 0.79): a judge close to it is good, and demanding more asks the robot for what not even people do. Look at the confusion matrix, not only κ: for a deploy gate, passing a bad answer (a false \"pass\") costs more than failing a good one, so tune the rubric to err toward failing. Landis and Koch’s \"substantial\" band (0.61 to 0.80) is a convention, not a law: set your team’s minimum and record why."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: vague rubric and no examples.",
+      "cmd": "time to break it: run judge --rubric vague"
+    },
+    "success": "Broken: the judge agrees with HR on {agreePct}% of the {nAnswers} answers, which looks great, but kappa is {kappaS}. A judge that passed everything would agree {alwaysPct}%. It passed {fp} of the {humanFail} answers HR failed: as a deploy gate, it would let almost every error through.",
+    "calm": "Rubric {rubricL}: {agreePct}% agreement, kappa {kappaS} (between the two HR people: {humanKappaS}). To break it, make the judge look good with a low kappa."
+  },
+  "hints": {
+    "ui": [
+      "Pick an answer and a rubric and run. The metrics at the top cover all 50 answers.",
+      "Agreement counts matches; kappa discounts what a pass-everything judge would match by chance. Labeled examples teach where the line is.",
+      "Vague rubric, no examples."
+    ],
+    "cmd": [
+      "The answer to judge goes in quotes, after judge.",
+      "--rubric vague or criteria; --examples yes or no.",
+      "judge --rubric vague"
+    ]
+  },
+  "errors": {
+    "notInEnum.rubric": "\"{value}\" is not a rubric. Use: {options}.",
+    "notBool.examples": "Use yes or no.",
+    "model.unknownAnswer": "In simulated mode, judge one of the four example answers (HR already labeled those). With \"Your key\" or \"In the browser\", the real judge grades any text."
+  },
+  "controls": {
+    "arg": "Answer to judge",
+    "rubric": "Judge’s rubric",
+    "examples": "3 examples labeled by HR"
+  },
+  "scene": {
+    "label": "Answer judge",
+    "empty": "Run to judge.",
+    "sAnswer": "Answer",
+    "subExample": "labeled example",
+    "subAny": "any text",
+    "sJudge": "Judge",
+    "subVague": "vague rubric",
+    "subCriteria": "3 criteria",
+    "sVerdict": "Verdict",
+    "sHuman": "HR said",
+    "vPass": "pass",
+    "vFail": "fail",
+    "vInvalid": "invalid JSON",
+    "vNone": "no label",
+    "aggLabel": "On the 50 answers labeled by HR",
+    "mAgree": "agreement with HR",
+    "mKappa": "Cohen’s kappa",
+    "mAlways": "pass-everything judge",
+    "mHumans": "kappa between the 2 people",
+    "confLabel": "Confusion matrix",
+    "colJudge": "judge",
+    "colHPass": "HR: pass",
+    "colHFail": "HR: fail",
+    "rowJPass": "pass",
+    "rowJFail": "fail",
+    "confCaption": "the top-right cell is bad answers the judge let through ({fp} of {humanFail})",
+    "chkKappa": "Kappa of at least 0.6 (team rule)",
+    "whyKappa": "kappa {kappaS}: the {agreePct}% agreement is close to chance ({alwaysPct}%)",
+    "chkThis": "On this answer, the judge agrees with HR",
+    "whyThis": "the judge and HR disagreed on this answer",
+    "brokenNote": "The model didn’t return the requested JSON ({\"verdict\": \"pass\" or \"fail\"}). A judge that doesn’t follow the format is also an uncalibrated judge.",
+    "realNote": "This answer’s verdict comes from the real model, with the chosen rubric. The 50-answer metrics are still the lesson’s: to measure your own judge, run the recipe.",
+    "simNote": "Simulated mode: verdicts and matrices hand-written for the 4 possible rubrics. Use \"Your key\" or \"In the browser\" for a real judge on this answer."
+  },
+  "data": {
+    "question": "How much of my vacation can I sell?",
+    "context": "Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.",
+    "qLabel": "Question",
+    "ctxLabel": "Handbook chunk",
+    "aLabel": "Answer",
+    "answers": {
+      "Up to one third of your vacation, asking together with the vacation request [1].": {
+        "known": true,
+        "v": {
+          "vague0": "pass",
+          "vague1": "pass",
+          "criteria0": "pass",
+          "criteria1": "pass"
+        },
+        "human": "pass"
+      },
+      "Great question! At Aurora you can sell up to half of your vacation. Just ask your manager in advance and the money comes in the next payment. Enjoy your rest!": {
+        "known": true,
+        "v": {
+          "vague0": "pass",
+          "vague1": "pass",
+          "criteria0": "fail",
+          "criteria1": "fail"
+        },
+        "human": "fail"
+      },
+      "Up to 1/3 [1].": {
+        "known": true,
+        "v": {
+          "vague0": "pass",
+          "vague1": "pass",
+          "criteria0": "fail",
+          "criteria1": "pass"
+        },
+        "human": "pass"
+      },
+      "I couldn’t find that in the handbook. I’ll forward your question to HR.": {
+        "known": true,
+        "v": {
+          "vague0": "pass",
+          "vague1": "fail",
+          "criteria0": "fail",
+          "criteria1": "fail"
+        },
+        "human": "fail"
+      }
+    },
+    "unknownAnswer": {
+      "known": false,
+      "v": {},
+      "human": ""
+    },
+    "aggs": {
+      "vague0": {
+        "tp": 42,
+        "fp": 7,
+        "fn": 0,
+        "tn": 1,
+        "agreePct": 86,
+        "kappa": 0.19,
+        "kappaS": "0.19"
+      },
+      "vague1": {
+        "tp": 41,
+        "fp": 5,
+        "fn": 1,
+        "tn": 3,
+        "agreePct": 88,
+        "kappa": 0.44,
+        "kappaS": "0.44"
+      },
+      "criteria0": {
+        "tp": 40,
+        "fp": 3,
+        "fn": 2,
+        "tn": 5,
+        "agreePct": 90,
+        "kappa": 0.61,
+        "kappaS": "0.61"
+      },
+      "criteria1": {
+        "tp": 41,
+        "fp": 2,
+        "fn": 1,
+        "tn": 6,
+        "agreePct": 94,
+        "kappa": 0.76,
+        "kappaS": "0.76"
+      }
+    },
+    "alwaysPct": 84,
+    "humanKappaS": "0.79",
+    "rubricVague": "vague",
+    "rubricCriteria": "with criteria",
+    "systems": {
+      "vague0": "You grade answers from Aurora’s HR assistant. Is the answer good? Reply only with JSON: {\"verdict\":\"pass|fail\",\"reason\":\"one sentence\"}.",
+      "vague1": "You grade answers from Aurora’s HR assistant. Is the answer good? Reply only with JSON: {\"verdict\":\"pass|fail\",\"reason\":\"one sentence\"}. Examples labeled by HR: \"Question: How much is the VR? Answer: R$ 45 per working day [1].\" → pass (short and right is enough). \"Question: How much is the VR? Answer: About R$ 50, depends on the month!\" → fail (not in the chunk). \"Question: How much is the VR? Answer: I couldn’t find that in the handbook.\" → fail (the chunk answers).",
+      "criteria0": "You grade answers from Aurora’s HR assistant. Pass only if all three are true: 1) it answers what was asked; 2) every claim is in the handbook chunk; 3) it doesn’t refuse when the chunk answers. Any failure: fail. Reply only with JSON: {\"verdict\":\"pass|fail\",\"reason\":\"one sentence\"}.",
+      "criteria1": "You grade answers from Aurora’s HR assistant. Pass only if all three are true: 1) it answers what was asked; 2) every claim is in the handbook chunk; 3) it doesn’t refuse when the chunk answers. Any failure: fail. Reply only with JSON: {\"verdict\":\"pass|fail\",\"reason\":\"one sentence\"}. Examples labeled by HR: \"Question: How much is the VR? Answer: R$ 45 per working day [1].\" → pass (short and right is enough). \"Question: How much is the VR? Answer: About R$ 50, depends on the month!\" → fail (not in the chunk). \"Question: How much is the VR? Answer: I couldn’t find that in the handbook.\" → fail (the chunk answers)."
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Pick 50 real answers from the assistant (no personal data) and ask two HR people to label each as pass or fail, without seeing each other’s. Save the answers and the final label in judge_set.jsonl, one case per line:\n{\"question\": \"How much of my vacation can I sell?\", \"context\": \"Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.\", \"answer\": \"Great question! At Aurora you can sell up to half of your vacation. Just ask your manager in advance and the money comes in the next payment. Enjoy your rest!\", \"human\": \"fail\"}",
+      "Write the rubric in rubric.txt (criteria + labeled examples), for example:\nYou grade answers from Aurora’s HR assistant. Pass only if all three are true: 1) it answers what was asked; 2) every claim is in the handbook chunk; 3) it doesn’t refuse when the chunk answers. Any failure: fail. Reply only with JSON: {\"verdict\":\"pass|fail\",\"reason\":\"one sentence\"}. Examples labeled by HR: \"Question: How much is the VR? Answer: R$ 45 per working day [1].\" → pass (short and right is enough). \"Question: How much is the VR? Answer: About R$ 50, depends on the month!\" → fail (not in the chunk). \"Question: How much is the VR? Answer: I couldn’t find that in the handbook.\" → fail (the chunk answers).",
+      "Install the SDK (pip install anthropic), keep your key in ANTHROPIC_API_KEY and create judge_eval.py, which grades each case and computes agreement and kappa against the human label:\nimport json\nimport os\nimport sys\n\nfrom anthropic import Anthropic\n\nMODEL = os.environ.get(\"JUDGE_MODEL\", \"claude-haiku-5-5\")\nclient = Anthropic()\nRUBRIC = open(\"rubric.txt\", encoding=\"utf-8\").read()\n\n\ndef judge(case):\n    content = f\"Question: {case['question']}\\nChunk: {case['context']}\\nAnswer: {case['answer']}\"\n    reply = client.messages.create(\n        model=MODEL,\n        max_tokens=300,\n        system=RUBRIC,\n        messages=[{\"role\": \"user\", \"content\": content}],\n    )\n    text = \"\".join(b.text for b in reply.content if b.type == \"text\")\n    return json.loads(text[text.index(\"{\"): text.rindex(\"}\") + 1])[\"verdict\"]\n\n\ncases = [json.loads(line) for line in open(sys.argv[1], encoding=\"utf-8\") if line.strip()]\ntp = fp = fn = tn = 0\nfor case in cases:\n    j = judge(case) == \"pass\"\n    h = case[\"human\"] == \"pass\"\n    tp += j and h\n    fp += j and not h\n    fn += h and not j\n    tn += not j and not h\n\nn = len(cases)\npo = (tp + tn) / n\npe = ((tp + fp) / n) * ((tp + fn) / n) + ((fn + tn) / n) * ((fp + tn) / n)\nkappa = (po - pe) / (1 - pe) if pe < 1 else 0.0\nprint(f\"judge pass & human pass {tp} | judge pass & human fail {fp} | judge fail & human pass {fn} | both fail {tn}\")\nprint(f\"agreement {po:.0%} | Cohen's kappa {kappa:.2f}\")",
+      "Run it, then swap rubric.txt for a vague rubric (\"Is the answer good?\" + the JSON request) and run again:\npython judge_eval.py judge_set.jsonl"
+    ],
+    "ok": "the script prints the matrix and kappa; the rubric with criteria and examples has a higher kappa than the vague one, and you pick the team’s minimum also looking at how many bad answers the judge let through."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Medir um juiz LLM contra rótulos humanos.",
+      "Calcular e interpretar o kappa de Cohen.",
+      "Escrever rubrica com critérios e exemplos."
+    ],
+    "minutes": 25,
+    "activity": "A turma rotula 20 respostas como passa/não passa. Um grupo faz o \"juiz preguiçoso\" que aprova tudo; outro usa uma rubrica de 3 critérios. Calculem concordância e kappa no quadro para os dois.",
+    "discussion": [
+      "Que erro do juiz é mais caro para a Aurora: aprovar resposta ruim ou reprovar boa?",
+      "Quantos casos rotulados vocês precisam para confiar no kappa?"
+    ],
+    "misconceptions": [
+      "\"90% de concordância é ótimo.\" Depende de quanto o acaso já daria.",
+      "\"O juiz é um modelo forte, então está certo.\" Ele tem vieses de posição, tamanho e autopromoção."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Measure an LLM judge against human labels.",
+      "Compute and interpret Cohen’s kappa.",
+      "Write a rubric with criteria and examples."
+    ],
+    "minutes": 25,
+    "activity": "The class labels 20 answers as pass/fail. One group plays the \"lazy judge\" that passes everything; another uses a 3-criteria rubric. Compute agreement and kappa on the board for both.",
+    "discussion": [
+      "Which judge error costs Aurora more: passing a bad answer or failing a good one?",
+      "How many labeled cases do you need to trust kappa?"
+    ],
+    "misconceptions": [
+      "\"90% agreement is great.\" It depends on what chance would already give.",
+      "\"The judge is a strong model, so it’s right.\" It has position, length and self-enhancement biases."
+    ]
+  }
+}
