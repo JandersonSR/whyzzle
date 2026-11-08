@@ -1,0 +1,97 @@
+{
+  "title": "async/await",
+  "subtitle": "A chapa, o suco e o troco: esperar sem ficar parado olhando",
+  "mission": "Um pedido na cantina tem três partes: o misto quente na chapa (3 s), o suco (2 s) e o troco (1 s). Com async/await, o caixa pode começar tudo e esperar as três juntas, ou fazer uma de cada vez. Escolha o modo, o tipo de método (async Task ou async void) e se a máquina de suco vai quebrar.",
+  "predict": {
+    "question": "começando as três tarefas e esperando com await Task.WhenAll, quanto tempo leva o pedido?",
+    "options": {
+      "six": "6 s: 3 + 2 + 1",
+      "three": "3 s: o tempo da mais demorada",
+      "one": "1 s: o tempo da mais rápida"
+    }
+  },
+  "feedback": {
+    "right": "isso: as três começam no segundo 0 e ninguém fica parado olhando a chapa. O WhenAll termina quando a última termina, aos 3 s. Esperar uma de cada vez somaria 6 s.",
+    "wrong": "são 3 s. As tarefas começam juntas (chamar Preparar já dispara o trabalho) e o await Task.WhenAll espera a mais demorada. 6 s seria fazendo um await de cada vez.",
+    "skipped": "sem palpite? Rode preparar e depois preparar --modo um-por-vez, e compare o tempo total."
+  },
+  "coach": {
+    "ui": "palpite anotado. Olhe o tempo total e a tabela. Depois troque o modo para \"um-por-vez\".",
+    "cmd": "palpite anotado. Rode preparar e depois preparar --modo um-por-vez."
+  },
+  "tryNext": {
+    "ui": "Ligue a falha com async Task: o try/catch pega o erro da máquina de suco e o programa termina direitinho. Guarde isso para comparar com o async void.",
+    "cmd": "Rode preparar --modo um-por-vez e veja o tempo virar 6 s."
+  },
+  "why": {
+    "simples": "Esperar a chapa esquentar não é trabalho: é espera. async/await é o jeito de dizer ao programa \"enquanto isso esquenta, vai fazendo outra coisa\". O await é o \"me avisa quando terminar\".\nSe você liga a chapa, espera ficar pronta, só então faz o suco e só então conta o troco, o cliente espera 6 segundos. Se você liga tudo e espera as três coisas juntas, espera só o tempo da mais demorada: 3 segundos.\nO async void é o funcionário que sai correndo para fazer o pedido e não deixa telefone: ninguém sabe quando terminou, e se der problema, ninguém fica sabendo até a cantina inteira parar.",
+    "dev": "É o mesmo modelo do JS: Task<T> é a Promise<T>, await funciona igual e Task.WhenAll é o Promise.all (quando aguardado, relança a primeira exceção). Atenção: ao contrário do Promise.all, que rejeita na primeira falha, o Task.WhenAll espera todas as tarefas terminarem antes de relançar. Chamar um método async já começa o trabalho; o await só decide onde você espera o resultado.\nDiferenças que pegam quem vem do Node: async void existe e é perigoso (não dá para aguardar, e exceção lá dentro não volta para quem chamou; num console ou servidor, derruba o processo), então use async Task sempre, exceto em handlers de evento de UI. Não bloqueie com .Result ou .Wait(): em apps com contexto de sincronização (WinForms, WPF, ASP.NET antigo) isso pode travar para sempre. E passe CancellationToken adiante para dar para cancelar.",
+    "especialista": "async não cria thread: o await de um Task.Delay ou de uma chamada de rede libera a thread enquanto espera, e a continuação roda depois (no pool de threads, num app console ou ASP.NET Core, que não têm SynchronizationContext). Para trabalho pesado de CPU, quem paraleliza é Task.Run ou Parallel, não o await.\nValueTask<T> evita alocar um Task quando o resultado costuma estar pronto na hora (um cache, por exemplo), mas tem regras: aguarde uma vez só, não aguarde em paralelo e não leia Result antes de completar; na dúvida, use Task. ConfigureAwait(false) diz \"não preciso voltar ao contexto original\": em bibliotecas, evita deadlocks e custo; no ASP.NET Core faz pouca diferença. Com WhenAll, o await relança só a primeira exceção; as outras ficam em task.Exception (AggregateException). Ferramentas: o compilador avisa quando uma Task não é aguardada (CS4014)."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: troque o método para async void.",
+      "cmd": "hora de quebrar: rode preparar --metodo void"
+    },
+    "success": "Quebrou: com async void, ninguém consegue esperar o preparo. {voidWhat}",
+    "calm": "O pedido terminou em {total} ({done} de 3 itens prontos) e quem chamou ficou sabendo de tudo, inclusive dos erros. Para quebrar, troque para async void."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o modo, o tipo de método e a falha.",
+      "Um dos tipos de método não devolve nada que dê para esperar.",
+      "Escolha o método void."
+    ],
+    "cmd": [
+      "--modo, --metodo e --falha são opcionais.",
+      "--modo aceita juntos ou um-por-vez; --metodo aceita task ou void.",
+      "preparar --metodo void"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Use juntos ou um-por-vez.",
+    "notInEnum.method": "Use task ou void.",
+    "notBool.fail": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Pedido",
+    "mode": "Como esperar",
+    "method": "Preparar devolve",
+    "fail": "A máquina de suco quebra"
+  },
+  "scene": {
+    "label": "Balcão da cantina",
+    "empty": "Rode para preparar o pedido.",
+    "totalM": "tempo total do pedido",
+    "doneM": "itens terminados",
+    "knewM": "quem chamou ficou sabendo?",
+    "yes": "sim",
+    "no": "não",
+    "tableLabel": "Linha do tempo",
+    "cItem": "item",
+    "cStart": "começa",
+    "cEnd": "termina",
+    "never": "nunca",
+    "boom": "derrubou o programa",
+    "failed": "falhou",
+    "runLabel": "Terminal",
+    "voidModeNote": "Com async void, o controle \"Como esperar\" não muda nada: o código já não espera por nenhuma das três.",
+    "togetherNote": "As três começaram no segundo 0; o WhenAll esperou a mais demorada.",
+    "seqNote": "Um await de cada vez: cada item só começa quando o anterior termina, e os tempos se somam.",
+    "caughtNote": "A exceção da máquina de suco voltou pelo await e caiu no catch: o programa explica o problema e termina normalmente.",
+    "voidEarlyNote": "\"Atendimento encerrado\" saiu no segundo 0, antes de qualquer item ficar pronto, e a linha \"Prontos\" nunca aparece: não há Task para esperar.",
+    "voidCrashNote": "O try/catch em volta das chamadas já tinha passado quando a máquina quebrou. A exceção do async void subiu direto e derrubou o processo inteiro."
+  },
+  "data": {
+    "voidCrash": "Quando a máquina de suco quebrou, o try/catch já tinha passado: a exceção derrubou o programa inteiro e o misto quente nunca saiu.",
+    "voidEarly": "O atendimento foi \"encerrado\" no segundo 0, antes de qualquer item ficar pronto, e a lista de prontos nunca foi entregue."
+  },
+  "recipe": {
+    "steps": [
+      "Crie o projeto (se ainda não criou): dotnet new console -o Cantina e entre em Cantina.",
+      "Troque Program.cs por:\nusing System.Diagnostics;\n\nvar relogio = Stopwatch.StartNew();\ntry\n{\n    Task<string> chapa = Preparar(\"misto quente\", 3);\n    Task<string> suco = Preparar(\"suco\", 2);\n    Task<string> troco = Preparar(\"troco\", 1);\n    string[] prontos = await Task.WhenAll(chapa, suco, troco);\n    Console.WriteLine($\"Prontos: {string.Join(\", \", prontos)}\");\n}\ncatch (Exception ex)\n{\n    Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] pedido com problema: {ex.Message}\");\n}\nConsole.WriteLine($\"Tempo total: {relogio.Elapsed.TotalSeconds:F1} s\");\n\nasync Task<string> Preparar(string item, int segundos)\n{\n    Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] começou {item}\");\n    await Task.Delay(TimeSpan.FromSeconds(segundos));\n    Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] terminou {item}\");\n    return item;\n}",
+      "Rode dotnet run. Depois troque as quatro linhas do Task<string> e do WhenAll pelas versões com await uma de cada vez:\n    string chapa = await Preparar(\"misto quente\", 3);\n    string suco = await Preparar(\"suco\", 2);\n    string troco = await Preparar(\"troco\", 1);\n    string[] prontos = [chapa, suco, troco];\ne rode de novo."
+    ],
+    "ok": "na primeira vez as três tarefas começam em [0 s] e o tempo total fica perto de 3 s; na segunda, cada uma começa quando a anterior termina e o total fica perto de 6 s."
+  }
+}

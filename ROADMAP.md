@@ -163,11 +163,10 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 5. C# e ASP.NET Core
 - **Fundamentos**
-  - [ ] → F1 · C# do zero (7): tipos e variáveis; controle de fluxo; coleções e LINQ; classes e records; nulabilidade; exceções; async/await.
-    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão independente e publicação.
-  - [ ] Missão: calculadora de empréstimo com testes.
+  - [x] F1 · C# do zero (7): tipos e variáveis; controle de fluxo; coleções e LINQ; classes e records; nulabilidade; exceções; async/await.
+  - [x] Missão: calculadora de empréstimo com testes.
 - **Prática**
-  - [ ] P1 · Web APIs com ASP.NET Core (8): minimal APIs × controllers; injeção de dependência e ciclos de vida; validação e ProblemDetails; EF Core e migrations; autenticação JWT; configuração e options; logging; testes de integração.
+  - [ ] → P1 · Web APIs com ASP.NET Core (8): minimal APIs × controllers; injeção de dependência e ciclos de vida; validação e ProblemDetails; EF Core e migrations; autenticação JWT; configuração e options; logging; testes de integração.
   - [ ] P2 · Vindo de Node e TypeScript (6): equivalências de linguagem; Task × Promise; pacotes e projetos; middleware; padrões idiomáticos; armadilhas comuns.
   - [ ] Missão: API de simulação de crédito com banco, autenticação e testes.
 - **Produção**
@@ -409,6 +408,7 @@ Depende das etapas de plataforma PL1 a PL3.
 | nov/2026 | Plataforma · PL2 · modelo declarativo + 9 peças de cena reutilizáveis (galeria em /galeria) | Publicada |
 | nov/2026 | Plataforma · PL3 · executores no navegador (Transformers.js 4.3.2, WebLLM 0.2.87) e sua chave (Anthropic, OpenAI, Gemini, compatível); ativos nos passos 2 e 4 dos Fundamentos | Publicada |
 | nov/2026 | IA aplicada · Prática · P1 · 7 lições com modelos reais (tokenizador do GPT-4o, multilingual-e5-small, Llama 3.2 1B ou sua chave), todas só com dados | Publicada |
+| nov/2026 | C# e ASP.NET Core · Fundamentos F1 + missão (tipos, fluxo, LINQ, records, nulabilidade, exceções, async/await; missão da calculadora de empréstimo; saídas conferidas no .NET 10) | Publicada |
 | nov/2026 | Contêineres e Kubernetes · Fundamentos F1 + missão (processo × contêiner × VM, imagem e camadas, Dockerfile, registro, por que orquestrar, cluster; missão do Dockerfile explicado linha a linha) | Publicada |
 | nov/2026 | IA aplicada · Prática · missão final: assistente de RH da Aurora (limpeza, busca híbrida, limite, citação, recusa, triagem e avaliação em 13 perguntas) | Publicada |
 | nov/2026 | IA aplicada · Prática · P3 · Prompts e agentes: 7 lições (prompt de sistema, few-shot, extração de notas, triagem, agente com limites, memória, MCP), com modo real por Llama 1B ou sua chave | Publicada |

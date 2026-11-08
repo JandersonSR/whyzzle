@@ -1,0 +1,295 @@
+{
+  "id": "cs-controle-de-fluxo",
+  "order": 2,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 15,
+  "tags": [
+    "csharp",
+    "if",
+    "switch",
+    "for",
+    "foreach",
+    "pattern-matching"
+  ],
+  "requires": [
+    "cs-tipos-e-variaveis"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "conferir",
+      "en": "check"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "saldos do recreio",
+        "en": "recess balances"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "loop",
+        "alias": {
+          "pt": "laco",
+          "en": "loop"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "foreach",
+            "pt": "foreach",
+            "en": "foreach"
+          },
+          {
+            "id": "lt",
+            "pt": "for-menor",
+            "en": "for-lt"
+          },
+          {
+            "id": "le",
+            "pt": "for-menor-igual",
+            "en": "for-le"
+          }
+        ],
+        "default": "foreach",
+        "ui": "select"
+      },
+      {
+        "name": "students",
+        "alias": {
+          "pt": "alunos",
+          "en": "students"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 8,
+        "default": 5,
+        "ui": "slider"
+      },
+      {
+        "name": "discard",
+        "alias": {
+          "pt": "descarte",
+          "en": "discard"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "outOfRange"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "lits": [
+          "12m",
+          "0m",
+          "-3m",
+          "4.5m",
+          "20m",
+          "7m",
+          "2m",
+          "0.5m"
+        ],
+        "vals": [
+          "12",
+          "0",
+          "-3",
+          "4.5",
+          "20",
+          "7",
+          "2",
+          "0.5"
+        ],
+        "valsPt": [
+          "12",
+          "0",
+          "-3",
+          "4,5",
+          "20",
+          "7",
+          "2",
+          "0,5"
+        ],
+        "outs": [
+          "Aluno 1: liberado",
+          "Aluno 2: zerado",
+          "Aluno 3: devendo",
+          "Aluno 4: quase acabando",
+          "Aluno 5: liberado",
+          "Aluno 6: liberado",
+          "Aluno 7: quase acabando",
+          "Aluno 8: quase acabando"
+        ],
+        "stats": [
+          "liberado",
+          "zerado",
+          "devendo",
+          "quase acabando",
+          "liberado",
+          "liberado",
+          "quase acabando",
+          "quase acabando"
+        ],
+        "tones": [
+          "ok",
+          "warn",
+          "bad",
+          "warn",
+          "ok",
+          "ok",
+          "warn",
+          "warn"
+        ],
+        "firstBig": 0,
+        "sw": [
+          "    string situacao = saldo switch",
+          "    {",
+          "        < 0 => \"devendo\",",
+          "        0 => \"zerado\",",
+          "        < 5 => \"quase acabando\","
+        ],
+        "cs8509": "?…/Program.cs(5,29): warning CS8509: The switch expression does not handle all possible values of its input type (it is not exhaustive). For example, the pattern '5.0000000000000000000000000000M' is not covered.",
+        "swDiscard": "        _ => \"liberado\",",
+        "tailForeach": [
+          "    Console.WriteLine($\"Aluno {numero}: {situacao}\");",
+          "    numero++;"
+        ],
+        "tailFor": [
+          "    Console.WriteLine($\"Aluno {i + 1}: {situacao}\");"
+        ]
+      },
+      "compute": {
+        "n": "students",
+        "isLe": "loop == 'le'",
+        "noMatch": "!discard",
+        "shown": "noMatch ? min(firstBig, n) : n",
+        "switchBoom": "noMatch && firstBig < n",
+        "indexBoom": "isLe && !switchBoom",
+        "header": "loop == 'foreach' ? 'foreach (decimal saldo in saldos)' : (isLe ? 'for (int i = 0; i <= saldos.Length; i++)' : 'for (int i = 0; i < saldos.Length; i++)')",
+        "valsL": "lang == 'pt' ? valsPt : vals",
+        "rowsOk": "zip(range(shown, 1), slice(valsL, 0, shown), slice(stats, 0, shown))",
+        "boomRow": "indexBoom ? [[n + 1, '—', 'IndexOutOfRangeException']] : (switchBoom ? [[shown + 1, valsL[shown], 'SwitchExpressionException']] : [])",
+        "loops": "shown + (indexBoom || switchBoom ? 1 : 0)"
+      },
+      "cases": [
+        {
+          "when": "indexBoom",
+          "flags": [
+            "outOfRange"
+          ]
+        },
+        {
+          "when": "noMatch",
+          "flags": [
+            "notExhaustive"
+          ]
+        },
+        {
+          "when": "switchBoom",
+          "flags": [
+            "switchCrash"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "n": "n",
+            "shown": "shown",
+            "loops": "loops",
+            "last": "n - 1"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@servedM",
+              "value": "=shown",
+              "format": "int",
+              "tone": "=shown == n ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@turnsM",
+              "value": "=loops",
+              "format": "int",
+              "tone": "=loops > n ? 'bad' : 'dim'"
+            },
+            {
+              "label": "@endM",
+              "value": "=indexBoom || switchBoom ? '@crashed' : '@finished'",
+              "tone": "=indexBoom || switchBoom ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "Program.cs",
+          "lines": "=concat(['decimal[] saldos = [' + join(slice(lits, 0, n), ', ') + '];'], loop == 'foreach' ? ['int numero = 1;'] : [], [header, '{'], loop == 'foreach' ? [] : ['    decimal saldo = saldos[i];'], sw, discard ? [swDiscard] : [], ['    };'], loop == 'foreach' ? tailForeach : tailFor, ['}'])"
+        },
+        {
+          "type": "terminal",
+          "label": "@runLabel",
+          "lines": "=concat(['$ dotnet run'], noMatch ? [cs8509] : [], slice(outs, 0, shown), indexBoom ? ['!Unhandled exception. System.IndexOutOfRangeException: Index was outside the bounds of the array.', '~   at Program.<Main>$(String[] args) in …/Program.cs:line 4'] : [], switchBoom ? ['!Unhandled exception. System.Runtime.CompilerServices.SwitchExpressionException: Non-exhaustive switch expression failed to match its input.', '!Unmatched value was ' + vals[shown] + '.'] : [])"
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@cStudent",
+            "@cBalance",
+            "@cStatus"
+          ],
+          "rows": "=concat(rowsOk, boomRow)",
+          "tones": "=concat(slice(tones, 0, shown), indexBoom || switchBoom ? ['bad'] : [])"
+        },
+        {
+          "type": "note",
+          "when": "=indexBoom",
+          "tone": "bad",
+          "text": "@leNote"
+        },
+        {
+          "type": "note",
+          "when": "=switchBoom",
+          "tone": "bad",
+          "text": "@switchNote"
+        },
+        {
+          "type": "note",
+          "when": "=!indexBoom && !switchBoom && loop == 'foreach'",
+          "tone": "ok",
+          "text": "@foreachNote"
+        },
+        {
+          "type": "note",
+          "when": "=!indexBoom && !switchBoom && loop == 'lt'",
+          "tone": "info",
+          "text": "@ltNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "extra",
+      "crash",
+      "compile"
+    ],
+    "answer": "crash"
+  }
+}

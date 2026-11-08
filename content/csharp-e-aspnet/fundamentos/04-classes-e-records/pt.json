@@ -1,0 +1,91 @@
+{
+  "title": "Classes e records",
+  "subtitle": "Dois pedidos iguais são o mesmo pedido? E se eu copiar e mudar a cópia, o original muda?",
+  "mission": "A Ana pediu uma coxinha. A amiga quer \"o mesmo pedido, mas com bolo\". O caixa copia o pedido da Ana e troca o lanche. Escolha se Pedido é uma class ou um record, e se a cópia é feita com with ou com um simples sinal de igual, e veja o que acontece com o pedido da Ana.",
+  "predict": {
+    "question": "com record, dois pedidos criados separadamente com os mesmos dados (\"Ana\", \"Coxinha\"): a == outro dá…",
+    "options": {
+      "true": "True: mesmos dados, mesmo pedido",
+      "false": "False: são dois objetos diferentes",
+      "error": "Erro: não dá para comparar objetos com =="
+    }
+  },
+  "feedback": {
+    "right": "isso! record compara pelo conteúdo: o compilador gera Equals, GetHashCode e o == para olhar campo por campo. Numa class, o == pergunta \"é o mesmo objeto?\", e aí daria False.",
+    "wrong": "dá True. record compara pelo conteúdo (igualdade de valor). Quem compara pela identidade, \"é o mesmo objeto na memória?\", é a class: lá o mesmo teste daria False.",
+    "skipped": "sem palpite? Rode copiar e olhe a última linha do terminal; depois tente com --tipo classe --copia igual."
+  },
+  "coach": {
+    "ui": "palpite anotado. Olhe a última linha do terminal. Depois troque para classe e copia igual.",
+    "cmd": "palpite anotado. Rode copiar e depois copiar --tipo classe --copia igual."
+  },
+  "tryNext": {
+    "ui": "Escolha classe com with: não compila (CS8858). O with é do record (e de structs); classes não ganham cópia de graça.",
+    "cmd": "Rode copiar --tipo classe e leia o erro CS8858."
+  },
+  "why": {
+    "simples": "Uma class é a planta de uma casa: com ela você constrói objetos. A variável não guarda a casa, guarda o endereço. Se você escreve var b = a, agora são dois papéis com o mesmo endereço: pintar a casa \"do b\" pinta a casa \"do a\", porque é a mesma casa.\nUm record é feito para guardar dados, como uma ficha de pedido. Ele vem pronto para comparar pelo conteúdo (duas fichas com o mesmo texto são iguais) e, em vez de rabiscar a ficha, você tira uma cópia com uma mudança: a with { Lanche = \"Bolo\" }. A ficha da Ana continua intacta.",
+    "dev": "No JS, objetos também são por referência: const b = a; b.lanche = \"Bolo\" muda a, e {...a, lanche: \"Bolo\"} é a cópia rasa. Em C#, record Pedido(string Aluno, string Lanche); declara numa linha um tipo com construtor, propriedades init (só podem ser definidas na criação), ToString legível, Equals/GetHashCode por valor e suporte a with, que é o \"spread\" do C#.\nUse class para coisas com identidade e comportamento que mudam com o tempo (um serviço, uma conta com saldo) e record para dados: DTOs de API, mensagens, valores de domínio. Atenção: record class continua sendo tipo de referência (a == compara valores, mas a variável ainda guarda uma referência); record struct é tipo de valor.",
+    "especialista": "O with faz cópia rasa: se o record tem uma List<string> Itens, o original e a cópia passam a compartilhar a mesma lista, e adicionar um item numa aparece na outra. Para imutabilidade de verdade, use coleções imutáveis (ImmutableList, ou IReadOnlyList preenchida com uma cópia) e lembre que a igualdade gerada compara a referência da lista, não o conteúdo dela.\nA igualdade de record também considera o tipo em tempo de execução (EqualityContract): um record derivado nunca é igual ao base, mesmo com os mesmos campos. Records funcionam bem como chaves de Dictionary e HashSet porque GetHashCode acompanha os campos, desde que nada mude depois de inserido. E o construtor primário de class (C# 12), usado aqui, só cria parâmetros: quem decide se viram propriedades e se podem mudar é você."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha classe e copia igual.",
+      "cmd": "hora de quebrar: rode copiar --tipo classe --copia igual"
+    },
+    "success": "Quebrou: b = a copiou só o endereço. Trocar o lanche da \"cópia\" trocou o da Ana, que agora vai receber {aText} sem ter pedido. E a == outro deu {equal}: com class, mesmo conteúdo não quer dizer mesmo pedido.",
+    "calm": "{calmLead} Para quebrar, use uma classe e copie com um simples sinal de igual."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o tipo de Pedido e o jeito de copiar.",
+      "Com class, a variável guarda um endereço.",
+      "Escolha classe e copia igual."
+    ],
+    "cmd": [
+      "--tipo e --copia são opcionais.",
+      "--tipo aceita record ou classe; --copia aceita with ou igual.",
+      "copiar --tipo classe --copia igual"
+    ]
+  },
+  "errors": {
+    "notInEnum.kind": "Use record ou classe.",
+    "notInEnum.copy": "Use with ou igual."
+  },
+  "controls": {
+    "arg": "Pedido",
+    "kind": "Pedido é um…",
+    "copy": "Como copiar"
+  },
+  "scene": {
+    "label": "Pedidos da cantina",
+    "empty": "Rode para copiar o pedido.",
+    "buildM": "compilação",
+    "ok": "ok",
+    "fail": "falhou",
+    "aM": "lanche da Ana no fim",
+    "eqM": "a == outro",
+    "runLabel": "Terminal",
+    "memLabel": "Memória: quem aponta para qual objeto",
+    "cVar": "variável",
+    "cObj": "objeto",
+    "cLanche": "Lanche",
+    "capAlias": "a e b apontam para o mesmo objeto #1",
+    "capRecord": "três objetos; a e outro são iguais pelo conteúdo",
+    "aliasNote": "b não é uma cópia: é outro nome para o mesmo pedido. Mexeu em b, mexeu em a.",
+    "recordNote": "with criou um pedido novo (#2) só com o lanche trocado; o da Ana ficou intacto. E a == outro compara o conteúdo.",
+    "initNote": "As propriedades de um record posicional são init: só podem ser definidas na criação. Para \"mudar\", crie uma cópia com with.",
+    "withNote": "with só funciona com records, structs e tipos anônimos. Numa class, você teria que escrever a cópia na mão."
+  },
+  "data": {
+    "calmFail": "Nem compilou: o programa não chegou a rodar, então o pedido da Ana nem foi tocado."
+  },
+  "recipe": {
+    "steps": [
+      "Crie o projeto (se ainda não criou): dotnet new console -o Cantina e entre em Cantina.",
+      "Troque Program.cs por:\nvar a = new Pedido(\"Ana\", \"Coxinha\");\nvar b = a;\nb.Lanche = \"Bolo\";\nvar outro = new Pedido(\"Ana\", \"Coxinha\");\n\nConsole.WriteLine($\"a: {a.Lanche}, b: {b.Lanche}\");\nConsole.WriteLine(a == outro);\n\nclass Pedido(string aluno, string lanche)\n{\n    public string Aluno { get; set; } = aluno;\n    public string Lanche { get; set; } = lanche;\n}",
+      "Rode dotnet run. Depois troque a class pela linha record Pedido(string Aluno, string Lanche); e as duas linhas do b por var b = a with { Lanche = \"Bolo\" }; e rode de novo."
+    ],
+    "ok": "com a class aparecem \"a: Bolo, b: Bolo\" e False; com o record aparecem \"a: Coxinha, b: Bolo\" e True."
+  }
+}

@@ -1,0 +1,399 @@
+{
+  "id": "cs-colecoes-e-linq",
+  "order": 3,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "csharp",
+    "list",
+    "linq",
+    "execucao-adiada"
+  ],
+  "requires": [
+    "cs-controle-de-fluxo"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "consultar",
+      "en": "query"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "lanches abaixo de R$ 5",
+        "en": "snacks under R$ 5"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "mode",
+        "alias": {
+          "pt": "modo",
+          "en": "mode"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "deferred",
+            "pt": "adiado",
+            "en": "deferred"
+          },
+          {
+            "id": "tolist",
+            "pt": "tolist",
+            "en": "tolist"
+          }
+        ],
+        "default": "deferred",
+        "ui": "select"
+      },
+      {
+        "name": "countFirst",
+        "alias": {
+          "pt": "contar",
+          "en": "count"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "late",
+        "alias": {
+          "pt": "pipoca",
+          "en": "popcorn"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "ranTwice"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "runsTab": {
+          "deferred|0|0": {
+            "lines": [
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "mostra Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "mostra Pão de queijo"
+            ],
+            "where": 4,
+            "select": 2,
+            "runs": 1,
+            "shown": 2,
+            "items": 4
+          },
+          "deferred|0|1": {
+            "lines": [
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "total: 2",
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "mostra Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "mostra Pão de queijo"
+            ],
+            "where": 8,
+            "select": 4,
+            "runs": 2,
+            "shown": 2,
+            "items": 4
+          },
+          "deferred|1|0": {
+            "lines": [
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "mostra Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "mostra Pão de queijo",
+              "  where  Pipoca",
+              "  select Pipoca",
+              "mostra Pipoca"
+            ],
+            "where": 5,
+            "select": 3,
+            "runs": 1,
+            "shown": 3,
+            "items": 5
+          },
+          "deferred|1|1": {
+            "lines": [
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "  where  Pipoca",
+              "  select Pipoca",
+              "total: 3",
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "mostra Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "mostra Pão de queijo",
+              "  where  Pipoca",
+              "  select Pipoca",
+              "mostra Pipoca"
+            ],
+            "where": 10,
+            "select": 6,
+            "runs": 2,
+            "shown": 3,
+            "items": 5
+          },
+          "tolist|0|0": {
+            "lines": [
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "mostra Suco",
+              "mostra Pão de queijo"
+            ],
+            "where": 4,
+            "select": 2,
+            "runs": 1,
+            "shown": 2,
+            "items": 4
+          },
+          "tolist|0|1": {
+            "lines": [
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "total: 2",
+              "mostra Suco",
+              "mostra Pão de queijo"
+            ],
+            "where": 4,
+            "select": 2,
+            "runs": 1,
+            "shown": 2,
+            "items": 4
+          },
+          "tolist|1|0": {
+            "lines": [
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "mostra Suco",
+              "mostra Pão de queijo"
+            ],
+            "where": 4,
+            "select": 2,
+            "runs": 1,
+            "shown": 2,
+            "items": 5
+          },
+          "tolist|1|1": {
+            "lines": [
+              "  where  Coxinha",
+              "  where  Suco",
+              "  select Suco",
+              "  where  Bolo",
+              "  where  Pão de queijo",
+              "  select Pão de queijo",
+              "total: 2",
+              "mostra Suco",
+              "mostra Pão de queijo"
+            ],
+            "where": 4,
+            "select": 2,
+            "runs": 1,
+            "shown": 2,
+            "items": 5
+          }
+        },
+        "head": [
+          "var lanches = new List<Lanche>",
+          "{",
+          "    new(\"Coxinha\", 6m),",
+          "    new(\"Suco\", 4m),",
+          "    new(\"Bolo\", 7m),",
+          "    new(\"Pão de queijo\", 3m),",
+          "};",
+          "",
+          "var baratos = lanches",
+          "    .Where(l =>",
+          "    {",
+          "        Console.WriteLine($\"  where  {l.Nome}\");",
+          "        return l.Preco < 5m;",
+          "    })",
+          "    .Select(l =>",
+          "    {",
+          "        Console.WriteLine($\"  select {l.Nome}\");",
+          "        return l.Nome;"
+        ],
+        "tail": [
+          "foreach (var nome in baratos)",
+          "{",
+          "    Console.WriteLine($\"mostra {nome}\");",
+          "}",
+          "",
+          "record Lanche(string Nome, decimal Preco);"
+        ]
+      },
+      "compute": {
+        "isDeferred": "mode == 'deferred'",
+        "row": "lookup(runsTab, mode + '|' + (late ? '1' : '0') + '|' + (countFirst ? '1' : '0'), runsTab['deferred|0|0'])",
+        "whereN": "row.where",
+        "selectN": "row.select",
+        "runsN": "row.runs",
+        "shownN": "row.shown",
+        "itemsN": "row.items",
+        "lateShown": "late && isDeferred"
+      },
+      "cases": [
+        {
+          "when": "isDeferred && countFirst",
+          "flags": [
+            "ranTwice"
+          ]
+        },
+        {
+          "when": "lateShown",
+          "flags": [
+            "sawLate"
+          ]
+        },
+        {
+          "when": "late && !isDeferred",
+          "flags": [
+            "missedLate"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "whereN": "whereN",
+            "selectN": "selectN",
+            "runs": "runsN",
+            "shown": "shownN",
+            "items": "itemsN"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@runsM",
+              "value": "=runsN",
+              "format": "int",
+              "tone": "=runsN > 1 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@whereM",
+              "value": "=whereN",
+              "format": "int",
+              "tone": "=runsN > 1 ? 'warn' : 'dim'"
+            },
+            {
+              "label": "@selectM",
+              "value": "=selectN",
+              "format": "int",
+              "tone": "dim"
+            },
+            {
+              "label": "@shownM",
+              "value": "=shownN",
+              "format": "int",
+              "tone": "info"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "Program.cs",
+          "lines": "=concat(head, isDeferred ? ['    });'] : ['    })', '    .ToList();'], [''], late ? ['lanches.Add(new(\"Pipoca\", 3m));'] : [], countFirst ? ['Console.WriteLine($\"total: {baratos.Count()}\");'] : [], tail)"
+        },
+        {
+          "type": "terminal",
+          "label": "@runLabel",
+          "lines": "=concat(['$ dotnet run'], row.lines)"
+        },
+        {
+          "type": "note",
+          "when": "=isDeferred && !countFirst",
+          "tone": "ok",
+          "text": "@deferredNote"
+        },
+        {
+          "type": "note",
+          "when": "=isDeferred && countFirst",
+          "tone": "bad",
+          "text": "@twiceNote"
+        },
+        {
+          "type": "note",
+          "when": "=!isDeferred",
+          "tone": "info",
+          "text": "@tolistNote"
+        },
+        {
+          "type": "note",
+          "when": "=lateShown",
+          "tone": "warn",
+          "text": "@lateNote"
+        },
+        {
+          "type": "note",
+          "when": "=late && !isDeferred",
+          "tone": "info",
+          "text": "@lateListNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "batch",
+      "interleaved",
+      "nothing"
+    ],
+    "answer": "interleaved"
+  }
+}

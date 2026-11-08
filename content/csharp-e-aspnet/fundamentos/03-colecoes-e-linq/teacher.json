@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Usar List<T> e as consultas Where e Select.",
+      "Explicar execução adiada.",
+      "Saber quando materializar com ToList."
+    ],
+    "minutes": 20,
+    "activity": "Encenação: um aluno é a lista, outro é o Where, outro o Select e um quarto é o foreach. O foreach pede \"próximo!\" e o lanche passa de mão em mão. Depois, alguém pede um Count antes: quantas vezes o Where trabalhou?",
+    "discussion": [
+      "Quando faz sentido guardar uma \"foto\" do resultado e quando é melhor sempre ler o dado atual?",
+      "Por que contar e depois percorrer pode ser caro num banco de dados?"
+    ],
+    "misconceptions": [
+      "\"Where filtra na hora, como o filter do JavaScript.\" Ele só monta a consulta; quem executa é quem percorre o resultado."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Use List<T> and the Where and Select queries.",
+      "Explain deferred execution.",
+      "Know when to materialize with ToList."
+    ],
+    "minutes": 20,
+    "activity": "Role play: one student is the list, another the Where, another the Select and a fourth the foreach. The foreach calls \"next!\" and the snack goes hand to hand. Then someone asks for a Count first: how many times did Where work?",
+    "discussion": [
+      "When does it make sense to keep a \"snapshot\" of the result, and when is it better to always read current data?",
+      "Why can counting and then iterating be expensive against a database?"
+    ],
+    "misconceptions": [
+      "\"Where filters right away, like JavaScript’s filter.\" It only builds the query; whoever walks the result runs it."
+    ]
+  }
+}

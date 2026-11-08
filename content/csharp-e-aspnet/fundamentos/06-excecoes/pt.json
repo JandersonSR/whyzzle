@@ -1,0 +1,96 @@
+{
+  "title": "Exceções",
+  "subtitle": "Quando o aluno digita \"abc\" na quantidade: explodir, engolir ou avisar direito?",
+  "mission": "No totem da cantina, o aluno digita quantos pastéis quer (R$ 4,50 cada). Tem gente que digita \"abc\", tem gente que digita um número gigante. Escolha a estratégia: TryParse, try/catch com filtro, catch que engole tudo, ou nenhum catch, e veja o que o caixa da Dona Cida enxerga.",
+  "predict": {
+    "question": "com catch (Exception) { } vazio e a entrada \"abc\", o que aparece para a Dona Cida?",
+    "options": {
+      "crash": "O programa quebra com FormatException",
+      "message": "Uma mensagem de quantidade inválida",
+      "zero": "\"Total: R$ 0,00\", como se nada tivesse acontecido"
+    }
+  },
+  "feedback": {
+    "right": "isso: a exceção aconteceu, o catch vazio engoliu, qtd continuou 0 e o caixa mostrou R$ 0,00. Ninguém sabe que houve erro: nem a Dona Cida, nem o log, nem você.",
+    "wrong": "aparece \"Total: R$ 0,00\". O int.Parse lançou FormatException, o catch vazio pegou e jogou fora, e o programa seguiu com qtd = 0. É o pior dos mundos: errado e silencioso.",
+    "skipped": "sem palpite? Rode pedir \"abc\" --estrategia engolir e olhe a linha do terminal."
+  },
+  "coach": {
+    "ui": "palpite anotado. Escolha a entrada \"abc\" e a estratégia \"engolir\". Depois compare com \"tryparse\".",
+    "cmd": "palpite anotado. Rode pedir \"abc\" --estrategia engolir e depois pedir \"abc\"."
+  },
+  "tryNext": {
+    "ui": "Escolha 99999999999 sem catch: não é letra, é número demais para um int, e a exceção é outra (OverflowException).",
+    "cmd": "Rode pedir \"99999999999\" --estrategia sem-catch e leia o nome da exceção."
+  },
+  "why": {
+    "simples": "Exceção é o jeito de o programa gritar \"não dá para continuar assim!\". Se ninguém escuta, o programa para. try/catch é colocar alguém para escutar: \"tente isto; se der errado, faça aquilo\".\nO erro clássico é colocar alguém que escuta e não faz nada (o catch vazio): o problema some da vista, mas continua lá, e a conta sai errada. Melhor ainda é nem precisar gritar: quando é normal o aluno digitar errado, pergunte com calma (TryParse devolve \"deu ou não deu\") e explique o que ele precisa digitar.",
+    "dev": "Para quem vem do JS: no C# você captura por tipo (catch (FormatException ex)), do mais específico para o mais geral, e pode filtrar com when sem precisar relançar. int.Parse lança FormatException para texto que não é número e OverflowException para número fora do int; int.TryParse não lança: devolve false e deixa o valor em 0.\nRegra prática: exceção é para o que é excepcional (banco fora do ar, arquivo sumiu, bug); entrada de usuário errada é esperada, então use TryParse ou validação. Nunca escreva catch vazio; se capturar, registre (log), traduza para uma mensagem útil ou relance com throw; (sem o ex, para não perder o stack trace). E repare: \"-2\" passa no TryParse, mas -2 pastéis não fazem sentido; validar regra de negócio é outro passo, assunto da missão.",
+    "especialista": "Filtros de exceção (catch … when) rodam antes de a pilha ser desenrolada: se o filtro dá false, a exceção segue como se o catch nem existisse, e o stack trace original fica intacto para o depurador e para o crash dump. Use para separar casos (\"when (ex is HttpRequestException { StatusCode: HttpStatusCode.NotFound })\") e até para logar sem capturar (when (Log(ex) && false)). Relançar com throw ex; reinicia o stack trace (o analisador CA2200 avisa); throw; preserva.\nLançar exceção custa caro comparado a um if (captura de stack trace, desenrolar da pilha), então não use para controle de fluxo em caminho quente; padrões Try* e tipos de resultado são a alternativa. Libere recursos com using ou finally, que rodam com ou sem exceção. Em APIs ASP.NET Core, um middleware de tratamento de exceções transforma o que escapou em ProblemDetails, em vez de cada endpoint ter seu catch genérico."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: entrada \"abc\" com a estratégia \"engolir\".",
+      "cmd": "hora de quebrar: rode pedir \"abc\" --estrategia engolir"
+    },
+    "success": "Quebrou: a entrada \"{input}\" gerou uma {exc}, o catch vazio jogou fora e o caixa mostrou Total: R$ {total}. O aluno sai sem pastel, a Dona Cida acha que foi engano dele e ninguém descobre que o totem está com defeito.",
+    "calm": "A entrada \"{input}\" {calmLead} Para quebrar, digite \"abc\" e use a estratégia que engole a exceção."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o que o aluno digitou e a estratégia.",
+      "Um dos catch não faz nada com a exceção.",
+      "Escolha \"abc\" e a estratégia \"engolir\"."
+    ],
+    "cmd": [
+      "O que o aluno digitou vai entre aspas; --estrategia é opcional.",
+      "--estrategia aceita tryparse, filtro, engolir ou sem-catch.",
+      "pedir \"abc\" --estrategia engolir"
+    ]
+  },
+  "errors": {
+    "notInEnum.strategy": "Use tryparse, filtro, engolir ou sem-catch."
+  },
+  "controls": {
+    "arg": "O que o aluno digitou",
+    "strategy": "Estratégia de erro"
+  },
+  "scene": {
+    "label": "Totem da cantina",
+    "empty": "Rode para fazer o pedido.",
+    "inputM": "entrada",
+    "excM": "exceção lançada",
+    "cashierM": "o caixa vê",
+    "none": "nenhuma",
+    "sawTotal": "o total certo",
+    "sawZero": "R$ 0,00 sem explicação",
+    "sawCrash": "o programa caiu",
+    "sawMsg": "quantidade inválida",
+    "runLabel": "Terminal",
+    "flowLabel": "Caminho do erro",
+    "fCashier": "caixa",
+    "sTry": "TryParse: sem exceção",
+    "sOk": "número lido",
+    "sSwallow": "engole tudo",
+    "sFilter": "só Format e Overflow",
+    "sNone": "ninguém",
+    "sNoNeed": "não precisa",
+    "swallowNote": "A {exc} aconteceu e foi apagada. O total de R$ {total} parece um pedido válido de zero pastéis.",
+    "crashNote": "Ninguém capturou a {exc}: o programa inteiro caiu por causa de um campo digitado errado.",
+    "filterNote": "O filtro when pegou só as exceções esperadas e explicou qual foi ({exc}). Qualquer outra seguiria adiante, sem ser escondida.",
+    "tryNote": "TryParse nem lançou exceção: devolveu false e o código explicou o problema. Entrada errada é esperada, não excepcional.",
+    "oddNote": "O número foi lido sem erro, mas {input} pastéis não fazem sentido. Conversão certa não é regra de negócio certa (isso fica para a missão)."
+  },
+  "data": {
+    "calmHandled": "foi tratada sem esconder nada.",
+    "calmCrash": "derrubou o programa: nada foi escondido, mas o programa caiu."
+  },
+  "recipe": {
+    "steps": [
+      "Crie o projeto (se ainda não criou): dotnet new console -o Cantina e entre em Cantina.",
+      "Troque Program.cs por (args[0] é o que você passar depois de dotnet run --):\nstring texto = args.Length > 0 ? args[0] : \"3\";\ndecimal preco = 4.50m;\nint qtd = 0;\ntry\n{\n    qtd = int.Parse(texto);\n}\ncatch (Exception)\n{\n}\nConsole.WriteLine($\"Total: R$ {qtd * preco:F2}\");",
+      "Rode dotnet run -- abc. Depois troque o bloco try/catch inteiro (de int qtd = 0; até a chave do catch) pelo bloco do TryParse:\nif (!int.TryParse(texto, out int qtd))\n{\n    Console.WriteLine($\"Quantidade inválida: \\\"{texto}\\\"\");\n    return;\n}\ne rode dotnet run -- abc de novo."
+    ],
+    "ok": "na primeira vez aparece Total: R$ 0,00 (ou 0.00, conforme o idioma do sistema) sem nenhum erro; na segunda, Quantidade inválida: \"abc\"."
+  }
+}

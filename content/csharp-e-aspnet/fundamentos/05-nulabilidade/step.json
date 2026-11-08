@@ -1,0 +1,254 @@
+{
+  "id": "cs-nulabilidade",
+  "order": 5,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "csharp",
+    "null",
+    "nullable",
+    "nrt"
+  ],
+  "requires": [
+    "cs-classes-e-records"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "cumprimentar",
+      "en": "greet"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "Bia",
+        "en": "Bia"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "access",
+        "alias": {
+          "pt": "acesso",
+          "en": "access"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "dot",
+            "pt": "ponto",
+            "en": "dot"
+          },
+          {
+            "id": "cond",
+            "pt": "interrogacao",
+            "en": "conditional"
+          },
+          {
+            "id": "coalesce",
+            "pt": "padrao",
+            "en": "default"
+          },
+          {
+            "id": "bang",
+            "pt": "exclamacao",
+            "en": "bang"
+          }
+        ],
+        "default": "coalesce",
+        "ui": "select"
+      },
+      {
+        "name": "nullable",
+        "alias": {
+          "pt": "nullable",
+          "en": "nullable"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "enable",
+            "pt": "enable",
+            "en": "enable"
+          },
+          {
+            "id": "disable",
+            "pt": "disable",
+            "en": "disable"
+          }
+        ],
+        "default": "enable",
+        "ui": "select"
+      },
+      {
+        "name": "hasNick",
+        "alias": {
+          "pt": "tem-apelido",
+          "en": "has-nickname"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "nullCrash"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "calls": {
+          "dot": "Console.WriteLine(aluno.Apelido.ToUpper());",
+          "cond": "Console.WriteLine(aluno.Apelido?.ToUpper());",
+          "coalesce": "Console.WriteLine(aluno.Apelido?.ToUpper() ?? \"(sem apelido)\");",
+          "bang": "Console.WriteLine(aluno.Apelido!.ToUpper());"
+        },
+        "nre": "!Unhandled exception. System.NullReferenceException: Object reference not set to an instance of an object."
+      },
+      "compute": {
+        "on": "nullable == 'enable'",
+        "risky": "access == 'dot' || access == 'bang'",
+        "warned": "on && access == 'dot'",
+        "crash": "!hasNick && risky",
+        "nickLit": "hasNick ? '\"Tatá\"' : 'null'",
+        "line2": "hasNick ? 'TATÁ' : (access == 'coalesce' ? '(sem apelido)' : '')",
+        "how": "warned ? howWarned : (on && access == 'bang' ? howBang : howOff)",
+        "calmLead": "risky && hasNick ? calmLucky : calmSafe"
+      },
+      "cases": [
+        {
+          "when": "crash",
+          "flags": [
+            "nullCrash"
+          ]
+        },
+        {
+          "when": "warned",
+          "flags": [
+            "compilerWarned"
+          ]
+        },
+        {
+          "when": "!crash && access == 'cond' && !hasNick",
+          "flags": [
+            "blankLine"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "how": "how",
+            "name": "text",
+            "calmLead": "calmLead"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@warnM",
+              "value": "=warned ? 'CS8602' : '@none'",
+              "tone": "=warned ? 'warn' : 'dim'"
+            },
+            {
+              "label": "@runM",
+              "value": "=crash ? 'NullReferenceException' : '@ok'",
+              "tone": "=crash ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@nickM",
+              "value": "=hasNick ? '\"Tatá\"' : 'null'",
+              "tone": "=hasNick ? 'info' : 'warn'"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@projLabel",
+          "lines": "=['<Nullable>' + nullable + '</Nullable>']"
+        },
+        {
+          "type": "terminal",
+          "label": "Program.cs",
+          "lines": "=['var aluno = new Aluno(\"' + text + '\", ' + nickLit + ');', 'Console.WriteLine($\"Oi, {aluno.Nome}!\");', lookup(calls, access, ''), '', on ? 'record Aluno(string Nome, string? Apelido);' : 'record Aluno(string Nome, string Apelido);']"
+        },
+        {
+          "type": "terminal",
+          "label": "@runLabel",
+          "lines": "=concat(['$ dotnet run'], warned ? ['?…/Program.cs(3,19): warning CS8602: Dereference of a possibly null reference.'] : [], ['Oi, ' + text + '!'], crash ? [nre, '~   at Program.<Main>$(String[] args) in …/Program.cs:line 3'] : [line2])"
+        },
+        {
+          "type": "flow",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "@fCompile",
+              "sub": "=warned ? '@sWarn' : (on && access == 'bang' ? '@sSilenced' : (on ? '@sClean' : '@sOff'))",
+              "tone": "=warned ? 'warn' : (on && access == 'bang' ? 'warn' : (on ? 'ok' : 'dim'))"
+            },
+            {
+              "label": "@fRun",
+              "sub": "=crash ? '@sBoom' : '@sFine'",
+              "tone": "=crash ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=crash && warned",
+          "tone": "bad",
+          "text": "@crashWarnedNote"
+        },
+        {
+          "type": "note",
+          "when": "=crash && on && access == 'bang'",
+          "tone": "bad",
+          "text": "@crashBangNote"
+        },
+        {
+          "type": "note",
+          "when": "=crash && !on",
+          "tone": "bad",
+          "text": "@crashOffNote"
+        },
+        {
+          "type": "note",
+          "when": "=!crash && warned",
+          "tone": "warn",
+          "text": "@luckyNote"
+        },
+        {
+          "type": "note",
+          "when": "=!crash && access == 'cond' && !hasNick",
+          "tone": "info",
+          "text": "@blankNote"
+        },
+        {
+          "type": "note",
+          "when": "=!crash && access == 'coalesce'",
+          "tone": "ok",
+          "text": "@coalesceNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "error",
+      "warning",
+      "nothing"
+    ],
+    "answer": "warning"
+  }
+}

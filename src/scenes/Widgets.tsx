@@ -69,7 +69,14 @@ function Metrics({ w, c }: { w: W; c: Ctx }) {
       <div className="wz-metrics">
         {asArr<W>(w.items).map((it, i) => (
           <div key={i} className="wz-metric" data-tone={tone(it.tone)}>
-            <span className="wz-metric__value">{fmtValue(it.value, it.format, c)}</span>
+            {(() => {
+              const v = fmtValue(it.value, it.format, c);
+              return (
+                <span className="wz-metric__value" data-long={v.length > 12 ? '' : undefined}>
+                  {v}
+                </span>
+              );
+            })()}
             <span className="wz-metric__label">{text(it.label, c)}</span>
           </div>
         ))}

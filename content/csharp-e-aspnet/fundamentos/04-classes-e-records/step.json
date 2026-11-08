@@ -1,0 +1,234 @@
+{
+  "id": "cs-classes-e-records",
+  "order": 4,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "csharp",
+    "class",
+    "record",
+    "igualdade",
+    "referencia"
+  ],
+  "requires": [
+    "cs-colecoes-e-linq"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "copiar",
+      "en": "copy"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "pedido da Ana",
+        "en": "Ana’s order"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "kind",
+        "alias": {
+          "pt": "tipo",
+          "en": "kind"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "record",
+            "pt": "record",
+            "en": "record"
+          },
+          {
+            "id": "class",
+            "pt": "classe",
+            "en": "class"
+          }
+        ],
+        "default": "record",
+        "ui": "select"
+      },
+      {
+        "name": "copy",
+        "alias": {
+          "pt": "copia",
+          "en": "copy"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "with",
+            "pt": "with",
+            "en": "with"
+          },
+          {
+            "id": "assign",
+            "pt": "igual",
+            "en": "assign"
+          }
+        ],
+        "default": "with",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "aliasBug"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "rec": [
+          "record Pedido(string Aluno, string Lanche);"
+        ],
+        "cls": [
+          "class Pedido(string aluno, string lanche)",
+          "{",
+          "    public string Aluno { get; set; } = aluno;",
+          "    public string Lanche { get; set; } = lanche;",
+          "}"
+        ],
+        "withL": [
+          "var b = a with { Lanche = \"Bolo\" };"
+        ],
+        "assignL": [
+          "var b = a;",
+          "b.Lanche = \"Bolo\";"
+        ],
+        "body": [
+          "var outro = new Pedido(\"Ana\", \"Coxinha\");",
+          "",
+          "Console.WriteLine($\"a: {a.Lanche}, b: {b.Lanche}\");",
+          "Console.WriteLine(a == outro);",
+          ""
+        ],
+        "e8852": "!…/Program.cs(3,1): error CS8852: Init-only property or indexer 'Pedido.Lanche' can only be assigned in an object initializer, or on 'this' or 'base' in an instance constructor or an 'init' accessor.",
+        "e8858": "!…/Program.cs(2,9): error CS8858: The receiver type 'Pedido' is not a valid record type and is not a struct type."
+      },
+      "compute": {
+        "isRecord": "kind == 'record'",
+        "isWith": "copy == 'with'",
+        "compiles": "isRecord == isWith",
+        "alias": "!isRecord && !isWith",
+        "aText": "alias ? 'Bolo' : 'Coxinha'",
+        "equalText": "isRecord ? 'True' : 'False'",
+        "errLine": "isRecord ? e8852 : e8858",
+        "calmLead": "compiles ? ((lang == 'pt' ? 'O pedido da Ana continua ' : 'Ana’s order is still ') + aText + '.') : calmFail"
+      },
+      "cases": [
+        {
+          "when": "alias",
+          "flags": [
+            "aliasBug"
+          ]
+        },
+        {
+          "when": "!compiles",
+          "flags": [
+            "compileError"
+          ]
+        },
+        {
+          "when": "compiles && isRecord",
+          "flags": [
+            "valueEquality"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "aText": "aText",
+            "equal": "equalText",
+            "calmLead": "calmLead"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@buildM",
+              "value": "=compiles ? '@ok' : '@fail'",
+              "tone": "=compiles ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@aM",
+              "value": "=compiles ? aText : '—'",
+              "tone": "=alias ? 'bad' : (compiles ? 'ok' : 'dim')"
+            },
+            {
+              "label": "@eqM",
+              "value": "=compiles ? equalText : '—'",
+              "tone": "=compiles ? 'info' : 'dim'"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "Program.cs",
+          "lines": "=concat(['var a = new Pedido(\"Ana\", \"Coxinha\");'], isWith ? withL : assignL, body, isRecord ? rec : cls)"
+        },
+        {
+          "type": "terminal",
+          "label": "@runLabel",
+          "lines": "=compiles ? ['$ dotnet run', 'a: ' + aText + ', b: Bolo', equalText] : ['$ dotnet run', errLine, '~The build failed. Fix the build errors and run again.']"
+        },
+        {
+          "type": "table",
+          "when": "=compiles",
+          "label": "@memLabel",
+          "columns": [
+            "@cVar",
+            "@cObj",
+            "@cLanche"
+          ],
+          "rows": "=alias ? [['a', '#1', 'Bolo'], ['b', '#1', 'Bolo'], ['outro', '#2', 'Coxinha']] : [['a', '#1', 'Coxinha'], ['b', '#2', 'Bolo'], ['outro', '#3', 'Coxinha']]",
+          "tones": "=alias ? ['bad', 'bad', 'neutral'] : ['ok', 'neutral', 'ok']",
+          "caption": "=alias ? '@capAlias' : '@capRecord'"
+        },
+        {
+          "type": "note",
+          "when": "=alias",
+          "tone": "bad",
+          "text": "@aliasNote"
+        },
+        {
+          "type": "note",
+          "when": "=compiles && isRecord",
+          "tone": "ok",
+          "text": "@recordNote"
+        },
+        {
+          "type": "note",
+          "when": "=!compiles && isRecord",
+          "tone": "warn",
+          "text": "@initNote"
+        },
+        {
+          "type": "note",
+          "when": "=!compiles && !isRecord",
+          "tone": "warn",
+          "text": "@withNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "true",
+      "false",
+      "error"
+    ],
+    "answer": "true"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "title": "Coleções e LINQ",
+  "subtitle": "A consulta que só trabalha quando alguém pergunta, e trabalha de novo a cada pergunta",
+  "mission": "A Dona Cida guarda o cardápio numa List e quer a lista dos lanches abaixo de R$ 5. Com LINQ, é um Where (filtra) seguido de um Select (pega o nome). Para ver quando cada parte roda, cada uma escreve no terminal. Descubra em que ordem as linhas aparecem e o que muda com ToList, com um Count() antes do foreach e com uma pipoca que entra no cardápio depois.",
+  "predict": {
+    "question": "sem ToList, em que ordem aparecem as linhas where, select e mostra?",
+    "options": {
+      "batch": "Todos os where, depois todos os select, depois todos os mostra",
+      "interleaved": "Um lanche de cada vez: where, select e mostra desse lanche, depois o próximo",
+      "nothing": "Nada aparece: a consulta nunca roda sem ToList"
+    }
+  },
+  "feedback": {
+    "right": "isso: o Where e o Select não fazem nada na hora em que você escreve. Quando o foreach pede o próximo item, a consulta puxa um lanche, filtra, transforma e entrega. Um de cada vez, como uma esteira.",
+    "wrong": "é um de cada vez. LINQ sobre listas tem execução adiada: a consulta é uma receita, e quem a faz rodar é o foreach, pedindo item por item. Por isso where, select e mostra se intercalam.",
+    "skipped": "sem palpite? Rode consultar e leia o terminal de cima para baixo."
+  },
+  "coach": {
+    "ui": "palpite anotado. Leia o terminal de cima para baixo. Depois troque o modo para tolist e compare.",
+    "cmd": "palpite anotado. Rode consultar e depois consultar --modo tolist."
+  },
+  "tryNext": {
+    "ui": "Ligue a pipoca no modo adiado: ela foi adicionada depois da consulta e mesmo assim aparece. Depois tente no modo tolist.",
+    "cmd": "Rode consultar --pipoca sim e procure a Pipoca no terminal."
+  },
+  "why": {
+    "simples": "Uma List é uma fila de coisas do mesmo tipo, que cresce quando você adiciona. LINQ é um jeito de fazer perguntas para essa lista: \"quais custam menos de 5?\" (Where) e \"me dê só o nome\" (Select).\nO pulo do gato: escrever a pergunta não responde a pergunta. É como deixar um bilhete para a cozinha: \"separar os lanches baratos\". Nada acontece até alguém ir lá buscar. E se duas pessoas forem buscar, a cozinha separa duas vezes. Se você quer uma resposta guardada, tire uma foto: é o ToList.",
+    "dev": "Para quem vem do JS: arr.filter(...).map(...) cria arrays novos na hora; em C#, lista.Where(...).Select(...) devolve um IEnumerable<T> preguiçoso, mais parecido com um generator. Where, Select, OrderBy, Take e companhia são adiados; ToList, ToArray, Count, First, Sum, Any e o próprio foreach executam.\nConsequências práticas: cada execução percorre a fonte de novo (Count() e depois foreach = dois passeios), e mudanças na lista antes da execução aparecem no resultado. Materialize com ToList() quando for usar o resultado mais de uma vez ou quando precisar de uma \"foto\" daquele momento. Coleções do dia a dia: List<T> (lista que cresce), Dictionary<TKey,TValue> (busca por chave), HashSet<T> (sem repetidos) e arrays (tamanho fixo).",
+    "especialista": "Execução adiada vira problema sério com IQueryable (Entity Framework Core): a consulta é traduzida para SQL e cada enumeração é uma ida ao banco. Um Count() seguido de foreach são duas consultas; uma consulta enumerada dentro de um laço é o famoso N+1. A regra CA1851 (possíveis enumerações múltiplas de IEnumerable) pode ser ligada no projeto para avisar.\nOs operadores também diferem no \"quanto\" adiam: Where e Select fazem streaming (um item por vez), enquanto OrderBy e GroupBy precisam ler a fonte inteira na primeira chamada de MoveNext. Lambdas com efeito colateral, como as deste exemplo, são ótimas para aprender e péssimas em produção: o efeito acontece de novo a cada enumeração. E alterar a List enquanto um foreach a percorre lança InvalidOperationException; materialize antes ou percorra uma cópia."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: no modo adiado, ligue \"contar antes\".",
+      "cmd": "hora de quebrar: rode consultar --contar sim"
+    },
+    "success": "Quebrou: a consulta rodou {runs} vezes. O where foi chamado {whereN} vezes para {items} lanches, porque o Count() e o foreach fizeram o filtro cada um do zero. Numa lista é só desperdício; num banco de dados, seriam {runs} consultas.",
+    "calm": "A consulta rodou {runs} vez: {whereN} chamadas do where e {selectN} do select, {shown} lanches mostrados. Para quebrar, conte antes do foreach no modo adiado."
+  },
+  "hints": {
+    "ui": [
+      "Mexa no modo e nas duas chaves; o terminal mostra cada chamada.",
+      "Cada execução de uma consulta adiada percorre a lista do começo.",
+      "No modo adiado, ligue \"contar antes\"."
+    ],
+    "cmd": [
+      "--modo, --contar e --pipoca são opcionais.",
+      "--modo aceita adiado ou tolist; --contar e --pipoca aceitam sim ou nao.",
+      "consultar --contar sim"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Use adiado ou tolist.",
+    "notBool.countFirst": "Use sim ou nao.",
+    "notBool.late": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Pergunta",
+    "mode": "Modo da consulta",
+    "countFirst": "Contar antes do foreach (Count())",
+    "late": "Adicionar pipoca depois da consulta"
+  },
+  "scene": {
+    "label": "Cardápio da cantina",
+    "empty": "Rode para consultar.",
+    "runsM": "vezes que a consulta rodou",
+    "whereM": "chamadas do where",
+    "selectM": "chamadas do select",
+    "shownM": "lanches mostrados",
+    "runLabel": "Terminal",
+    "deferredNote": "Execução adiada: o foreach pediu um item por vez, e cada lanche passou pelo where e pelo select logo antes de ser mostrado.",
+    "twiceNote": "Count() executou a consulta inteira só para contar, e o foreach executou de novo: {whereN} chamadas do where para {items} lanches.",
+    "tolistNote": "Com ToList, a consulta roda uma vez na hora, guarda o resultado numa lista nova, e o foreach só lê essa lista.",
+    "lateNote": "A Pipoca entrou no cardápio depois de a consulta ser escrita e mesmo assim apareceu: a consulta lê a lista no momento em que roda.",
+    "lateListNote": "Com ToList a foto foi tirada antes da Pipoca chegar, então ela não aparece."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Crie o projeto (se ainda não criou): dotnet new console -o Cantina e entre em Cantina.",
+      "Troque Program.cs por:\nvar lanches = new List<Lanche>\n{\n    new(\"Coxinha\", 6m),\n    new(\"Suco\", 4m),\n    new(\"Bolo\", 7m),\n    new(\"Pão de queijo\", 3m),\n};\n\nvar baratos = lanches\n    .Where(l =>\n    {\n        Console.WriteLine($\"  where  {l.Nome}\");\n        return l.Preco < 5m;\n    })\n    .Select(l =>\n    {\n        Console.WriteLine($\"  select {l.Nome}\");\n        return l.Nome;\n    });\n\nlanches.Add(new(\"Pipoca\", 3m));\nConsole.WriteLine($\"total: {baratos.Count()}\");\nforeach (var nome in baratos)\n{\n    Console.WriteLine($\"mostra {nome}\");\n}\n\nrecord Lanche(string Nome, decimal Preco);",
+      "Rode dotnet run. Depois troque o \"    });\" do Select por \"    })\" e uma linha nova \"    .ToList();\", e rode de novo."
+    ],
+    "ok": "na primeira vez o where aparece duas vezes para cada lanche (uma pelo Count, outra pelo foreach), a Pipoca aparece e o total é 3; com ToList, cada where aparece uma vez só, o total é 2 e a Pipoca some."
+  }
+}

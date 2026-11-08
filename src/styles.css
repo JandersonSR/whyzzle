@@ -1838,6 +1838,7 @@ textarea {
   gap: 8px;
 }
 .wz-metric {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -1849,9 +1850,14 @@ textarea {
 .wz-metric__value {
   font-family: var(--display);
   font-size: 24px;
+  overflow-wrap: anywhere;
+  min-width: 0;
   font-weight: 800;
   line-height: 1.1;
   color: var(--tone);
+}
+.wz-metric__value[data-long] {
+  font-size: 16px;
 }
 .wz-metric__label {
   font-size: 12px;

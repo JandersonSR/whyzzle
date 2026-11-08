@@ -1,0 +1,97 @@
+{
+  "title": "async/await",
+  "subtitle": "The grill, the juice and the change: waiting without standing there staring",
+  "mission": "A canteen order has three parts: the toastie on the grill (misto quente, 3 s), the juice (suco, 2 s) and the change (troco, 1 s). With async/await, the till can start everything and wait for all three together, or do one at a time. Pick the mode, the method kind (async Task or async void) and whether the juice machine will break. (The program prints in Portuguese: começou = started, terminou = finished, prontos = ready.)",
+  "predict": {
+    "question": "starting the three tasks and waiting with await Task.WhenAll, how long does the order take?",
+    "options": {
+      "six": "6 s: 3 + 2 + 1",
+      "three": "3 s: the slowest one’s time",
+      "one": "1 s: the fastest one’s time"
+    }
+  },
+  "feedback": {
+    "right": "right: all three start at second 0 and nobody stands there staring at the grill. WhenAll finishes when the last one does, at 3 s. Waiting one at a time would add up to 6 s.",
+    "wrong": "it’s 3 s. The tasks start together (calling Preparar already kicks off the work) and await Task.WhenAll waits for the slowest one. 6 s would be awaiting one at a time.",
+    "skipped": "no guess? Run prepare and then prepare --mode one-by-one, and compare the total time."
+  },
+  "coach": {
+    "ui": "guess noted. Look at the total time and the table. Then switch the mode to \"one-by-one\".",
+    "cmd": "guess noted. Run prepare and then prepare --mode one-by-one."
+  },
+  "tryNext": {
+    "ui": "Turn on the failure with async Task: the try/catch catches the juice machine error and the program ends properly. Keep that in mind to compare with async void.",
+    "cmd": "Run prepare --mode one-by-one and watch the time become 6 s."
+  },
+  "why": {
+    "simples": "Waiting for the grill to heat up isn’t work: it’s waiting. async/await is how you tell the program \"while that heats up, go do something else\". The await is the \"let me know when it’s done\".\nIf you turn on the grill, wait until it’s ready, only then make the juice and only then count the change, the customer waits 6 seconds. If you start everything and wait for all three together, you wait only as long as the slowest: 3 seconds.\nasync void is the worker who runs off to make the order and leaves no phone number: nobody knows when it finished, and if something goes wrong, nobody finds out until the whole canteen stops.",
+    "dev": "It’s the same model as JS: Task<T> is Promise<T>, await works the same and Task.WhenAll is Promise.all (when awaited, it rethrows the first exception). Careful: unlike Promise.all, which rejects on the first failure, Task.WhenAll waits for all the tasks to finish before rethrowing. Calling an async method already starts the work; the await only decides where you wait for the result.\nDifferences that catch Node folks: async void exists and is dangerous (it can’t be awaited, and an exception inside doesn’t come back to the caller; in a console app or server it takes down the process), so always use async Task, except for UI event handlers. Don’t block with .Result or .Wait(): in apps with a synchronization context (WinForms, WPF, legacy ASP.NET) that can hang forever. And pass a CancellationToken along so work can be cancelled.",
+    "especialista": "async doesn’t create a thread: awaiting a Task.Delay or a network call frees the thread while waiting, and the continuation runs later (on the thread pool, in a console or ASP.NET Core app, which have no SynchronizationContext). For heavy CPU work, Task.Run or Parallel do the parallelizing, not await.\nValueTask<T> avoids allocating a Task when the result is usually ready right away (a cache, for instance), but it has rules: await it only once, don’t await it concurrently and don’t read Result before it completes; when in doubt, use Task. ConfigureAwait(false) says \"I don’t need to come back to the original context\": in libraries it avoids deadlocks and overhead; in ASP.NET Core it makes little difference. With WhenAll, await rethrows only the first exception; the others stay in task.Exception (AggregateException). Tooling: the compiler warns when a Task is not awaited (CS4014)."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch the method to async void.",
+      "cmd": "time to break it: run prepare --method void"
+    },
+    "success": "Broken: with async void, nobody can wait for the cooking. {voidWhat}",
+    "calm": "The order finished in {total} ({done} of 3 items ready) and the caller found out about everything, errors included. To break it, switch to async void."
+  },
+  "hints": {
+    "ui": [
+      "Pick the mode, the method kind and the failure.",
+      "One of the method kinds returns nothing you can wait for.",
+      "Pick the void method."
+    ],
+    "cmd": [
+      "--mode, --method and --fail are optional.",
+      "--mode takes together or one-by-one; --method takes task or void.",
+      "prepare --method void"
+    ]
+  },
+  "errors": {
+    "notInEnum.mode": "Use together or one-by-one.",
+    "notInEnum.method": "Use task or void.",
+    "notBool.fail": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Order",
+    "mode": "How to wait",
+    "method": "Preparar returns",
+    "fail": "The juice machine breaks"
+  },
+  "scene": {
+    "label": "Canteen counter",
+    "empty": "Run to prepare the order.",
+    "totalM": "total order time",
+    "doneM": "items finished",
+    "knewM": "did the caller find out?",
+    "yes": "yes",
+    "no": "no",
+    "tableLabel": "Timeline",
+    "cItem": "item",
+    "cStart": "starts",
+    "cEnd": "ends",
+    "never": "never",
+    "boom": "took the program down",
+    "failed": "failed",
+    "runLabel": "Terminal",
+    "voidModeNote": "With async void the \"How to wait\" control changes nothing: the code doesn’t wait for any of the three anyway.",
+    "togetherNote": "All three started at second 0; WhenAll waited for the slowest one.",
+    "seqNote": "One await at a time: each item only starts when the previous one finishes, and the times add up.",
+    "caughtNote": "The juice machine’s exception came back through the await and landed in the catch: the program explains the problem and ends normally.",
+    "voidEarlyNote": "\"Atendimento encerrado\" (service closed) came out at second 0, before any item was ready, and the \"Prontos\" line never appears: there’s no Task to wait for.",
+    "voidCrashNote": "The try/catch around the calls was long gone when the machine broke. The async void exception went straight up and took down the whole process."
+  },
+  "data": {
+    "voidCrash": "When the juice machine broke, the try/catch was already behind us: the exception took down the whole program and the toastie never came out.",
+    "voidEarly": "Service was \"closed\" at second 0, before any item was ready, and the list of ready items was never delivered."
+  },
+  "recipe": {
+    "steps": [
+      "Create the project (if you haven’t yet): dotnet new console -o Cantina and go into Cantina.",
+      "Replace Program.cs with:\nusing System.Diagnostics;\n\nvar relogio = Stopwatch.StartNew();\ntry\n{\n    Task<string> chapa = Preparar(\"misto quente\", 3);\n    Task<string> suco = Preparar(\"suco\", 2);\n    Task<string> troco = Preparar(\"troco\", 1);\n    string[] prontos = await Task.WhenAll(chapa, suco, troco);\n    Console.WriteLine($\"Prontos: {string.Join(\", \", prontos)}\");\n}\ncatch (Exception ex)\n{\n    Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] pedido com problema: {ex.Message}\");\n}\nConsole.WriteLine($\"Tempo total: {relogio.Elapsed.TotalSeconds:F1} s\");\n\nasync Task<string> Preparar(string item, int segundos)\n{\n    Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] começou {item}\");\n    await Task.Delay(TimeSpan.FromSeconds(segundos));\n    Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] terminou {item}\");\n    return item;\n}",
+      "Run dotnet run. Then replace the four Task<string> and WhenAll lines with the one-at-a-time await versions:\n    string chapa = await Preparar(\"misto quente\", 3);\n    string suco = await Preparar(\"suco\", 2);\n    string troco = await Preparar(\"troco\", 1);\n    string[] prontos = [chapa, suco, troco];\nand run again."
+    ],
+    "ok": "the first time all three tasks start at [0 s] and the total time is about 3 s; the second time each one starts when the previous one ends and the total is about 6 s."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "pt": {
+    "objectives": [
+      "Explicar o que é null e por que NullReferenceException acontece.",
+      "Usar string?, ?. e ?? com segurança.",
+      "Entender que ! cala o aviso mas não resolve."
+    ],
+    "minutes": 20,
+    "activity": "Distribua envelopes, alguns vazios. Cada aluno precisa ler em voz alta o papel do envelope. Primeiro, sem olhar dentro (ponto); depois, olhando antes e dizendo \"sem apelido\" quando estiver vazio (?. e ??).",
+    "discussion": [
+      "Que dados da escola podem faltar (apelido, telefone do responsável)?",
+      "Por que calar um aviso com ! é diferente de resolver o problema?"
+    ],
+    "misconceptions": [
+      "\"Com Nullable ligado, o C# nunca mais tem null.\" É só análise do compilador: dados de fora ainda podem chegar como null."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explain what null is and why NullReferenceException happens.",
+      "Use string?, ?. and ?? safely.",
+      "Understand that ! silences the warning but fixes nothing."
+    ],
+    "minutes": 20,
+    "activity": "Hand out envelopes, some empty. Each student must read aloud the paper in the envelope. First without looking inside (dot); then looking first and saying \"no nickname\" when it’s empty (?. and ??).",
+    "discussion": [
+      "What school data may be missing (nickname, a guardian’s phone)?",
+      "Why is silencing a warning with ! different from fixing the problem?"
+    ],
+    "misconceptions": [
+      "\"With Nullable on, C# never has null again.\" It’s only compiler analysis: data from outside can still arrive as null."
+    ]
+  }
+}

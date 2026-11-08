@@ -1,0 +1,103 @@
+{
+  "title": "Nullability",
+  "subtitle": "The student with no nickname, the dot that blows up and the compiler that warns you first",
+  "mission": "The till greets each student and shouts their nickname (Apelido) in capitals. But not everyone has a nickname: then the value is null, which means \"nothing here\". Choose how the code reaches the nickname (dot, ?., ?? or !), turn the project’s null checking on or off and see who warns and who blows up.",
+  "predict": {
+    "question": "with <Nullable>enable</Nullable> (the dotnet new default) and string? Apelido, what happens when you compile aluno.Apelido.ToUpper()?",
+    "options": {
+      "error": "It doesn’t compile",
+      "warning": "It compiles, but with a warning (CS8602)",
+      "nothing": "It compiles with no warning at all"
+    }
+  },
+  "feedback": {
+    "right": "right: the compiler knows string? may be null and warns with CS8602 (\"possibly null reference\"). But it’s just a warning: the program compiles and, if the nickname really is null, it blows up at run time.",
+    "wrong": "it compiles with warning CS8602. Nullable reference types are a compiler analysis: it warns, but it doesn’t stop you. By default, a warning doesn’t block the build.",
+    "skipped": "no guess? Run greet --access dot and look at the yellow terminal line."
+  },
+  "coach": {
+    "ui": "guess noted. Switch the access to \"dot\" and look at the terminal. Then try \"bang\".",
+    "cmd": "guess noted. Run greet --access dot and then greet --access bang."
+  },
+  "tryNext": {
+    "ui": "Now use \"dot\" with a student who has a nickname: it works and shouts TATÁ, but the warning stays. The warning is about the day someone without a nickname shows up.",
+    "cmd": "Run greet --access dot --has-nickname yes and notice the warning doesn’t go away."
+  },
+  "why": {
+    "simples": "null is an empty box. Asking for \"the nickname in capitals\" from an empty box is like asking someone to read a piece of paper that doesn’t exist: the program stops with a NullReferenceException, the most famous error in the .NET world.\nModern C# helps: when you write string? (with a question mark), you’re saying \"there may be nothing here\". The compiler starts watching and warns if you use it without checking. Three safe ways to check: ?. (\"if there is one, do it\"), ?? (\"if not, use this instead\") or an if. And one way to lie: ! (\"trust me, it’s there\"). Lying to the compiler silences the warning, but it doesn’t fill the box.",
+    "dev": "For TypeScript folks: <Nullable>enable</Nullable> is similar to strictNullChecks. string is \"not null\" and string? is \"may be null\"; ?. and ?? work like in TS, and ! is the same \"non-null assertion\" operator. Projects created with dotnet new come with Nullable on.\nKey differences: in C# these are warnings, not errors (CS8602 when dereferencing, CS8600 when putting a possible null into a non-nullable variable, CS8618 for a non-nullable property with no value, CS8625 when passing null to a non-nullable parameter), and there’s no runtime check. To fail the build, use <WarningsAsErrors>nullable</WarningsAsErrors>. To validate public input, use ArgumentNullException.ThrowIfNull(x).",
+    "especialista": "Nullable reference types are only annotations and flow analysis: string and string? are the same type at run time, so an old library, a deserialized JSON or reflection can hand you null in a \"non-null\" string. At the system’s edges (APIs, database, files), validate for real.\nThe analysis understands ifs, is null, ?? and early returns, and you can teach the compiler with attributes like [NotNullWhen(true)] (the TryParse pattern), [MaybeNull] and [MemberNotNull]. In DTOs, prefer required members (C# 11) over \"= null!\": that way whoever creates the object must fill it in. Don’t confuse this with int? (Nullable<int>), which is a real value type, with HasValue and Value, checked at run time. When migrating a big project, turn it on per file with #nullable enable and move gradually."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: reach the nickname with \"bang\", with no nickname.",
+      "cmd": "time to break it: run greet --access bang"
+    },
+    "success": "Broken: NullReferenceException on line 3. {how} {name} got a hello and the till froze on a nickname that didn’t exist.",
+    "calm": "{calmLead} To break it, use ! on a student with no nickname."
+  },
+  "hints": {
+    "ui": [
+      "Pick the access, the project check and whether the student has a nickname.",
+      "Two of the accesses don’t check whether there’s anything in the box.",
+      "Pick \"bang\" with a student with no nickname."
+    ],
+    "cmd": [
+      "The student’s name goes in quotes; --access, --nullable and --has-nickname are optional.",
+      "--access takes dot, conditional, default or bang.",
+      "greet --access bang"
+    ]
+  },
+  "errors": {
+    "notInEnum.access": "Use dot, conditional, default or bang.",
+    "notInEnum.nullable": "Use enable or disable.",
+    "notBool.hasNick": "Use yes or no."
+  },
+  "controls": {
+    "arg": "Student’s name",
+    "access": "How to read the nickname",
+    "nullable": "Null checking in the project",
+    "hasNick": "The student has a nickname"
+  },
+  "scene": {
+    "label": "Till greetings",
+    "empty": "Run to greet.",
+    "warnM": "compiler warning",
+    "runM": "at run time",
+    "nickM": "nickname",
+    "none": "none",
+    "ok": "ok",
+    "projLabel": "Cantina.csproj (excerpt)",
+    "runLabel": "Terminal",
+    "flowLabel": "Who caught the problem",
+    "fCompile": "compiler",
+    "fRun": "run time",
+    "sWarn": "warned: CS8602",
+    "sSilenced": "silenced by !",
+    "sClean": "nothing to warn about",
+    "sOff": "checking off",
+    "sBoom": "blew up",
+    "sFine": "all good",
+    "crashWarnedNote": "The compiler warned (CS8602) and the warning was ignored. With no nickname, the dot blew up.",
+    "crashBangNote": "The ! told the compiler \"trust me, it isn’t null\". It trusted you, stayed quiet, and execution blew up anyway.",
+    "crashOffNote": "With Nullable off, the compiler doesn’t even know the nickname may be missing: zero warnings and the same blow-up.",
+    "luckyNote": "This time there was a nickname and it worked, but the warning stays: the code isn’t ready for a student without one.",
+    "blankNote": "With ?., no nickname makes the result null and WriteLine prints a blank line. No blow-up, but it says nothing either.",
+    "coalesceNote": "?. avoids the blow-up and ?? swaps the empty value for a default text. Safe and clear."
+  },
+  "data": {
+    "calmSafe": "Nothing blew up: the nickname was read safely.",
+    "calmLucky": "Nothing blew up, but only because this student had a nickname: the code checked nothing, and the warning (if it is on) stays.",
+    "howWarned": "The compiler had warned (CS8602), and the warning was left behind.",
+    "howBang": "The ! silenced the compiler, but it didn’t put any nickname in the box.",
+    "howOff": "With null checking off, nobody warned you at all."
+  },
+  "recipe": {
+    "steps": [
+      "Create the project (if you haven’t yet): dotnet new console -o Cantina and go into Cantina. Open Cantina.csproj and find the line <Nullable>enable</Nullable>.",
+      "Replace Program.cs with:\nvar aluno = new Aluno(\"Bia\", null);\nConsole.WriteLine($\"Oi, {aluno.Nome}!\");\nConsole.WriteLine(aluno.Apelido.ToUpper());\n\nrecord Aluno(string Nome, string? Apelido);",
+      "Run dotnet run. Then replace line 3 with Console.WriteLine(aluno.Apelido?.ToUpper() ?? \"(sem apelido)\"); and run again."
+    ],
+    "ok": "the first time you see warning CS8602, \"Oi, Bia!\" and a NullReferenceException; the second time, \"Oi, Bia!\" and \"(sem apelido)\", with no warning."
+  }
+}

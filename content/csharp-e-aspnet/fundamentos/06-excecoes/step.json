@@ -1,0 +1,291 @@
+{
+  "id": "cs-excecoes",
+  "order": 6,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "csharp",
+    "excecoes",
+    "try-catch",
+    "tryparse"
+  ],
+  "requires": [
+    "cs-nulabilidade"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "pedir",
+      "en": "order"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "3",
+        "en": "3"
+      },
+      "ui": "examples",
+      "examples": [
+        {
+          "pt": "3",
+          "en": "3"
+        },
+        {
+          "pt": "abc",
+          "en": "abc"
+        },
+        {
+          "pt": "99999999999",
+          "en": "99999999999"
+        },
+        {
+          "pt": "-2",
+          "en": "-2"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "strategy",
+        "alias": {
+          "pt": "estrategia",
+          "en": "strategy"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "tryparse",
+            "pt": "tryparse",
+            "en": "tryparse"
+          },
+          {
+            "id": "filter",
+            "pt": "filtro",
+            "en": "filter"
+          },
+          {
+            "id": "swallow",
+            "pt": "engolir",
+            "en": "swallow"
+          },
+          {
+            "id": "none",
+            "pt": "sem-catch",
+            "en": "no-catch"
+          }
+        ],
+        "default": "tryparse",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "swallowed"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "code": {
+          "tryparse": [
+            "if (!int.TryParse(texto, out int qtd))",
+            "{",
+            "    Console.WriteLine($\"Quantidade inválida: \\\"{texto}\\\"\");",
+            "    return;",
+            "}",
+            "Console.WriteLine($\"Total: R$ {qtd * preco:F2}\");"
+          ],
+          "filter": [
+            "int qtd;",
+            "try",
+            "{",
+            "    qtd = int.Parse(texto);",
+            "}",
+            "catch (Exception ex) when (ex is FormatException or OverflowException)",
+            "{",
+            "    Console.WriteLine($\"Quantidade inválida: \\\"{texto}\\\" ({ex.GetType().Name})\");",
+            "    return;",
+            "}",
+            "Console.WriteLine($\"Total: R$ {qtd * preco:F2}\");"
+          ],
+          "swallow": [
+            "int qtd = 0;",
+            "try",
+            "{",
+            "    qtd = int.Parse(texto);",
+            "}",
+            "catch (Exception)",
+            "{",
+            "}",
+            "Console.WriteLine($\"Total: R$ {qtd * preco:F2}\");"
+          ],
+          "none": [
+            "int qtd = int.Parse(texto);",
+            "Console.WriteLine($\"Total: R$ {qtd * preco:F2}\");"
+          ]
+        },
+        "notDigits": [
+          ".",
+          ",",
+          "e",
+          "x",
+          "b",
+          "o",
+          "i",
+          "n",
+          "_"
+        ],
+        "maxInt": 2147483647,
+        "minInt": -2147483648
+      },
+      "compute": {
+        "n": "number(text)",
+        "intLike": "words(text) > 0 && !containsany(lower(text), notDigits) && n == floor(n)",
+        "tooBig": "intLike && (n > maxInt || n < minInt)",
+        "valid": "intLike && !tooBig",
+        "bad": "!valid",
+        "excName": "tooBig ? 'OverflowException' : 'FormatException'",
+        "excMsg": "tooBig ? 'Value was either too large or too small for an Int32.' : 'The input string ' + \"'\" + text + \"'\" + ' was not in a correct format.'",
+        "qtyN": "valid ? n : 0",
+        "centsN": "qtyN * 450",
+        "absC": "abs(centsN)",
+        "totalText": "(centsN < 0 ? '-' : '') + str(floor(absC / 100)) + (lang == 'pt' ? ',' : '.') + (absC % 100 < 10 ? '0' : '') + str(absC % 100)",
+        "outLine": "valid ? '+Total: R$ ' + totalText : (strategy == 'swallow' ? '?Total: R$ ' + (lang == 'pt' ? '0,00' : '0.00') : (strategy == 'none' ? '!Unhandled exception. System.' + excName + ': ' + excMsg : '+Quantidade inválida: \"' + text + '\"' + (strategy == 'filter' ? ' (' + excName + ')' : '')))",
+        "calmLead": "bad && strategy == 'none' ? calmCrash : calmHandled",
+        "shownTotal": "valid ? totalText : (lang == 'pt' ? '0,00' : '0.00')"
+      },
+      "cases": [
+        {
+          "when": "bad && strategy == 'swallow'",
+          "flags": [
+            "swallowed"
+          ]
+        },
+        {
+          "when": "bad && strategy == 'none'",
+          "flags": [
+            "crashed"
+          ]
+        },
+        {
+          "when": "bad && (strategy == 'filter' || strategy == 'tryparse')",
+          "flags": [
+            "handled"
+          ]
+        },
+        {
+          "when": "valid && qtyN <= 0",
+          "flags": [
+            "oddQty"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "total": "shownTotal",
+            "exc": "excName",
+            "input": "text",
+            "calmLead": "calmLead"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@inputM",
+              "value": "='\"' + text + '\"'",
+              "tone": "=valid ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@excM",
+              "value": "=bad && strategy != 'tryparse' ? excName : '@none'",
+              "tone": "=bad && strategy != 'tryparse' ? 'warn' : 'dim'"
+            },
+            {
+              "label": "@cashierM",
+              "value": "=valid ? '@sawTotal' : (strategy == 'swallow' ? '@sawZero' : (strategy == 'none' ? '@sawCrash' : '@sawMsg'))",
+              "tone": "=valid ? 'ok' : (strategy == 'swallow' ? 'bad' : (strategy == 'none' ? 'bad' : 'ok'))"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "Program.cs",
+          "lines": "=concat(['string texto = \"' + text + '\";', 'decimal preco = 4.50m;'], lookup(code, strategy, []))"
+        },
+        {
+          "type": "terminal",
+          "label": "@runLabel",
+          "lines": "=['$ dotnet run', outLine]"
+        },
+        {
+          "type": "flow",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "int.Parse",
+              "sub": "=strategy == 'tryparse' ? '@sTry' : (bad ? excName : '@sOk')",
+              "tone": "=strategy == 'tryparse' ? 'info' : (bad ? 'warn' : 'ok')"
+            },
+            {
+              "label": "catch",
+              "sub": "=strategy == 'swallow' ? '@sSwallow' : (strategy == 'filter' ? '@sFilter' : (strategy == 'none' ? '@sNone' : '@sNoNeed'))",
+              "tone": "=strategy == 'swallow' ? (bad ? 'bad' : 'warn') : (strategy == 'none' ? (bad ? 'bad' : 'dim') : 'ok')"
+            },
+            {
+              "label": "@fCashier",
+              "sub": "=valid ? '@sawTotal' : (strategy == 'swallow' ? '@sawZero' : (strategy == 'none' ? '@sawCrash' : '@sawMsg'))",
+              "tone": "=valid || strategy == 'filter' || strategy == 'tryparse' ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=bad && strategy == 'swallow'",
+          "tone": "bad",
+          "text": "@swallowNote"
+        },
+        {
+          "type": "note",
+          "when": "=bad && strategy == 'none'",
+          "tone": "bad",
+          "text": "@crashNote"
+        },
+        {
+          "type": "note",
+          "when": "=bad && strategy == 'filter'",
+          "tone": "ok",
+          "text": "@filterNote"
+        },
+        {
+          "type": "note",
+          "when": "=bad && strategy == 'tryparse'",
+          "tone": "ok",
+          "text": "@tryNote"
+        },
+        {
+          "type": "note",
+          "when": "=valid && qtyN <= 0",
+          "tone": "warn",
+          "text": "@oddNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "crash",
+      "message",
+      "zero"
+    ],
+    "answer": "zero"
+  }
+}

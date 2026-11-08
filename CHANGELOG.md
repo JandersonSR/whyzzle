@@ -2,6 +2,7 @@
 
 Uma linha por etapa publicada, da mais recente para a mais antiga.
 
+- 2026-11-07 · C# e ASP.NET Core · Fundamentos F1 + missão: 7 lições e a missão "calculadora de empréstimo com testes", com saídas conferidas rodando o .NET 10; revisadas por um revisor independente. Métricas com texto longo diminuem a fonte no celular.
 - 2026-11-07 · Contêineres e Kubernetes · Fundamentos F1 + missão: 6 lições e a missão "empacotar uma API e explicar cada linha do Dockerfile", com receitas em Docker e kind; revisadas por um revisor independente.
 - 2026-11-07 · IA aplicada · Prática · missão final: assistente de RH com 6 critérios (limpeza, busca híbrida, limite, citação, recusa, triagem) avaliado em 13 perguntas, modo real com embeddings e5; trilha Prática completa. Revisada por um revisor independente.
 - 2026-11-07 · IA aplicada · Prática · P3 · Prompts e agentes: 7 lições (prompt de sistema e papéis, few-shot, extração de e-mails e notas, triagem de tickets, agente com ferramentas e limites, memória e resumo, MCP), revisadas por um revisor independente; pontos de progresso quebram linha no celular.

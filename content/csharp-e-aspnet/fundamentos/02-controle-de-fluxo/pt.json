@@ -1,0 +1,90 @@
+{
+  "title": "Controle de fluxo",
+  "subtitle": "if, switch e laços: o caixa confere o saldo de cada aluno, e um sinal de igual a mais derruba tudo",
+  "mission": "No recreio, o caixa da Dona Cida passa pela lista de saldos dos alunos e diz quem está liberado, quase acabando, zerado ou devendo. Um switch decide a situação e um laço passa por todos. Troque o tipo de laço (foreach, for com < ou for com <=) e veja quem é atendido.",
+  "predict": {
+    "question": "com for (int i = 0; i <= saldos.Length; i++), o que acontece?",
+    "options": {
+      "extra": "Imprime uma linha vazia a mais no fim",
+      "crash": "Atende todos e depois o programa quebra com uma exceção",
+      "compile": "Nem compila"
+    }
+  },
+  "feedback": {
+    "right": "isso: com 5 alunos, os índices vão de 0 a 4. O <= faz o laço tentar o índice 5, que não existe, e o C# para tudo com IndexOutOfRangeException. O compilador não pega: o erro só aparece rodando.",
+    "wrong": "compila e atende todos, mas na última volta tenta ler saldos[5] numa lista que vai de 0 a 4, e o programa quebra com IndexOutOfRangeException. No JavaScript, saldos[5] daria undefined em silêncio; o C# prefere gritar.",
+    "skipped": "sem palpite? Rode conferir --laco for-menor-igual e olhe a última linha do terminal."
+  },
+  "coach": {
+    "ui": "palpite anotado. Troque o laço para \"for-menor-igual\" e olhe o fim do terminal.",
+    "cmd": "palpite anotado. Rode conferir e depois conferir --laco for-menor-igual."
+  },
+  "tryNext": {
+    "ui": "Agora volte para foreach e desligue o descarte (_): o compilador avisa que o switch não cobre tudo, e o primeiro aluno com saldo 12 derruba o programa.",
+    "cmd": "Rode conferir --descarte nao e leia o aviso CS8509 antes da exceção."
+  },
+  "why": {
+    "simples": "Um programa decide e repete. Decidir é o if (\"se o saldo for menor que zero, está devendo\") e o switch, que é um if com várias saídas organizadas. Repetir é o laço: o for conta voltas com um número (0, 1, 2…), e o foreach diz \"para cada aluno da lista\", sem você precisar contar.\nComputador começa a contar do zero: numa lista de 5 alunos, o primeiro é o 0 e o último é o 4. Pedir o número 5 é pedir um aluno que não existe, e o C# para o programa para avisar. Por isso o foreach é o amigo de quem está começando: ele não deixa você errar a conta.",
+    "dev": "Para quem vem do JS: if (x = 5) nem compila (CS0029: não converte int em bool), porque a condição tem que ser bool; não existe \"truthy\". No switch clássico não há queda de um case para o outro sem break (CS0163). E acesso fora do array lança IndexOutOfRangeException em vez de devolver undefined.\nO switch de expressão (saldo switch { < 0 => …, _ => … }) usa padrões relacionais (< 5), constantes (0) e o descarte _. Se faltar algum caso, o compilador avisa com CS8509 e, se o valor não casar com nada, a execução lança SwitchExpressionException. Prefira foreach para percorrer coleções e for quando você precisa do índice (e use <, nunca <=, com Length ou Count).",
+    "especialista": "Os padrões vão bem além de números: padrões de tipo (obj is Pedido p), de propriedade (pedido is { Total: > 100 }), de lista ([var primeiro, ..]) e combinadores and, or, not. O compilador confere a exaustividade e também casos inalcançáveis, então trate o aviso CS8509 como erro (TreatWarningsAsErrors ou WarningsAsErrors com a lista de códigos) em código de produção.\nforeach funciona com qualquer coisa que tenha GetEnumerator, não só com IEnumerable; em arrays e List<T> o compilador gera um laço sem alocação. Modificar uma List<T> dentro do foreach que a percorre lança InvalidOperationException (\"Collection was modified\"). Quando o índice importa, Span<T> e o operador ^1 (último elemento) ajudam a evitar contas de borda à mão."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha o laço \"for-menor-igual\".",
+      "cmd": "hora de quebrar: rode conferir --laco for-menor-igual"
+    },
+    "success": "Quebrou: o laço deu {loops} voltas para {n} alunos. Na última, pediu um saldo que não existe, e a fila do recreio parou com IndexOutOfRangeException. Um único = a mais.",
+    "calm": "{shown} de {n} alunos conferidos (voltas do laço: {loops}). Para quebrar, use o for com <= e o descarte ligado."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o laço e quantos alunos estão na fila.",
+      "Os índices vão de 0 até o tamanho menos 1.",
+      "Escolha o laço \"for-menor-igual\"."
+    ],
+    "cmd": [
+      "--laco, --alunos e --descarte são opcionais.",
+      "--laco aceita foreach, for-menor ou for-menor-igual.",
+      "conferir --laco for-menor-igual"
+    ]
+  },
+  "errors": {
+    "notInEnum.loop": "Use foreach, for-menor ou for-menor-igual.",
+    "belowMin.students": "Pelo menos 1 aluno na fila.",
+    "aboveMax.students": "Até 8 alunos: o recreio dura 15 minutos.",
+    "notBool.discard": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Lista",
+    "loop": "Tipo de laço",
+    "students": "Alunos na fila",
+    "discard": "Caso _ (descarte) no switch"
+  },
+  "scene": {
+    "label": "Fila do recreio",
+    "empty": "Rode para conferir os saldos.",
+    "servedM": "alunos conferidos",
+    "turnsM": "voltas do laço",
+    "endM": "fim do programa",
+    "crashed": "quebrou",
+    "finished": "normal",
+    "runLabel": "Terminal",
+    "tableLabel": "Cada volta do laço",
+    "cStudent": "aluno",
+    "cBalance": "saldo (R$)",
+    "cStatus": "situação",
+    "leNote": "Com <=, a volta {loops} pede saldos[{n}], mas os índices vão de 0 a {last}. No C#, isso é exceção, não undefined.",
+    "switchNote": "Sem o _, nenhum caso cobre saldos de 5 para cima. O compilador avisou (CS8509) e, rodando, o primeiro saldo assim derrubou o programa.",
+    "foreachNote": "O foreach passa por cada aluno exatamente uma vez: não tem índice para errar.",
+    "ltNote": "O for com < também funciona: {n} voltas, índices de 0 a {last}. É o mesmo resultado do foreach, com mais chance de errar."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Crie o projeto (se ainda não criou): dotnet new console -o Cantina e entre em Cantina.",
+      "Troque Program.cs por:\ndecimal[] saldos = [12m, 0m, -3m, 4.5m, 20m];\nfor (int i = 0; i <= saldos.Length; i++)\n{\n    decimal saldo = saldos[i];\n    string situacao = saldo switch\n    {\n        < 0 => \"devendo\",\n        0 => \"zerado\",\n        < 5 => \"quase acabando\",\n        _ => \"liberado\",\n    };\n    Console.WriteLine($\"Aluno {i + 1}: {situacao}\");\n}",
+      "Rode dotnet run. Depois troque <= por < e rode de novo."
+    ],
+    "ok": "na primeira vez aparecem os 5 alunos e depois \"Unhandled exception. System.IndexOutOfRangeException\"; com <, os 5 alunos aparecem e o programa termina sem erro."
+  }
+}

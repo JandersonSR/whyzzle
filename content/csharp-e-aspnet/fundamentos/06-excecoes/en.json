@@ -1,0 +1,96 @@
+{
+  "title": "Exceptions",
+  "subtitle": "When a student types \"abc\" as the quantity: blow up, swallow it or say so properly?",
+  "mission": "At the canteen kiosk, students type how many pastéis (fried pastries) they want (R$ 4.50 each). Some type \"abc\", some type a gigantic number. Pick the strategy: TryParse, try/catch with a filter, a catch that swallows everything, or no catch at all, and see what Dona Cida’s till sees. (Messages printed by the code are in Portuguese: Quantidade inválida = invalid quantity.)",
+  "predict": {
+    "question": "with an empty catch (Exception) { } and the input \"abc\", what does Dona Cida see?",
+    "options": {
+      "crash": "The program crashes with a FormatException",
+      "message": "An invalid-quantity message",
+      "zero": "\"Total: R$ 0.00\", as if nothing happened"
+    }
+  },
+  "feedback": {
+    "right": "right: the exception happened, the empty catch swallowed it, qtd stayed 0 and the till showed R$ 0.00. Nobody knows there was an error: not Dona Cida, not the log, not you.",
+    "wrong": "it shows \"Total: R$ 0.00\". int.Parse threw a FormatException, the empty catch took it and threw it away, and the program went on with qtd = 0. Worst of both worlds: wrong and silent.",
+    "skipped": "no guess? Run order \"abc\" --strategy swallow and look at the terminal line."
+  },
+  "coach": {
+    "ui": "guess noted. Pick the input \"abc\" and the \"swallow\" strategy. Then compare with \"tryparse\".",
+    "cmd": "guess noted. Run order \"abc\" --strategy swallow and then order \"abc\"."
+  },
+  "tryNext": {
+    "ui": "Pick 99999999999 with no catch: it isn’t letters, it’s too much number for an int, and the exception is a different one (OverflowException).",
+    "cmd": "Run order \"99999999999\" --strategy no-catch and read the exception’s name."
+  },
+  "why": {
+    "simples": "An exception is the program shouting \"I can’t go on like this!\". If nobody listens, the program stops. try/catch puts someone there to listen: \"try this; if it goes wrong, do that\".\nThe classic mistake is putting a listener who does nothing (the empty catch): the problem disappears from view, but it’s still there, and the bill comes out wrong. Even better is not needing to shout: when it’s normal for a student to type wrong, ask calmly (TryParse returns \"it worked or it didn’t\") and explain what they need to type.",
+    "dev": "For JS folks: in C# you catch by type (catch (FormatException ex)), from most specific to most general, and you can filter with when without rethrowing. int.Parse throws FormatException for text that isn’t a number and OverflowException for a number outside int range; int.TryParse doesn’t throw: it returns false and leaves the value at 0.\nRule of thumb: exceptions are for the exceptional (database down, file gone, a bug); bad user input is expected, so use TryParse or validation. Never write an empty catch; if you catch, log it, turn it into a useful message, or rethrow with throw; (without the ex, so you don’t lose the stack trace). And notice: \"-2\" passes TryParse, but -2 pastries make no sense; validating business rules is a separate step, covered in the mission.",
+    "especialista": "Exception filters (catch … when) run before the stack is unwound: if the filter returns false, the exception continues as if the catch weren’t there, and the original stack trace stays intact for the debugger and the crash dump. Use them to separate cases (\"when (ex is HttpRequestException { StatusCode: HttpStatusCode.NotFound })\") and even to log without catching (when (Log(ex) && false)). Rethrowing with throw ex; resets the stack trace (analyzer CA2200 warns); throw; preserves it.\nThrowing is expensive compared to an if (capturing the stack trace, unwinding the stack), so don’t use it for control flow on a hot path; Try* patterns and result types are the alternative. Release resources with using or finally, which run with or without an exception. In ASP.NET Core APIs, an exception-handling middleware turns whatever escaped into ProblemDetails, instead of every endpoint having its own generic catch."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: input \"abc\" with the \"swallow\" strategy.",
+      "cmd": "time to break it: run order \"abc\" --strategy swallow"
+    },
+    "success": "Broken: the input \"{input}\" raised a {exc}, the empty catch threw it away and the till showed Total: R$ {total}. The student leaves with no pastry, Dona Cida thinks it was their mistake and nobody finds out the kiosk is broken.",
+    "calm": "The input \"{input}\" {calmLead} To break it, type \"abc\" and use the strategy that swallows the exception."
+  },
+  "hints": {
+    "ui": [
+      "Pick what the student typed and the strategy.",
+      "One of the catches does nothing with the exception.",
+      "Pick \"abc\" and the \"swallow\" strategy."
+    ],
+    "cmd": [
+      "What the student typed goes in quotes; --strategy is optional.",
+      "--strategy takes tryparse, filter, swallow or no-catch.",
+      "order \"abc\" --strategy swallow"
+    ]
+  },
+  "errors": {
+    "notInEnum.strategy": "Use tryparse, filter, swallow or no-catch."
+  },
+  "controls": {
+    "arg": "What the student typed",
+    "strategy": "Error strategy"
+  },
+  "scene": {
+    "label": "Canteen kiosk",
+    "empty": "Run to place the order.",
+    "inputM": "input",
+    "excM": "exception thrown",
+    "cashierM": "the till sees",
+    "none": "none",
+    "sawTotal": "the right total",
+    "sawZero": "R$ 0.00 with no explanation",
+    "sawCrash": "the program died",
+    "sawMsg": "invalid quantity",
+    "runLabel": "Terminal",
+    "flowLabel": "The error’s path",
+    "fCashier": "till",
+    "sTry": "TryParse: no exception",
+    "sOk": "number read",
+    "sSwallow": "swallows everything",
+    "sFilter": "only Format and Overflow",
+    "sNone": "nobody",
+    "sNoNeed": "not needed",
+    "swallowNote": "The {exc} happened and was erased. The R$ {total} total looks like a valid order for zero pastries.",
+    "crashNote": "Nobody caught the {exc}: the whole program died because of one mistyped field.",
+    "filterNote": "The when filter caught only the expected exceptions and said which one it was ({exc}). Anything else would keep going, not hidden.",
+    "tryNote": "TryParse didn’t even throw: it returned false and the code explained the problem. Bad input is expected, not exceptional.",
+    "oddNote": "The number was read with no error, but {input} pastries make no sense. A correct conversion isn’t a correct business rule (that’s for the mission)."
+  },
+  "data": {
+    "calmHandled": "was handled without hiding anything.",
+    "calmCrash": "took the program down: nothing was hidden, but the program crashed."
+  },
+  "recipe": {
+    "steps": [
+      "Create the project (if you haven’t yet): dotnet new console -o Cantina and go into Cantina.",
+      "Replace Program.cs with (args[0] is whatever you pass after dotnet run --):\nstring texto = args.Length > 0 ? args[0] : \"3\";\ndecimal preco = 4.50m;\nint qtd = 0;\ntry\n{\n    qtd = int.Parse(texto);\n}\ncatch (Exception)\n{\n}\nConsole.WriteLine($\"Total: R$ {qtd * preco:F2}\");",
+      "Run dotnet run -- abc. Then replace the whole try/catch block (from int qtd = 0; to the catch’s closing brace) with the TryParse block:\nif (!int.TryParse(texto, out int qtd))\n{\n    Console.WriteLine($\"Quantidade inválida: \\\"{texto}\\\"\");\n    return;\n}\nand run dotnet run -- abc again."
+    ],
+    "ok": "the first time you see Total: R$ 0.00 (or 0,00, depending on your system language) with no error at all; the second time, Quantidade inválida: \"abc\"."
+  }
+}

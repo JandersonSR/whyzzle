@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Escolher o tipo certo para cada valor (int, double, decimal, bool, string).",
+      "Explicar por que double não serve para dinheiro.",
+      "Reconhecer a divisão inteira."
+    ],
+    "minutes": 15,
+    "activity": "Peça para a turma calcular 1/3 em decimal com 4 casas e depois somar três vezes (0,3333 × 3 = 0,9999). É o mesmo problema que o computador tem com 0,1 em binário. Depois rodem o programa da receita.",
+    "discussion": [
+      "Que outros valores da escola precisam ser exatos? E quais podem ser aproximados?",
+      "Por que o compilador não avisa quando você usa double para dinheiro?"
+    ],
+    "misconceptions": [
+      "\"O computador sempre acerta contas.\" Ele acerta a conta que você pediu, no tipo que você escolheu; double é aproximado por definição.",
+      "\"var deixa a variável sem tipo.\" var só pede para o compilador deduzir o tipo, que fica fixo."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Pick the right type for each value (int, double, decimal, bool, string).",
+      "Explain why double is wrong for money.",
+      "Recognize integer division."
+    ],
+    "minutes": 15,
+    "activity": "Ask the class to compute 1/3 in decimal with 4 places and then add it three times (0.3333 × 3 = 0.9999). It’s the same problem the computer has with 0.1 in binary. Then run the recipe program.",
+    "discussion": [
+      "What other school values must be exact? Which can be approximate?",
+      "Why doesn’t the compiler warn you when you use double for money?"
+    ],
+    "misconceptions": [
+      "\"Computers always get math right.\" They get right the math you asked for, in the type you chose; double is approximate by design.",
+      "\"var makes a variable untyped.\" var only asks the compiler to infer the type, which stays fixed."
+    ]
+  }
+}

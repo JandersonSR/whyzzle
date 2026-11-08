@@ -1,0 +1,397 @@
+{
+  "id": "cs-async-await",
+  "order": 7,
+  "track": "fundamentos",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "csharp",
+    "async",
+    "await",
+    "task"
+  ],
+  "requires": [
+    "cs-excecoes"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "preparar",
+      "en": "prepare"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "default": {
+        "pt": "pedido 42",
+        "en": "order 42"
+      },
+      "ui": "text"
+    },
+    "flags": [
+      {
+        "name": "mode",
+        "alias": {
+          "pt": "modo",
+          "en": "mode"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "together",
+            "pt": "juntos",
+            "en": "together"
+          },
+          {
+            "id": "sequential",
+            "pt": "um-por-vez",
+            "en": "one-by-one"
+          }
+        ],
+        "default": "together",
+        "ui": "select"
+      },
+      {
+        "name": "method",
+        "alias": {
+          "pt": "metodo",
+          "en": "method"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "task",
+            "pt": "task",
+            "en": "task"
+          },
+          {
+            "id": "void",
+            "pt": "void",
+            "en": "void"
+          }
+        ],
+        "default": "task",
+        "ui": "select"
+      },
+      {
+        "name": "fail",
+        "alias": {
+          "pt": "falha",
+          "en": "fail"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "asyncVoid"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "runs": {
+          "task|together|0": {
+            "lines": [
+              "[0 s] começou misto quente",
+              "[0 s] começou suco",
+              "[0 s] começou troco",
+              "[1 s] terminou troco",
+              "[2 s] terminou suco",
+              "[3 s] terminou misto quente",
+              "Prontos: misto quente, suco, troco"
+            ],
+            "total": 3,
+            "done": 3,
+            "knew": true
+          },
+          "task|together|1": {
+            "lines": [
+              "[0 s] começou misto quente",
+              "[0 s] começou suco",
+              "[0 s] começou troco",
+              "[1 s] terminou troco",
+              "[3 s] terminou misto quente",
+              "[3 s] pedido com problema: a máquina de suco quebrou"
+            ],
+            "total": 3,
+            "done": 2,
+            "knew": true
+          },
+          "task|sequential|0": {
+            "lines": [
+              "[0 s] começou misto quente",
+              "[3 s] terminou misto quente",
+              "[3 s] começou suco",
+              "[5 s] terminou suco",
+              "[5 s] começou troco",
+              "[6 s] terminou troco",
+              "Prontos: misto quente, suco, troco"
+            ],
+            "total": 6,
+            "done": 3,
+            "knew": true
+          },
+          "task|sequential|1": {
+            "lines": [
+              "[0 s] começou misto quente",
+              "[3 s] terminou misto quente",
+              "[3 s] começou suco",
+              "[5 s] pedido com problema: a máquina de suco quebrou"
+            ],
+            "total": 5,
+            "done": 1,
+            "knew": true
+          },
+          "void|together|0": {
+            "lines": [
+              "[0 s] começou misto quente",
+              "[0 s] começou suco",
+              "[0 s] começou troco",
+              "[0 s] atendimento encerrado",
+              "[1 s] terminou troco",
+              "[2 s] terminou suco",
+              "[3 s] terminou misto quente"
+            ],
+            "total": -1,
+            "done": 3,
+            "knew": false
+          },
+          "void|together|1": {
+            "lines": [
+              "[0 s] começou misto quente",
+              "[0 s] começou suco",
+              "[0 s] começou troco",
+              "[0 s] atendimento encerrado",
+              "[1 s] terminou troco",
+              "!Unhandled exception. System.InvalidOperationException: a máquina de suco quebrou"
+            ],
+            "total": -1,
+            "done": 1,
+            "knew": false
+          },
+          "void|sequential|0": {
+            "lines": [
+              "[0 s] começou misto quente",
+              "[0 s] começou suco",
+              "[0 s] começou troco",
+              "[0 s] atendimento encerrado",
+              "[1 s] terminou troco",
+              "[2 s] terminou suco",
+              "[3 s] terminou misto quente"
+            ],
+            "total": -1,
+            "done": 3,
+            "knew": false
+          },
+          "void|sequential|1": {
+            "lines": [
+              "[0 s] começou misto quente",
+              "[0 s] começou suco",
+              "[0 s] começou troco",
+              "[0 s] atendimento encerrado",
+              "[1 s] terminou troco",
+              "!Unhandled exception. System.InvalidOperationException: a máquina de suco quebrou"
+            ],
+            "total": -1,
+            "done": 1,
+            "knew": false
+          }
+        },
+        "head": [
+          "using System.Diagnostics;",
+          "",
+          "var relogio = Stopwatch.StartNew();",
+          "try",
+          "{"
+        ],
+        "together": [
+          "    Task<string> chapa = Preparar(\"misto quente\", 3);",
+          "    Task<string> suco = Preparar(\"suco\", 2);",
+          "    Task<string> troco = Preparar(\"troco\", 1);",
+          "    string[] prontos = await Task.WhenAll(chapa, suco, troco);"
+        ],
+        "seq": [
+          "    string chapa = await Preparar(\"misto quente\", 3);",
+          "    string suco = await Preparar(\"suco\", 2);",
+          "    string troco = await Preparar(\"troco\", 1);",
+          "    string[] prontos = [chapa, suco, troco];"
+        ],
+        "mid": [
+          "    Console.WriteLine($\"Prontos: {string.Join(\", \", prontos)}\");",
+          "}",
+          "catch (Exception ex)",
+          "{",
+          "    Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] pedido com problema: {ex.Message}\");",
+          "}",
+          "Console.WriteLine($\"Tempo total: {relogio.Elapsed.TotalSeconds:F1} s\");",
+          "",
+          "async Task<string> Preparar(string item, int segundos)",
+          "{"
+        ],
+        "top": [
+          "    Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] começou {item}\");",
+          "    await Task.Delay(TimeSpan.FromSeconds(segundos));"
+        ],
+        "failL": [
+          "    if (item == \"suco\")",
+          "    {",
+          "        throw new InvalidOperationException(\"a máquina de suco quebrou\");",
+          "    }"
+        ],
+        "endL": [
+          "    Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] terminou {item}\");"
+        ],
+        "voidMain": [
+          "using System.Diagnostics;",
+          "",
+          "var relogio = Stopwatch.StartNew();",
+          "try",
+          "{",
+          "    Preparar(\"misto quente\", 3);",
+          "    Preparar(\"suco\", 2);",
+          "    Preparar(\"troco\", 1);",
+          "}",
+          "catch (Exception ex)",
+          "{",
+          "    Console.WriteLine($\"Pedido com problema: {ex.Message}\");",
+          "}",
+          "Console.WriteLine($\"[{relogio.Elapsed.TotalSeconds:F0} s] atendimento encerrado\");",
+          "await Task.Delay(TimeSpan.FromSeconds(5)); // a cantina continua aberta",
+          "",
+          "async void Preparar(string item, int segundos)",
+          "{"
+        ]
+      },
+      "compute": {
+        "isVoid": "method == 'void'",
+        "row": "lookup(runs, method + '|' + mode + '|' + (fail ? '1' : '0'), runs['task|together|0'])",
+        "totalS": "row.total",
+        "doneN": "row.done",
+        "totalText": "totalS < 0 ? '—' : str(totalS) + (lang == 'pt' ? ',0 s' : '.0 s')",
+        "outLines": "isVoid ? row.lines : concat(row.lines, ['Tempo total: ' + str(totalS) + (lang == 'pt' ? ',0 s' : '.0 s')])",
+        "voidWhat": "fail ? voidCrash : voidEarly"
+      },
+      "cases": [
+        {
+          "when": "isVoid",
+          "flags": [
+            "asyncVoid"
+          ]
+        },
+        {
+          "when": "!isVoid && fail",
+          "flags": [
+            "caught"
+          ]
+        },
+        {
+          "when": "!isVoid",
+          "vars": {
+            "total": "totalText"
+          }
+        },
+        {
+          "when": "true",
+          "vars": {
+            "done": "doneN",
+            "voidWhat": "voidWhat"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@totalM",
+              "value": "=totalText",
+              "tone": "=isVoid ? 'bad' : (totalS > 3 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@doneM",
+              "value": "=str(doneN) + ' / 3'",
+              "tone": "=doneN == 3 ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@knewM",
+              "value": "=isVoid ? '@no' : '@yes'",
+              "tone": "=isVoid ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@cItem",
+            "@cStart",
+            "@cEnd"
+          ],
+          "rows": "=isVoid ? [['misto quente', '0 s', fail ? '@never' : '3 s'], ['suco', '0 s', fail ? '@boom' : '2 s'], ['troco', '0 s', '1 s']] : (mode == 'together' ? [['misto quente', '0 s', '3 s'], ['suco', '0 s', fail ? '@failed' : '2 s'], ['troco', '0 s', '1 s']] : [['misto quente', '0 s', '3 s'], ['suco', '3 s', fail ? '@failed' : '5 s'], ['troco', fail ? '@never' : '5 s', fail ? '@never' : '6 s']])",
+          "tones": "=fail ? ['neutral', 'bad', 'neutral'] : ['neutral', 'neutral', 'neutral']"
+        },
+        {
+          "type": "terminal",
+          "label": "Program.cs",
+          "lines": "=isVoid ? concat(voidMain, top, fail ? failL : [], endL, ['}']) : concat(head, mode == 'together' ? together : seq, mid, top, fail ? failL : [], endL, ['    return item;', '}'])"
+        },
+        {
+          "type": "terminal",
+          "label": "@runLabel",
+          "lines": "=concat(['$ dotnet run'], outLines)"
+        },
+        {
+          "type": "note",
+          "when": "=!isVoid && mode == 'together'",
+          "tone": "ok",
+          "text": "@togetherNote"
+        },
+        {
+          "type": "note",
+          "when": "=!isVoid && mode == 'sequential'",
+          "tone": "warn",
+          "text": "@seqNote"
+        },
+        {
+          "type": "note",
+          "when": "=!isVoid && fail",
+          "tone": "info",
+          "text": "@caughtNote"
+        },
+        {
+          "type": "note",
+          "when": "=isVoid",
+          "tone": "info",
+          "text": "@voidModeNote"
+        },
+        {
+          "type": "note",
+          "when": "=isVoid && !fail",
+          "tone": "bad",
+          "text": "@voidEarlyNote"
+        },
+        {
+          "type": "note",
+          "when": "=isVoid && fail",
+          "tone": "bad",
+          "text": "@voidCrashNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "six",
+      "three",
+      "one"
+    ],
+    "answer": "three"
+  }
+}
