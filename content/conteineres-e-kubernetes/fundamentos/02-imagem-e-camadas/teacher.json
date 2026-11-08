@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Explicar que uma imagem é uma pilha de camadas somente leitura.",
+      "Prever o que viaja num docker pull.",
+      "Entender por que apagar numa camada nova não diminui a imagem."
+    ],
+    "minutes": 15,
+    "activity": "Lasanha de papel: cada grupo empilha folhas coloridas (sistema, Node, dependências, código). Para \"atualizar\", só pode trocar a folha de cima. Depois tentem \"remover\" uma folha do meio só escrevendo um bilhete na de cima: a pilha ficou mais leve?",
+    "discussion": [
+      "Por que faz sentido o código ser a última camada?",
+      "O que acontece com o disco de um servidor que roda dez apps com a mesma base?"
+    ],
+    "misconceptions": [
+      "\"RUN rm diminui a imagem.\" Ele só esconde o arquivo; os bytes continuam na camada anterior.",
+      "\"Todo pull baixa a imagem inteira.\" Só viajam as camadas que o destino ainda não tem."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explain that an image is a stack of read-only layers.",
+      "Predict what travels in a docker pull.",
+      "Understand why deleting in a new layer doesn’t shrink the image."
+    ],
+    "minutes": 15,
+    "activity": "Paper lasagna: each group stacks colored sheets (system, Node, dependencies, code). To \"update\", they may only swap the top sheet. Then try to \"remove\" a sheet from the middle by writing a note on the top one: did the stack get lighter?",
+    "discussion": [
+      "Why does it make sense for the code to be the last layer?",
+      "What happens to the disk of a server running ten apps on the same base?"
+    ],
+    "misconceptions": [
+      "\"RUN rm shrinks the image.\" It only hides the file; the bytes stay in the earlier layer.",
+      "\"Every pull downloads the whole image.\" Only the layers the target doesn’t have yet travel."
+    ]
+  }
+}

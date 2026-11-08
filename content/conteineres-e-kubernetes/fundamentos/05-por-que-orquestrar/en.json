@@ -1,0 +1,256 @@
+{
+  "title": "Why orchestrate",
+  "subtitle": "You can run one food truck alone; a fleet needs a manager who never sleeps",
+  "mission": "api-pedidos runs 3 replicas spread over a few servers. Three things will happen: a server dies at 3 am, traffic triples at noon and a new version ships at 3 pm. Compare handling it by hand (docker run on each server) with an orchestrator like Kubernetes (with an autoscaler set up for the peak). Count how long the service stays below what was asked and how many people have to drop everything.",
+  "predict": {
+    "question": "with an orchestrator and 3 servers, at 3 am server-1 dies. What happens to the replica that was on it?",
+    "options": {
+      "rescheduled": "The orchestrator creates another one on a remaining server",
+      "waits": "It stays down until someone wakes up and restarts it",
+      "gone": "It’s gone for good: now there are only 2"
+    }
+  },
+  "feedback": {
+    "right": "right! You asked for 3 replicas, so the orchestrator works to keep 3. When the node disappears, it waits out the default toleration (about 5 minutes in Kubernetes), evicts its pods and recreates the replicas on the remaining servers. Nobody woke up.",
+    "wrong": "look at the cluster: the pod on server-1 went Terminating and a new one showed up Running on another server, with nobody typing anything. You declare \"I want 3\"; the orchestrator fixes the difference.",
+    "skipped": "no guess? Run it and look in the cluster for the new pod that showed up by itself."
+  },
+  "coach": {
+    "ui": "guess noted. Run with orchestrator, then switch to manual. Compare \"people woken up\".",
+    "cmd": "guess noted. Run operate and then operate --way manual. Compare \"people woken up\"."
+  },
+  "tryNext": {
+    "ui": "Now leave a single server: not even an orchestrator works miracles with nowhere to send the replicas. Then try the \"release\" event.",
+    "cmd": "Run operate --servers 1 (not even an orchestrator works miracles without another server) and then operate --event release."
+  },
+  "why": {
+    "simples": "With one food truck, you handle it yourself: open, cook, close. With twenty trucks spread around town, someone has to coordinate: when one breaks down at 3 am, send another; at lunchtime, put more trucks on the street; change the menu without closing them all at once.\nThe orchestrator is that manager who never sleeps. You don’t say “start truck 3”; you say “I always want 3 trucks serving”, and she works to keep that true.",
+    "dev": "docker run handles one machine. With several, questions appear that it doesn’t answer: which server does each container run on? Who recreates what died? How do you change versions without taking the service down? How do containers find each other on the network?\nKubernetes answers with desired state: you declare it (a Deployment with replicas: 3) and controllers compare desired with actual all the time, fixing the difference. A pod that dies is recreated; a node that goes down has its pods recreated on other nodes (by default, after about 5 minutes of toleration); updates are gradual (a rolling update, which by default starts new pods before removing all the old ones) and you can go back with a rollback. Scaling with load needs setting up, for example, a HorizontalPodAutoscaler: it isn’t on by default.",
+    "especialista": "Orchestration has a cost: a control plane to maintain (or pay for, as on AKS, EKS and GKE), networking, storage, version upgrades a few times a year, RBAC, policies and observability. For a small app, a container PaaS (Azure Container Apps, Cloud Run) or one server with docker compose can be cheaper and simpler.\nThe default timings shape the design: a node with no news turns NotReady after a grace period, and its pods are only evicted when the 300 s tolerationSeconds Kubernetes adds by default runs out. To react faster, tune tolerations per pod; to not depend on it, spread replicas across nodes and zones (topologySpreadConstraints) and protect them during maintenance (PodDisruptionBudget). And self-healing isn’t high availability: with a single replica, every restart is an outage."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch to the manual way.",
+      "cmd": "time to break it: run operate --way manual"
+    },
+    "success": "Broken: {downMin} minutes with fewer replicas than asked and {humansN} person had to drop everything at {atTime}. Reason: {causeText}.",
+    "calm": "Nobody had to step in: the orchestrator got back to the {needN} requested replicas in {downMin} min, creating {autoN} pod(s) on its own. To break it, operate by hand."
+  },
+  "hints": {
+    "ui": [
+      "Pick the way, the event and how many servers; the cluster shows where each replica ended up.",
+      "The manual way waits for someone to see the alert and type commands.",
+      "Pick the manual way."
+    ],
+    "cmd": [
+      "The app goes in quotes; --way, --event and --servers are optional.",
+      "--way takes orchestrator or manual; --event takes crash, peak or release.",
+      "operate --way manual"
+    ]
+  },
+  "errors": {
+    "notInEnum.way": "Use orchestrator or manual.",
+    "notInEnum.event": "Use crash, peak or release.",
+    "belowMin.servers": "At least 1 server: with none, not even the orchestrator finds a place to cook.",
+    "aboveMax.servers": "Up to 5 servers in this simulation."
+  },
+  "controls": {
+    "arg": "App",
+    "way": "Who takes care",
+    "event": "What happens",
+    "servers": "Servers"
+  },
+  "scene": {
+    "label": "A day in the life of api-pedidos",
+    "empty": "Run to start the day.",
+    "readyM": "replicas ready after the event",
+    "downM": "time below what was asked",
+    "humansM": "people who dropped everything",
+    "cmdsM": "commands typed by hand",
+    "srv1": "server-1",
+    "srv2": "server-2",
+    "srv3": "server-3",
+    "srv4": "server-4",
+    "srv5": "server-5",
+    "clusterLabel": "Servers after the event (simulated)",
+    "noNode": "no server (Pending)",
+    "flowLabel": "Timeline",
+    "humanNote": "{humansN} person had to act at {atTime}: {causeText}.",
+    "healNote": "Nobody had to act: {autoN} pod(s) created by the orchestrator and {downMin} min below what was asked."
+  },
+  "data": {
+    "flows": {
+      "manual-crash": [
+        {
+          "label": "03:00",
+          "sub": "server-1 goes dark",
+          "tone": "bad"
+        },
+        {
+          "label": "03:25",
+          "sub": "the alert wakes someone up",
+          "tone": "warn"
+        },
+        {
+          "label": "03:35",
+          "sub": "ssh + docker run on another server",
+          "tone": "warn"
+        },
+        {
+          "label": "03:40",
+          "sub": "back, 40 min later",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-crash": [
+        {
+          "label": "03:00",
+          "sub": "server-1 goes dark",
+          "tone": "bad"
+        },
+        {
+          "label": "~03:01",
+          "sub": "the node turns NotReady",
+          "tone": "warn"
+        },
+        {
+          "label": "~03:06",
+          "sub": "the default 5 min toleration ends: pods evicted",
+          "tone": "info"
+        },
+        {
+          "label": "~03:06",
+          "sub": "new replicas Running on the other servers",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-crash-short": [
+        {
+          "label": "03:00",
+          "sub": "server-1 goes dark",
+          "tone": "bad"
+        },
+        {
+          "label": "~03:01",
+          "sub": "the node turns NotReady",
+          "tone": "warn"
+        },
+        {
+          "label": "~03:06",
+          "sub": "new pods stay Pending: there’s no other server",
+          "tone": "bad"
+        },
+        {
+          "label": "03:45",
+          "sub": "someone fixes the server",
+          "tone": "warn"
+        }
+      ],
+      "manual-peak": [
+        {
+          "label": "12:00",
+          "sub": "traffic triples",
+          "tone": "bad"
+        },
+        {
+          "label": "12:20",
+          "sub": "someone notices the slowness",
+          "tone": "warn"
+        },
+        {
+          "label": "12:35",
+          "sub": "docker run of 3 more containers, by hand",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-peak": [
+        {
+          "label": "12:00",
+          "sub": "traffic triples",
+          "tone": "bad"
+        },
+        {
+          "label": "12:00",
+          "sub": "the HPA sees high CPU and asks for 6 replicas",
+          "tone": "info"
+        },
+        {
+          "label": "~12:02",
+          "sub": "6 replicas Running",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-peak-short": [
+        {
+          "label": "12:00",
+          "sub": "traffic triples",
+          "tone": "bad"
+        },
+        {
+          "label": "12:00",
+          "sub": "the HPA asks for 6 replicas",
+          "tone": "info"
+        },
+        {
+          "label": "~12:01",
+          "sub": "not everything fits: some stay Pending",
+          "tone": "bad"
+        },
+        {
+          "label": "13:00",
+          "sub": "someone adds servers",
+          "tone": "warn"
+        }
+      ],
+      "manual-release": [
+        {
+          "label": "15:00",
+          "sub": "docker stop on the old version",
+          "tone": "warn"
+        },
+        {
+          "label": "15:01",
+          "sub": "docker run on the new one, one by one",
+          "tone": "warn"
+        },
+        {
+          "label": "15:06",
+          "sub": "done, with errors along the way",
+          "tone": "ok"
+        }
+      ],
+      "orchestrator-release": [
+        {
+          "label": "15:00",
+          "sub": "kubectl set image",
+          "tone": "info"
+        },
+        {
+          "label": "15:00",
+          "sub": "starts 1 new pod before removing 1 old one",
+          "tone": "info"
+        },
+        {
+          "label": "~15:02",
+          "sub": "3 new-version replicas, no downtime",
+          "tone": "ok"
+        }
+      ]
+    },
+    "causes": {
+      "manual": "everything depended on someone seeing the alert and typing commands",
+      "oneServer": "with a single server, there’s nowhere to send the replicas",
+      "noRoom": "there’s no room on the servers for all the replicas"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Install kind (kind.sigs.k8s.io) and kubectl (kubernetes.io/docs/tasks/tools). They use the Docker you already have. Create the file kind.yaml:\nkind: Cluster\napiVersion: kind.x-k8s.io/v1alpha4\nnodes:\n- role: control-plane\n- role: worker\n- role: worker",
+      "Create a cluster with 1 control-plane node and 2 workers. Each node is a container, as docker ps shows:\nkind create cluster --name escola --config kind.yaml\ndocker ps",
+      "Load lesson 3’s image into the cluster and ask for 3 replicas (skipped lesson 3? use --image=nginx:alpine and skip kind load):\nkind load docker-image api-pedidos:1.0 --name escola\nkubectl create deployment api --image=api-pedidos:1.0 --replicas=3\nkubectl get pods -o wide\nIf kind load fails (it happens with the containerd image store, the Docker Engine 29 default), use a tar file instead:\ndocker save --platform linux/amd64 -o api.tar api-pedidos:1.0\nkind load image-archive api.tar --name escola\n(use linux/arm64 on Apple Silicon Macs). Another way out is --image=nginx:alpine in kubectl create deployment, which the cluster pulls by itself.",
+      "Delete a pod and watch another take its place:\nkubectl delete pod NAME-OF-A-POD\nkubectl get pods",
+      "Now take down a whole node (it’s just a container) and watch for about 6 minutes; Ctrl+C exits -w:\ndocker stop escola-worker\nkubectl get nodes\nkubectl get pods -o wide -w\nWhen done: docker start escola-worker\nIf escola-worker doesn’t come back to Ready, recreate the cluster: kind delete cluster --name escola and create it again as in step 1 (lesson 6 uses this cluster)."
+    ],
+    "ok": "the deleted pod is replaced within seconds; with escola-worker stopped, it shows as NotReady and, after about 5 minutes (the default toleration), the replicas that were on it are recreated on the remaining node, and you’re back to 3 Running (the old ones may stay Terminating until the node returns)."
+  }
+}

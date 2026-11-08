@@ -1,0 +1,102 @@
+{
+  "title": "O que é um cluster",
+  "subtitle": "O escritório central e as cozinhas: quem anota, quem despacha e quem liga o fogão",
+  "mission": "O cluster da escola tem um nó de controle (escola-control-plane) e dois workers. O Deployment api já tem 2 pods rodando. Você vai pedir mais réplicas com kubectl scale e seguir o pedido pelo caminho: kube-apiserver, etcd, kube-controller-manager, kube-scheduler e kubelet. Depois, pare um componente de cada vez e veja onde o pedido empaca e o que continua de pé.",
+  "predict": {
+    "question": "quem decide em qual worker cada pod novo vai rodar?",
+    "options": {
+      "kubectl": "O kubectl, na sua máquina",
+      "scheduler": "O kube-scheduler",
+      "kubelet": "O kubelet de cada worker, disputando",
+      "etcd": "O etcd"
+    }
+  },
+  "feedback": {
+    "right": "isso! O controller-manager cria os pods sem nó; o kube-scheduler procura pods sem nó e escolhe um worker para cada (olhando recursos, regras e o que já está em cada um). Só depois o kubelet daquele worker liga os contêineres.",
+    "wrong": "é o kube-scheduler. O kubectl só manda o pedido ao apiserver, o etcd só guarda o estado, e o kubelet só liga o que foi atribuído ao nó dele. Escolher o nó é o trabalho do scheduler.",
+    "skipped": "sem palpite? Rode e leia a linha do tempo, componente por componente."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode sem nada parado e leia o caminho do pedido.",
+    "cmd": "palpite anotado. Rode escalar e leia o caminho do pedido, componente por componente."
+  },
+  "tryNext": {
+    "ui": "Pare o kubelet: o cluster contorna o worker doente. Depois pare o controller-manager: o kubectl diz \"scaled\", mas nada acontece.",
+    "cmd": "Rode escalar --parado kubelet (o cluster contorna o worker doente) e depois escalar --parado controller-manager (o kubectl diz scaled, mas nada acontece)."
+  },
+  "why": {
+    "simples": "O cluster é a marmitaria inteira: o escritório central (o control plane) e as cozinhas (os nós). No escritório tem a recepção que atende todo pedido (kube-apiserver), o caderno oficial onde tudo fica anotado (etcd), os supervisores que conferem se o anotado está acontecendo (controller-manager) e o despachante que decide qual cozinha faz cada marmita (kube-scheduler). Em cada cozinha tem uma chefe (kubelet) que recebe a lista e liga o fogão (o runtime de contêiner).\nSe o escritório fecha por uma hora, as cozinhas continuam cozinhando o que já estava na lista; só não entra pedido novo.",
+    "dev": "Tudo passa pelo kube-apiserver: o kubectl, os controladores, o scheduler e os kubelets só conversam com ele, e é ele quem lê e grava no etcd, o banco chave-valor consistente onde mora o estado do cluster.\nO caminho de um kubectl scale: o apiserver valida e grava replicas: 4; o controlador de ReplicaSet, dentro do kube-controller-manager, vê que faltam 2 pods e cria os objetos; o kube-scheduler encontra pods sem nó e escolhe um para cada (recursos pedidos, afinidades, taints); o kubelet daquele nó vê o pod atribuído e pede ao runtime (containerd ou CRI-O, pela interface CRI) para baixar a imagem e subir os contêineres. O kube-proxy, opcional quando o plugin de rede faz esse papel, mantém as regras de rede dos Services.",
+    "especialista": "Cada peça é um laço de reconciliação que observa o apiserver e age sobre a diferença; por isso o sistema é eventualmente consistente e tolera reinícios de componentes. O etcd usa Raft e precisa de quórum: com 3 membros aguenta perder 1, com 5 aguenta 2; sem quórum ele não aceita escrita, e o cluster para de mudar.\nEm produção o control plane roda replicado (vários apiservers atrás de um balanceador; scheduler e controller-manager com eleição de líder), e serviços gerenciados como o AKS cuidam disso por você. No kind e no kubeadm, os componentes do control plane são pods estáticos: o kubelet do nó de controle os sobe a partir de /etc/kubernetes/manifests, sem depender do próprio apiserver, e é por isso que dá para desligar o scheduler tirando um arquivo da pasta."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: pare o kube-scheduler.",
+      "cmd": "hora de quebrar: rode escalar --parado scheduler"
+    },
+    "success": "Quebrou: você pediu {replicas} réplicas e só {runningN} estão rodando; {missingN} pod(s) novo(s) não chegaram a rodar porque o {comp} está fora. Repare: os 2 pods antigos continuam rodando. O que para é a mudança, não o que já estava de pé.",
+    "calm": "{runningN} de {replicas} pods rodando. Para quebrar, pare o kube-scheduler."
+  },
+  "hints": {
+    "ui": [
+      "Escolha quantas réplicas quer e que componente parar; a linha do tempo mostra onde o pedido empaca.",
+      "Sem o scheduler, os pods novos existem mas ninguém escolhe um nó para eles.",
+      "Pare o scheduler."
+    ],
+    "cmd": [
+      "O Deployment vai entre aspas; --replicas e --parado são opcionais.",
+      "--parado aceita nenhum, apiserver, etcd, controller-manager, scheduler ou kubelet.",
+      "escalar --parado scheduler"
+    ]
+  },
+  "errors": {
+    "notInEnum.stopped": "Use nenhum, apiserver, etcd, controller-manager, scheduler ou kubelet.",
+    "belowMin.replicas": "O api já tem 2 réplicas; nesta lição a gente só aumenta. Peça 3 ou mais.",
+    "aboveMax.replicas": "Até 8: nesta simulação cada worker cabe 4 pods."
+  },
+  "controls": {
+    "arg": "Deployment",
+    "replicas": "Réplicas desejadas",
+    "stopped": "Componente parado"
+  },
+  "scene": {
+    "label": "Um kubectl scale, do começo ao fim",
+    "empty": "Rode para escalar.",
+    "runningM": "pods rodando / pedidos",
+    "missingM": "pods novos que não rodaram",
+    "oldM": "pods antigos ainda atendendo",
+    "kubectlM": "o kubectl",
+    "kOk": "respondeu",
+    "kErr": "deu erro",
+    "flowLabel": "O caminho do pedido",
+    "sub1": "valida e repassa",
+    "sub2": "grava replicas: {replicas}",
+    "sub3": "cria {newN} pod(s) sem nó",
+    "sub4": "escolhe o nó de cada pod",
+    "sub5": "liga os contêineres",
+    "subKubeletHalf": "escola-worker2 sem kubelet; o escola-worker assume",
+    "subStopped": "PARADO",
+    "subNever": "nem ficou sabendo",
+    "clusterLabel": "Nós e pods (simulado)",
+    "unscheduled": "sem nó (Pending)",
+    "termLabel": "Terminal (kubectl get pods com colunas resumidas)",
+    "etcdErr": "! erro do servidor: o kube-apiserver não conseguiu gravar no etcd (simulado)",
+    "n_none": "Tudo no lugar: {runningN} de {replicas} pods rodando. O kubectl falou só com o apiserver; o resto foi cada componente fazendo a sua parte.",
+    "n_apiserver": "Sem o kube-apiserver, ninguém conversa com ninguém: o kubectl leva \"connection refused\". Os 2 pods antigos seguem atendendo, porque contêiner rodando não depende do control plane.",
+    "n_etcd": "O apiserver está de pé, mas não tem onde gravar: sem o etcd, o pedido não vira estado e nada muda. Os pods antigos nem percebem.",
+    "n_controllers": "O kubectl respondeu \"scaled\" e o etcd guardou replicas: {replicas}, mas sem o controller-manager ninguém criou os {newN} pods. Pedido anotado não é pedido cumprido.",
+    "n_scheduler": "Os {newN} pods novos existem, mas ficaram Pending, sem nó: ninguém escolheu uma cozinha para eles. Os antigos seguem Running.",
+    "n_kubelet": "O escola-worker2 parou de dar notícias e virou NotReady; o scheduler mandou os pods novos para o escola-worker, e ficaram {runningN} de {replicas} rodando. O pod antigo do worker2 segue rodando, mas sem ninguém confirmando."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Use o cluster da lição 5 (ou crie um com kind create cluster --name escola --config kind.yaml e o Deployment com kubectl create deployment api --image=nginx:alpine --replicas=3). Veja os nós e os componentes do control plane:\nkubectl get nodes\nkubectl get pods -n kube-system -o wide",
+      "Repare nos nomes etcd-escola-control-plane, kube-apiserver-escola-control-plane, kube-controller-manager-… e kube-scheduler-…: são pods estáticos que o kubelet do nó de controle sobe a partir de arquivos. Veja os arquivos dentro do nó (que é um contêiner):\ndocker exec escola-control-plane ls /etc/kubernetes/manifests",
+      "Desligue o scheduler tirando o manifesto da pasta. Espere uns segundos e confira que ele sumiu da lista:\ndocker exec escola-control-plane mv /etc/kubernetes/manifests/kube-scheduler.yaml /root/\nkubectl get pods -n kube-system",
+      "Peça mais réplicas e veja o que acontece:\nkubectl scale deployment api --replicas=5\nkubectl get pods -o wide",
+      "Devolva o scheduler e olhe de novo:\ndocker exec escola-control-plane mv /root/kube-scheduler.yaml /etc/kubernetes/manifests/\nkubectl get pods -o wide"
+    ],
+    "ok": "com o manifesto fora, o kube-scheduler some de kube-system, os pods novos ficam Pending com NODE <none> e os antigos continuam Running; quando o arquivo volta, o scheduler reaparece e os Pending viram Running."
+  }
+}

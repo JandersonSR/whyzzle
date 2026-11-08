@@ -1,0 +1,96 @@
+{
+  "title": "Images and layers",
+  "subtitle": "An image is a lasagna: layer by layer, and you can’t remove the onion from the middle by sticking a note on top",
+  "mission": "Aunt Cida’s api-pedidos shipped version 1.1, and three servers need to pull it from the registry. The image has layers: the system, Node, the dependencies (which need build tools, removed afterwards) and the code. Find out what travels in docker pull when the code, the dependencies or the base change, and what happens when the tools are removed in a separate RUN.",
+  "predict": {
+    "question": "version 1.1 only changed the code (2 MB). How much does a server that already has 1.0 download in docker pull?",
+    "options": {
+      "all": "The whole image again, about 182 MB",
+      "code": "Only the code layer, about 2 MB",
+      "zero": "Nothing: Docker copies only changed files later"
+    }
+  },
+  "feedback": {
+    "right": "right! Layers are identified by their content. The server already has the system, Node and the dependencies; only the code layer is new, and only it travels.",
+    "wrong": "look at the \"on pull\" column: the layers the server already has show as Already exists. Only the code layer, which changed, comes as Pull complete: about 2 MB.",
+    "skipped": "no guess? Run it and see which terminal lines say Already exists."
+  },
+  "coach": {
+    "ui": "guess noted. Run with \"changed: code\", then switch to \"base\". Compare \"downloaded on pull\".",
+    "cmd": "guess noted. Run pull and then pull --changed base. Compare \"downloaded on pull\"."
+  },
+  "tryNext": {
+    "ui": "Switch \"changed\" to base: changing the base image makes Docker rebuild every layer above it, and the pull becomes the whole image.",
+    "cmd": "Run pull --changed base and watch the pull become the whole image."
+  },
+  "why": {
+    "simples": "An image is like a frozen lasagna: pasta (the system), sauce (Node), filling (the dependencies) and cheese on top (your code). Each layer is finished and sealed. When only the cheese changes, whoever already has the lasagna gets just the new cheese layer.\nNow the catch: if you put a note on top saying “ignore the onion in the middle”, the onion is still there, weighing down the lunchbox. To really remove it, it must never have gone into that layer.",
+    "dev": "Each instruction that touches files (RUN, COPY, ADD) creates a layer: a package with only the differences from the layer below. Layers are read-only and identified by a hash of their content, so images sharing a base store those layers only once on disk, and docker pull downloads only the missing ones. When it runs, the container gets a thin writable layer on top (copy-on-write), which goes away when the container is removed.\nDeleting a file in a new layer only records that it was deleted: it disappears from view, but the bytes stay in the layer below and count toward the image size. That’s why installing, using and removing tools must happen in the same RUN, or in a separate stage of a multi-stage build.",
+    "especialista": "In the OCI format, an image is a manifest that points, by digest, to a config (JSON with environment variables, user, command and history) and to the ordered list of layers, from base to top. For several architectures there’s an index pointing to one manifest per platform. Everything is content-addressed (sha256): deduplication and integrity checks come for free.\nRebuilt layers often get new digests even with the same logical content, because file dates and metadata go into the package; reproducible builds (for example, pinning SOURCE_DATE_EPOCH) tackle that. Order layers from least to most frequently changing, and use docker image history (or a tool like dive) to hunt fat layers."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick the \"separate-run\" cleanup.",
+      "cmd": "time to break it: run pull --cleanup separate-run"
+    },
+    "success": "Broken: the image ended up at {imageMB} MB. The apt-get purge in a separate RUN only hid the build tools: the bytes are still stored in the dependencies layer and travel in every pull that needs it.",
+    "calm": "A {imageMB} MB image; this pull brought {pullMB} MB in {newLayers} layer(s). To break it, remove the build tools in a separate RUN."
+  },
+  "hints": {
+    "ui": [
+      "Pick what changed and how the tools were cleaned up; the table shows each layer.",
+      "Deleting in a new layer doesn’t shrink the layer below.",
+      "Pick the \"separate-run\" cleanup."
+    ],
+    "cmd": [
+      "The image goes in quotes; --changed, --cleanup and --apps are optional.",
+      "--cleanup takes same-run or separate-run.",
+      "pull --cleanup separate-run"
+    ]
+  },
+  "errors": {
+    "notInEnum.changed": "Use code, deps or base.",
+    "notInEnum.cleanup": "Use same-run or separate-run.",
+    "belowMin.apps": "At least 1 server with the image.",
+    "aboveMax.apps": "Up to 10 servers in this simulation."
+  },
+  "controls": {
+    "arg": "Image",
+    "changed": "What changed from 1.0 to 1.1",
+    "cleanup": "Where the build tools are removed",
+    "apps": "Servers with the image"
+  },
+  "scene": {
+    "label": "The layered lasagna",
+    "empty": "Run to pull the image.",
+    "pullM": "downloaded on the 1.1 pull (MB)",
+    "imageM": "image size (MB)",
+    "diskM": "disk used across servers (MB)",
+    "savedM": "MB saved by sharing layers",
+    "tableLabel": "api-pedidos:1.1 layers, from base to top",
+    "colLayer": "layer",
+    "colInstr": "instruction",
+    "colSize": "size",
+    "colPull": "on pull",
+    "lOs": "system (Debian slim)",
+    "lRt": "Node.js 24",
+    "lDeps": "dependencies",
+    "lRm": "tool removal",
+    "lCode": "your code",
+    "tableCap": "Simulated sizes. The real node:24-slim base has a few layers; here they’re two to fit the screen.",
+    "termLabel": "Server terminal (simulated)",
+    "ghostNote": "The dependencies layer keeps the 180 MB of build tools, and the layer above only marks the files as deleted. Result: {imageMB} MB, when it could have been 182.",
+    "fullNote": "The base changed: everything on top was rebuilt and got new layers. {pullMB} MB came down, the whole image.",
+    "shareNote": "Only {pullMB} MB came down. And the {apps} servers store the system and Node only once: {savedMB} MB of disk saved."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Pull an image and look at its layers, with the instruction that created each one and its size:\ndocker pull node:24-slim\ndocker image history node:24-slim",
+      "In an empty folder, create Dockerfile.gordo:\nFROM alpine:3.24\nRUN dd if=/dev/urandom of=/lixo bs=1048576 count=50\nRUN rm /lixo",
+      "In the same folder, create Dockerfile.magro, which creates and deletes in the same RUN:\nFROM alpine:3.24\nRUN dd if=/dev/urandom of=/lixo bs=1048576 count=50 && rm /lixo",
+      "Build both and compare:\ndocker build -t gordo -f Dockerfile.gordo .\ndocker build -t magro -f Dockerfile.magro .\ndocker image ls gordo\ndocker image ls magro\ndocker image history gordo"
+    ],
+    "ok": "gordo shows up about 50 MB bigger than magro, and gordo’s history shows a layer of about 52 MB (the dd’s 50 MiB, counted in decimal MB) with a 0 B (or almost 0) rm layer on top: deleting later didn’t give the space back."
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "title": "Imagem e camadas",
+  "subtitle": "Uma imagem é uma lasanha: camada por camada, e não dá para tirar a cebola do meio colando um bilhete em cima",
+  "mission": "A api-pedidos da Tia Cida saiu na versão 1.1, e três servidores precisam puxá-la do registro. A imagem tem camadas: o sistema, o Node, as dependências (que precisam de ferramentas de compilação, depois removidas) e o código. Descubra o que viaja no docker pull quando muda o código, as dependências ou a base, e o que acontece quando as ferramentas são removidas num RUN separado.",
+  "predict": {
+    "question": "a versão 1.1 só mudou o código (2 MB). Quanto um servidor que já tem a 1.0 baixa no docker pull?",
+    "options": {
+      "all": "A imagem inteira de novo, uns 182 MB",
+      "code": "Só a camada do código, uns 2 MB",
+      "zero": "Nada: o Docker copia só os arquivos alterados depois"
+    }
+  },
+  "feedback": {
+    "right": "isso! Camadas são identificadas pelo conteúdo. O servidor já tem o sistema, o Node e as dependências; só a camada do código é nova, e só ela viaja.",
+    "wrong": "olhe a coluna \"no pull\": as camadas que o servidor já tem aparecem como Already exists. Só a camada do código, que mudou, vem como Pull complete: uns 2 MB.",
+    "skipped": "sem palpite? Rode e olhe quais linhas do terminal dizem Already exists."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com \"mudou: código\" e depois troque para \"base\". Compare \"baixado no pull\".",
+    "cmd": "palpite anotado. Rode puxar e depois puxar --mudou base. Compare \"baixado no pull\"."
+  },
+  "tryNext": {
+    "ui": "Troque \"mudou\" para base: trocar a imagem base faz o Docker reconstruir todas as camadas de cima, e o pull vira a imagem inteira.",
+    "cmd": "Rode puxar --mudou base e veja o pull virar a imagem inteira."
+  },
+  "why": {
+    "simples": "Uma imagem é como uma lasanha congelada: massa (o sistema), molho (o Node), recheio (as dependências) e queijo por cima (o seu código). Cada camada fica pronta e lacrada. Quando só o queijo muda, quem já tem a lasanha recebe só a camada nova de queijo.\nAgora a pegadinha: se você põe no topo um bilhete dizendo “ignore a cebola lá do meio”, a cebola continua lá, pesando na marmita. Para tirar de verdade, ela nunca pode ter entrado naquela camada.",
+    "dev": "Cada instrução que mexe em arquivos (RUN, COPY, ADD) gera uma camada: um pacote só com as diferenças em relação à camada de baixo. As camadas são somente leitura e identificadas pelo hash do conteúdo, então imagens com a mesma base guardam essas camadas uma vez só no disco, e o docker pull baixa só as que faltam. Ao rodar, o contêiner ganha uma camada fina gravável por cima (copy-on-write), que some quando o contêiner é removido.\nApagar um arquivo numa camada nova só registra que ele foi apagado: ele some da vista, mas os bytes continuam na camada de baixo e contam no tamanho da imagem. Por isso instalar, usar e remover ferramentas precisa acontecer no mesmo RUN, ou num estágio separado de um multi-stage build.",
+    "especialista": "No formato OCI, uma imagem é um manifesto que aponta, por digest, para um config (JSON com variáveis de ambiente, usuário, comando e histórico) e para a lista ordenada de camadas, da base para o topo. Para várias arquiteturas existe um índice que aponta para um manifesto por plataforma. Tudo é endereçado por conteúdo (sha256): deduplicação e verificação de integridade vêm de brinde.\nCamadas reconstruídas costumam ganhar digests novos mesmo com o mesmo conteúdo lógico, porque datas e metadados dos arquivos entram no pacote; builds reprodutíveis (por exemplo, fixando SOURCE_DATE_EPOCH) atacam isso. Ordene as camadas da que menos muda para a que mais muda, e use docker image history (ou uma ferramenta como o dive) para caçar camadas gordas."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha a limpeza \"run-separado\".",
+      "cmd": "hora de quebrar: rode puxar --limpeza run-separado"
+    },
+    "success": "Quebrou: a imagem ficou com {imageMB} MB. O apt-get purge num RUN separado só escondeu as ferramentas de compilação: os bytes continuam guardados na camada das dependências e viajam em todo pull que precisar dela.",
+    "calm": "Imagem de {imageMB} MB; neste pull vieram {pullMB} MB em {newLayers} camada(s). Para quebrar, remova as ferramentas de compilação num RUN separado."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o que mudou e como as ferramentas foram limpas; a tabela mostra cada camada.",
+      "Apagar numa camada nova não diminui a camada de baixo.",
+      "Escolha a limpeza \"run-separado\"."
+    ],
+    "cmd": [
+      "A imagem vai entre aspas; --mudou, --limpeza e --apps são opcionais.",
+      "--limpeza aceita mesmo-run ou run-separado.",
+      "puxar --limpeza run-separado"
+    ]
+  },
+  "errors": {
+    "notInEnum.changed": "Use codigo, dependencias ou base.",
+    "notInEnum.cleanup": "Use mesmo-run ou run-separado.",
+    "belowMin.apps": "Pelo menos 1 servidor com a imagem.",
+    "aboveMax.apps": "Até 10 servidores nesta simulação."
+  },
+  "controls": {
+    "arg": "Imagem",
+    "changed": "O que mudou da 1.0 para a 1.1",
+    "cleanup": "Onde as ferramentas de compilação são removidas",
+    "apps": "Servidores com a imagem"
+  },
+  "scene": {
+    "label": "A lasanha em camadas",
+    "empty": "Rode para puxar a imagem.",
+    "pullM": "baixado no pull da 1.1 (MB)",
+    "imageM": "tamanho da imagem (MB)",
+    "diskM": "disco usado nos servidores (MB)",
+    "savedM": "MB poupados por compartilhar camadas",
+    "tableLabel": "Camadas da api-pedidos:1.1, da base para o topo",
+    "colLayer": "camada",
+    "colInstr": "instrução",
+    "colSize": "tamanho",
+    "colPull": "no pull",
+    "lOs": "sistema (Debian slim)",
+    "lRt": "Node.js 24",
+    "lDeps": "dependências",
+    "lRm": "remoção das ferramentas",
+    "lCode": "seu código",
+    "tableCap": "Tamanhos simulados. A base node:24-slim, na vida real, tem algumas camadas; aqui viraram duas para caber na tela.",
+    "termLabel": "Terminal do servidor (simulado)",
+    "ghostNote": "A camada das dependências guarda os 180 MB das ferramentas de compilação, e a camada de cima só marca os arquivos como apagados. Resultado: {imageMB} MB, quando dava para ter 182.",
+    "fullNote": "Trocou a base: tudo que vem em cima foi reconstruído e ganhou camadas novas. Vieram {pullMB} MB, a imagem inteira.",
+    "shareNote": "Vieram só {pullMB} MB. E os {apps} servidores guardam o sistema e o Node uma vez só: {savedMB} MB poupados de disco."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Puxe uma imagem e veja as camadas dela, com a instrução que criou cada uma e o tamanho:\ndocker pull node:24-slim\ndocker image history node:24-slim",
+      "Numa pasta vazia, crie Dockerfile.gordo:\nFROM alpine:3.24\nRUN dd if=/dev/urandom of=/lixo bs=1048576 count=50\nRUN rm /lixo",
+      "Na mesma pasta, crie Dockerfile.magro, que cria e apaga no mesmo RUN:\nFROM alpine:3.24\nRUN dd if=/dev/urandom of=/lixo bs=1048576 count=50 && rm /lixo",
+      "Construa as duas e compare:\ndocker build -t gordo -f Dockerfile.gordo .\ndocker build -t magro -f Dockerfile.magro .\ndocker image ls gordo\ndocker image ls magro\ndocker image history gordo"
+    ],
+    "ok": "a gordo aparece uns 50 MB maior que a magro, e o history da gordo mostra uma camada de cerca de 52 MB (os 50 MiB do dd, contados em MB decimais) com uma camada de 0 B (ou quase 0) do rm em cima: apagar depois não devolveu o espaço."
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "title": "Registro",
+  "subtitle": "O freezer central da marmitaria: etiqueta escrita a lápis × impressão digital",
+  "mission": "Na segunda, a Tia Cida publicou a api-pedidos 1.4 no registro, e o servidor A puxou. Na terça, um colega publicou a 1.5 (e a tag latest foi junto). Na quarta, nasce o servidor B e puxa a mesma referência que o A usou. Compare implantar pela tag de versão, pela latest e pelo digest; e veja o que acontece se alguém republicar a tag 1.4 por cima.",
+  "predict": {
+    "question": "o servidor A puxou api-pedidos:1.4 na segunda. Na quarta, o B puxa api-pedidos:1.4 também, depois de o colega publicar a 1.5. O que o B roda?",
+    "options": {
+      "v14": "A 1.4, igual ao A",
+      "v15": "A 1.5, a mais nova",
+      "error": "Erro: a 1.4 ficou velha"
+    }
+  },
+  "feedback": {
+    "right": "isso: publicar a 1.5 não mexe na etiqueta 1.4, que continua apontando para o mesmo conteúdo. Desde que ninguém republique por cima dela… e isso, spoiler, dá para fazer.",
+    "wrong": "é a 1.4. Cada tag é uma etiqueta separada: publicar a 1.5 move a latest, mas não a 1.4. Os dois servidores rodam o mesmo digest.",
+    "skipped": "sem palpite? Rode e compare o digest dos dois servidores."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com a tag de versão e depois troque para latest. Compare as versões dos dois servidores.",
+    "cmd": "palpite anotado. Rode implantar e compare as versões dos servidores A e B."
+  },
+  "tryNext": {
+    "ui": "Ligue \"um colega republicou a 1.4\": até tag de versão é só etiqueta. Depois troque a referência para digest com a republicação ligada.",
+    "cmd": "Rode implantar --sobrescreveu sim (até tag de versão é só etiqueta) e depois implantar --referencia digest --sobrescreveu sim."
+  },
+  "why": {
+    "simples": "O registro é o freezer central da marmitaria: você guarda as marmitas lá e qualquer filial retira. A etiqueta (tag) é escrita a lápis: “lasanha da semana” hoje é uma, semana que vem é outra, e alguém pode apagar e escrever de novo. O digest é a impressão digital da marmita: se o conteúdo for diferente, a impressão é diferente.\nlatest não tem nada de mágico: é só uma etiqueta que costuma ser colada na marmita mais nova. Pedir “a latest” é pedir “a que estiver com essa etiqueta na hora”.",
+    "dev": "Nome completo de uma imagem: registro/caminho/repositório:tag, como ghcr.io/escola/api-pedidos:1.4. Sem registro no nome, o Docker usa o Docker Hub (docker.io), e as imagens oficiais ficam em library/: node:24-slim é docker.io/library/node:24-slim. No GHCR o nome é ghcr.io/DONO/IMAGEM, e o login usa um token pessoal (docker login ghcr.io). No ACR o nome usa o servidor de login do registro (algo como meuregistro.azurecr.io; o az acr create mostra o loginServer exato), e o login é az acr login --name meuregistro.\nTag é um ponteiro que pode mudar: docker push com uma tag que já existe move o ponteiro. Digest (sha256:…) é o hash do manifesto e nunca muda: nome@sha256:… sempre traz exatamente a mesma imagem.",
+    "especialista": "Em produção: publique tags que não se repetem (versão semântica ou o SHA do commit), nunca reaproveite uma tag de versão e implante por digest. Vários registros permitem travar tags contra sobrescrita (no ACR, bloqueando a imagem; no ECR, com tags imutáveis). latest serve para experimentar, não para implantar; no Kubernetes ela ainda muda o padrão do imagePullPolicy para Always.\nUma tag pode apontar para um índice multiplataforma (amd64 e arm64), e o digest do índice é diferente do digest de cada manifesto. O registro também é superfície de segurança: assine as imagens (cosign, Notation), gere SBOM, escaneie vulnerabilidades e use credenciais de máquina (identidade gerenciada no Azure, o GITHUB_TOKEN no Actions) em vez de senhas pessoais."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: implante pela tag latest.",
+      "cmd": "hora de quebrar: rode implantar --referencia latest"
+    },
+    "success": "Quebrou: os dois servidores pediram {fullRef}, mas o A roda {a} e o B roda {b}. Etiqueta que se move não garante que todo mundo roda o mesmo código, e o bug que só aparece “em alguns servidores” nasce assim.",
+    "calm": "A e B rodam {b}, pedindo {fullRef}. Para quebrar, implante pela tag latest."
+  },
+  "hints": {
+    "ui": [
+      "Escolha a referência, o registro e se alguém republicou a 1.4; a tabela mostra para onde cada tag aponta.",
+      "Uma tag que se move faz o servidor novo puxar outra coisa.",
+      "Escolha a referência latest."
+    ],
+    "cmd": [
+      "O repositório vai entre aspas; --referencia, --registro e --sobrescreveu são opcionais.",
+      "--referencia aceita versao, latest ou digest.",
+      "implantar --referencia latest"
+    ]
+  },
+  "errors": {
+    "notInEnum.ref": "Use versao, latest ou digest.",
+    "notInEnum.registry": "Use ghcr, dockerhub, acr ou local.",
+    "notBool.overwrite": "Use sim ou nao."
+  },
+  "controls": {
+    "arg": "Repositório",
+    "ref": "Como o servidor pede a imagem",
+    "registry": "Registro",
+    "overwrite": "Um colega republicou a tag 1.4 na terça"
+  },
+  "scene": {
+    "label": "Segunda, terça e quarta no registro",
+    "empty": "Rode para implantar.",
+    "aM": "versão no servidor A (segunda)",
+    "bM": "versão no servidor B (quarta)",
+    "sameM": "mesmo código nos dois?",
+    "yes": "sim",
+    "no": "não",
+    "clusterLabel": "Servidores e o digest que cada um roda",
+    "srvA": "servidor-a",
+    "srvB": "servidor-b",
+    "pulledMon": "puxou na segunda",
+    "pulledWed": "puxou na quarta",
+    "tableLabel": "Para onde cada tag aponta (início do digest)",
+    "colWhen": "quando",
+    "colEvent": "o que aconteceu",
+    "mon": "segunda",
+    "tue": "terça",
+    "evMon": "push da 1.4 (e da latest)",
+    "evTue": "push da 1.5 (e da latest)",
+    "evTueOver": "1.5 + latest + 1.4 refeita",
+    "tableCap": "Digests da simulação. Tag é ponteiro; o digest é o conteúdo.",
+    "termLabel": "Terminal do servidor B (simulado)",
+    "driftLatest": "A latest andou da 1.4 para a 1.5 na terça. O A roda {a}, o B roda {b}: mesmo nome, código diferente.",
+    "driftOver": "Alguém republicou a 1.4 por cima. O A roda {a}, o B roda {b}: até a tag de versão é só uma etiqueta a lápis.",
+    "pinNote": "Pedindo pelo digest, o B roda exatamente o que o A roda, aconteça o que acontecer com as etiquetas.",
+    "versionNote": "A tag 1.4 ficou parada e os dois rodam {b}. Funciona enquanto ninguém republicar a mesma tag."
+  },
+  "data": {
+    "verNames": {
+      "A": "1.4",
+      "B": "1.4 (refeita)",
+      "C": "1.5"
+    },
+    "logins": {
+      "ghcr": "echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin",
+      "hub": "docker login",
+      "acr": "az acr login --name escola",
+      "local": "# localhost: sem login"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Suba um registro local de estudo (sem TLS, só para a sua máquina):\ndocker run -d -p 5000:5000 --name registry registry:3\nNo macOS a porta 5000 pode estar ocupada pelo AirPlay; nesse caso use -p 5001:5000 e troque localhost:5000 por localhost:5001 nos passos seguintes.",
+      "Dê um nome com endereço à imagem da lição 3 e envie (a última linha do push mostra o digest, sha256:…):\ndocker tag api-pedidos:1.0 localhost:5000/api-pedidos:1.0\ndocker push localhost:5000/api-pedidos:1.0",
+      "Pergunte ao registro o que ele guarda; é uma API HTTP:\ncurl http://localhost:5000/v2/_catalog\ncurl http://localhost:5000/v2/api-pedidos/tags/list",
+      "Apague a etiqueta local e puxe pelo digest do passo 2:\ndocker image rm localhost:5000/api-pedidos:1.0\ndocker pull localhost:5000/api-pedidos@sha256:COLE_O_DIGEST_AQUI\ndocker image ls --digests localhost:5000/api-pedidos"
+    ],
+    "ok": "o _catalog lista api-pedidos, a lista de tags mostra 1.0, o pull pelo digest termina sem erro e o docker image ls --digests mostra o mesmo sha256 que apareceu no push."
+  }
+}

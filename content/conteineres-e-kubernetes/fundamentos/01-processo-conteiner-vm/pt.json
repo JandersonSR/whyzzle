@@ -1,0 +1,110 @@
+{
+  "title": "Processo × contêiner × VM",
+  "subtitle": "Três cozinheiros, uma cozinha só: dividir o pote de sal, ganhar um food truck ou construir um restaurante?",
+  "mission": "A Marmitaria da Tia Cida tem três programas para rodar num servidor de 16 GB: a api-pedidos (Node 24), o painel-antigo (só funciona no Node 18) e o relatório (Python 3.12). Compare rodar tudo como processo comum, em contêineres e em máquinas virtuais. Olhe quantos kernels ficam ligados, quanta memória vai embora e quem quebra.",
+  "predict": {
+    "question": "com contêineres, cada app leva um sistema operacional inteiro, com kernel próprio?",
+    "options": {
+      "ownKernel": "Sim: cada contêiner liga o próprio kernel",
+      "sharedKernel": "Não: todos usam o kernel da máquina, cada um com seus arquivos",
+      "noIsolation": "Não, e por isso não existe isolamento nenhum"
+    }
+  },
+  "feedback": {
+    "right": "isso! Contêiner é um processo comum, só que fechado numa caixa: enxerga só os próprios arquivos, processos e rede. O kernel é o da máquina, um só para todo mundo. Por isso sobe em segundos e gasta pouca memória.",
+    "wrong": "olhe o contador de kernels: com contêineres ele fica em 1, não importa quantos apps. Cada contêiner tem seus próprios arquivos (o Node 18 de um, o Node 24 do outro), mas todos usam o mesmo kernel. Kernel próprio é coisa de VM.",
+    "skipped": "sem palpite? Rode e olhe o contador de kernels. Depois troque para vm e compare."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com contêiner, depois troque para vm. Compare \"kernels ligados\".",
+    "cmd": "palpite anotado. Rode hospedar e depois hospedar --isolamento vm. Compare \"kernels ligados\"."
+  },
+  "tryNext": {
+    "ui": "Agora escolha vm com 20 apps: veja quantas máquinas virtuais cabem nos 16 GB.",
+    "cmd": "Rode hospedar --isolamento vm --apps 20 e veja quantas VMs cabem nos 16 GB."
+  },
+  "why": {
+    "simples": "Pense na cozinha da Tia Cida. Processo comum é todo mundo cozinhando na mesma bancada, com o mesmo pote de sal: se um cozinheiro precisa de sal grosso e o outro de sal fino, dá briga. Foi o que aconteceu com o painel-antigo, que queria o Node 18 numa máquina que só tem o 24.\nContêiner é dar a cada cozinheiro um food truck fechado, com os temperos dele lá dentro. Os trucks ficam estacionados na mesma rua e usam a mesma rede de água e luz: essa rua é o kernel. VM é construir um restaurante inteiro, com encanamento próprio, para cada cozinheiro: isola muito, mas custa caro e demora para abrir.",
+    "dev": "Um contêiner é um processo do Linux com isolamento: namespaces fazem ele enxergar só os próprios processos, rede, pontos de montagem e hostname, e cgroups limitam CPU e memória. Os arquivos que ele vê vêm de uma imagem, então cada um pode ter o seu Node. Não há sistema para dar boot, por isso sobe rápido e gasta pouco.\nA VM emula hardware em cima de um hypervisor e roda um sistema operacional inteiro, com kernel próprio. No Windows e no Mac, o Docker Desktop mantém uma VM Linux leve por baixo, e os contêineres rodam dentro dela: é por isso que imagem Linux funciona nessas máquinas.",
+    "especialista": "O preço do kernel compartilhado é a fronteira de segurança. Uma falha no kernel ou uma configuração frouxa (contêiner --privileged, montar /var/run/docker.sock lá dentro, rodar como root sem user namespaces) pode deixar um contêiner mexer na máquina. Para código que você não confia, use isolamento mais forte: sandboxes como gVisor, microVMs (Firecracker, Kata Containers) ou VMs mesmo.\nO kernel compartilhado também explica por que uma imagem Linux não roda nativamente num kernel Windows e por que uma imagem arm64 precisa de emulação numa máquina amd64. O que deixa as peças intercambiáveis é a OCI (Open Container Initiative): a especificação de runtime descreve como executar o contêiner, e o runc, implementação de referência, é o que o containerd usa por baixo do Docker e de muitos clusters Kubernetes."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha \"processo\" e rode os 3 apps sem isolamento nenhum.",
+      "cmd": "hora de quebrar: rode hospedar --isolamento processo"
+    },
+    "success": "Quebrou: sem isolamento, {brokenApps} app(s) que precisam do Node 18 não subiram, porque a máquina compartilhada só tem o Node 24 no PATH. Mesmo código, mesma máquina: faltou cada um levar a própria cozinha.",
+    "calm": "{running} app(s) no ar com {kernels} kernel(s) e {usedMB} MB de memória usados. Para quebrar, rode tudo como processo comum, sem isolamento."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o isolamento e quantos apps quer hospedar; a cena muda sozinha.",
+      "Sem isolamento, os apps dividem o mesmo Node instalado na máquina.",
+      "Escolha \"processo\" com 3 apps."
+    ],
+    "cmd": [
+      "O nome do servidor vai entre aspas; --isolamento e --apps são opcionais.",
+      "--isolamento aceita conteiner, processo ou vm.",
+      "hospedar --isolamento processo"
+    ]
+  },
+  "errors": {
+    "notInEnum.isolation": "Use conteiner, processo ou vm.",
+    "belowMin.apps": "Pelo menos 1 app, senão o servidor fica só esquentando a sala.",
+    "aboveMax.apps": "Até 20 apps nesta simulação: a Tia Cida tem um servidor só."
+  },
+  "controls": {
+    "arg": "Nome do servidor",
+    "isolation": "Isolamento",
+    "apps": "Quantos apps"
+  },
+  "scene": {
+    "label": "Um servidor, três programas",
+    "empty": "Rode para ligar o servidor.",
+    "kernelsM": "kernels ligados (host + VMs)",
+    "ramM": "memória usada (MB, de 16.384)",
+    "bootM": "segundos para subir cada app",
+    "brokenM": "apps que não sobem",
+    "clusterLabel": "O servidor e os apps (simulado)",
+    "stVm": "{running} VMs, {kernels} kernels (host + {running})",
+    "stProc": "1 kernel (o do host), tudo na mesma bancada",
+    "stCtr": "1 kernel, cada app no seu contêiner",
+    "termProc": "Terminal do servidor (sem isolamento)",
+    "termCtr": "Terminal: cada contêiner traz o próprio Node",
+    "termVm": "Com máquinas virtuais",
+    "clashLine": "! painel-antigo precisa do Node 18, mas a máquina tem o 24 no PATH",
+    "soloLine": "+ um app só: nenhuma briga de versões (por enquanto)",
+    "vmLine1": "~ cada VM dá boot no próprio sistema: {kernels} kernels (1 do host + {running} das VMs) para {running} app(s) no ar",
+    "vmLine2": "? 1.224 MB por app, dos quais 1.024 MB são o sistema convidado",
+    "tableLabel": "As três opções lado a lado",
+    "colAspect": "aspecto",
+    "colProc": "processo",
+    "colCtr": "contêiner",
+    "colVm": "VM",
+    "rKernel": "kernel próprio",
+    "rFiles": "arquivos e versões separados",
+    "rBoot": "tempo para subir",
+    "rRam": "memória extra por app",
+    "yes": "sim",
+    "no": "não",
+    "bootProc": "0,1 s",
+    "bootCtr": "~1 s",
+    "bootVm": "~40 s",
+    "ramVm": "1.024 MB",
+    "tableCap": "Números da simulação, para comparar ordens de grandeza; na vida real variam com a máquina e a imagem.",
+    "clashNote": "{brokenApps} app(s) com Node 18 não sobem: na bancada compartilhada só existe um Node no PATH, e ele é o 24. É o famoso “na minha máquina funciona”.",
+    "roomNote": "Não cabe: cada VM carrega um sistema inteiro além do app. Nesta máquina cabem {maxApps} VMs; as outras ficaram esperando.",
+    "ctrNote": "{running} app(s), cada um com o seu Node, dividindo 1 kernel (o do host). Cada contêiner custou só 10 MB a mais que o app sozinho.",
+    "vmNote": "Isolamento máximo, mas cada app paga um sistema inteiro: {kernels} kernels ligados (o do host mais um por VM) e uns 40 s para subir cada um."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Instale o Docker (Docker Desktop no Windows ou Mac, Docker Engine no Linux) e rode:\ndocker run --rm alpine:3.24 cat /etc/os-release\nAparece Alpine Linux, seja qual for o sistema da sua máquina: os arquivos que o contêiner vê são os da imagem.",
+      "Compare o kernel de dentro e de fora:\ndocker run --rm alpine:3.24 uname -r\nNo Linux, rode também uname -r no seu terminal: os dois são iguais. No Docker Desktop (Windows ou Mac) aparece o kernel da VM Linux leve que ele mantém por baixo, e não o do seu sistema.",
+      "Suba um contêiner que só dorme e olhe o processo de dentro e de fora:\ndocker run -d --name dorminhoco alpine:3.24 sleep 300\ndocker exec dorminhoco ps\ndocker top dorminhoco",
+      "Limpe a bancada: docker rm -f dorminhoco"
+    ],
+    "ok": "dentro do contêiner, o ps mostra o sleep 300 como PID 1; o docker top mostra o mesmo processo visto pela máquina; e o uname -r dá o mesmo kernel dentro e fora (no Linux). É um processo isolado, não um computador novo."
+  }
+}

@@ -150,11 +150,10 @@ Depende das etapas de plataforma PL1 a PL3.
 
 ## 4. Contêineres e Kubernetes
 - **Fundamentos**
-  - [ ] → F1 · Do programa ao contêiner (6): processo × contêiner × VM; imagem e camadas; Dockerfile; registro; por que orquestrar; o que é um cluster.
-    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão independente e publicação.
-  - [ ] Missão: empacotar uma API e explicar cada linha do Dockerfile.
+  - [x] F1 · Do programa ao contêiner (6): processo × contêiner × VM; imagem e camadas; Dockerfile; registro; por que orquestrar; o que é um cluster.
+  - [x] Missão: empacotar uma API e explicar cada linha do Dockerfile.
 - **Prática**
-  - [ ] P1 · Kubernetes com `kubectl` (8): pods e deployments; services e ingress; configmaps e secrets; probes; requests e limits; rolling update e rollback; HPA; troubleshooting (CrashLoopBackOff, ImagePullBackOff, OOMKilled).
+  - [ ] → P1 · Kubernetes com `kubectl` (8): pods e deployments; services e ingress; configmaps e secrets; probes; requests e limits; rolling update e rollback; HPA; troubleshooting (CrashLoopBackOff, ImagePullBackOff, OOMKilled).
   - [ ] P2 · AKS na prática (6): cluster com Terraform; ACR e identidade; Key Vault e segredos; rede e ingress; observabilidade; custo.
   - [ ] Missão: subir uma API .NET no AKS com segredos, probes, escala e rollback.
 - **Produção**
@@ -409,6 +408,7 @@ Depende das etapas de plataforma PL1 a PL3.
 | nov/2026 | Plataforma · PL2 · modelo declarativo + 9 peças de cena reutilizáveis (galeria em /galeria) | Publicada |
 | nov/2026 | Plataforma · PL3 · executores no navegador (Transformers.js 4.3.2, WebLLM 0.2.87) e sua chave (Anthropic, OpenAI, Gemini, compatível); ativos nos passos 2 e 4 dos Fundamentos | Publicada |
 | nov/2026 | IA aplicada · Prática · P1 · 7 lições com modelos reais (tokenizador do GPT-4o, multilingual-e5-small, Llama 3.2 1B ou sua chave), todas só com dados | Publicada |
+| nov/2026 | Contêineres e Kubernetes · Fundamentos F1 + missão (processo × contêiner × VM, imagem e camadas, Dockerfile, registro, por que orquestrar, cluster; missão do Dockerfile explicado linha a linha) | Publicada |
 | nov/2026 | IA aplicada · Prática · missão final: assistente de RH da Aurora (limpeza, busca híbrida, limite, citação, recusa, triagem e avaliação em 13 perguntas) | Publicada |
 | nov/2026 | IA aplicada · Prática · P3 · Prompts e agentes: 7 lições (prompt de sistema, few-shot, extração de notas, triagem, agente com limites, memória, MCP), com modo real por Llama 1B ou sua chave | Publicada |
 | nov/2026 | Mensageria e streaming · Fundamentos F1 + missão (pizzaria: síncrono × assíncrono, comando × evento, ack, idempotência, ordem/DLQ/prefetch, pub/sub, quando não usar fila; missão Black Friday) | Publicada |

@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Diferenciar processo comum, contêiner e máquina virtual.",
+      "Entender que contêineres compartilham o kernel da máquina.",
+      "Comparar custo e isolamento das três opções."
+    ],
+    "minutes": 15,
+    "activity": "Teatro da cozinha: três alunos são cozinheiros e precisam de temperos diferentes. Rodada 1: um pote de sal para todos (processo). Rodada 2: cada um ganha uma caixa de temperos própria, mas a mesma mesa (contêiner). Rodada 3: cada um vai para uma sala separada, e leva um tempo para \"abrir\" a sala (VM). Anotem o que deu briga e o que custou mais.",
+    "discussion": [
+      "Onde você já ouviu “na minha máquina funciona”? O que estava diferente?",
+      "Quando vale pagar o preço de uma VM em vez de um contêiner?"
+    ],
+    "misconceptions": [
+      "\"Contêiner é uma VM pequena.\" Contêiner é um processo isolado que usa o kernel da máquina; VM tem kernel e sistema próprios.",
+      "\"Contêiner é tão isolado quanto VM.\" O kernel compartilhado é uma fronteira mais fina; para código não confiável, use isolamento mais forte."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell a plain process, a container and a virtual machine apart.",
+      "Understand that containers share the machine’s kernel.",
+      "Compare cost and isolation across the three options."
+    ],
+    "minutes": 15,
+    "activity": "Kitchen play: three students are cooks who need different spices. Round 1: one salt jar for everyone (process). Round 2: each gets their own spice box, but the same table (container). Round 3: each goes to a separate room, which takes a while to \"open\" (VM). Write down what caused fights and what cost more.",
+    "discussion": [
+      "Where have you heard “works on my machine”? What was different?",
+      "When is it worth paying for a VM instead of a container?"
+    ],
+    "misconceptions": [
+      "\"A container is a small VM.\" A container is an isolated process using the machine’s kernel; a VM has its own kernel and system.",
+      "\"A container is as isolated as a VM.\" The shared kernel is a thinner boundary; for untrusted code, use stronger isolation."
+    ]
+  }
+}

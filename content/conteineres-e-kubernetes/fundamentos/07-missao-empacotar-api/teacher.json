@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Escrever um Dockerfile de produção para uma API Node.",
+      "Justificar cada linha (base, ordem, usuário, segredos, .dockerignore, tag).",
+      "Perceber como uma correção depende da outra."
+    ],
+    "minutes": 25,
+    "activity": "Em duplas, consertem a configuração e depois façam a \"leitura dramática\" do Dockerfile final: uma pessoa lê a linha, a outra explica em uma frase por que ela está ali. Ganha a dupla que explicar sem dizer \"porque sim\".",
+    "discussion": [
+      "Qual dos cinco problemas seria o mais caro de descobrir em produção?",
+      "Onde a senha do banco deveria morar no seu projeto?"
+    ],
+    "misconceptions": [
+      "\"Tirei o ENV com a senha, então a imagem está limpa.\" Sem .dockerignore, o .env entra pelo COPY . ..",
+      "\"Imagem pequena é só questão de disco.\" Menos coisa na imagem também é menos coisa para atacar e para atualizar."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Write a production Dockerfile for a Node API.",
+      "Justify each line (base, order, user, secrets, .dockerignore, tag).",
+      "Notice how one fix depends on another."
+    ],
+    "minutes": 25,
+    "activity": "In pairs, fix the configuration and then do a \"dramatic reading\" of the final Dockerfile: one person reads the line, the other explains in one sentence why it’s there. The pair that explains without saying \"just because\" wins.",
+    "discussion": [
+      "Which of the five problems would be the most expensive to discover in production?",
+      "Where should the database password live in your project?"
+    ],
+    "misconceptions": [
+      "\"I removed the ENV with the password, so the image is clean.\" Without .dockerignore, .env comes in through COPY . ..",
+      "\"A small image is only about disk.\" Less stuff in the image also means less to attack and less to update."
+    ]
+  }
+}

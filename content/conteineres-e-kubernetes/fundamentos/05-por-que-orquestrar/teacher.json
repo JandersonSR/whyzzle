@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Listar o que muda quando se passa de uma máquina para várias.",
+      "Entender estado desejado e reconciliação.",
+      "Reconhecer limites e custos de um orquestrador."
+    ],
+    "minutes": 20,
+    "activity": "Gerente de frota: um aluno é o orquestrador e tem um cartaz \"quero 3 trucks servindo\". Outros três são trucks. O professor \"quebra\" um truck, depois pede o triplo de clientes, depois troca o cardápio. O orquestrador só pode dar ordens olhando o cartaz e a sala. Na segunda rodada, sem orquestrador, o professor precisa ir pessoalmente até cada truck.",
+    "discussion": [
+      "Que tarefas manuais da sua equipe seguem o padrão \"alguém percebe e conserta\"?",
+      "Quando um orquestrador é exagero para o tamanho do problema?"
+    ],
+    "misconceptions": [
+      "\"Kubernetes escala sozinho.\" Ele recria o que morreu; escalar com a carga precisa de um autoscaler configurado.",
+      "\"Com Kubernetes nunca cai.\" Com uma réplica ou um nó só, ainda cai; o orquestrador só corrige mais rápido."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "List what changes when going from one machine to many.",
+      "Understand desired state and reconciliation.",
+      "Recognize an orchestrator’s limits and costs."
+    ],
+    "minutes": 20,
+    "activity": "Fleet manager: one student is the orchestrator and holds a sign \"I want 3 trucks serving\". Three others are trucks. The teacher \"breaks\" a truck, then asks for three times the customers, then changes the menu. The orchestrator can only give orders by looking at the sign and the room. In round two, with no orchestrator, the teacher has to walk to each truck in person.",
+    "discussion": [
+      "Which manual tasks on your team follow the \"someone notices and fixes it\" pattern?",
+      "When is an orchestrator overkill for the size of the problem?"
+    ],
+    "misconceptions": [
+      "\"Kubernetes scales by itself.\" It recreates what died; scaling with load needs a configured autoscaler.",
+      "\"With Kubernetes nothing goes down.\" With one replica or one node, it still goes down; the orchestrator just fixes it faster."
+    ]
+  }
+}
