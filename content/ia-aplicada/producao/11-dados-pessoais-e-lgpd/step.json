@@ -1,0 +1,392 @@
+{
+  "id": "r-dados-pessoais-e-lgpd",
+  "order": 11,
+  "track": "producao",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "seguranca",
+    "privacidade",
+    "lgpd",
+    "minimizacao",
+    "retencao",
+    "base-legal"
+  ],
+  "requires": [
+    "r-vazamento-de-dados-e-permissoes"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "minimizar",
+      "en": "minimize"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Meu CPF é 123.456.789-09 e meu e-mail é ana.souza@aurora.example. Pode atualizar meu cadastro?",
+        "en": "My CPF is 123.456.789-09 and my e-mail is ana.souza@aurora.example. Can you update my record?"
+      },
+      "examples": [
+        {
+          "pt": "Meu CPF é 123.456.789-09 e meu e-mail é ana.souza@aurora.example. Pode atualizar meu cadastro?",
+          "en": "My CPF is 123.456.789-09 and my e-mail is ana.souza@aurora.example. Can you update my record?"
+        },
+        {
+          "pt": "Me liga no (15) 99876-5432 sobre o atestado do meu filho.",
+          "en": "Call me at (15) 99876-5432 about my son’s medical certificate."
+        },
+        {
+          "pt": "Quantos dias de férias eu tenho?",
+          "en": "How many vacation days do I have?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "redact",
+        "alias": {
+          "pt": "redigir",
+          "en": "redact"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "cpf",
+            "pt": "cpf",
+            "en": "cpf"
+          },
+          {
+            "id": "email",
+            "pt": "email",
+            "en": "email"
+          },
+          {
+            "id": "phone",
+            "pt": "telefone",
+            "en": "phone"
+          },
+          {
+            "id": "health",
+            "pt": "saude",
+            "en": "health"
+          }
+        ],
+        "default": [
+          "cpf",
+          "email",
+          "phone",
+          "health"
+        ],
+        "ui": "checkboxes"
+      },
+      {
+        "name": "retention",
+        "alias": {
+          "pt": "retencao",
+          "en": "retention"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 730,
+        "default": 90,
+        "ui": "slider"
+      },
+      {
+        "name": "basis",
+        "alias": {
+          "pt": "base",
+          "en": "basis"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "consent",
+            "pt": "consentimento",
+            "en": "consent"
+          },
+          {
+            "id": "contract",
+            "pt": "contrato",
+            "en": "contract"
+          },
+          {
+            "id": "interest",
+            "pt": "interesse",
+            "en": "interest"
+          },
+          {
+            "id": "none",
+            "pt": "nenhuma",
+            "en": "none"
+          }
+        ],
+        "default": "interest",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "excess"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "real": false,
+        "realFields": {},
+        "realValid": false,
+        "weekly": 2000,
+        "typeIds": [
+          "cpf",
+          "email",
+          "phone",
+          "health"
+        ],
+        "shareArr": [
+          7,
+          6,
+          5,
+          3
+        ],
+        "policyDays": 90,
+        "riskLimit": 1000,
+        "yesNo": {
+          "1": "yes",
+          "0": "no"
+        },
+        "toneMap": {
+          "0": "dim",
+          "1": "dim",
+          "2": "bad",
+          "3": "ok"
+        }
+      },
+      "compute": {
+        "rec": "lookup(msgs, text, unknownMsg)",
+        "known": "rec.known",
+        "mask": "(includes(redact, 'cpf') ? '1' : '0') + (includes(redact, 'email') ? '1' : '0') + (includes(redact, 'phone') ? '1' : '0') + (includes(redact, 'health') ? '1' : '0')",
+        "redArr": "memberall(typeIds, redact)",
+        "notRed": "affine(redArr, 1, -1)",
+        "hasArr": "real ? (realValid ? [realFields.cpf ? 1 : 0, realFields.email ? 1 : 0, realFields.phone ? 1 : 0, realFields.health ? 1 : 0] : fill(4, 0)) : rec.has",
+        "exposedNow": "sum(mul(hasArr, notRed))",
+        "shown": "known ? lookup(rec.red, mask, text) : ''",
+        "retained": "round(weekly * retention / 7)",
+        "keptPct": "sum(mul(shareArr, notRed))",
+        "records": "round(retained * keptPct / 100)",
+        "sensKept": "!includes(redact, 'health')",
+        "retainedS": "fmt(retained, 0, lang)",
+        "recordsS": "fmt(records, 0, lang)",
+        "limitS": "fmt(riskLimit, 0, lang)",
+        "tonesKey": "addall(scale(hasArr, 2), redArr)",
+        "rowTones": "lookupall(toneMap, tonesKey)",
+        "hasCol": "lookupall(yesNoL, hasArr)",
+        "redCol": "lookupall(yesNoL, redArr)",
+        "basisL": "lookup(basisNames, basis, basis)",
+        "sensOk": "!sensKept || basis == 'consent'"
+      },
+      "cases": [
+        {
+          "when": "!known && !real",
+          "error": "unknownMsg"
+        },
+        {
+          "when": "records > riskLimit",
+          "flags": [
+            "excess"
+          ]
+        },
+        {
+          "when": "records <= riskLimit && sensKept",
+          "flags": [
+            "sensitive"
+          ]
+        },
+        {
+          "when": "retention > policyDays",
+          "flags": [
+            "longRetention"
+          ]
+        },
+        {
+          "when": "basis == 'none'",
+          "flags": [
+            "noBasis"
+          ]
+        },
+        {
+          "when": "records == 0",
+          "flags": [
+            "minimal"
+          ]
+        },
+        {
+          "when": "real && !realValid",
+          "flags": [
+            "invalidJson"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "retained": "retained",
+            "retainedS": "retainedS",
+            "records": "records",
+            "recordsS": "recordsS",
+            "keptPct": "keptPct",
+            "retention": "retention",
+            "limitS": "limitS",
+            "riskLimit": "riskLimit",
+            "basisL": "basisL",
+            "policyDays": "policyDays"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "@sOrig",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "@sRedact",
+              "sub": "=known ? shown : (exposedNow > 0 ? '@subRealExposed' : '@subRealClean')",
+              "tone": "=exposedNow > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@sStore",
+              "sub": "@subStore",
+              "tone": "=retention > policyDays ? 'warn' : 'neutral'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@colType",
+            "@colHas",
+            "@colRedacted",
+            "@colShare"
+          ],
+          "rows": "=zip(typeLabels, hasCol, redCol, shareLabels)",
+          "tones": "=rowTones",
+          "caption": "@tableCaption"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mRetained",
+              "value": "=retainedS",
+              "tone": "=retention > policyDays ? 'warn' : 'info'"
+            },
+            {
+              "label": "@mKept",
+              "value": "=keptPct + '%'",
+              "tone": "=keptPct == 0 ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@mRecords",
+              "value": "=recordsS",
+              "tone": "=records > riskLimit ? 'bad' : (records == 0 ? 'ok' : 'warn')"
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkMin",
+              "ok": "=records <= riskLimit",
+              "why": "@whyMin"
+            },
+            {
+              "label": "@chkRet",
+              "ok": "=retention <= policyDays",
+              "why": "@whyRet"
+            },
+            {
+              "label": "@chkBasis",
+              "ok": "=basis != 'none'",
+              "why": "@whyBasis"
+            },
+            {
+              "label": "@chkSens",
+              "ok": "=sensOk",
+              "why": "@whySens"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=records <= riskLimit && sensKept",
+          "tone": "warn",
+          "text": "@sensNote"
+        },
+        {
+          "type": "note",
+          "when": "=real",
+          "tone": "info",
+          "text": "@realNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "few",
+      "many"
+    ],
+    "answer": "many"
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "json",
+      "args": {
+        "system": "{detectorSys}",
+        "user": "{text}",
+        "schema": {
+          "cpf": "boolean",
+          "email": "boolean",
+          "phone": "boolean",
+          "health": "boolean"
+        }
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "json",
+      "args": {
+        "system": "{detectorSys}",
+        "user": "{text}",
+        "schema": {
+          "cpf": "boolean",
+          "email": "boolean",
+          "phone": "boolean",
+          "health": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,270 @@
+{
+  "title": "AI use policy in the company",
+  "subtitle": "A policy people can actually follow: data levels, approved tools and human review",
+  "mission": "Aurora has an assistant that is safe, tested and auditable. But people also use AI on their own, and someone has to write the rule. A policy becomes a table: on one side, the data class (public, internal, personal data, confidential); on the other, the tool (corporate, company API, consumer service). Choose the policy type and a tool, see the decision for five real requests and what the policy does to everyday use: how many requests have an approved path and how many go beyond control.",
+  "predict": {
+    "question": "to avoid risks, Aurora forbids all use of generative AI at work. Of the requests people would have, how many end up happening outside company tools, under the lesson’s assumption that 7 in 10 people without an approved path use it on their own?",
+    "options": {
+      "none": "None: forbidden is forbidden",
+      "many": "A large part: use continues, hidden"
+    }
+  },
+  "feedback": {
+    "right": "right: with no approved path, 100% of requests are left without an option and, under the lesson’s assumption, 70% go to personal tools, outside any control. The ban did not end the use, it only took it out of sight. The assumption is the lesson’s, not a measurement.",
+    "wrong": "a large part: with no approved path, 100% of requests are left without an option and, under the lesson’s assumption, 70% go to personal tools, outside any control. The assumption is the lesson’s, not a measurement.",
+    "skipped": "no guess? Run the tiered policy and then the ban-everything one and compare the use beyond control."
+  },
+  "coach": {
+    "ui": "guess noted. Run with the tiered policy and the corporate tool and read the decision and the table.",
+    "cmd": "guess noted. Run decide and read the decision, the table and the metrics."
+  },
+  "tryNext": {
+    "ui": "Now pick the source code case and the consumer tool: it is the kind of situation that made companies restrict AI use.",
+    "cmd": "Run decide \"Paste the payroll system source code to find a bug.\" --tool consumer and read the reason."
+  },
+  "why": {
+    "simples": "A rule nobody can follow is not a rule: it is decoration. If the policy says \"do not use AI\" and work gets harder without it, people use it anyway, just hidden and without help. If it says \"use whatever you like\", anyone pastes the customer’s contract into some random site.\nThe middle ground is a traffic light: public and internal data go to approved tools; people’s data goes with care; company secrets do not leave. And whoever decides about a person (hiring, rejecting) always has a person reviewing.",
+    "dev": "A good policy fits on one page and in one executable file. Parts: (1) scope and glossary; (2) a list of approved tools and why (contract, where data stays, whether the provider trains on it, retention); (3) the data class × tool matrix, with conditions (for example, redact CPF and names before sending); (4) rules for decisions about people, always with human review; (5) who approves new tools and exceptions, and how fast; (6) where to report an incident; (7) short training and periodic review.\nTurn the matrix into code (the recipe’s POLICY), test it with real cases and use the same table in the company’s AI gateway and in the handbook. Offer an approved path that is better than the personal shortcut: if the corporate assistant is slow or does not do what the person needs, use migrates. Measure it: how many requests have an approved path and how many users use unapproved tools (by survey or by network traffic).",
+    "especialista": "Public case: in May 2023, Samsung banned the use of generative AI on company computers, tablets, phones and internal networks after an accidental leak in April in which engineers uploaded internal source code to ChatGPT, according to a memo reviewed by Bloomberg. The company said the restriction was temporary, while it built internal tools and worked on blocking uploads of sensitive data to external services. A ban solves the day’s incident, and the policy question is what comes next.\nReferences: NIST AI RMF 1.0 (January 2023) has the Govern function for culture, roles and policies, and the NIST AI 600-1 profile (July 2024) details generative AI risks; ISO/IEC 42001:2023, from December 2023, specifies requirements for an AI management system for any organization that provides or uses products and services with AI.\nUnder LGPD, the policy must talk to: the data protection officer (art. 41: the controller appoints and publishes identity and contact), art. 20 (review of automated decisions), art. 33 (international transfer: a provider outside Brazil may amount to one, with the grounds of art. 33, and the ANPD approved the regulation in 2024) and art. 6, X (accountability). AI-specific regulation is moving: in December 2025, bill PL 2338/2023 was in a special committee in the Chamber of Deputies, with the vote postponed to February 2026; check the current status. Review the policy on a calendar and after every incident."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: choose the policy that forbids all AI use.",
+      "cmd": "time to break it: run decide --policy ban"
+    },
+    "success": "Broken: only {allowedPct}% of requests have an approved path and {shadowPct}% end up in tools beyond the company’s control (the lesson’s assumption). A policy people cannot follow only takes the use out of sight.",
+    "calm": "{allowedPct}% of requests have an approved path and {shadowPct}% go beyond control. Decision for this case: {verdictL}. To break it, forbid all use."
+  },
+  "hints": {
+    "ui": [
+      "Choose the request, the policy type and the tool, and run.",
+      "The table shows the policy rule per data class and tool; the highlighted row is your request’s. The metrics apply to the whole policy.",
+      "Policy: ban."
+    ],
+    "cmd": [
+      "The request goes in quotes, after decide.",
+      "--policy ban, public, tiers or open; --tool corporate, api or consumer; --review yes or no.",
+      "decide --policy ban"
+    ]
+  },
+  "errors": {
+    "notInEnum.policy": "\"{value}\" is not a policy type. Use: {options}.",
+    "notInEnum.tool": "\"{value}\" is not a tool. Use: {options}.",
+    "notBool.review": "Use yes or no.",
+    "model.unknownCase": "In simulated mode, use one of the five example requests. With \"Your key\" or \"In the browser\", a real model classifies any request."
+  },
+  "controls": {
+    "arg": "AI use request",
+    "policy": "Policy type",
+    "tool": "Tool",
+    "review": "Human review for decisions about people"
+  },
+  "scene": {
+    "flowLabel": "From request to decision",
+    "sCase": "Request",
+    "sClass": "Data class",
+    "sTool": "Tool",
+    "sVerdict": "Decision",
+    "tableLabel": "This policy’s rule",
+    "colClass": "data",
+    "colCorp": "corporate",
+    "colApi": "API",
+    "colPublic": "consumer",
+    "tableCaption": "the highlighted row is your request’s class",
+    "metricsLabel": "The policy day to day (lesson mix of 100 requests)",
+    "mAllowed": "with an approved path",
+    "mShadow": "beyond control",
+    "mUncontrolled": "with no protection at all",
+    "chkPath": "At least 80% of requests have an approved path",
+    "whyPath": "Whoever has no approved path makes their own.",
+    "chkClosed": "Confidential data is not left open",
+    "whyClosed": "\"Allow everything\" is also a policy, and the worst for code and contracts.",
+    "chkReview": "Decisions about people with human review",
+    "whyReview": "The data subject may ask for review of fully automated decisions (LGPD, art. 20).",
+    "realNote": "Real mode: the model classifies the request by data class and whether it decides about people, in JSON; the decision comes from the policy table. If the JSON is invalid, the lesson assumes the worst case (confidential, decides about people).",
+    "simNote": "Simulated mode: 40/35/18/7% of requests per class and the assumption that 70% of those without an approved path use it on their own are the lesson’s, not measurements. Use \"Your key\" or \"In the browser\" to classify any request."
+  },
+  "data": {
+    "cases": {
+      "Summarize the HR handbook for a new hire.": {
+        "known": true,
+        "cls": 1,
+        "people": false
+      },
+      "Paste the payroll system source code to find a bug.": {
+        "known": true,
+        "cls": 3,
+        "people": false
+      },
+      "Write a collection e-mail with the customer’s name and CPF.": {
+        "known": true,
+        "cls": 2,
+        "people": false
+      },
+      "Screen résumés and reject candidates automatically.": {
+        "known": true,
+        "cls": 2,
+        "people": true
+      },
+      "Write a blog post about vacation.": {
+        "known": true,
+        "cls": 0,
+        "people": false
+      }
+    },
+    "unknownCase": {
+      "known": false,
+      "cls": 3,
+      "people": true
+    },
+    "reasons": {
+      "ban": "The policy forbids any use of generative AI.",
+      "nohuman": "A decision about people without human review does not pass: the person may ask for review of decisions made only by automated processing (LGPD, art. 20).",
+      "allow": "Allowed: the data fits this tool under the policy.",
+      "deny0": "This tool is not approved by the policy, not even for public data.",
+      "cond0": "Allowed with conditions:",
+      "cond0p": "Allowed with conditions: A person reviews before any decision about someone.",
+      "deny1": "Internal data only goes to a company-approved tool.",
+      "cond1": "Allowed with conditions:",
+      "cond1p": "Allowed with conditions: A person reviews before any decision about someone.",
+      "deny2": "Personal data cannot go to this tool under this policy.",
+      "cond2": "Allowed with conditions: Redact CPF and names before sending, use only a tool with a contract that forbids training on your data and log the use.",
+      "cond2p": "Allowed with conditions: Redact CPF and names before sending, use only a tool with a contract that forbids training on your data and log the use. A person reviews before any decision about someone.",
+      "deny3": "Confidential data (source code, contracts) does not go to an external AI tool.",
+      "cond3": "Allowed with conditions: Requires approval from security.",
+      "cond3p": "Allowed with conditions: Requires approval from security. A person reviews before any decision about someone."
+    },
+    "verdictNames": {
+      "allow": "allowed",
+      "cond": "allowed with conditions",
+      "deny": "forbidden"
+    },
+    "classNames": {
+      "0": "Public",
+      "1": "Internal",
+      "2": "Personal data",
+      "3": "Confidential"
+    },
+    "toolNames": {
+      "corp": "corporate tool",
+      "api": "company API",
+      "public": "consumer service"
+    },
+    "policyRows": {
+      "ban": [
+        [
+          "Public",
+          "forbidden",
+          "forbidden",
+          "forbidden"
+        ],
+        [
+          "Internal",
+          "forbidden",
+          "forbidden",
+          "forbidden"
+        ],
+        [
+          "Personal data",
+          "forbidden",
+          "forbidden",
+          "forbidden"
+        ],
+        [
+          "Confidential",
+          "forbidden",
+          "forbidden",
+          "forbidden"
+        ]
+      ],
+      "green": [
+        [
+          "Public",
+          "allowed",
+          "allowed",
+          "forbidden"
+        ],
+        [
+          "Internal",
+          "forbidden",
+          "forbidden",
+          "forbidden"
+        ],
+        [
+          "Personal data",
+          "forbidden",
+          "forbidden",
+          "forbidden"
+        ],
+        [
+          "Confidential",
+          "forbidden",
+          "forbidden",
+          "forbidden"
+        ]
+      ],
+      "tiers": [
+        [
+          "Public",
+          "allowed",
+          "allowed",
+          "allowed"
+        ],
+        [
+          "Internal",
+          "allowed",
+          "allowed",
+          "forbidden"
+        ],
+        [
+          "Personal data",
+          "with conditions",
+          "with conditions",
+          "forbidden"
+        ],
+        [
+          "Confidential",
+          "forbidden",
+          "forbidden",
+          "forbidden"
+        ]
+      ],
+      "open": [
+        [
+          "Public",
+          "allowed",
+          "allowed",
+          "allowed"
+        ],
+        [
+          "Internal",
+          "allowed",
+          "allowed",
+          "allowed"
+        ],
+        [
+          "Personal data",
+          "allowed",
+          "allowed",
+          "allowed"
+        ],
+        [
+          "Confidential",
+          "allowed",
+          "allowed",
+          "allowed"
+        ]
+      ]
+    },
+    "classifierSys": "You classify requests to use AI at Aurora. data_class is the most sensitive data involved: public (nothing internal), internal (internal documents), personal (data about people, like name, CPF, résumé) or confidential (source code, contracts, secrets). decides_people is true if the AI would decide something about people (hire, reject, punish, evaluate). Reply only with JSON: {\"data_class\":\"internal\",\"decides_people\":false}."
+  },
+  "recipe": {
+    "steps": [
+      "Write the policy on one page (scope, approved tools and why, data matrix, rules for decisions about people, who approves exceptions, where to report incidents, review every 6 months) and ask legal and the data protection officer to review it.",
+      "Create policy.py, the same matrix as code, for the AI gateway and the tests to use:\nPOLICY = {\n    \"version\": \"2026-11\",\n    \"owner\": \"seguranca@aurora.example\",   # quem aprova ferramentas novas e exceções\n    \"review_every_months\": 6,\n    # classe do dado x ferramenta -> allow | conditions | deny\n    \"matrix\": {\n        \"corporate\": {\"public\": \"allow\", \"internal\": \"allow\", \"personal\": \"conditions\", \"confidential\": \"deny\"},\n        \"api\":       {\"public\": \"allow\", \"internal\": \"allow\", \"personal\": \"conditions\", \"confidential\": \"deny\"},\n        \"consumer\":  {\"public\": \"allow\", \"internal\": \"deny\",  \"personal\": \"deny\",       \"confidential\": \"deny\"},\n    },\n    \"conditions\": [\"Redact CPF and names before sending, use only a tool with a contract that forbids training on your data and log the use.\", \"Requires approval from security.\"],\n}\n\n\ndef decide(data_class, tool, decides_people=False, human_review=True):\n    verdict = POLICY[\"matrix\"][tool][data_class]\n    if decides_people and verdict != \"deny\":\n        if not human_review:\n            return \"deny\"          # decisão sobre pessoas só com revisão humana (LGPD, art. 20)\n        return \"conditions\"\n    return verdict",
+      "Add the policy cases at the end and run:\nCASES = [  # (classe, ferramenta, decide sobre pessoas?, esperado)\n    (\"internal\", \"corporate\", False, \"allow\"),\n    (\"confidential\", \"consumer\", False, \"deny\"),\n    (\"confidential\", \"corporate\", False, \"deny\"),\n    (\"personal\", \"corporate\", False, \"conditions\"),\n    (\"personal\", \"corporate\", True, \"conditions\"),\n    (\"public\", \"consumer\", False, \"allow\"),\n]\nfor data_class, tool, people, expected in CASES:\n    got = decide(data_class, tool, people)\n    print(\"OK  \" if got == expected else \"ERRO\", data_class, tool, people, \"->\", got)\nassert decide(\"personal\", \"corporate\", True, human_review=False) == \"deny\"\npython policy.py",
+      "Publish the policy together with an approved path that works (the corporate assistant), a channel to request exceptions and short training. Review the file and the page after every incident."
+    ],
+    "ok": "the script prints one line per case with OK (no ERRO) and ends without an exception: confidential data never goes to a consumer tool, personal data only with conditions, and a decision about people without human review is denied."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Aplicar minimização, retenção e base legal a um caso concreto.",
+      "Distinguir dado pessoal de dado sensível.",
+      "Saber que a pessoa pode pedir acesso e eliminação, e o que isso exige do sistema."
+    ],
+    "minutes": 20,
+    "activity": "Cada grupo recebe 6 mensagens de um log fictício e sublinha todo dado pessoal. Depois decidem o que guardar, por quanto tempo e por quê, e escrevem o motivo em uma frase para o encarregado.",
+    "discussion": [
+      "Para que o log da sua empresa serve de fato, e quanto tempo esse fim exige?",
+      "Como você acharia e apagaria os dados de uma pessoa específica nos seus logs hoje?"
+    ],
+    "misconceptions": [
+      "\"Guardar tudo é mais seguro.\" Quanto mais se guarda, maior o estrago possível.",
+      "\"Trocar o nome por um código anonimiza.\" Pseudonimizar não é anonimizar: se dá para reverter, continua sendo dado pessoal."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Apply minimization, retention and legal basis to a concrete case.",
+      "Tell personal data from sensitive data.",
+      "Know that people may ask for access and deletion, and what that requires of the system."
+    ],
+    "minutes": 20,
+    "activity": "Each group gets 6 messages from a fictional log and underlines all personal data. Then they decide what to keep, for how long and why, and write the reason in one sentence for the data protection officer.",
+    "discussion": [
+      "What is your company’s log actually for, and how long does that purpose require?",
+      "How would you find and delete one specific person’s data in your logs today?"
+    ],
+    "misconceptions": [
+      "\"Keeping everything is safer.\" The more you keep, the bigger the possible damage.",
+      "\"Replacing the name with a code anonymizes.\" Pseudonymizing is not anonymizing: if it can be reversed, it is still personal data."
+    ]
+  }
+}

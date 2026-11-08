@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Definir os campos de um evento de auditoria.",
+      "Proteger a trilha contra edição com hash encadeado.",
+      "Equilibrar rastreabilidade e privacidade."
+    ],
+    "minutes": 20,
+    "activity": "Entregue um \"incidente\" fictício (uma resposta errada do assistente). Cada grupo lista que informações precisaria para reconstruí-lo e depois corta o que não explica nada e é dado pessoal. Compare as listas.",
+    "discussion": [
+      "Quem deveria poder ler a trilha de auditoria na sua empresa?",
+      "Que decisão do assistente você teria de explicar a uma pessoa que pedisse revisão?"
+    ],
+    "misconceptions": [
+      "\"Guardar tudo é auditar bem.\" Guardar tudo cria outro risco.",
+      "\"Um log em arquivo já é prova.\" Sem integridade, qualquer pessoa com acesso pode editá-lo."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Define the fields of an audit event.",
+      "Protect the trail against editing with a chained hash.",
+      "Balance traceability and privacy."
+    ],
+    "minutes": 20,
+    "activity": "Hand out a fictional \"incident\" (a wrong answer from the assistant). Each group lists the information it would need to reconstruct it and then cuts what explains nothing and is personal data. Compare the lists.",
+    "discussion": [
+      "Who should be able to read the audit trail in your company?",
+      "Which assistant decision would you have to explain to a person asking for review?"
+    ],
+    "misconceptions": [
+      "\"Keeping everything is auditing well.\" Keeping everything creates another risk.",
+      "\"A log file is already proof.\" Without integrity, anyone with access can edit it."
+    ]
+  }
+}

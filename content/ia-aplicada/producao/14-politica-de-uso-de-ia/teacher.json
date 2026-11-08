@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Escrever uma política como matriz de dado × ferramenta.",
+      "Ver como uma política impossível de cumprir empurra o uso para fora do controle.",
+      "Incluir revisão humana e responsáveis na política."
+    ],
+    "minutes": 20,
+    "activity": "Em grupos, listem 10 usos reais de IA na empresa, classifiquem o dado de cada um (público, interno, pessoal, confidencial) e preencham a matriz com permitido, condições ou proibido. Depois troquem as matrizes e tentem achar um caso que a matriz do outro grupo não cobre.",
+    "discussion": [
+      "Que ferramenta aprovada a sua empresa oferece hoje, e ela é boa o bastante para as pessoas preferirem usá-la?",
+      "Quem aprova exceções e em quanto tempo?"
+    ],
+    "misconceptions": [
+      "\"Proibir tudo é o mais seguro.\" Sem caminho aprovado, o uso migra para ferramentas fora do controle.",
+      "\"A política é um texto, não precisa de teste.\" Uma matriz em código pode ser testada com casos reais."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Write a policy as a data × tool matrix.",
+      "See how an impossible-to-follow policy pushes use beyond control.",
+      "Include human review and owners in the policy."
+    ],
+    "minutes": 20,
+    "activity": "In groups, list 10 real AI uses in the company, classify each one’s data (public, internal, personal, confidential) and fill the matrix with allowed, conditions or forbidden. Then swap matrices and try to find a case the other group’s matrix does not cover.",
+    "discussion": [
+      "Which approved tool does your company offer today, and is it good enough for people to prefer using it?",
+      "Who approves exceptions and how fast?"
+    ],
+    "misconceptions": [
+      "\"Banning everything is the safest.\" Without an approved path, use migrates to tools beyond control.",
+      "\"A policy is a text, it needs no test.\" A matrix in code can be tested with real cases."
+    ]
+  }
+}

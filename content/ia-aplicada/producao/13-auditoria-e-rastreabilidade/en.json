@@ -1,0 +1,184 @@
+{
+  "title": "Audit and traceability",
+  "subtitle": "Record enough to reconstruct what the assistant did, without the record becoming a new problem",
+  "mission": "On a Thursday, a person claims the assistant said you could sell half of your vacation. To investigate, the team must reconstruct that answer: when it was, which prompt version and model were live, which documents entered the context. Aurora’s audit trail records one event per answer. Choose the fields, what to do with the conversation text and how to protect the file against editing, and see which incident questions the trail can answer.",
+  "predict": {
+    "question": "to be complete, should the trail keep the raw text of every conversation, with everything the person typed?",
+    "options": {
+      "yes": "Yes: without raw text there is no audit",
+      "no": "No: redacted is enough and raw becomes another risk"
+    }
+  },
+  "feedback": {
+    "right": "right: redacted text answers the incident questions, and raw would keep about 420 conversations a week with CPF, e-mail, phone or health data, readable by whoever has log access. The audit must not become a leak.",
+    "wrong": "no: redacted text answers the incident questions, and raw would keep about 420 conversations a week with CPF, e-mail, phone or health data, readable by whoever has log access. The audit must not become a leak.",
+    "skipped": "no guess? Run with redacted text and then with raw and compare the personal data metric."
+  },
+  "coach": {
+    "ui": "guess noted. Run with the default trail (all fields, redacted text, hash chain) and read the table.",
+    "cmd": "guess noted. Run audit and read the field table."
+  },
+  "tryNext": {
+    "ui": "Now ask who saw the salary table and record only when and documents: without \"who\", the trail cannot answer.",
+    "cmd": "Run audit \"Who saw the executive salary table last week?\" --fields when,docs and see the missing field."
+  },
+  "why": {
+    "simples": "An audit trail is the airplane’s black box: it does not prevent the accident, but it lets you find out what happened and fix it. For that it must keep enough (who, when, what was used) and be protected against editing, otherwise anyone \"tidies up\" the story afterwards.\nAnd there is the other end: if the black box records everything every passenger said, including what was private, it becomes a danger itself. The rule is to record what explains the decision, not whatever is possible.",
+    "dev": "One event per answer, in JSON, with fixed fields: id, date and time, user code (pseudonym), prompt version, model id (such as claude-sonnet-5-5), ids and versions of the documents that entered the context, each guardrail’s decisions, tokens and cost, and the already redacted question and answer. With that you reconstruct an answer: same prompt, same documents, same model. Without the prompt and document versions, you cannot reproduce it; without the user, you cannot answer \"who saw this\"; without the guardrail decisions, you cannot prove the attack was blocked.\nIntegrity: chain the events with a hash (each line stores the previous line’s hash). Editing a line breaks the chain from there on. Whoever controls the file can still recompute everything, so publish the latest hash on a separate system from time to time, and write to append-only storage when the provider offers it.\nPrivacy: redacted text (previous lesson), role-based access with a record of who read the log, a retention period and pseudonym identification, to handle one person’s requests. If the log also feeds the evaluation set, redact before copying.",
+    "especialista": "Recording and accountability show up in the law and in management frameworks. In LGPD, art. 37 requires controller and operator to keep a record of personal data processing operations, art. 6, X asks for accountability (showing effective measures) and art. 48 requires notifying security incidents to the ANPD and the data subject; under Resolution CD/ANPD 15/2024, the deadline is three business days from knowing about the incident, and without a trail you cannot say in three days who was affected. Art. 20 gives data subjects the right to request review of decisions made solely on automated processing, which requires being able to explain how the decision was produced.\nNIST AI RMF 1.0 (January 2023) organizes AI risk management in four functions, Govern, Map, Measure and Manage, and the generative AI profile NIST AI 600-1 (July 2024) applies it to 12 risks. ISO/IEC 42001:2023, published in December 2023, defines requirements for an AI management system in an organization. In any audit based on this kind of reference, records of what the system did are the natural evidence.\nThe balance is hard: the trail needs detail to prove something and restraint not to be a second repository of personal data. Decide, in writing, who may read the trail, for how long it stays and what is redacted, and review it with the data protection officer."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: record the raw conversation text in the trail.",
+      "cmd": "time to break it: run audit --content raw"
+    },
+    "success": "Broken: with raw text, the trail starts keeping about {piiNow} conversations a week with CPF, e-mail, phone or health data, readable by {readers} people with log access. The audit trail became a new leak waiting to happen.",
+    "calm": "The trail has {nFields} of 8 fields and {piiNow} conversations a week with raw personal data. To break it, record the raw text."
+  },
+  "hints": {
+    "ui": [
+      "Check the fields, choose the text handling and the file protection, and run to see whether the question has an answer.",
+      "Red rows are fields the question needs and you did not record. Raw text answers everything, but keeps personal data.",
+      "Conversation text: raw."
+    ],
+    "cmd": [
+      "The incident question goes in quotes, after audit.",
+      "--fields when,who,prompt,model,docs,guards,tokens; --content none, redacted or raw; --integrity plain or chain.",
+      "audit --content raw"
+    ]
+  },
+  "errors": {
+    "notInEnum.fields": "\"{value}\" is not a field. Use: {options}.",
+    "notInEnum.body": "\"{value}\" is not a handling. Use: {options}.",
+    "notInEnum.integrity": "\"{value}\" is not a protection. Use: {options}.",
+    "model.unknownInc": "Use one of the four example incident questions."
+  },
+  "controls": {
+    "arg": "Incident question",
+    "fields": "Recorded fields",
+    "body": "Conversation text",
+    "integrity": "File protection"
+  },
+  "scene": {
+    "flowLabel": "From question to audit answer",
+    "sQuestion": "Question",
+    "sNeeds": "Needs",
+    "subNeeds": "the fields marked in the table",
+    "sAnswer": "Can the trail answer?",
+    "subYes": "yes, it can be reconstructed",
+    "subNo": "no: {nMissing} field(s) missing ({missingNames})",
+    "tableLabel": "Audit event fields",
+    "colField": "field",
+    "colLogged": "recorded",
+    "colNeeded": "question needs",
+    "colUse": "used for",
+    "tableCaption": "red: the question needs it and you did not record it",
+    "verifyLabel": "Integrity check",
+    "mFields": "fields recorded",
+    "mPii": "conversations a week with raw personal data",
+    "chkAnswer": "The incident question has an answer",
+    "whyAnswer": "Without the right fields, the investigation becomes guesswork.",
+    "chkRaw": "No raw text with personal data",
+    "whyRaw": "Record what explains the decision, not everything possible (necessity, art. 6, III).",
+    "chkChain": "Tamper-evident file",
+    "whyChain": "A hash chain shows whether someone edited a line.",
+    "gapNote": "{nMissing} field(s) missing: {missingNames}. Without them this question stays unanswered.",
+    "rawNote": "Raw text answers any question, but keeps CPF, e-mail, phone and health in the log. Prefer redacted text.",
+    "simNote": "Simulated-only lesson: the incident questions and the fields each one needs are fixed, and 412 lines and 420 conversations a week are lesson numbers."
+  },
+  "data": {
+    "incidents": {
+      "Why did the assistant say you can sell half of your vacation?": {
+        "known": true,
+        "need": [
+          "ts",
+          "prompt_v",
+          "model",
+          "docs",
+          "text"
+        ]
+      },
+      "Who saw the executive salary table last week?": {
+        "known": true,
+        "need": [
+          "ts",
+          "user",
+          "docs"
+        ]
+      },
+      "How much did the assistant cost on Wednesday?": {
+        "known": true,
+        "need": [
+          "ts",
+          "tokens"
+        ]
+      },
+      "Did the assistant block yesterday’s injection attempt?": {
+        "known": true,
+        "need": [
+          "ts",
+          "guard",
+          "text"
+        ]
+      }
+    },
+    "unknownInc": {
+      "known": false,
+      "need": []
+    },
+    "fieldNames": {
+      "ts": "when",
+      "user": "who (pseudonym)",
+      "prompt_v": "prompt version",
+      "model": "model",
+      "docs": "documents in context",
+      "guard": "guardrail decisions",
+      "tokens": "tokens and cost",
+      "text": "conversation text"
+    },
+    "fieldLabels": [
+      "when",
+      "who (pseudonym)",
+      "prompt version",
+      "model",
+      "documents in context",
+      "guardrail decisions",
+      "tokens and cost",
+      "conversation text"
+    ],
+    "fieldUse": [
+      "sort and filter",
+      "who asked",
+      "reproduce the answer",
+      "reproduce the answer",
+      "what the answer used",
+      "what was blocked",
+      "cost and abuse",
+      "what was said"
+    ],
+    "yesNoL": {
+      "1": "yes",
+      "0": "no"
+    },
+    "chainLines": [
+      "$ python verify_chain.py audit-2026-W45.jsonl",
+      "+ 412 lines, hash chain intact",
+      "$ edit line 207 (tampering test)",
+      "! line 207 hash does not match: tampering detected"
+    ],
+    "plainLines": [
+      "$ wc -l audit-2026-W45.jsonl",
+      "~ 412 lines",
+      "? nothing proves line 207 was not edited afterwards"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Define the audit event. An example line of audit.jsonl (data comes redacted):\n{\n  \"id\": \"a1c0…\",\n  \"ts\": \"2026-11-05T17:42:10Z\",\n  \"user\": \"u-9f3a\",\n  \"prompt_v\": \"rh-v3\",\n  \"model\": \"claude-sonnet-5-5\",\n  \"docs\": [\n    \"manual-ferias@2026-10\"\n  ],\n  \"guards\": {\n    \"input\": \"allow\",\n    \"output\": \"allow\"\n  },\n  \"tokens\": {\n    \"in\": 812,\n    \"out\": 96\n  },\n  \"question\": \"Why did the assistant say you can sell half of your vacation?\",\n  \"answer\": \"Up to half your vacation.\",\n  \"prev\": \"00000000…\",\n  \"hash\": \"5be1…\"\n}",
+      "Create audit.py: records one event per answer with a chained hash and verifies the whole chain:\nimport hashlib\nimport json\nimport pathlib\nimport time\nimport uuid\n\nLOG = pathlib.Path(\"audit.jsonl\")\n\n\ndef _hash(prev, record):\n    body = json.dumps(record, sort_keys=True, ensure_ascii=False)\n    return hashlib.sha256((prev + body).encode(\"utf-8\")).hexdigest()\n\n\ndef _last_hash():\n    if not LOG.exists():\n        return \"0\" * 64\n    lines = LOG.read_text(encoding=\"utf-8\").splitlines()\n    return json.loads(lines[-1])[\"hash\"] if lines else \"0\" * 64\n\n\ndef write_event(user_code, prompt_v, model, docs, guards, tokens, question, answer):\n    \"\"\"Um evento por resposta. question e answer chegam JÁ redigidos (veja a lição de LGPD).\"\"\"\n    record = {\n        \"id\": str(uuid.uuid4()),\n        \"ts\": time.strftime(\"%Y-%m-%dT%H:%M:%SZ\", time.gmtime()),\n        \"user\": user_code,            # pseudônimo, nunca o nome\n        \"prompt_v\": prompt_v,         # ex.: \"rh-v3\"\n        \"model\": model,               # ex.: \"claude-sonnet-5-5\"\n        \"docs\": docs,                 # ids (e versões) dos documentos que entraram no contexto\n        \"guards\": guards,             # ex.: {\"input\": \"allow\", \"output\": \"allow\"}\n        \"tokens\": tokens,             # {\"in\": 812, \"out\": 96}\n        \"question\": question,\n        \"answer\": answer,\n        \"prev\": _last_hash(),\n    }\n    record[\"hash\"] = _hash(record[\"prev\"], {k: v for k, v in record.items() if k != \"hash\"})\n    with LOG.open(\"a\", encoding=\"utf-8\") as f:\n        f.write(json.dumps(record, ensure_ascii=False) + \"\\n\")\n    return record[\"id\"]\n\n\ndef verify():\n    \"\"\"Devolve None se a cadeia está íntegra, ou o número da primeira linha adulterada.\"\"\"\n    prev = \"0\" * 64\n    for n, line in enumerate(LOG.read_text(encoding=\"utf-8\").splitlines(), start=1):\n        record = json.loads(line)\n        body = {k: v for k, v in record.items() if k != \"hash\"}\n        if record[\"prev\"] != prev or record[\"hash\"] != _hash(prev, body):\n            return n\n        prev = record[\"hash\"]\n    return None",
+      "Add a tampering test to the end of the file and run it:\nif __name__ == \"__main__\":\n    pathlib.Path(\"audit.jsonl\").unlink(missing_ok=True)\n    for i in range(3):\n        write_event(\"u-9f3a\", \"rh-v3\", \"claude-sonnet-5-5\", [\"manual-ferias@2026-10\"], {\"input\": \"allow\", \"output\": \"allow\"},\n                    {\"in\": 800 + i, \"out\": 90}, \"Why did the assistant say you can sell half of your vacation?\", \"Up to one third of your vacation.\")\n    print(\"cadeia íntegra?\", verify() is None)\n    lines = LOG.read_text(encoding=\"utf-8\").splitlines()\n    lines[1] = lines[1].replace(\"one third\", \"half\")        # alguém \"arruma\" a evidência\n    LOG.write_text(\"\\n\".join(lines) + \"\\n\", encoding=\"utf-8\")\n    print(\"primeira linha adulterada:\", verify())\npython audit.py",
+      "Call write_event() at the same point in the code where the answer is returned, with the text already redacted. Schedule a daily check (verify()) and send the latest hash to a separate system. Define in writing who reads the trail and how long it stays."
+    ],
+    "ok": "the test prints \"cadeia íntegra? True\" and then \"primeira linha adulterada: 2\": editing one word in the second line breaks its hash and the chaining of the following ones."
+  }
+}

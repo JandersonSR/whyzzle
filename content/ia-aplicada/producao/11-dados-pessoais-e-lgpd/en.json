@@ -1,0 +1,221 @@
+{
+  "title": "Personal data and LGPD",
+  "subtitle": "Keep only what is needed, for a short time and with a written reason: minimization, retention and legal basis",
+  "mission": "Aurora’s assistant records every conversation to audit and improve. About 2,000 a week, and around 21% carry personal data: CPF in 7%, e-mail in 6%, phone in 5% and health data in 3% (medical certificate, medicine, appointment). The data protection officer (DPO) accepts at most 1,000 conversations with personal data exposed in a breach of the log database. Choose what to redact before recording, how many days to keep and which legal basis justifies keeping, and see the size of the possible damage.",
+  "predict": {
+    "question": "the team wants to keep everything for 730 days \"just in case\", redacting nothing. If the log database leaks, how many conversations with personal data come out?",
+    "options": {
+      "few": "A few hundred",
+      "many": "Tens of thousands"
+    }
+  },
+  "feedback": {
+    "right": "right: 730 days is about 208,571 conversations kept, and 21% carry personal data, which makes 43,800. Every extra day of retention and every type of data left unredacted multiplies the damage.",
+    "wrong": "tens of thousands: 730 days is about 208,571 conversations kept, and 21% carry personal data, which makes 43,800. Every extra day of retention and every type of data left unredacted multiplies the damage.",
+    "skipped": "no guess? Move the days control and the redaction boxes and watch the number of exposed conversations change."
+  },
+  "coach": {
+    "ui": "guess noted. Run with Aurora’s policy (redact everything, 90 days) and read the table and the checks.",
+    "cmd": "guess noted. Run minimize and read the table and the checks."
+  },
+  "tryNext": {
+    "ui": "Now take health redaction away: the number still fits the DPO’s limit, but that 3% of conversations is sensitive data.",
+    "cmd": "Run minimize --redact cpf,email,phone and look at the sensitive data check."
+  },
+  "why": {
+    "simples": "The best way not to leak a piece of data is not to have it. If the conversation is recorded with the CPF replaced by [CPF], whoever steals the file takes only a pile of brackets. And what you do record, how long do you keep it? Like the fridge: everything has a shelf life, and whoever forgets ends up with a problem at the back of the shelf.\nBrazilian law asks, in short, for three things: a clear reason to keep (the legal basis), keeping only what is necessary for that reason and deleting when the reason ends. And the person may ask to see, correct or delete what you hold about them.",
+    "dev": "Minimization in code: redact before recording (log, trace, evaluation set, analytics), not after. Regex handles fixed formats: CPF (check the verification digits so you do not redact any 11-digit number), e-mail and phone. Health data, names and addresses in free text need a model-based detector (the lesson’s \"health\" option uses a classifier); that detector also errs, so redact in two passes and measure on real cases.\nRetention: define the period per purpose (audit, quality, security), record the reason and enforce it with a job that deletes (the recipe’s code). Identification: record a code instead of the name (a pseudonym with a key kept apart) so you can find and delete one person’s data when they ask. Pseudonymizing is not anonymizing: if it can be reversed with reasonable means, it is still personal data.\nWhat goes to a provider’s API counts too: send only what is needed and, if the provider is outside Brazil, check with legal whether there is an international transfer. Record who the data is shared with.",
+    "especialista": "This lesson is general information about the law, not legal advice: validate each decision with your company’s legal team and data protection officer.\nLaw 13,709/2018 (LGPD). Art. 6 requires good faith and ten principles (purpose, adequacy, necessity, free access, data quality, transparency, security, prevention, non-discrimination, accountability); minimization is the necessity principle, limiting processing to the minimum necessary. Art. 7 lists ten grounds (legal bases) for personal data, among them consent, compliance with a legal obligation, performance of a contract and legitimate interest; art. 5, XII defines consent as a free, informed and unambiguous manifestation for a specific purpose, which deserves care when the one asking is the employer. Data about health, racial or ethnic origin, religious belief, political opinion, union membership and genetic or biometric data are sensitive (art. 5, II) and may only be processed under the hypotheses of art. 11, a list of its own: specific and prominent consent, or cases such as legal obligation, regular exercise of rights and health protection. Legitimate interest is not on that list.\nEnd of processing and deletion are in arts. 15 and 16 (with exceptions, such as compliance with a legal obligation). The data subject’s rights are in art. 18: confirmation of processing, access, correction, anonymization, blocking or deletion of unnecessary data, portability, deletion of data processed with consent, information about sharing and withdrawal of consent. Art. 46 requires technical and administrative security measures, and art. 48 requires notifying incidents to the ANPD and the data subject; Resolution CD/ANPD 15/2024 sets three business days from the moment of knowing the incident affected personal data. Art. 33 limits international transfers (the ANPD approved the regulation in Resolution 19/2024, with standard contractual clauses). A simple fine can reach 2% of revenue (art. 52, II).\nThe ANPD has already acted on AI: in July 2024 it ordered the suspension of Meta’s new privacy policy in Brazil, which would have allowed using users’ data to train generative AI, and on 30 August 2024 it suspended the measure after approving a compliance plan, with individual notice and an opt-out."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: redact nothing and keep the conversations for 730 days.",
+      "cmd": "time to break it: run minimize --redact none --retention 730"
+    },
+    "success": "Broken: a breach of the log database would expose {recordsS} conversations with personal data (the limit accepted by the DPO was {limitS}). Every extra day of retention and every type of data left unredacted multiplies the damage.",
+    "calm": "A breach of the log database would expose {recordsS} conversations with personal data ({retention} days, \"{basisL}\" basis), within the limit of {limitS}. To break it, keep for a long time and without redacting."
+  },
+  "hints": {
+    "ui": [
+      "Check what is redacted, choose the retention days and the legal basis, and run.",
+      "The damage is: conversations kept × the share that still carries personal data. Both controls move the number.",
+      "Redact: none. Retention: 730 days."
+    ],
+    "cmd": [
+      "The message goes in quotes, after minimize.",
+      "--redact cpf,email,phone,health (or none); --retention from 1 to 730 days; --basis consent, contract, interest or none.",
+      "minimize --redact none --retention 730"
+    ]
+  },
+  "errors": {
+    "notInEnum.redact": "\"{value}\" is not a data type. Use: {options}.",
+    "notInEnum.basis": "\"{value}\" is not a basis. Use: {options}.",
+    "belowMin.retention": "Retention goes from 1 to 730 days.",
+    "aboveMax.retention": "Retention goes from 1 to 730 days.",
+    "notInteger.retention": "Whole days, please.",
+    "notNumber.retention": "Retention is a number of days.",
+    "model.unknownMsg": "In simulated mode, use one of the three example messages. With \"Your key\" or \"In the browser\", any message goes through the real detector."
+  },
+  "controls": {
+    "arg": "Employee message",
+    "redact": "Redact before recording",
+    "retention": "Days the log is kept",
+    "basis": "Declared legal basis"
+  },
+  "scene": {
+    "flowLabel": "From what the employee wrote to what stays in the log",
+    "sOrig": "Message",
+    "sRedact": "After redaction",
+    "sStore": "Stored",
+    "subRealExposed": "there is still personal data in what goes to the log",
+    "subRealClean": "nothing to redact, or all redacted",
+    "subStore": "{retention} days · basis: {basisL}",
+    "tableLabel": "Types of data in the conversations",
+    "colType": "type",
+    "colHas": "in this message",
+    "colRedacted": "redacted",
+    "colShare": "of conversations",
+    "tableCaption": "the 7%, 6%, 5% and 3% shares are lesson numbers for 2,000 conversations a week",
+    "mRetained": "conversations kept",
+    "mKept": "with unredacted personal data",
+    "mRecords": "exposed in a breach",
+    "chkMin": "Possible damage within the DPO’s limit",
+    "whyMin": "Necessity: keep the minimum for the stated purpose (art. 6, III).",
+    "chkRet": "Retention within policy (90 days)",
+    "whyRet": "The period is the company’s decision, with a written reason; when the purpose ends, delete (arts. 15 and 16).",
+    "chkBasis": "Legal basis declared",
+    "whyBasis": "Every processing needs a ground from art. 7.",
+    "chkSens": "Health data: redacted or with an art. 11 ground",
+    "whySens": "Sensitive data has its own list of grounds (art. 11); legitimate interest is not on it. Confirm with legal.",
+    "sensNote": "Health data is still left in the stored conversations. It may fit the risk limit and still require an art. 11 ground.",
+    "realNote": "Real mode: the model detects which types of data your message contains, in JSON. The lesson only shows the redacted text for the examples; the numbers stay the lesson’s.",
+    "simNote": "Simulated mode: the redacted text follows the lesson’s CPF, e-mail, phone and health rules. Use \"Your key\" or \"In the browser\" to see a real model detect the data types in any message."
+  },
+  "data": {
+    "msgs": {
+      "My CPF is 123.456.789-09 and my e-mail is ana.souza@aurora.example. Can you update my record?": {
+        "known": true,
+        "has": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "red": {
+          "0000": "My CPF is 123.456.789-09 and my e-mail is ana.souza@aurora.example. Can you update my record?",
+          "0001": "My CPF is 123.456.789-09 and my e-mail is ana.souza@aurora.example. Can you update my record?",
+          "0010": "My CPF is 123.456.789-09 and my e-mail is ana.souza@aurora.example. Can you update my record?",
+          "0011": "My CPF is 123.456.789-09 and my e-mail is ana.souza@aurora.example. Can you update my record?",
+          "0100": "My CPF is 123.456.789-09 and my e-mail is [EMAIL]. Can you update my record?",
+          "0101": "My CPF is 123.456.789-09 and my e-mail is [EMAIL]. Can you update my record?",
+          "0110": "My CPF is 123.456.789-09 and my e-mail is [EMAIL]. Can you update my record?",
+          "0111": "My CPF is 123.456.789-09 and my e-mail is [EMAIL]. Can you update my record?",
+          "1000": "My CPF is [CPF] and my e-mail is ana.souza@aurora.example. Can you update my record?",
+          "1001": "My CPF is [CPF] and my e-mail is ana.souza@aurora.example. Can you update my record?",
+          "1010": "My CPF is [CPF] and my e-mail is ana.souza@aurora.example. Can you update my record?",
+          "1011": "My CPF is [CPF] and my e-mail is ana.souza@aurora.example. Can you update my record?",
+          "1100": "My CPF is [CPF] and my e-mail is [EMAIL]. Can you update my record?",
+          "1101": "My CPF is [CPF] and my e-mail is [EMAIL]. Can you update my record?",
+          "1110": "My CPF is [CPF] and my e-mail is [EMAIL]. Can you update my record?",
+          "1111": "My CPF is [CPF] and my e-mail is [EMAIL]. Can you update my record?"
+        }
+      },
+      "Call me at (15) 99876-5432 about my son’s medical certificate.": {
+        "known": true,
+        "has": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "red": {
+          "0000": "Call me at (15) 99876-5432 about my son’s medical certificate.",
+          "0001": "Call me at (15) 99876-5432 about my [HEALTH].",
+          "0010": "Call me at [PHONE] about my son’s medical certificate.",
+          "0011": "Call me at [PHONE] about my [HEALTH].",
+          "0100": "Call me at (15) 99876-5432 about my son’s medical certificate.",
+          "0101": "Call me at (15) 99876-5432 about my [HEALTH].",
+          "0110": "Call me at [PHONE] about my son’s medical certificate.",
+          "0111": "Call me at [PHONE] about my [HEALTH].",
+          "1000": "Call me at (15) 99876-5432 about my son’s medical certificate.",
+          "1001": "Call me at (15) 99876-5432 about my [HEALTH].",
+          "1010": "Call me at [PHONE] about my son’s medical certificate.",
+          "1011": "Call me at [PHONE] about my [HEALTH].",
+          "1100": "Call me at (15) 99876-5432 about my son’s medical certificate.",
+          "1101": "Call me at (15) 99876-5432 about my [HEALTH].",
+          "1110": "Call me at [PHONE] about my son’s medical certificate.",
+          "1111": "Call me at [PHONE] about my [HEALTH]."
+        }
+      },
+      "How many vacation days do I have?": {
+        "known": true,
+        "has": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "red": {
+          "0000": "How many vacation days do I have?",
+          "0001": "How many vacation days do I have?",
+          "0010": "How many vacation days do I have?",
+          "0011": "How many vacation days do I have?",
+          "0100": "How many vacation days do I have?",
+          "0101": "How many vacation days do I have?",
+          "0110": "How many vacation days do I have?",
+          "0111": "How many vacation days do I have?",
+          "1000": "How many vacation days do I have?",
+          "1001": "How many vacation days do I have?",
+          "1010": "How many vacation days do I have?",
+          "1011": "How many vacation days do I have?",
+          "1100": "How many vacation days do I have?",
+          "1101": "How many vacation days do I have?",
+          "1110": "How many vacation days do I have?",
+          "1111": "How many vacation days do I have?"
+        }
+      }
+    },
+    "unknownMsg": {
+      "known": false,
+      "has": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "red": {}
+    },
+    "typeLabels": [
+      "CPF",
+      "E-mail",
+      "Phone",
+      "Health (sensitive)"
+    ],
+    "shareLabels": [
+      "7%",
+      "6%",
+      "5%",
+      "3%"
+    ],
+    "yesNoL": {
+      "1": "yes",
+      "0": "no"
+    },
+    "basisNames": {
+      "consent": "consent",
+      "contract": "contract",
+      "interest": "legitimate interest",
+      "none": "none"
+    },
+    "detectorSys": "You detect personal data in messages to Aurora’s HR assistant. For each type, say true if it appears in the message and false if not: cpf, email, phone and health (any health information: medical certificate, illness, medicine, appointment). Reply only with JSON: {\"cpf\":false,\"email\":false,\"phone\":false,\"health\":false}."
+  },
+  "recipe": {
+    "steps": [
+      "Create pii.py: regex redaction (with the CPF digit check) and the employee pseudonym:\nimport hashlib\nimport hmac\nimport os\nimport re\n\nCPF_RE = re.compile(r\"\\b\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}\\b\")\nEMAIL_RE = re.compile(r\"\\b[\\w.+-]+@[\\w-]+\\.[\\w.-]+\\b\")\nPHONE_RE = re.compile(r\"(?:\\(\\d{2}\\)\\s?)?9?\\d{4}-?\\d{4}\\b\")\n\n\ndef valid_cpf(raw):\n    \"\"\"Confere os dois dígitos verificadores; evita redigir qualquer número de 11 dígitos.\"\"\"\n    d = [int(c) for c in re.sub(r\"\\D\", \"\", raw)]\n    if len(d) != 11 or len(set(d)) == 1:\n        return False\n    for n in (9, 10):\n        total = sum(d[i] * (n + 1 - i) for i in range(n))\n        if (total * 10 % 11) % 10 != d[n]:\n            return False\n    return True\n\n\ndef redact(text, kinds=(\"cpf\", \"email\", \"phone\")):\n    if \"cpf\" in kinds:\n        text = CPF_RE.sub(lambda m: \"[CPF]\" if valid_cpf(m.group()) else m.group(), text)\n    if \"email\" in kinds:\n        text = EMAIL_RE.sub(\"[EMAIL]\", text)\n    if \"phone\" in kinds:\n        text = PHONE_RE.sub(\"[TELEFONE]\", text)\n    return text\n\n\ndef pseudonym(user_id):\n    \"\"\"O mesmo colaborador sempre vira o mesmo código, o que permite achar e apagar os dados dele (art. 18), mas sem o nome no log.\"\"\"\n    return hmac.new(os.environ[\"LOG_KEY\"].encode(), user_id.encode(), hashlib.sha256).hexdigest()[:16]\n\nif __name__ == \"__main__\":\n    os.environ.setdefault(\"LOG_KEY\", \"chave-de-teste\")\n    for msg in [\"My CPF is 123.456.789-09 and my e-mail is ana.souza@aurora.example. Can you update my record?\", \"Call me at (15) 99876-5432 about my son’s medical certificate.\", \"How many vacation days do I have?\"]:\n        print(redact(msg))\n    print(pseudonym(\"ana.souza\"))",
+      "Run:\npython pii.py\nThe CPF and e-mail of the first message and the phone of the second come out as [CPF], [EMAIL] and [TELEFONE]. The \"son’s medical certificate\" is still there: free-text health data needs a classifier, like the lesson’s.",
+      "Create log_store.py: records only the redacted text, enforces retention and handles one person’s deletion request (schedule purge_old_logs() in a daily cron):\nimport json\nimport pathlib\nimport time\n\nfrom pii import pseudonym, redact\n\nRETENTION_DAYS = 90  # a política da Aurora para logs de auditoria; registre o motivo e quem aprovou\n\n\ndef log_conversation(user_id, question, answer, day):\n    \"\"\"Grava só texto redigido e o código do colaborador, num arquivo por dia.\"\"\"\n    path = pathlib.Path(\"logs\") / f\"{day}.jsonl\"\n    path.parent.mkdir(exist_ok=True)\n    row = {\"user\": pseudonym(user_id), \"question\": redact(question), \"answer\": redact(answer)}\n    with path.open(\"a\", encoding=\"utf-8\") as f:\n        f.write(json.dumps(row, ensure_ascii=False) + \"\\n\")\n\n\ndef purge_old_logs(now=None):\n    \"\"\"Roda todo dia (cron): apaga o que passou do prazo. Retenção que ninguém executa não existe.\"\"\"\n    limit = (now or time.time()) - RETENTION_DAYS * 86400\n    removed = 0\n    for f in pathlib.Path(\"logs\").glob(\"*.jsonl\"):\n        if f.stat().st_mtime < limit:\n            f.unlink()\n            removed += 1\n    return removed\n\n\ndef erase_person(user_id):\n    \"\"\"Pedido de eliminação do titular (art. 18, VI): reescreve os arquivos sem as linhas dele.\"\"\"\n    code = pseudonym(user_id)\n    for f in pathlib.Path(\"logs\").glob(\"*.jsonl\"):\n        rows = [r for r in f.read_text(encoding=\"utf-8\").splitlines() if json.loads(r)[\"user\"] != code]\n        f.write_text(\"\\n\".join(rows) + (\"\\n\" if rows else \"\"), encoding=\"utf-8\")",
+      "Write a short document for the data protection officer to review: purpose of the log, chosen legal basis and who approved it, the 90-day period and why, types of data that may still appear and who the data is shared with (including the model provider)."
+    ],
+    "ok": "pii.py prints the three messages with [CPF], [EMAIL] and [TELEFONE] in place of the data and a 16-character code for the employee; log_store.py records only redacted text in logs/YYYY-MM-DD.jsonl, deletes files older than 90 days and removes one person’s rows with erase_person()."
+  }
+}

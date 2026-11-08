@@ -1,0 +1,270 @@
+{
+  "title": "Política de uso de IA na empresa",
+  "subtitle": "Uma política que as pessoas conseguem cumprir: níveis de dado, ferramentas aprovadas e revisão humana",
+  "mission": "A Aurora tem um assistente seguro, testado e auditável. Mas as pessoas também usam IA por conta própria, e alguém precisa escrever a regra. Uma política vira uma tabela: de um lado, a classe do dado (público, interno, dados pessoais, confidencial); do outro, a ferramenta (corporativa, API da empresa, serviço de consumo). Escolha o tipo de política e uma ferramenta, veja a decisão para cinco pedidos reais e o que a política faz com o uso no dia a dia: quantos pedidos têm caminho aprovado e quantos vão para fora do controle.",
+  "predict": {
+    "question": "para evitar riscos, a Aurora proíbe todo uso de IA generativa no trabalho. Dos pedidos que as pessoas teriam, quantos passam a acontecer fora das ferramentas da empresa, na premissa da lição de que 7 em cada 10 pessoas sem caminho aprovado usam por conta própria?",
+    "options": {
+      "none": "Nenhum: proibido é proibido",
+      "many": "Boa parte: o uso continua, escondido"
+    }
+  },
+  "feedback": {
+    "right": "isso: sem nenhum caminho aprovado, 100% dos pedidos ficam sem opção e, na premissa da lição, 70% vão para ferramentas pessoais, fora de qualquer controle. A proibição não acabou com o uso, só tirou o uso da vista. A premissa é da lição, não uma medição.",
+    "wrong": "boa parte: sem nenhum caminho aprovado, 100% dos pedidos ficam sem opção e, na premissa da lição, 70% vão para ferramentas pessoais, fora de qualquer controle. A premissa é da lição, não uma medição.",
+    "skipped": "sem palpite? Rode a política por níveis e depois a que proíbe tudo e compare o uso fora do controle."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com a política por níveis e a ferramenta corporativa e leia a decisão e a tabela.",
+    "cmd": "palpite anotado. Rode decidir e leia a decisão, a tabela e as métricas."
+  },
+  "tryNext": {
+    "ui": "Agora escolha o caso do código-fonte e a ferramenta de consumo: é o tipo de situação que fez empresas restringirem o uso de IA.",
+    "cmd": "Rode decidir \"Colar o código-fonte do sistema de folha para achar um bug.\" --ferramenta publica e leia o motivo."
+  },
+  "why": {
+    "simples": "Regra que ninguém consegue cumprir não é regra: é decoração. Se a política diz \"não use IA\" e o trabalho fica mais difícil sem ela, as pessoas usam do mesmo jeito, só que escondidas e sem ajuda. Se diz \"use o que quiser\", qualquer um cola o contrato do cliente num site qualquer.\nO meio-termo é um semáforo: dado público e interno vai nas ferramentas aprovadas; dado de pessoas vai com cuidados; segredo da empresa não sai. E quem decide sobre uma pessoa (contratar, rejeitar) sempre tem uma pessoa revisando.",
+    "dev": "Uma boa política cabe numa página e num arquivo executável. Partes: (1) escopo e glossário; (2) lista de ferramentas aprovadas e por quê (contrato, onde os dados ficam, se o provedor treina com eles, retenção); (3) a matriz classe do dado × ferramenta, com as condições (por exemplo, redigir CPF e nomes antes de enviar); (4) regras para decisões sobre pessoas, sempre com revisão humana; (5) quem aprova ferramentas novas e exceções, e em quanto tempo; (6) onde reportar um incidente; (7) treinamento curto e revisão periódica.\nTransforme a matriz em código (o POLICY da receita), teste com casos reais e use a mesma tabela no gateway de IA da empresa e no manual. Ofereça um caminho aprovado melhor do que o atalho pessoal: se o assistente corporativo é lento ou não faz o que a pessoa precisa, o uso migra. Meça isso: quantas pedidos têm caminho aprovado e quantos usuários usam ferramentas não aprovadas (por pesquisa ou pelo tráfego de rede).",
+    "especialista": "Caso público: em maio de 2023, a Samsung proibiu o uso de IA generativa em computadores, tablets, celulares e redes internas da empresa depois de um vazamento acidental, em abril, em que engenheiros enviaram código-fonte interno ao ChatGPT, segundo um memorando revisto pela Bloomberg. A empresa disse que a restrição era temporária, enquanto criava ferramentas internas e trabalhava em bloquear o envio de dados sensíveis a serviços externos. A proibição resolve o incidente do dia, e a pergunta da política é o que vem depois.\nReferências: o NIST AI RMF 1.0 (janeiro de 2023) tem a função Govern para cultura, papéis e políticas, e o perfil NIST AI 600-1 (julho de 2024) detalha riscos de IA generativa; a ISO/IEC 42001:2023, de dezembro de 2023, especifica requisitos de um sistema de gestão de IA para qualquer organização que forneça ou use produtos e serviços com IA.\nNa LGPD, a política precisa conversar com: o encarregado (art. 41: o controlador indica e divulga a identidade e o contato), o art. 20 (revisão de decisões automatizadas), o art. 33 (transferência internacional: um provedor fora do Brasil pode configurar uma, com as hipóteses do art. 33, e a ANPD aprovou o regulamento em 2024) e o art. 6º, X (prestação de contas). A regulação específica de IA está em movimento: em dezembro de 2025, o PL 2338/2023 estava em comissão especial na Câmara, com votação adiada para fevereiro de 2026; confira a situação atual. Revise a política por calendário e a cada incidente."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha a política que proíbe todo uso de IA.",
+      "cmd": "hora de quebrar: rode decidir --politica proibir"
+    },
+    "success": "Quebrou: só {allowedPct}% dos pedidos têm caminho aprovado e {shadowPct}% acabam em ferramentas fora do controle da empresa (premissa da lição). Uma política que as pessoas não conseguem cumprir só tira o uso da vista.",
+    "calm": "{allowedPct}% dos pedidos têm caminho aprovado e {shadowPct}% vão para fora do controle. Decisão para este caso: {verdictL}. Para quebrar, proíba todo uso."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o pedido, o tipo de política e a ferramenta, e rode.",
+      "A tabela mostra a regra da política por classe de dado e ferramenta; a linha destacada é a do seu pedido. As métricas valem para a política inteira.",
+      "Política: proibir."
+    ],
+    "cmd": [
+      "O pedido vai entre aspas, depois de decidir.",
+      "--politica proibir, publico, niveis ou liberar; --ferramenta corporativa, api ou publica; --revisao sim ou nao.",
+      "decidir --politica proibir"
+    ]
+  },
+  "errors": {
+    "notInEnum.policy": "\"{value}\" não é um tipo de política. Use: {options}.",
+    "notInEnum.tool": "\"{value}\" não é uma ferramenta. Use: {options}.",
+    "notBool.review": "Use sim ou nao.",
+    "model.unknownCase": "No modo simulado, use um dos cinco pedidos de exemplo. Com \"Sua chave\" ou \"No navegador\", um modelo real classifica qualquer pedido."
+  },
+  "controls": {
+    "arg": "Pedido de uso de IA",
+    "policy": "Tipo de política",
+    "tool": "Ferramenta",
+    "review": "Revisão humana em decisões sobre pessoas"
+  },
+  "scene": {
+    "flowLabel": "Do pedido à decisão",
+    "sCase": "Pedido",
+    "sClass": "Classe do dado",
+    "sTool": "Ferramenta",
+    "sVerdict": "Decisão",
+    "tableLabel": "A regra desta política",
+    "colClass": "dado",
+    "colCorp": "corporativa",
+    "colApi": "API",
+    "colPublic": "consumo",
+    "tableCaption": "a linha destacada é a classe do seu pedido",
+    "metricsLabel": "A política no dia a dia (mistura de 100 pedidos da lição)",
+    "mAllowed": "com caminho aprovado",
+    "mShadow": "fora do controle",
+    "mUncontrolled": "sem proteção nenhuma",
+    "chkPath": "Pelo menos 80% dos pedidos têm caminho aprovado",
+    "whyPath": "Quem não tem caminho aprovado cria o próprio.",
+    "chkClosed": "Dado confidencial não fica livre",
+    "whyClosed": "\"Liberar tudo\" também é uma política, e a pior para código e contratos.",
+    "chkReview": "Decisão sobre pessoas com revisão humana",
+    "whyReview": "O titular pode pedir revisão de decisões só automatizadas (LGPD, art. 20).",
+    "realNote": "Modo real: o modelo classifica o pedido em classe de dado e se decide sobre pessoas, em JSON; a decisão sai da tabela da política. Se o JSON vier inválido, a lição assume o pior caso (confidencial, decide sobre pessoas).",
+    "simNote": "Modo simulado: 40/35/18/7% de pedidos por classe e a premissa de que 70% dos sem caminho aprovado usam por conta própria são da lição, não medições. Use \"Sua chave\" ou \"No navegador\" para classificar qualquer pedido."
+  },
+  "data": {
+    "cases": {
+      "Resumir o manual de RH para uma pessoa nova.": {
+        "known": true,
+        "cls": 1,
+        "people": false
+      },
+      "Colar o código-fonte do sistema de folha para achar um bug.": {
+        "known": true,
+        "cls": 3,
+        "people": false
+      },
+      "Escrever um e-mail de cobrança com o nome e o CPF do cliente.": {
+        "known": true,
+        "cls": 2,
+        "people": false
+      },
+      "Triar currículos e rejeitar candidatos automaticamente.": {
+        "known": true,
+        "cls": 2,
+        "people": true
+      },
+      "Escrever um post de blog sobre férias.": {
+        "known": true,
+        "cls": 0,
+        "people": false
+      }
+    },
+    "unknownCase": {
+      "known": false,
+      "cls": 3,
+      "people": true
+    },
+    "reasons": {
+      "ban": "A política proíbe qualquer uso de IA generativa.",
+      "nohuman": "Decisão sobre pessoas sem revisão humana não passa: a pessoa pode pedir revisão de decisões tomadas só por tratamento automatizado (LGPD, art. 20).",
+      "allow": "Permitido: o dado cabe nesta ferramenta pela política.",
+      "deny0": "Esta ferramenta não é aprovada pela política, nem para dado público.",
+      "cond0": "Permitido com condições:",
+      "cond0p": "Permitido com condições: Uma pessoa revisa antes de qualquer decisão sobre alguém.",
+      "deny1": "Dado interno só vai para ferramenta aprovada pela empresa.",
+      "cond1": "Permitido com condições:",
+      "cond1p": "Permitido com condições: Uma pessoa revisa antes de qualquer decisão sobre alguém.",
+      "deny2": "Dado pessoal não pode ir para esta ferramenta nesta política.",
+      "cond2": "Permitido com condições: Redigir CPF e nomes antes de enviar, usar só ferramenta com contrato que proíba treino com os seus dados e registrar o uso.",
+      "cond2p": "Permitido com condições: Redigir CPF e nomes antes de enviar, usar só ferramenta com contrato que proíba treino com os seus dados e registrar o uso. Uma pessoa revisa antes de qualquer decisão sobre alguém.",
+      "deny3": "Dado confidencial (código-fonte, contratos) não vai para ferramenta de IA externa.",
+      "cond3": "Permitido com condições: Exige aprovação da segurança.",
+      "cond3p": "Permitido com condições: Exige aprovação da segurança. Uma pessoa revisa antes de qualquer decisão sobre alguém."
+    },
+    "verdictNames": {
+      "allow": "permitido",
+      "cond": "permitido com condições",
+      "deny": "proibido"
+    },
+    "classNames": {
+      "0": "Público",
+      "1": "Interno",
+      "2": "Dados pessoais",
+      "3": "Confidencial"
+    },
+    "toolNames": {
+      "corp": "ferramenta corporativa",
+      "api": "API da empresa",
+      "public": "serviço de consumo"
+    },
+    "policyRows": {
+      "ban": [
+        [
+          "Público",
+          "proibido",
+          "proibido",
+          "proibido"
+        ],
+        [
+          "Interno",
+          "proibido",
+          "proibido",
+          "proibido"
+        ],
+        [
+          "Dados pessoais",
+          "proibido",
+          "proibido",
+          "proibido"
+        ],
+        [
+          "Confidencial",
+          "proibido",
+          "proibido",
+          "proibido"
+        ]
+      ],
+      "green": [
+        [
+          "Público",
+          "permitido",
+          "permitido",
+          "proibido"
+        ],
+        [
+          "Interno",
+          "proibido",
+          "proibido",
+          "proibido"
+        ],
+        [
+          "Dados pessoais",
+          "proibido",
+          "proibido",
+          "proibido"
+        ],
+        [
+          "Confidencial",
+          "proibido",
+          "proibido",
+          "proibido"
+        ]
+      ],
+      "tiers": [
+        [
+          "Público",
+          "permitido",
+          "permitido",
+          "permitido"
+        ],
+        [
+          "Interno",
+          "permitido",
+          "permitido",
+          "proibido"
+        ],
+        [
+          "Dados pessoais",
+          "com condições",
+          "com condições",
+          "proibido"
+        ],
+        [
+          "Confidencial",
+          "proibido",
+          "proibido",
+          "proibido"
+        ]
+      ],
+      "open": [
+        [
+          "Público",
+          "permitido",
+          "permitido",
+          "permitido"
+        ],
+        [
+          "Interno",
+          "permitido",
+          "permitido",
+          "permitido"
+        ],
+        [
+          "Dados pessoais",
+          "permitido",
+          "permitido",
+          "permitido"
+        ],
+        [
+          "Confidencial",
+          "permitido",
+          "permitido",
+          "permitido"
+        ]
+      ]
+    },
+    "classifierSys": "Você classifica pedidos de uso de IA na Aurora. data_class é o dado mais sensível envolvido: public (nada interno), internal (documentos internos), personal (dados de pessoas, como nome, CPF, currículo) ou confidential (código-fonte, contratos, segredos). decides_people é true se a IA decidiria algo sobre pessoas (contratar, rejeitar, punir, avaliar). Responda só com JSON: {\"data_class\":\"internal\",\"decides_people\":false}."
+  },
+  "recipe": {
+    "steps": [
+      "Escreva a política numa página (escopo, ferramentas aprovadas e por quê, matriz de dados, regras para decisões sobre pessoas, quem aprova exceções, onde reportar incidentes, revisão a cada 6 meses) e peça a revisão do jurídico e do encarregado.",
+      "Crie policy.py, a mesma matriz em código, para o gateway de IA e os testes usarem:\nPOLICY = {\n    \"version\": \"2026-11\",\n    \"owner\": \"seguranca@aurora.example\",   # quem aprova ferramentas novas e exceções\n    \"review_every_months\": 6,\n    # classe do dado x ferramenta -> allow | conditions | deny\n    \"matrix\": {\n        \"corporate\": {\"public\": \"allow\", \"internal\": \"allow\", \"personal\": \"conditions\", \"confidential\": \"deny\"},\n        \"api\":       {\"public\": \"allow\", \"internal\": \"allow\", \"personal\": \"conditions\", \"confidential\": \"deny\"},\n        \"consumer\":  {\"public\": \"allow\", \"internal\": \"deny\",  \"personal\": \"deny\",       \"confidential\": \"deny\"},\n    },\n    \"conditions\": [\"Redigir CPF e nomes antes de enviar, usar só ferramenta com contrato que proíba treino com os seus dados e registrar o uso.\", \"Exige aprovação da segurança.\"],\n}\n\n\ndef decide(data_class, tool, decides_people=False, human_review=True):\n    verdict = POLICY[\"matrix\"][tool][data_class]\n    if decides_people and verdict != \"deny\":\n        if not human_review:\n            return \"deny\"          # decisão sobre pessoas só com revisão humana (LGPD, art. 20)\n        return \"conditions\"\n    return verdict",
+      "Acrescente os casos da política ao fim e rode:\nCASES = [  # (classe, ferramenta, decide sobre pessoas?, esperado)\n    (\"internal\", \"corporate\", False, \"allow\"),\n    (\"confidential\", \"consumer\", False, \"deny\"),\n    (\"confidential\", \"corporate\", False, \"deny\"),\n    (\"personal\", \"corporate\", False, \"conditions\"),\n    (\"personal\", \"corporate\", True, \"conditions\"),\n    (\"public\", \"consumer\", False, \"allow\"),\n]\nfor data_class, tool, people, expected in CASES:\n    got = decide(data_class, tool, people)\n    print(\"OK  \" if got == expected else \"ERRO\", data_class, tool, people, \"->\", got)\nassert decide(\"personal\", \"corporate\", True, human_review=False) == \"deny\"\npython policy.py",
+      "Publique a política junto com um caminho aprovado que funcione (o assistente corporativo), um canal para pedir exceção e um treinamento curto. Revise o arquivo e a página a cada incidente."
+    ],
+    "ok": "o script imprime uma linha por caso com OK (nenhum ERRO) e termina sem exceção: confidencial nunca vai para ferramenta de consumo, dado pessoal só com condições, e decisão sobre pessoas sem revisão humana é negada."
+  }
+}

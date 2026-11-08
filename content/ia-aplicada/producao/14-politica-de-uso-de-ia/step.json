@@ -1,0 +1,453 @@
+{
+  "id": "r-politica-de-uso-de-ia",
+  "order": 14,
+  "track": "producao",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "governanca",
+    "politica",
+    "shadow-ai",
+    "lgpd",
+    "nist",
+    "iso-42001"
+  ],
+  "requires": [
+    "r-auditoria-e-rastreabilidade"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "decidir",
+      "en": "decide"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Resumir o manual de RH para uma pessoa nova.",
+        "en": "Summarize the HR handbook for a new hire."
+      },
+      "examples": [
+        {
+          "pt": "Resumir o manual de RH para uma pessoa nova.",
+          "en": "Summarize the HR handbook for a new hire."
+        },
+        {
+          "pt": "Colar o código-fonte do sistema de folha para achar um bug.",
+          "en": "Paste the payroll system source code to find a bug."
+        },
+        {
+          "pt": "Escrever um e-mail de cobrança com o nome e o CPF do cliente.",
+          "en": "Write a collection e-mail with the customer’s name and CPF."
+        },
+        {
+          "pt": "Triar currículos e rejeitar candidatos automaticamente.",
+          "en": "Screen résumés and reject candidates automatically."
+        },
+        {
+          "pt": "Escrever um post de blog sobre férias.",
+          "en": "Write a blog post about vacation."
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "policy",
+        "alias": {
+          "pt": "politica",
+          "en": "policy"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "ban",
+            "pt": "proibir",
+            "en": "ban"
+          },
+          {
+            "id": "green",
+            "pt": "publico",
+            "en": "public"
+          },
+          {
+            "id": "tiers",
+            "pt": "niveis",
+            "en": "tiers"
+          },
+          {
+            "id": "open",
+            "pt": "liberar",
+            "en": "open"
+          }
+        ],
+        "default": "tiers",
+        "ui": "select"
+      },
+      {
+        "name": "tool",
+        "alias": {
+          "pt": "ferramenta",
+          "en": "tool"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "corp",
+            "pt": "corporativa",
+            "en": "corporate"
+          },
+          {
+            "id": "api",
+            "pt": "api",
+            "en": "api"
+          },
+          {
+            "id": "public",
+            "pt": "publica",
+            "en": "consumer"
+          }
+        ],
+        "default": "corp",
+        "ui": "select"
+      },
+      {
+        "name": "review",
+        "alias": {
+          "pt": "revisao",
+          "en": "review"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "shadow"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realFields": {},
+        "realValid": false,
+        "matrix": {
+          "bancorp0": "deny",
+          "bancorp1": "deny",
+          "bancorp2": "deny",
+          "bancorp3": "deny",
+          "banapi0": "deny",
+          "banapi1": "deny",
+          "banapi2": "deny",
+          "banapi3": "deny",
+          "banpublic0": "deny",
+          "banpublic1": "deny",
+          "banpublic2": "deny",
+          "banpublic3": "deny",
+          "greencorp0": "allow",
+          "greencorp1": "deny",
+          "greencorp2": "deny",
+          "greencorp3": "deny",
+          "greenapi0": "allow",
+          "greenapi1": "deny",
+          "greenapi2": "deny",
+          "greenapi3": "deny",
+          "greenpublic0": "deny",
+          "greenpublic1": "deny",
+          "greenpublic2": "deny",
+          "greenpublic3": "deny",
+          "tierscorp0": "allow",
+          "tierscorp1": "allow",
+          "tierscorp2": "cond",
+          "tierscorp3": "deny",
+          "tiersapi0": "allow",
+          "tiersapi1": "allow",
+          "tiersapi2": "cond",
+          "tiersapi3": "deny",
+          "tierspublic0": "allow",
+          "tierspublic1": "deny",
+          "tierspublic2": "deny",
+          "tierspublic3": "deny",
+          "opencorp0": "allow",
+          "opencorp1": "allow",
+          "opencorp2": "allow",
+          "opencorp3": "allow",
+          "openapi0": "allow",
+          "openapi1": "allow",
+          "openapi2": "allow",
+          "openapi3": "allow",
+          "openpublic0": "allow",
+          "openpublic1": "allow",
+          "openpublic2": "allow",
+          "openpublic3": "allow"
+        },
+        "mixArr": [
+          40,
+          35,
+          18,
+          7
+        ],
+        "pathMap": {
+          "ban": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "green": [
+            1,
+            0,
+            0,
+            0
+          ],
+          "tiers": [
+            1,
+            1,
+            1,
+            0
+          ],
+          "open": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "zeros4": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "shadowRate": 0.7,
+        "clsMap": {
+          "public": 0,
+          "internal": 1,
+          "personal": 2,
+          "confidential": 3
+        }
+      },
+      "compute": {
+        "rec": "lookup(cases, text, unknownCase)",
+        "known": "rec.known",
+        "cls": "real ? (realValid ? lookup(clsMap, realFields.data_class, 3) : 3) : rec.cls",
+        "decides": "real ? (!realValid || realFields.decides_people == true) : rec.people",
+        "v0": "lookup(matrix, policy + tool + cls, 'deny')",
+        "noHuman": "decides && v0 != 'deny' && !review",
+        "verdict": "noHuman ? 'deny' : (decides && v0 == 'allow' ? 'cond' : v0)",
+        "whyKey": "policy == 'ban' ? 'ban' : (noHuman ? 'nohuman' : (verdict == 'deny' ? 'deny' + cls : (verdict == 'cond' ? 'cond' + cls + (decides ? 'p' : '') : 'allow')))",
+        "why": "lookup(reasons, whyKey, '')",
+        "verdictL": "lookup(verdictNames, verdict, verdict)",
+        "clsL": "lookup(classNames, str(cls), str(cls))",
+        "toolL": "lookup(toolNames, tool, tool)",
+        "allowedPct": "sum(mul(mixArr, lookup(pathMap, policy, zeros4)))",
+        "deniedPct": "100 - allowedPct",
+        "shadowPct": "round(deniedPct * shadowRate)",
+        "abandonedPct": "deniedPct - shadowPct",
+        "uncontrolled": "policy == 'open' ? 25 : 0",
+        "rows": "lookup(policyRows, policy, [])",
+        "rowTones": "mark(4, cls, \"info\", \"dim\")"
+      },
+      "cases": [
+        {
+          "when": "!known && !real",
+          "error": "unknownCase"
+        },
+        {
+          "when": "verdict == 'allow'",
+          "flags": [
+            "allowed"
+          ]
+        },
+        {
+          "when": "verdict == 'cond'",
+          "flags": [
+            "conditional"
+          ]
+        },
+        {
+          "when": "verdict == 'deny'",
+          "flags": [
+            "denied"
+          ]
+        },
+        {
+          "when": "shadowPct >= 30",
+          "flags": [
+            "shadow"
+          ]
+        },
+        {
+          "when": "policy == 'open'",
+          "flags": [
+            "permissive"
+          ]
+        },
+        {
+          "when": "real && !realValid",
+          "flags": [
+            "invalidJson"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "allowedPct": "allowedPct",
+            "shadowPct": "shadowPct",
+            "abandonedPct": "abandonedPct",
+            "uncontrolled": "uncontrolled",
+            "verdictL": "verdictL",
+            "clsL": "clsL",
+            "toolL": "toolL"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "@sCase",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "@sClass",
+              "sub": "=clsL",
+              "tone": "=cls >= 2 ? 'warn' : 'neutral'"
+            },
+            {
+              "label": "@sTool",
+              "sub": "=toolL",
+              "tone": "=tool == 'public' ? 'warn' : 'neutral'"
+            },
+            {
+              "label": "@sVerdict",
+              "sub": "=verdictL",
+              "tone": "=verdict == 'deny' ? 'bad' : (verdict == 'cond' ? 'warn' : 'ok')"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=why != \"\"",
+          "tone": "=verdict == 'deny' ? 'bad' : (verdict == 'cond' ? 'warn' : 'ok')",
+          "text": "=why"
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@colClass",
+            "@colCorp",
+            "@colApi",
+            "@colPublic"
+          ],
+          "rows": "=rows",
+          "tones": "=rowTones",
+          "caption": "@tableCaption"
+        },
+        {
+          "type": "metrics",
+          "label": "@metricsLabel",
+          "items": [
+            {
+              "label": "@mAllowed",
+              "value": "=allowedPct",
+              "format": "pct",
+              "tone": "=allowedPct >= 80 ? \"ok\" : \"warn\""
+            },
+            {
+              "label": "@mShadow",
+              "value": "=shadowPct",
+              "format": "pct",
+              "tone": "=shadowPct >= 30 ? \"bad\" : (shadowPct > 0 ? \"warn\" : \"ok\")"
+            },
+            {
+              "label": "@mUncontrolled",
+              "value": "=uncontrolled",
+              "format": "pct",
+              "tone": "=uncontrolled > 0 ? \"bad\" : \"ok\""
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkPath",
+              "ok": "=allowedPct >= 80",
+              "why": "@whyPath"
+            },
+            {
+              "label": "@chkClosed",
+              "ok": "=policy != 'open'",
+              "why": "@whyClosed"
+            },
+            {
+              "label": "@chkReview",
+              "ok": "=review",
+              "why": "@whyReview"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=real",
+          "tone": "info",
+          "text": "@realNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "none",
+      "many"
+    ],
+    "answer": "many"
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "json",
+      "args": {
+        "system": "{classifierSys}",
+        "user": "{text}",
+        "schema": {
+          "data_class": "enum:public|internal|personal|confidential",
+          "decides_people": "boolean"
+        }
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "json",
+      "args": {
+        "system": "{classifierSys}",
+        "user": "{text}",
+        "schema": {
+          "data_class": "enum:public|internal|personal|confidential",
+          "decides_people": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,406 @@
+{
+  "id": "r-vazamento-de-dados-e-permissoes",
+  "order": 10,
+  "track": "producao",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "seguranca",
+    "rag",
+    "permissoes",
+    "acl",
+    "vazamento",
+    "privilegio-minimo"
+  ],
+  "requires": [
+    "r-guardrails-de-entrada-e-saida"
+  ],
+  "executors": [
+    "simulado",
+    "no-navegador",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "acessar",
+      "en": "access"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Quanto o diretor financeiro ganha?",
+        "en": "How much does the finance director earn?"
+      },
+      "examples": [
+        {
+          "pt": "Posso vender parte das férias?",
+          "en": "Can I sell part of my vacation?"
+        },
+        {
+          "pt": "Quanto o diretor financeiro ganha?",
+          "en": "How much does the finance director earn?"
+        },
+        {
+          "pt": "Existe processo disciplinar aberto contra o Paulo?",
+          "en": "Is there an open disciplinary case against Paulo?"
+        },
+        {
+          "pt": "Como é calculada a PLR?",
+          "en": "How is the profit share calculated?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "role",
+        "alias": {
+          "pt": "perfil",
+          "en": "role"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "colaborador",
+            "pt": "colaborador",
+            "en": "employee"
+          },
+          {
+            "id": "gestor",
+            "pt": "gestor",
+            "en": "manager"
+          },
+          {
+            "id": "rh",
+            "pt": "rh",
+            "en": "hr"
+          }
+        ],
+        "default": "colaborador",
+        "ui": "select"
+      },
+      {
+        "name": "filter",
+        "alias": {
+          "pt": "filtro",
+          "en": "filter"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "retrieval",
+            "pt": "busca",
+            "en": "search"
+          },
+          {
+            "id": "after",
+            "pt": "depois",
+            "en": "after"
+          },
+          {
+            "id": "prompt",
+            "pt": "prompt",
+            "en": "prompt"
+          }
+        ],
+        "default": "retrieval",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "leak"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realOutput": "",
+        "aclByRole": {
+          "colaborador": [
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "gestor": [
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0
+          ],
+          "rh": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "minSim": 0.35,
+        "k": 3,
+        "docIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "zeros8": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "sysKey": "main",
+        "toneMap": {
+          "0": "dim",
+          "1": "ok",
+          "2": "bad"
+        }
+      },
+      "compute": {
+        "rec": "lookup(qs, text, unknownQ)",
+        "known": "rec.known",
+        "allowedArr": "lookup(aclByRole, role, zeros8)",
+        "denyArr": "affine(allowedArr, 1, -1)",
+        "simsEff": "filter == 'retrieval' ? mul(rec.sims, allowedArr) : rec.sims",
+        "simsThr": "where(geall(simsEff, minSim), simsEff, 0)",
+        "top": "topk(simsThr, k)",
+        "ctxIdx": "filter == 'after' ? maskfilter(top, pickall(allowedArr, top)) : top",
+        "nCtx": "len(ctxIdx)",
+        "exposedIdx": "maskfilter(ctxIdx, pickall(denyArr, ctxIdx))",
+        "nExposed": "len(exposedIdx)",
+        "foundGold": "includes(ctxIdx, rec.gold)",
+        "goldAllowed": "allowedArr[rec.gold] == 1",
+        "missedGold": "goldAllowed && !foundGold",
+        "inCtx": "memberall(docIds, ctxIdx)",
+        "state": "addall(inCtx, mul(inCtx, denyArr))",
+        "rowTones": "lookupall(toneMap, state)",
+        "ctxCol": "lookupall(stateLabels, state)",
+        "simsPct": "roundall(scale(rec.sims, 100), 0)",
+        "ctxText": "nCtx > 0 ? join(pickall(docTexts, ctxIdx), '\n') : noDocs",
+        "repeated": "real && containsany(realOutput, pickall(markerArr, exposedIdx))",
+        "filterL": "lookup(filterNames, filter, filter)",
+        "roleL": "lookup(roleNames, role, role)"
+      },
+      "cases": [
+        {
+          "when": "!known && !real",
+          "error": "unknownQ"
+        },
+        {
+          "when": "nExposed > 0",
+          "flags": [
+            "leak"
+          ]
+        },
+        {
+          "when": "nExposed == 0 && missedGold",
+          "flags": [
+            "lostAnswer"
+          ]
+        },
+        {
+          "when": "nExposed == 0 && !missedGold && foundGold",
+          "flags": [
+            "answered"
+          ]
+        },
+        {
+          "when": "nExposed == 0 && !missedGold && !foundGold",
+          "flags": [
+            "refused"
+          ]
+        },
+        {
+          "when": "repeated",
+          "flags": [
+            "revealed"
+          ]
+        },
+        {
+          "when": "real && nExposed > 0 && !repeated",
+          "flags": [
+            "heldBack"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "nCtx": "nCtx",
+            "nExposed": "nExposed",
+            "filterL": "filterL",
+            "roleL": "roleL"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "@sAsk",
+              "sub": "=roleL + ': ' + text",
+              "tone": "info"
+            },
+            {
+              "label": "@sSearch",
+              "sub": "=filter == 'retrieval' ? '@subSearchAcl' : (filter == 'after' ? '@subSearchAfter' : '@subSearchAll')",
+              "tone": "=filter == 'retrieval' ? 'ok' : (filter == 'after' ? 'warn' : 'bad')"
+            },
+            {
+              "label": "@sContext",
+              "sub": "=nExposed > 0 ? '@subCtxBad' : (nCtx > 0 ? '@subCtxOk' : '@subCtxEmpty')",
+              "tone": "=nExposed > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@sAnswer",
+              "sub": "=nExposed > 0 ? '@subAnsRisk' : (foundGold ? '@subAnsOk' : (missedGold ? '@subAnsLost' : '@subAnsNone'))",
+              "tone": "=nExposed > 0 ? 'bad' : (missedGold ? 'warn' : 'ok')"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@colDoc",
+            "@colAcl",
+            "@colSim",
+            "@colCtx"
+          ],
+          "rows": "=zip(docTitles, aclLabels, simsPct, ctxCol)",
+          "tones": "=rowTones",
+          "caption": "@tableCaption"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mCtx",
+              "value": "=nCtx",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@mExposed",
+              "value": "=nExposed",
+              "format": "int",
+              "tone": "=nExposed > 0 ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkCtx",
+              "ok": "=nExposed == 0",
+              "why": "@whyCtx"
+            },
+            {
+              "label": "@chkFind",
+              "ok": "=!missedGold",
+              "why": "@whyFind"
+            },
+            {
+              "label": "@chkWhere",
+              "ok": "=filter == 'retrieval'",
+              "why": "@whyWhere"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=nExposed > 0",
+          "tone": "bad",
+          "text": "@leakNote"
+        },
+        {
+          "type": "note",
+          "when": "=missedGold",
+          "tone": "warn",
+          "text": "@lostNote"
+        },
+        {
+          "type": "note",
+          "when": "=repeated",
+          "tone": "bad",
+          "text": "@revealedNote"
+        },
+        {
+          "type": "note",
+          "when": "=real && nExposed > 0 && !repeated",
+          "tone": "warn",
+          "text": "@heldNote"
+        },
+        {
+          "type": "note",
+          "when": "=real",
+          "tone": "info",
+          "text": "@realNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "no",
+      "yes"
+    ],
+    "answer": "yes"
+  },
+  "real": {
+    "no-navegador": {
+      "adapter": "declarative",
+      "model": "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+      "op": "chat",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "sysKey",
+        "user": "{text}",
+        "maxTokens": 140
+      }
+    },
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "chat",
+      "args": {
+        "systemFrom": "systems",
+        "systemBy": "sysKey",
+        "user": "{text}",
+        "maxTokens": 140
+      }
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Distinguir filtro de entrada e de saída e o que cada um enxerga.",
+      "Entender falso positivo e falso negativo em segurança.",
+      "Falhar fechado e medir o filtro com um conjunto rotulado."
+    ],
+    "minutes": 20,
+    "activity": "A turma escreve 10 mensagens (5 legítimas, 5 ataques) e uma \"lista de palavras proibidas\". Outra equipe tenta passar um ataque contornando a lista e outra tenta fazer uma pergunta legítima ser barrada. Contem os dois tipos de erro.",
+    "discussion": [
+      "Qual erro é pior na sua empresa: barrar quem não devia ou deixar passar quem devia ser barrado?",
+      "Que dado nunca deveria estar no contexto do assistente, para que nenhum filtro precise protegê-lo?"
+    ],
+    "misconceptions": [
+      "\"Um filtro bem feito pega tudo.\" Todo filtro erra para algum lado; o limite escolhe qual.",
+      "\"Lista de palavras é segurança.\" É uma camada barata e fácil de contornar."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell input from output filters and what each one sees.",
+      "Understand false positives and false negatives in security.",
+      "Fail closed and measure the filter with a labeled set."
+    ],
+    "minutes": 20,
+    "activity": "The class writes 10 messages (5 legitimate, 5 attacks) and a \"banned words list\". Another team tries to slip an attack past the list and another tries to get a legitimate question blocked. Count both kinds of error.",
+    "discussion": [
+      "Which error is worse in your company: blocking someone who should not be, or letting through someone who should be blocked?",
+      "Which data should never be in the assistant’s context, so no filter has to protect it?"
+    ],
+    "misconceptions": [
+      "\"A well-made filter catches everything.\" Every filter errs to one side; the threshold chooses which.",
+      "\"A word list is security.\" It is a cheap layer and easy to get around."
+    ]
+  }
+}

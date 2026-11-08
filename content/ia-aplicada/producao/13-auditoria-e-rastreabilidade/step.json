@@ -1,0 +1,357 @@
+{
+  "id": "r-auditoria-e-rastreabilidade",
+  "order": 13,
+  "track": "producao",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "governanca",
+    "auditoria",
+    "logs",
+    "lgpd",
+    "rastreabilidade"
+  ],
+  "requires": [
+    "r-jailbreak-e-red-teaming"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "auditar",
+      "en": "audit"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Por que o assistente disse que dá para vender metade das férias?",
+        "en": "Why did the assistant say you can sell half of your vacation?"
+      },
+      "examples": [
+        {
+          "pt": "Por que o assistente disse que dá para vender metade das férias?",
+          "en": "Why did the assistant say you can sell half of your vacation?"
+        },
+        {
+          "pt": "Quem viu a tabela salarial da diretoria na semana passada?",
+          "en": "Who saw the executive salary table last week?"
+        },
+        {
+          "pt": "Quanto o assistente custou na quarta?",
+          "en": "How much did the assistant cost on Wednesday?"
+        },
+        {
+          "pt": "O assistente barrou a tentativa de injeção de ontem?",
+          "en": "Did the assistant block yesterday’s injection attempt?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "fields",
+        "alias": {
+          "pt": "campos",
+          "en": "fields"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "ts",
+            "pt": "quando",
+            "en": "when"
+          },
+          {
+            "id": "user",
+            "pt": "quem",
+            "en": "who"
+          },
+          {
+            "id": "prompt_v",
+            "pt": "prompt",
+            "en": "prompt"
+          },
+          {
+            "id": "model",
+            "pt": "modelo",
+            "en": "model"
+          },
+          {
+            "id": "docs",
+            "pt": "docs",
+            "en": "docs"
+          },
+          {
+            "id": "guard",
+            "pt": "guardrails",
+            "en": "guards"
+          },
+          {
+            "id": "tokens",
+            "pt": "tokens",
+            "en": "tokens"
+          }
+        ],
+        "default": [
+          "ts",
+          "user",
+          "prompt_v",
+          "model",
+          "docs",
+          "guard",
+          "tokens"
+        ],
+        "ui": "checkboxes"
+      },
+      {
+        "name": "body",
+        "alias": {
+          "pt": "texto",
+          "en": "content"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "none",
+            "pt": "nenhum",
+            "en": "none"
+          },
+          {
+            "id": "redacted",
+            "pt": "redigido",
+            "en": "redacted"
+          },
+          {
+            "id": "raw",
+            "pt": "bruto",
+            "en": "raw"
+          }
+        ],
+        "default": "redacted",
+        "ui": "select"
+      },
+      {
+        "name": "integrity",
+        "alias": {
+          "pt": "integridade",
+          "en": "integrity"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "plain",
+            "pt": "comum",
+            "en": "plain"
+          },
+          {
+            "id": "chain",
+            "pt": "encadeado",
+            "en": "chain"
+          }
+        ],
+        "default": "chain",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "overlog"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "allIds": [
+          "ts",
+          "user",
+          "prompt_v",
+          "model",
+          "docs",
+          "guard",
+          "tokens",
+          "text"
+        ],
+        "readers": 12,
+        "piiWeek": 420,
+        "toneMap": {
+          "0": "dim",
+          "1": "dim",
+          "2": "bad",
+          "3": "ok"
+        }
+      },
+      "compute": {
+        "rec": "lookup(incidents, text, unknownInc)",
+        "known": "rec.known",
+        "need": "rec.need",
+        "have": "concat(fields, body != 'none' ? ['text'] : [])",
+        "haveMask": "memberall(need, have)",
+        "nMissing": "len(need) - sum(haveMask)",
+        "answerable": "nMissing == 0",
+        "missingIds": "maskfilter(need, affine(haveMask, 1, -1))",
+        "missingNames": "join(lookupall(fieldNames, missingIds), ', ')",
+        "loggedArr": "memberall(allIds, have)",
+        "neededArr": "memberall(allIds, need)",
+        "tonesKey": "addall(scale(neededArr, 2), loggedArr)",
+        "rowTones": "lookupall(toneMap, tonesKey)",
+        "loggedCol": "lookupall(yesNoL, loggedArr)",
+        "neededCol": "lookupall(yesNoL, neededArr)",
+        "nFields": "sum(loggedArr)",
+        "piiNow": "body == 'raw' ? piiWeek : 0",
+        "verifyLines": "integrity == 'chain' ? chainLines : plainLines"
+      },
+      "cases": [
+        {
+          "when": "!known",
+          "error": "unknownInc"
+        },
+        {
+          "when": "body == 'raw'",
+          "flags": [
+            "overlog"
+          ]
+        },
+        {
+          "when": "answerable",
+          "flags": [
+            "traceable"
+          ]
+        },
+        {
+          "when": "!answerable",
+          "flags": [
+            "gap"
+          ]
+        },
+        {
+          "when": "integrity == 'plain'",
+          "flags": [
+            "forgeable"
+          ]
+        },
+        {
+          "when": "integrity == 'chain'",
+          "flags": [
+            "sealed"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "piiNow": "piiNow",
+            "readers": "readers",
+            "nMissing": "nMissing",
+            "missingNames": "missingNames",
+            "nFields": "nFields"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "label": "@flowLabel",
+          "steps": [
+            {
+              "label": "@sQuestion",
+              "sub": "=text",
+              "tone": "info"
+            },
+            {
+              "label": "@sNeeds",
+              "sub": "@subNeeds",
+              "tone": "neutral"
+            },
+            {
+              "label": "@sAnswer",
+              "sub": "=answerable ? '@subYes' : '@subNo'",
+              "tone": "=answerable ? 'ok' : 'bad'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@tableLabel",
+          "columns": [
+            "@colField",
+            "@colLogged",
+            "@colNeeded",
+            "@colUse"
+          ],
+          "rows": "=zip(fieldLabels, loggedCol, neededCol, fieldUse)",
+          "tones": "=rowTones",
+          "caption": "@tableCaption"
+        },
+        {
+          "type": "terminal",
+          "label": "@verifyLabel",
+          "lines": "=verifyLines"
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mFields",
+              "value": "=nFields + ' / 8'",
+              "tone": "info"
+            },
+            {
+              "label": "@mPii",
+              "value": "=piiNow",
+              "format": "int",
+              "tone": "=piiNow > 0 ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "checks",
+          "items": [
+            {
+              "label": "@chkAnswer",
+              "ok": "=answerable",
+              "why": "@whyAnswer"
+            },
+            {
+              "label": "@chkRaw",
+              "ok": "=body != 'raw'",
+              "why": "@whyRaw"
+            },
+            {
+              "label": "@chkChain",
+              "ok": "=integrity == 'chain'",
+              "why": "@whyChain"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=!answerable",
+          "tone": "warn",
+          "text": "@gapNote"
+        },
+        {
+          "type": "note",
+          "when": "=body == 'raw'",
+          "tone": "bad",
+          "text": "@rawNote"
+        },
+        {
+          "type": "note",
+          "when": "=true",
+          "tone": "info",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "yes",
+      "no"
+    ],
+    "answer": "no"
+  }
+}

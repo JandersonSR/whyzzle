@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Aplicar permissões na busca, antes de o texto chegar ao modelo.",
+      "Comparar filtro na busca, depois do ranking e só no prompt.",
+      "Entender por que prompt não é controle de acesso."
+    ],
+    "minutes": 20,
+    "activity": "Cada grupo recebe 8 \"documentos\" em fichas, com quem pode ver cada um. Um aluno é o \"robô de busca\" e escolhe as 3 fichas mais parecidas com uma pergunta; os outros conferem as permissões de dois jeitos: antes de escolher e depois de escolher. Comparem o que sobra.",
+    "discussion": [
+      "Que documentos da sua empresa jamais deveriam estar no mesmo índice que o manual?",
+      "Quem aprova \"quem lê o quê\" quando um documento novo entra no assistente?"
+    ],
+    "misconceptions": [
+      "\"Se o prompt manda não revelar, o dado está protegido.\" O dado já está no contexto do modelo.",
+      "\"Filtrar depois do ranking resolve.\" É seguro, mas pode perder a resposta certa."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Apply permissions in the search, before the text reaches the model.",
+      "Compare filtering in the search, after the ranking and in the prompt only.",
+      "Understand why a prompt is not access control."
+    ],
+    "minutes": 20,
+    "activity": "Each group gets 8 \"documents\" on cards, with who may see each one. A student is the \"search robot\" and picks the 3 cards most similar to a question; the others check permissions two ways: before picking and after picking. Compare what is left.",
+    "discussion": [
+      "Which documents in your company should never share an index with the handbook?",
+      "Who approves \"who reads what\" when a new document enters the assistant?"
+    ],
+    "misconceptions": [
+      "\"If the prompt says not to reveal, the data is protected.\" The data is already in the model’s context.",
+      "\"Filtering after the ranking solves it.\" It is safe, but it can lose the right answer."
+    ]
+  }
+}

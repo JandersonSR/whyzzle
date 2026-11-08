@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Reconhecer famílias de jailbreak.",
+      "Medir a taxa de sucesso do ataque por família com um canário.",
+      "Evitar corrigir só o teste e manter rodadas humanas."
+    ],
+    "minutes": 20,
+    "activity": "Em duplas: um \"assistente\" guarda um segredo escrito num papel e só pode dizer \"não\"; o outro tem 3 minutos para fazê-lo revelar usando teatro, autoridade e formato. Troquem. Anotem os truques e depois montem uma \"lista de bloqueio\" e vejam se um truque novo ainda funciona.",
+    "discussion": [
+      "Que truque você usaria primeiro contra o assistente da sua empresa?",
+      "Quem deveria ser autorizado a fazer red team e como registrar o resultado?"
+    ],
+    "misconceptions": [
+      "\"Se a suíte passou, o assistente é seguro.\" A suíte só tem o que a equipe já imaginou.",
+      "\"Um bom prompt impede jailbreak.\" Ele reduz, mas não elimina."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Recognize jailbreak families.",
+      "Measure the attack success rate per family with a canary.",
+      "Avoid fixing only the test and keep human rounds."
+    ],
+    "minutes": 20,
+    "activity": "In pairs: one \"assistant\" keeps a secret written on paper and may only say \"no\"; the other has 3 minutes to make them reveal it using role-play, authority and format. Swap. Note the tricks, then build a \"blocklist\" and see whether a new trick still works.",
+    "discussion": [
+      "Which trick would you use first against your company’s assistant?",
+      "Who should be authorized to red team and how should the result be recorded?"
+    ],
+    "misconceptions": [
+      "\"If the suite passed, the assistant is safe.\" The suite only has what the team already imagined.",
+      "\"A good prompt stops jailbreaks.\" It reduces them, but does not eliminate them."
+    ]
+  }
+}

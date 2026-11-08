@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Diferenciar injeção direta e indireta.",
+      "Entender por que marcar o texto como dado reduz mas não elimina o risco.",
+      "Conter o estrago com privilégio mínimo e confirmação humana."
+    ],
+    "minutes": 20,
+    "activity": "Em duplas, uma pessoa é o \"assistente\" e só obedece ao que está escrito em papéis. Uma terceira pessoa esconde um bilhete numa pasta do \"manual\". Depois decidam que \"ferramentas\" o assistente pode ter e quem precisa assinar antes de uma ação.",
+    "discussion": [
+      "Que textos de terceiros o assistente da sua empresa leria (e-mails, páginas, PDFs)?",
+      "Que ação do assistente você nunca deixaria sem aprovação de uma pessoa?"
+    ],
+    "misconceptions": [
+      "\"Se o prompt disser para não obedecer, está seguro.\" O prompt reduz o risco, mas não é uma fronteira.",
+      "\"Só quem digita no chat pode atacar.\" Qualquer texto que o assistente lê pode carregar uma ordem."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Tell direct from indirect injection.",
+      "Understand why marking text as data reduces but does not remove the risk.",
+      "Contain damage with least privilege and human confirmation."
+    ],
+    "minutes": 20,
+    "activity": "In pairs, one person is the \"assistant\" and only obeys what is written on slips of paper. A third person hides a note in a \"handbook\" folder. Then decide which \"tools\" the assistant may have and who must sign before an action.",
+    "discussion": [
+      "Which third-party texts would your company’s assistant read (e-mails, pages, PDFs)?",
+      "Which assistant action would you never leave without a person’s approval?"
+    ],
+    "misconceptions": [
+      "\"If the prompt says not to obey, it is safe.\" The prompt lowers the risk, but it is not a boundary.",
+      "\"Only whoever types in the chat can attack.\" Any text the assistant reads can carry an order."
+    ]
+  }
+}

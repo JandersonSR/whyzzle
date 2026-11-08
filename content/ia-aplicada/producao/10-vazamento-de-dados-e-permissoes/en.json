@@ -1,0 +1,239 @@
+{
+  "title": "Data leakage and per-document permissions",
+  "subtitle": "Who may see what has to be decided in the search, before the text reaches the model",
+  "mission": "Aurora’s HR put everything that looked useful into the assistant’s index: the handbook, but also the executive salary table, the payroll, the performance reviews and a disciplinary case. Each document has a rule about who may see it. The assistant fetches the 3 passages most similar to the question (above 0.35 similarity) and hands them to the model. Choose the profile of whoever asks and where the permission rule is applied, and see what enters the context.",
+  "predict": {
+    "question": "the assistant’s prompt says \"never show restricted documents\" and the permission rule exists only there. An employee asks how much the finance director earns. Do the restricted documents enter the model’s context?",
+    "options": {
+      "no": "No: the prompt says not to show them",
+      "yes": "Yes: the search does not know who asked"
+    }
+  },
+  "feedback": {
+    "right": "right: the search brings the most similar passages without looking at who asked, and the salary table (88%) and the payroll (74%) enter the context. The prompt becomes the only barrier, and a prompt is not access control.",
+    "wrong": "yes: the search brings the most similar passages without looking at who asked, and the salary table (88%) and the payroll (74%) enter the context. The prompt becomes the only barrier, and a prompt is not access control.",
+    "skipped": "no guess? Run with the rule only in the prompt and then with the rule in the search, and compare the \"in context\" column."
+  },
+  "coach": {
+    "ui": "guess noted. Run with the rule applied in the search (default) and look at the \"in context\" column.",
+    "cmd": "guess noted. Run access and look at the \"in context\" column."
+  },
+  "tryNext": {
+    "ui": "Now ask how the profit share is calculated with the \"after\" filter: the answer is in a document you may see, yet it vanishes. Why?",
+    "cmd": "Run access \"How is the profit share calculated?\" --filter after and compare with --filter search."
+  },
+  "why": {
+    "simples": "Imagine a library where the robot librarian brings the three books most similar to your request and only then checks whether you were allowed to read them. If it put a colleague’s medical file on the tray and merely \"asked\" you not to look, the file is already on your desk.\nThe right way is for the robot to see only the shelves your card opens. That way, what you may not see never reaches the tray, and the model has no way to tell.",
+    "dev": "The permission rule belongs to the search layer, with the identity coming from the authenticated session (never from something the model or the user typed). Each passage carries metadata about who may see it (groups, owner, sensitivity level) and the index query already filters on it. Three designs:\n(1) filter in the search (pre-filter): only permitted candidates enter the ranking; this is the right one, and it is worth checking how your index handles filters and recall;\n(2) filter after the ranking: safe, but the k slots may be taken by documents the person cannot see, and the right answer is left out (see the profit share);\n(3) prompt only: the data has already entered the context and safety depends on the model’s goodwill.\nAlso: re-evaluate permission at read time (someone who left a role loses access without waiting for the next reindex), use the asker’s credentials when calling tools, put no secrets or keys in the prompt, and record which documents entered the context of each answer (audit lesson). Test with a set of (profile, question) pairs where the expected result is \"no restricted document in the context\".",
+    "especialista": "Sensitive information disclosure is the 2nd item of the OWASP Top 10 for LLM Applications (LLM02, in both the 2025 and 2026 editions), and the list has an item just for weaknesses in vectors and embeddings (LLM08:2025, which stays in the 2026 edition). The EchoLeak case (CVE-2025-32711, Microsoft 365 Copilot, fixed in June 2025) shows the mechanism the lesson describes: Copilot’s retrieval uses the person’s access privileges and mixed the content of an external e-mail with internal data in the same context; the asker’s account was the boundary, and the context is where it dissolves.\nFor an HR assistant, the impact lives in LGPD: data about health, union membership or religious belief are sensitive personal data (art. 5, II), and art. 46 requires technical and administrative security measures able to protect data from unauthorized access. Showing a disciplinary case to someone who should not see it is a security incident, with the notification duties of art. 48. Treat \"what each role may read\" as a product requirement, reviewed by whoever owns the data, not as an instruction in the prompt."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: leave the permission rule only in the prompt.",
+      "cmd": "time to break it: run access --filter prompt"
+    },
+    "success": "Broken: {nExposed} restricted document(s) entered the context of someone who could not see them. From here on only the model’s goodwill separates the person from the data, and a prompt is not access control.",
+    "calm": "No restricted document entered the asker’s context ({nCtx} in context, with the \"{filterL}\" filter and the \"{roleL}\" profile). To break it, leave the rule only in the prompt."
+  },
+  "hints": {
+    "ui": [
+      "Choose the asker’s profile, where the rule is applied and the question, and run.",
+      "The \"in context\" column shows what the model receives; red rows are documents the person was not allowed to see.",
+      "Permission rule: prompt only."
+    ],
+    "cmd": [
+      "The question goes in quotes, after access.",
+      "--role employee, manager or hr; --filter search, after or prompt.",
+      "access --filter prompt"
+    ]
+  },
+  "errors": {
+    "notInEnum.role": "\"{value}\" is not a profile. Use: {options}.",
+    "notInEnum.filter": "\"{value}\" is not a filter. Use: {options}.",
+    "model.unknownQ": "In simulated mode, use one of the four example questions. With \"Your key\" or \"In the browser\", any question is answered by a real model, using the same ranking as the salary question."
+  },
+  "controls": {
+    "arg": "Question",
+    "role": "Profile of the asker",
+    "filter": "Where the permission rule is applied"
+  },
+  "scene": {
+    "flowLabel": "From question to context",
+    "sAsk": "Question",
+    "sSearch": "Search",
+    "sContext": "Model context",
+    "sAnswer": "Answer",
+    "subSearchAcl": "only sees what the profile may read",
+    "subSearchAfter": "ranks everything, discards later",
+    "subSearchAll": "ranks everything, no filter",
+    "subCtxBad": "{nExposed} document(s) without permission",
+    "subCtxOk": "{nCtx} document(s), all permitted",
+    "subCtxEmpty": "no document",
+    "subAnsRisk": "depends on the model’s goodwill",
+    "subAnsOk": "with the right document",
+    "subAnsLost": "lost the answer the person could see",
+    "subAnsNone": "\"I could not find it\"",
+    "tableLabel": "The 8 documents for this question",
+    "colDoc": "document",
+    "colAcl": "who sees",
+    "colSim": "similarity %",
+    "colCtx": "in context",
+    "tableCaption": "similarities are lesson numbers; at most 3 documents with at least 0.35 enter",
+    "mCtx": "documents in context",
+    "mExposed": "without permission",
+    "chkCtx": "No restricted document in the context",
+    "whyCtx": "If it got in, the model can repeat it.",
+    "chkFind": "The right answer is still findable",
+    "whyFind": "Security that loses legitimate answers becomes a support ticket.",
+    "chkWhere": "Rule applied in the search",
+    "whyWhere": "It is the only design that depends neither on the ranking nor on the model.",
+    "leakNote": "Restricted data inside the context of someone who could not see it. Even if the model behaves this time, another question, another model or an injection can pull it out.",
+    "lostNote": "Filtering after the ranking is safe, but the 3 slots went to documents this person cannot see, and the handbook that answers was left out. Filter before the ranking.",
+    "revealedNote": "The real model repeated restricted data in its answer.",
+    "heldNote": "This time the model did not repeat the data, but it was in the context. That is luck, not control.",
+    "realNote": "Real mode: the model only receives the documents that entered the context, with the instruction \"never show restricted documents\". If the answer repeats a unique mark from a restricted document (a value or code), it counts as a leak. Free questions use the same ranking as the salary question.",
+    "simNote": "Simulated mode: the similarities are lesson numbers. Use \"Your key\" or \"In the browser\" to see whether a real model repeats the restricted data when it is in the context."
+  },
+  "data": {
+    "qs": {
+      "Can I sell part of my vacation?": {
+        "known": true,
+        "sims": [
+          0.82,
+          0.2,
+          0.15,
+          0.22,
+          0.1,
+          0.12,
+          0.11,
+          0.09
+        ],
+        "gold": 0
+      },
+      "How much does the finance director earn?": {
+        "known": true,
+        "sims": [
+          0.08,
+          0.27,
+          0.3,
+          0.12,
+          0.88,
+          0.74,
+          0.31,
+          0.1
+        ],
+        "gold": 4
+      },
+      "Is there an open disciplinary case against Paulo?": {
+        "known": true,
+        "sims": [
+          0.1,
+          0.08,
+          0.07,
+          0.15,
+          0.12,
+          0.2,
+          0.55,
+          0.9
+        ],
+        "gold": 7
+      },
+      "How is the profit share calculated?": {
+        "known": true,
+        "sims": [
+          0.12,
+          0.25,
+          0.64,
+          0.2,
+          0.7,
+          0.74,
+          0.66,
+          0.09
+        ],
+        "gold": 2
+      }
+    },
+    "unknownQ": {
+      "known": false,
+      "sims": [
+        0.08,
+        0.27,
+        0.3,
+        0.12,
+        0.88,
+        0.74,
+        0.31,
+        0.1
+      ],
+      "gold": 4
+    },
+    "docTitles": [
+      "Handbook · vacation",
+      "Handbook · meal card, benefits",
+      "Handbook · profit share",
+      "Handbook · expenses",
+      "Executive salary table",
+      "Payroll · February",
+      "Performance reviews 2026",
+      "Disciplinary case 17"
+    ],
+    "aclLabels": [
+      "everyone",
+      "everyone",
+      "everyone",
+      "everyone",
+      "HR only",
+      "HR only",
+      "manager and HR",
+      "HR only"
+    ],
+    "docTexts": [
+      "Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.",
+      "The meal allowance (VR) is R$ 45 per working day; anyone may swap it for the grocery allowance (VA) of the same value.",
+      "The PLR profit share is paid in March, proportional to how well company and team goals were met the previous year.",
+      "Work expenses are reimbursed with an invoice uploaded in the expenses app within 30 days.",
+      "Finance director: monthly salary of R$ 41,370. Executive profit share: 6 salaries.",
+      "February payroll: net total of R$ 1,284,560, already including the profit share provision.",
+      "Review of Paulo Mendes: below targets, which lowers the profit share. Improvement plan PIP-0731.",
+      "Case 17: Paulo Mendes received a formal warning in March (ref. ADV-1703)."
+    ],
+    "markerArr": [
+      "",
+      "",
+      "",
+      "",
+      "41,370",
+      "1,284,560",
+      "PIP-0731",
+      "ADV-1703"
+    ],
+    "noDocs": "(no document)",
+    "stateLabels": {
+      "0": "-",
+      "1": "yes",
+      "2": "yes, no permission"
+    },
+    "filterNames": {
+      "retrieval": "search",
+      "after": "after",
+      "prompt": "prompt"
+    },
+    "roleNames": {
+      "colaborador": "employee",
+      "gestor": "manager",
+      "rh": "HR"
+    },
+    "systems": {
+      "main": "You are Aurora’s HR assistant. Answer in up to 3 sentences, using only the documents below. Never show the content of restricted documents.\nDocuments:\n{ctxText}"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Tag every document with who may see it, at indexing time (groups, owner, sensitivity). Without that, no downstream defense works. Create acl_search.py with a toy search (swap the score function for your vector search; the permission rule does not change):\nimport re\n\nDOCS = [\n    {\"id\": \"d1\", \"title\": \"Handbook · vacation\", \"allowed\": {\"colaborador\", \"gestor\", \"rh\"}, \"text\": \"Employees can sell up to one third of their vacation (cash allowance), asking together with the vacation request.\"},\n    {\"id\": \"d3\", \"title\": \"Handbook · profit share\", \"allowed\": {\"colaborador\", \"gestor\", \"rh\"}, \"text\": \"The PLR profit share is paid in March, proportional to how well company and team goals were met the previous year.\"},\n    {\"id\": \"d5\", \"title\": \"Executive salary table\", \"allowed\": {\"rh\"}, \"text\": \"Finance director: monthly salary of R$ 41,370. Executive profit share: 6 salaries.\"},\n    {\"id\": \"d6\", \"title\": \"Payroll · February\", \"allowed\": {\"rh\"}, \"text\": \"February payroll: net total of R$ 1,284,560, already including the profit share provision.\"},\n    {\"id\": \"d7\", \"title\": \"Performance reviews 2026\", \"allowed\": {\"gestor\", \"rh\"}, \"text\": \"Review of Paulo Mendes: below targets, which lowers the profit share. Improvement plan PIP-0731.\"},\n]\n\n\ndef words(text):\n    return set(re.findall(r\"\\w{3,}\", text.lower()))\n\n\ndef score(query, doc):\n    q, d = words(query), words(doc[\"title\"] + \" \" + doc[\"text\"])\n    return len(q & d) / (len(q) or 1)  # troque por sua busca vetorial; a regra de permissão não muda\n\n\ndef search(query, role, k=3, min_score=0.2, mode=\"retrieval\"):\n    \"\"\"mode = retrieval: filtra por permissão ANTES do ranking (certo)\n       mode = after:     ranking em tudo e depois descarta (seguro, mas perde respostas)\n       mode = prompt:    nenhum filtro (o contexto já saiu do cofre)\"\"\"\n    pool = [d for d in DOCS if role in d[\"allowed\"]] if mode == \"retrieval\" else DOCS\n    ranked = sorted(pool, key=lambda d: score(query, d), reverse=True)\n    top = [d for d in ranked if score(query, d) >= min_score][:k]\n    if mode == \"after\":\n        top = [d for d in top if role in d[\"allowed\"]]\n    return top",
+      "Add a test at the end with questions and the three designs, always with the \"colaborador\" profile:\nfor question in [\"How much does the finance director earn?\", \"How is the profit share calculated?\"]:\n    for mode in (\"retrieval\", \"after\", \"prompt\"):\n        found = search(question, \"colaborador\", mode=mode)\n        leaked = [d[\"id\"] for d in found if \"colaborador\" not in d[\"allowed\"]]\n        print(f\"{mode:9} {question[:40]:40} contexto={[d['id'] for d in found]} vazou={leaked}\")",
+      "Run:\npython acl_search.py\nOn the salary question, \"prompt\" leaks d5 and d6; \"retrieval\" and \"after\" do not. On the profit share one, \"after\" loses the handbook (d3) and only \"retrieval\" finds it.",
+      "Pass the authenticated session’s identity to search(); never take the profile as text from the user or the model. Turn the test into a CI case: for each (profile, question) pair, \"no restricted document in the context\"."
+    ],
+    "ok": "the test prints one line per question and design; only the \"prompt\" line shows restricted ids in vazou=[…], and on the profit share question the \"after\" line comes back with an empty context while \"retrieval\" brings d3."
+  }
+}

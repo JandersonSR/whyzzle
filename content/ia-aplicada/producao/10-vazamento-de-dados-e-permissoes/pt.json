@@ -1,0 +1,239 @@
+{
+  "title": "Vazamento de dados e permissões por documento",
+  "subtitle": "Quem pode ver o quê tem de ser decidido na busca, antes de o texto chegar ao modelo",
+  "mission": "O RH da Aurora pôs no índice do assistente tudo que parecia útil: o manual, mas também a tabela salarial da diretoria, a folha de pagamento, as avaliações de desempenho e um processo disciplinar. Cada documento tem uma regra de quem pode ver. O assistente busca os 3 trechos mais parecidos com a pergunta (acima de 0,35 de similaridade) e entrega ao modelo. Escolha o perfil de quem pergunta e onde a regra de permissão é aplicada, e veja o que entra no contexto.",
+  "predict": {
+    "question": "o prompt do assistente diz \"nunca mostre documentos restritos\" e a regra de permissão só existe nele. Um colaborador pergunta quanto o diretor financeiro ganha. Os documentos restritos entram no contexto do modelo?",
+    "options": {
+      "no": "Não: o prompt manda não mostrar",
+      "yes": "Sim: a busca não sabe quem perguntou"
+    }
+  },
+  "feedback": {
+    "right": "isso: a busca traz os trechos mais parecidos sem olhar para quem perguntou, e a tabela salarial (88%) e a folha (74%) entram no contexto. O prompt vira a única barreira, e prompt não é controle de acesso.",
+    "wrong": "sim: a busca traz os trechos mais parecidos sem olhar para quem perguntou, e a tabela salarial (88%) e a folha (74%) entram no contexto. O prompt vira a única barreira, e prompt não é controle de acesso.",
+    "skipped": "sem palpite? Rode com a regra só no prompt e depois com a regra na busca, e compare a coluna \"no contexto\"."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com a regra aplicada na busca (padrão) e olhe a coluna \"no contexto\".",
+    "cmd": "palpite anotado. Rode acessar e olhe a coluna \"no contexto\"."
+  },
+  "tryNext": {
+    "ui": "Agora peça o cálculo da PLR com o filtro \"depois\": a resposta está num documento que você pode ver, mas ela some. Por quê?",
+    "cmd": "Rode acessar \"Como é calculada a PLR?\" --filtro depois e compare com --filtro busca."
+  },
+  "why": {
+    "simples": "Imagine uma biblioteca em que o robô-bibliotecário traz os três livros mais parecidos com o seu pedido e só depois confere se você podia lê-los. Se ele pôs o prontuário médico de um colega na bandeja e só \"pediu\" que você não olhasse, o prontuário já está na sua mesa.\nO certo é o robô só enxergar as prateleiras que a sua carteirinha abre. Assim, o que você não pode ver nunca chega à bandeja, e o modelo nem tem como contar.",
+    "dev": "A regra de permissão pertence à camada de busca, com a identidade vinda da sessão autenticada (nunca de algo que o modelo ou o usuário digitou). Cada trecho carrega metadados de quem pode ver (grupos, dono, nível de sigilo) e a consulta ao índice já filtra por eles. Três desenhos:\n(1) filtro na busca (pré-filtro): só candidatos permitidos entram no ranking; é o certo, e vale conferir como o seu índice trata filtro e recall;\n(2) filtrar depois do ranking: seguro, mas os k lugares podem ser ocupados por documentos que a pessoa não vê, e a resposta certa fica de fora (veja a PLR);\n(3) só no prompt: o dado já entrou no contexto e a segurança depende da boa vontade do modelo.\nMais: reavalie a permissão no momento da leitura (quem saiu do cargo perde acesso sem esperar o próximo reindex), use as credenciais de quem perguntou ao chamar ferramentas, não coloque segredos nem chaves no prompt, e registre quais documentos entraram no contexto de cada resposta (lição de auditoria). Teste com um conjunto de pares (perfil, pergunta) em que o resultado esperado é \"nenhum documento restrito no contexto\".",
+    "especialista": "Vazamento de informação sensível é o 2º item do OWASP Top 10 for LLM Applications (LLM02, nas edições 2025 e 2026), e a lista tem um item só para fraquezas em vetores e embeddings (LLM08:2025, que segue na edição de 2026). O caso EchoLeak (CVE-2025-32711, Microsoft 365 Copilot, corrigido em junho de 2025) mostra o mecanismo que a lição descreve: a busca do Copilot usa os privilégios de acesso da pessoa e misturou o conteúdo de um e-mail externo com dados internos no mesmo contexto; a conta de quem pergunta era a fronteira, e o contexto é onde ela se desfaz.\nPara um assistente de RH, o impacto mora na LGPD: dados sobre saúde, filiação sindical ou convicção religiosa são dados pessoais sensíveis (art. 5º, II), e o art. 46 exige medidas de segurança, técnicas e administrativas, aptas a proteger os dados contra acessos não autorizados. Exibir um processo disciplinar para quem não deveria vê-lo é um incidente de segurança, com as obrigações de comunicação do art. 48. Trate \"o que cada papel pode ler\" como um requisito do produto, revisado por quem é dono dos dados, e não como uma instrução no prompt."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: deixe a regra de permissão só no prompt.",
+      "cmd": "hora de quebrar: rode acessar --filtro prompt"
+    },
+    "success": "Quebrou: {nExposed} documento(s) restrito(s) entraram no contexto de quem não podia vê-los. Daqui em diante só a boa vontade do modelo separa a pessoa do dado, e prompt não é controle de acesso.",
+    "calm": "Nenhum documento restrito entrou no contexto de quem perguntou ({nCtx} no contexto, com o filtro \"{filterL}\" e perfil \"{roleL}\"). Para quebrar, deixe a regra só no prompt."
+  },
+  "hints": {
+    "ui": [
+      "Escolha o perfil de quem pergunta, onde a regra é aplicada e a pergunta, e rode.",
+      "A coluna \"no contexto\" mostra o que o modelo recebe; linhas vermelhas são documentos que a pessoa não podia ver.",
+      "Regra de permissão: só no prompt."
+    ],
+    "cmd": [
+      "A pergunta vai entre aspas, depois de acessar.",
+      "--perfil colaborador, gestor ou rh; --filtro busca, depois ou prompt.",
+      "acessar --filtro prompt"
+    ]
+  },
+  "errors": {
+    "notInEnum.role": "\"{value}\" não é um perfil. Use: {options}.",
+    "notInEnum.filter": "\"{value}\" não é um filtro. Use: {options}.",
+    "model.unknownQ": "No modo simulado, use uma das quatro perguntas de exemplo. Com \"Sua chave\" ou \"No navegador\", qualquer pergunta é respondida por um modelo real, usando o mesmo ranking da pergunta do salário."
+  },
+  "controls": {
+    "arg": "Pergunta",
+    "role": "Perfil de quem pergunta",
+    "filter": "Onde a regra de permissão é aplicada"
+  },
+  "scene": {
+    "flowLabel": "Da pergunta ao contexto",
+    "sAsk": "Pergunta",
+    "sSearch": "Busca",
+    "sContext": "Contexto do modelo",
+    "sAnswer": "Resposta",
+    "subSearchAcl": "só vê o que o perfil pode ler",
+    "subSearchAfter": "ranking em tudo, descarta depois",
+    "subSearchAll": "ranking em tudo, sem filtro",
+    "subCtxBad": "{nExposed} documento(s) sem permissão",
+    "subCtxOk": "{nCtx} documento(s), todos permitidos",
+    "subCtxEmpty": "nenhum documento",
+    "subAnsRisk": "depende da boa vontade do modelo",
+    "subAnsOk": "com o documento certo",
+    "subAnsLost": "perdeu a resposta que a pessoa podia ver",
+    "subAnsNone": "\"não encontrei\"",
+    "tableLabel": "Os 8 documentos para esta pergunta",
+    "colDoc": "documento",
+    "colAcl": "quem vê",
+    "colSim": "similaridade %",
+    "colCtx": "no contexto",
+    "tableCaption": "similaridades são números da lição; só entram até 3 documentos com pelo menos 0,35",
+    "mCtx": "documentos no contexto",
+    "mExposed": "sem permissão",
+    "chkCtx": "Nenhum documento restrito no contexto",
+    "whyCtx": "Se entrou, o modelo pode repetir.",
+    "chkFind": "A resposta certa continua achável",
+    "whyFind": "Segurança que perde respostas legítimas vira chamado no suporte.",
+    "chkWhere": "Regra aplicada na busca",
+    "whyWhere": "É o único desenho que não depende do ranking nem do modelo.",
+    "leakNote": "Dado restrito dentro do contexto de quem não podia vê-lo. Mesmo que o modelo se comporte desta vez, outra pergunta, outro modelo ou uma injeção podem tirá-lo de lá.",
+    "lostNote": "Filtrar depois do ranking é seguro, mas os 3 lugares foram para documentos que esta pessoa não vê, e o manual que responde ficou de fora. Filtre antes do ranking.",
+    "revealedNote": "O modelo real repetiu um dado restrito na resposta.",
+    "heldNote": "Desta vez o modelo não repetiu o dado, mas ele estava no contexto. Isso é sorte, não controle.",
+    "realNote": "Modo real: o modelo recebe só os documentos que entraram no contexto, com a instrução \"nunca mostre documentos restritos\". Se a resposta repetir uma marca única de um documento restrito (um valor ou código), conta como vazamento. Perguntas livres usam o mesmo ranking da pergunta do salário.",
+    "simNote": "Modo simulado: as similaridades são números da lição. Use \"Sua chave\" ou \"No navegador\" para ver se um modelo real repete o dado restrito quando ele está no contexto."
+  },
+  "data": {
+    "qs": {
+      "Posso vender parte das férias?": {
+        "known": true,
+        "sims": [
+          0.82,
+          0.2,
+          0.15,
+          0.22,
+          0.1,
+          0.12,
+          0.11,
+          0.09
+        ],
+        "gold": 0
+      },
+      "Quanto o diretor financeiro ganha?": {
+        "known": true,
+        "sims": [
+          0.08,
+          0.27,
+          0.3,
+          0.12,
+          0.88,
+          0.74,
+          0.31,
+          0.1
+        ],
+        "gold": 4
+      },
+      "Existe processo disciplinar aberto contra o Paulo?": {
+        "known": true,
+        "sims": [
+          0.1,
+          0.08,
+          0.07,
+          0.15,
+          0.12,
+          0.2,
+          0.55,
+          0.9
+        ],
+        "gold": 7
+      },
+      "Como é calculada a PLR?": {
+        "known": true,
+        "sims": [
+          0.12,
+          0.25,
+          0.64,
+          0.2,
+          0.7,
+          0.74,
+          0.66,
+          0.09
+        ],
+        "gold": 2
+      }
+    },
+    "unknownQ": {
+      "known": false,
+      "sims": [
+        0.08,
+        0.27,
+        0.3,
+        0.12,
+        0.88,
+        0.74,
+        0.31,
+        0.1
+      ],
+      "gold": 4
+    },
+    "docTitles": [
+      "Manual · férias",
+      "Manual · VR e benefícios",
+      "Manual · PLR",
+      "Manual · reembolso",
+      "Tabela salarial da diretoria",
+      "Folha de pagamento · fevereiro",
+      "Avaliações de desempenho 2026",
+      "Processo disciplinar · caso 17"
+    ],
+    "aclLabels": [
+      "todos",
+      "todos",
+      "todos",
+      "todos",
+      "só RH",
+      "só RH",
+      "gestor e RH",
+      "só RH"
+    ],
+    "docTexts": [
+      "O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.",
+      "O vale-refeição (VR) é de R$ 45 por dia útil; quem preferir pode trocar pelo vale-alimentação (VA) de mesmo valor.",
+      "A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.",
+      "Despesas de trabalho são reembolsadas com nota fiscal enviada pelo app de despesas em até 30 dias.",
+      "Diretor financeiro: salário mensal de R$ 41.370. PLR da diretoria: 6 salários.",
+      "Folha de fevereiro: total líquido de R$ 1.284.560, já com a provisão da PLR.",
+      "Avaliação de Paulo Mendes: abaixo das metas, o que reduz a PLR. Plano de melhoria PIP-0731.",
+      "Caso 17: Paulo Mendes recebeu advertência formal em março (ref. ADV-1703)."
+    ],
+    "markerArr": [
+      "",
+      "",
+      "",
+      "",
+      "41.370",
+      "1.284.560",
+      "PIP-0731",
+      "ADV-1703"
+    ],
+    "noDocs": "(nenhum documento)",
+    "stateLabels": {
+      "0": "-",
+      "1": "sim",
+      "2": "sim, sem permissão"
+    },
+    "filterNames": {
+      "retrieval": "busca",
+      "after": "depois",
+      "prompt": "prompt"
+    },
+    "roleNames": {
+      "colaborador": "colaborador",
+      "gestor": "gestor",
+      "rh": "RH"
+    },
+    "systems": {
+      "main": "Você é o assistente de RH da Aurora. Responda em até 3 frases, só com base nos documentos abaixo. Nunca mostre o conteúdo de documentos restritos.\nDocumentos:\n{ctxText}"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Marque cada documento com quem pode vê-lo, no momento de indexar (grupos, dono, sigilo). Sem isso, nenhuma defesa a jusante funciona. Crie acl_search.py com uma busca de brinquedo (troque a função score pela sua busca vetorial; a regra de permissão não muda):\nimport re\n\nDOCS = [\n    {\"id\": \"d1\", \"title\": \"Manual · férias\", \"allowed\": {\"colaborador\", \"gestor\", \"rh\"}, \"text\": \"O colaborador pode vender até um terço das férias (abono pecuniário), pedindo junto com a solicitação das férias.\"},\n    {\"id\": \"d3\", \"title\": \"Manual · PLR\", \"allowed\": {\"colaborador\", \"gestor\", \"rh\"}, \"text\": \"A PLR é paga em março, proporcional ao atingimento das metas da empresa e da equipe no ano anterior.\"},\n    {\"id\": \"d5\", \"title\": \"Tabela salarial da diretoria\", \"allowed\": {\"rh\"}, \"text\": \"Diretor financeiro: salário mensal de R$ 41.370. PLR da diretoria: 6 salários.\"},\n    {\"id\": \"d6\", \"title\": \"Folha de pagamento · fevereiro\", \"allowed\": {\"rh\"}, \"text\": \"Folha de fevereiro: total líquido de R$ 1.284.560, já com a provisão da PLR.\"},\n    {\"id\": \"d7\", \"title\": \"Avaliações de desempenho 2026\", \"allowed\": {\"gestor\", \"rh\"}, \"text\": \"Avaliação de Paulo Mendes: abaixo das metas, o que reduz a PLR. Plano de melhoria PIP-0731.\"},\n]\n\n\ndef words(text):\n    return set(re.findall(r\"\\w{3,}\", text.lower()))\n\n\ndef score(query, doc):\n    q, d = words(query), words(doc[\"title\"] + \" \" + doc[\"text\"])\n    return len(q & d) / (len(q) or 1)  # troque por sua busca vetorial; a regra de permissão não muda\n\n\ndef search(query, role, k=3, min_score=0.2, mode=\"retrieval\"):\n    \"\"\"mode = retrieval: filtra por permissão ANTES do ranking (certo)\n       mode = after:     ranking em tudo e depois descarta (seguro, mas perde respostas)\n       mode = prompt:    nenhum filtro (o contexto já saiu do cofre)\"\"\"\n    pool = [d for d in DOCS if role in d[\"allowed\"]] if mode == \"retrieval\" else DOCS\n    ranked = sorted(pool, key=lambda d: score(query, d), reverse=True)\n    top = [d for d in ranked if score(query, d) >= min_score][:k]\n    if mode == \"after\":\n        top = [d for d in top if role in d[\"allowed\"]]\n    return top",
+      "Acrescente ao fim um teste com perguntas e os três desenhos, sempre com o perfil \"colaborador\":\nfor question in [\"Quanto o diretor financeiro ganha?\", \"Como é calculada a PLR?\"]:\n    for mode in (\"retrieval\", \"after\", \"prompt\"):\n        found = search(question, \"colaborador\", mode=mode)\n        leaked = [d[\"id\"] for d in found if \"colaborador\" not in d[\"allowed\"]]\n        print(f\"{mode:9} {question[:40]:40} contexto={[d['id'] for d in found]} vazou={leaked}\")",
+      "Rode:\npython acl_search.py\nNa pergunta do salário, \"prompt\" vaza d5 e d6; \"retrieval\" e \"after\" não vazam. Na da PLR, \"after\" perde o manual (d3) e só \"retrieval\" o acha.",
+      "Passe a identidade da sessão autenticada para search(); nunca receba o perfil como texto do usuário ou do modelo. Transforme o teste num caso de CI: para cada par (perfil, pergunta), \"nenhum documento restrito no contexto\"."
+    ],
+    "ok": "o teste imprime uma linha por pergunta e desenho; só a linha \"prompt\" mostra ids restritos em vazou=[…], e na pergunta da PLR a linha \"after\" volta com o contexto vazio enquanto \"retrieval\" traz d3."
+  }
+}

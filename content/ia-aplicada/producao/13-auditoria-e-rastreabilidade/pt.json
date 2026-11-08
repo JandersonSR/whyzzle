@@ -1,0 +1,184 @@
+{
+  "title": "Auditoria e rastreabilidade",
+  "subtitle": "Registrar o suficiente para reconstruir o que o assistente fez, sem que o registro vire um novo problema",
+  "mission": "Numa quinta, uma pessoa afirma que o assistente disse que dava para vender metade das férias. Para investigar, o time precisa reconstruir aquela resposta: quando foi, que versão do prompt e que modelo estavam no ar, que documentos entraram no contexto. A trilha de auditoria da Aurora registra um evento por resposta. Escolha os campos, o que fazer com o texto da conversa e como proteger o arquivo contra edição, e veja que perguntas de incidente a trilha consegue responder.",
+  "predict": {
+    "question": "para ser completa, a trilha deveria guardar o texto bruto de cada conversa, com tudo que a pessoa digitou?",
+    "options": {
+      "yes": "Sim: sem o texto bruto não há auditoria",
+      "no": "Não: o redigido basta e o bruto vira outro risco"
+    }
+  },
+  "feedback": {
+    "right": "isso: o texto redigido responde às perguntas de incidente, e o bruto guardaria cerca de 420 conversas por semana com CPF, e-mail, telefone ou saúde, legíveis por quem tem acesso ao log. A auditoria não pode virar vazamento.",
+    "wrong": "não: o texto redigido responde às perguntas de incidente, e o bruto guardaria cerca de 420 conversas por semana com CPF, e-mail, telefone ou saúde, legíveis por quem tem acesso ao log. A auditoria não pode virar vazamento.",
+    "skipped": "sem palpite? Rode com o texto redigido e depois com o bruto e compare a coluna de dados pessoais."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com a trilha padrão (todos os campos, texto redigido, hash encadeado) e leia a tabela.",
+    "cmd": "palpite anotado. Rode auditar e leia a tabela de campos."
+  },
+  "tryNext": {
+    "ui": "Agora pergunte quem viu a tabela salarial e registre só quando e documentos: sem \"quem\", a trilha não responde.",
+    "cmd": "Rode auditar \"Quem viu a tabela salarial da diretoria na semana passada?\" --campos quando,docs e veja o campo que falta."
+  },
+  "why": {
+    "simples": "Uma trilha de auditoria é a caixa-preta do avião: não evita o acidente, mas permite descobrir o que aconteceu e consertar. Para isso ela precisa guardar o suficiente (quem, quando, o que foi usado) e estar protegida contra edição, senão qualquer um \"arruma\" a história depois.\nE tem a outra ponta: se a caixa-preta grava tudo que todo passageiro disse, inclusive o que era íntimo, ela mesma vira um perigo. A regra é registrar o que explica a decisão, não o que for possível.",
+    "dev": "Um evento por resposta, em JSON, com campos fixos: id, data e hora, código do usuário (pseudônimo), versão do prompt, id do modelo (como claude-sonnet-5-5), ids e versões dos documentos que entraram no contexto, decisões de cada guardrail, tokens e custo, e a pergunta e a resposta já redigidas. Com isso se reconstrói uma resposta: mesmo prompt, mesmos documentos, mesmo modelo. Sem a versão do prompt e dos documentos, não dá para reproduzir; sem o usuário, não se responde \"quem viu isso\"; sem as decisões dos guardrails, não se prova que o ataque foi barrado.\nIntegridade: encadeie os eventos com hash (cada linha guarda o hash da anterior). Editar uma linha quebra a cadeia dali em diante. Quem controla o arquivo ainda pode recalcular tudo, então publique o hash mais recente num sistema separado, de tempos em tempos, e grave em armazenamento só de acréscimo quando o provedor oferecer.\nPrivacidade: texto redigido (lição anterior), acesso por papel com registro de quem leu o log, prazo de retenção e identificação por pseudônimo, para atender a pedidos de uma pessoa. Se o log também alimenta o conjunto de avaliação, redija antes de copiar.",
+    "especialista": "Registro e prestação de contas aparecem na lei e nos modelos de gestão. Na LGPD, o art. 37 manda controlador e operador manter registro das operações de tratamento de dados pessoais, o art. 6º, X, pede responsabilização e prestação de contas (demonstrar medidas eficazes) e o art. 48 exige comunicar incidentes de segurança à ANPD e ao titular; pela Resolução CD/ANPD nº 15/2024, o prazo é de três dias úteis do conhecimento do incidente, e sem trilha você não consegue dizer em três dias quem foi afetado. O art. 20 dá ao titular o direito de pedir revisão de decisões tomadas unicamente com base em tratamento automatizado, o que exige conseguir explicar como a decisão foi produzida.\nO NIST AI RMF 1.0 (janeiro de 2023) organiza o gerenciamento de risco de IA em quatro funções, Govern, Map, Measure e Manage, e o perfil de IA generativa NIST AI 600-1 (julho de 2024) aplica isso a 12 riscos. A ISO/IEC 42001:2023, publicada em dezembro de 2023, define requisitos para um sistema de gestão de IA numa organização. Em qualquer auditoria baseada nesse tipo de referência, os registros do que o sistema fez são a evidência natural.\nO equilíbrio é difícil: a trilha precisa de detalhe para provar algo e de contenção para não ser um segundo repositório de dados pessoais. Decida, por escrito, quem pode ler a trilha, por quanto tempo ela fica e o que é redigido, e revise com o encarregado."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: grave o texto bruto das conversas na trilha.",
+      "cmd": "hora de quebrar: rode auditar --texto bruto"
+    },
+    "success": "Quebrou: com o texto bruto, a trilha passa a guardar cerca de {piiNow} conversas por semana com CPF, e-mail, telefone ou dado de saúde, legíveis por {readers} pessoas com acesso ao log. A trilha de auditoria virou um novo vazamento à espera de acontecer.",
+    "calm": "A trilha tem {nFields} de 8 campos e {piiNow} conversas por semana com dado pessoal bruto. Para quebrar, grave o texto bruto."
+  },
+  "hints": {
+    "ui": [
+      "Marque os campos, escolha o tratamento do texto e a proteção do arquivo, e rode para ver se a pergunta tem resposta.",
+      "Linhas vermelhas são campos de que a pergunta precisa e que você não registrou. O texto bruto responde tudo, mas guarda dado pessoal.",
+      "Texto da conversa: bruto."
+    ],
+    "cmd": [
+      "A pergunta do incidente vai entre aspas, depois de auditar.",
+      "--campos quando,quem,prompt,modelo,docs,guardrails,tokens; --texto nenhum, redigido ou bruto; --integridade comum ou encadeado.",
+      "auditar --texto bruto"
+    ]
+  },
+  "errors": {
+    "notInEnum.fields": "\"{value}\" não é um campo. Use: {options}.",
+    "notInEnum.body": "\"{value}\" não é um tratamento. Use: {options}.",
+    "notInEnum.integrity": "\"{value}\" não é uma proteção. Use: {options}.",
+    "model.unknownInc": "Use uma das quatro perguntas de incidente de exemplo."
+  },
+  "controls": {
+    "arg": "Pergunta do incidente",
+    "fields": "Campos registrados",
+    "body": "Texto da conversa",
+    "integrity": "Proteção do arquivo"
+  },
+  "scene": {
+    "flowLabel": "Da pergunta à resposta da auditoria",
+    "sQuestion": "Pergunta",
+    "sNeeds": "Precisa de",
+    "subNeeds": "os campos marcados em azul ou vermelho na tabela",
+    "sAnswer": "A trilha responde?",
+    "subYes": "sim, dá para reconstruir",
+    "subNo": "não: faltam {nMissing} campo(s) ({missingNames})",
+    "tableLabel": "Campos do evento de auditoria",
+    "colField": "campo",
+    "colLogged": "registrado",
+    "colNeeded": "a pergunta precisa",
+    "colUse": "serve para",
+    "tableCaption": "vermelho: a pergunta precisa e você não registrou",
+    "verifyLabel": "Verificação da integridade",
+    "mFields": "campos registrados",
+    "mPii": "conversas por semana com dado pessoal bruto",
+    "chkAnswer": "A pergunta do incidente tem resposta",
+    "whyAnswer": "Sem os campos certos, a investigação vira palpite.",
+    "chkRaw": "Sem texto bruto com dado pessoal",
+    "whyRaw": "Registre o que explica a decisão, não tudo que é possível (necessidade, art. 6º, III).",
+    "chkChain": "Arquivo à prova de adulteração",
+    "whyChain": "Hash encadeado mostra se alguém editou uma linha.",
+    "gapNote": "Faltam {nMissing} campo(s): {missingNames}. Sem eles esta pergunta fica sem resposta.",
+    "rawNote": "O texto bruto responde qualquer pergunta, mas guarda CPF, e-mail, telefone e saúde no log. Prefira o texto redigido.",
+    "simNote": "Lição só simulada: as perguntas de incidente e os campos de que cada uma precisa são fixos, e 412 linhas e 420 conversas por semana são números da lição."
+  },
+  "data": {
+    "incidents": {
+      "Por que o assistente disse que dá para vender metade das férias?": {
+        "known": true,
+        "need": [
+          "ts",
+          "prompt_v",
+          "model",
+          "docs",
+          "text"
+        ]
+      },
+      "Quem viu a tabela salarial da diretoria na semana passada?": {
+        "known": true,
+        "need": [
+          "ts",
+          "user",
+          "docs"
+        ]
+      },
+      "Quanto o assistente custou na quarta?": {
+        "known": true,
+        "need": [
+          "ts",
+          "tokens"
+        ]
+      },
+      "O assistente barrou a tentativa de injeção de ontem?": {
+        "known": true,
+        "need": [
+          "ts",
+          "guard",
+          "text"
+        ]
+      }
+    },
+    "unknownInc": {
+      "known": false,
+      "need": []
+    },
+    "fieldNames": {
+      "ts": "quando",
+      "user": "quem (pseudônimo)",
+      "prompt_v": "versão do prompt",
+      "model": "modelo",
+      "docs": "documentos no contexto",
+      "guard": "decisões dos guardrails",
+      "tokens": "tokens e custo",
+      "text": "texto da conversa"
+    },
+    "fieldLabels": [
+      "quando",
+      "quem (pseudônimo)",
+      "versão do prompt",
+      "modelo",
+      "documentos no contexto",
+      "decisões dos guardrails",
+      "tokens e custo",
+      "texto da conversa"
+    ],
+    "fieldUse": [
+      "ordenar e filtrar",
+      "quem fez a pergunta",
+      "reproduzir a resposta",
+      "reproduzir a resposta",
+      "o que a resposta usou",
+      "o que foi barrado",
+      "custo e abuso",
+      "o que foi dito"
+    ],
+    "yesNoL": {
+      "1": "sim",
+      "0": "não"
+    },
+    "chainLines": [
+      "$ python verify_chain.py audit-2026-W45.jsonl",
+      "+ 412 linhas, cadeia de hashes íntegra",
+      "$ editar a linha 207 (teste de adulteração)",
+      "! o hash da linha 207 não confere: adulteração detectada"
+    ],
+    "plainLines": [
+      "$ wc -l audit-2026-W45.jsonl",
+      "~ 412 linhas",
+      "? nada prova que a linha 207 não foi editada depois"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Defina o evento de auditoria. Um exemplo de linha de audit.jsonl (os dados vêm redigidos):\n{\n  \"id\": \"a1c0…\",\n  \"ts\": \"2026-11-05T17:42:10Z\",\n  \"user\": \"u-9f3a\",\n  \"prompt_v\": \"rh-v3\",\n  \"model\": \"claude-sonnet-5-5\",\n  \"docs\": [\n    \"manual-ferias@2026-10\"\n  ],\n  \"guards\": {\n    \"input\": \"allow\",\n    \"output\": \"allow\"\n  },\n  \"tokens\": {\n    \"in\": 812,\n    \"out\": 96\n  },\n  \"question\": \"Por que o assistente disse que dá para vender metade das férias?\",\n  \"answer\": \"Até metade das férias.\",\n  \"prev\": \"00000000…\",\n  \"hash\": \"5be1…\"\n}",
+      "Crie audit.py: grava um evento por resposta com hash encadeado e verifica a cadeia inteira:\nimport hashlib\nimport json\nimport pathlib\nimport time\nimport uuid\n\nLOG = pathlib.Path(\"audit.jsonl\")\n\n\ndef _hash(prev, record):\n    body = json.dumps(record, sort_keys=True, ensure_ascii=False)\n    return hashlib.sha256((prev + body).encode(\"utf-8\")).hexdigest()\n\n\ndef _last_hash():\n    if not LOG.exists():\n        return \"0\" * 64\n    lines = LOG.read_text(encoding=\"utf-8\").splitlines()\n    return json.loads(lines[-1])[\"hash\"] if lines else \"0\" * 64\n\n\ndef write_event(user_code, prompt_v, model, docs, guards, tokens, question, answer):\n    \"\"\"Um evento por resposta. question e answer chegam JÁ redigidos (veja a lição de LGPD).\"\"\"\n    record = {\n        \"id\": str(uuid.uuid4()),\n        \"ts\": time.strftime(\"%Y-%m-%dT%H:%M:%SZ\", time.gmtime()),\n        \"user\": user_code,            # pseudônimo, nunca o nome\n        \"prompt_v\": prompt_v,         # ex.: \"rh-v3\"\n        \"model\": model,               # ex.: \"claude-sonnet-5-5\"\n        \"docs\": docs,                 # ids (e versões) dos documentos que entraram no contexto\n        \"guards\": guards,             # ex.: {\"input\": \"allow\", \"output\": \"allow\"}\n        \"tokens\": tokens,             # {\"in\": 812, \"out\": 96}\n        \"question\": question,\n        \"answer\": answer,\n        \"prev\": _last_hash(),\n    }\n    record[\"hash\"] = _hash(record[\"prev\"], {k: v for k, v in record.items() if k != \"hash\"})\n    with LOG.open(\"a\", encoding=\"utf-8\") as f:\n        f.write(json.dumps(record, ensure_ascii=False) + \"\\n\")\n    return record[\"id\"]\n\n\ndef verify():\n    \"\"\"Devolve None se a cadeia está íntegra, ou o número da primeira linha adulterada.\"\"\"\n    prev = \"0\" * 64\n    for n, line in enumerate(LOG.read_text(encoding=\"utf-8\").splitlines(), start=1):\n        record = json.loads(line)\n        body = {k: v for k, v in record.items() if k != \"hash\"}\n        if record[\"prev\"] != prev or record[\"hash\"] != _hash(prev, body):\n            return n\n        prev = record[\"hash\"]\n    return None",
+      "Acrescente um teste de adulteração ao fim do arquivo e rode:\nif __name__ == \"__main__\":\n    pathlib.Path(\"audit.jsonl\").unlink(missing_ok=True)\n    for i in range(3):\n        write_event(\"u-9f3a\", \"rh-v3\", \"claude-sonnet-5-5\", [\"manual-ferias@2026-10\"], {\"input\": \"allow\", \"output\": \"allow\"},\n                    {\"in\": 800 + i, \"out\": 90}, \"Por que o assistente disse que dá para vender metade das férias?\", \"Até um terço das férias.\")\n    print(\"cadeia íntegra?\", verify() is None)\n    lines = LOG.read_text(encoding=\"utf-8\").splitlines()\n    lines[1] = lines[1].replace(\"um terço\", \"metade\")        # alguém \"arruma\" a evidência\n    LOG.write_text(\"\\n\".join(lines) + \"\\n\", encoding=\"utf-8\")\n    print(\"primeira linha adulterada:\", verify())\npython audit.py",
+      "Chame write_event() no mesmo ponto do código em que a resposta é devolvida, com o texto já redigido. Agende uma verificação diária (verify()) e envie o último hash para um sistema separado. Defina por escrito quem lê a trilha e por quanto tempo ela fica."
+    ],
+    "ok": "o teste imprime \"cadeia íntegra? True\" e depois \"primeira linha adulterada: 2\": a edição de uma palavra na segunda linha quebra o hash dela e o encadeamento das seguintes."
+  }
+}
