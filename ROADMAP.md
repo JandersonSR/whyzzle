@@ -128,6 +128,7 @@ Depende das etapas de plataforma PL1 a PL3.
   - [x] Missão: corrigir um bug pequeno com ajuda da IA, provando com teste.
 - **Prática**
   - [ ] → P1 · Fluxo com agentes de código (7): especificação antes do código; arquivos de regras do repositório; tarefas pequenas e verificáveis; testes como contrato; refatoração assistida; legado e código desconhecido; vários agentes em paralelo.
+    - Em andamento: escrita das 7 lições começou (subagente); falta revisão independente e publicação.
   - [ ] P2 · Revisão e qualidade (6): revisão de PR com IA; checklists de segurança; testes gerados e seus limites; documentação viva; medição de retrabalho; prompts do time versionados.
   - [ ] Missão: entregar uma feature num repositório real com spec, testes e PR revisado.
 - **Produção**
