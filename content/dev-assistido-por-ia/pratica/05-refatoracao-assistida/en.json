@@ -1,0 +1,100 @@
+{
+  "title": "Assisted refactoring",
+  "subtitle": "Change the shape without changing behavior, and prove it with real orders",
+  "mission": "The calcularPedido function has 380 lines and nobody wants to touch it. Bia will ask the agent to split it into modules (about 900 lines of diff in all). The 140-test suite covers only part of it. Before starting, you can record the result of 200 real (anonymized) orders and compare after every step.",
+  "predict": {
+    "question": "the agent finished a step and the 140 tests are still green. Compared with the recording of 200 real orders, how many changed their total?",
+    "options": {
+      "zero": "None: the tests are green",
+      "three": "A few (3)",
+      "many": "Many (about 50)"
+    }
+  },
+  "feedback": {
+    "right": "right: 3 orders changed their total by cents. The agent swapped the rounding order while moving a piece, and none of the 140 tests covered that path. The recording caught it, and it was fixed before the PR.",
+    "wrong": "it was 3, by cents. Green tests only say that what they test didn’t change. A recording of real orders covers the paths nobody remembered to test.",
+    "skipped": "no guess? Look at \"differences in the recording\": 3, with everything green."
+  },
+  "coach": {
+    "ui": "guess noted. Run with the recording on; then switch it off and compare.",
+    "cmd": "guess noted. Run it as is, then try --record no."
+  },
+  "tryNext": {
+    "ui": "Now turn on \"fix the rounding while at it\": the recording shows 17 differences, 14 on purpose and 3 by accident, and nobody can tell them apart.",
+    "cmd": "Run refactor --mix yes and count the differences."
+  },
+  "why": {
+    "simples": "Reorganizing the kitchen must not change how the bread tastes. One way to be sure: before touching anything, bake 200 loaves and write down how each came out. After each change, bake again and compare.\nAnd if you also want to change the recipe, do it another day. Otherwise, when the bread comes out different, nobody knows whether it was the recipe or the new kitchen.",
+    "dev": "Refactoring is changing structure without changing behavior. With an agent: (1) record current behavior with characterization tests (golden master): run the function on real inputs and save the outputs as snapshots (toMatchSnapshot in Vitest or Jest); (2) ask for the refactor in small steps, one commit per step; (3) after each step, run the suite and the snapshots.\nGolden rule: the agent never updates snapshots (no vitest -u) in a refactoring PR. A bug fix goes in a separate PR, before or after.",
+    "especialista": "\"Characterization test\" is the name Michael Feathers gave, in Working Effectively with Legacy Code, to tests that record what the code does today, right or wrong. It protects refactoring, not fixing.\nAgents are great at mechanical refactoring (move, rename, extract) and dangerous with details that look neutral: rounding order, lazy evaluation, hidden side effects. Small steps also help find the culprit: with 4 steps you search about 225 lines, not 900 (and git bisect works). The numbers here come from the scenario, not a study."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch off the recording of real orders.",
+      "cmd": "time to break it: run refactor --record no"
+    },
+    "success": "Broken: the {suite} tests stayed green, but {silent} of the {orders} real orders changed their total and nobody noticed. {how} The customer notices on the receipt.",
+    "calm": "Behavior preserved: {caught} accidental difference(s) caught by the recording and fixed, in {steps} step(s) of about {perStep} lines. To break it, refactor without recording."
+  },
+  "hints": {
+    "ui": [
+      "Toggle the recording and the mix; the scene updates by itself.",
+      "\"Mix\" puts a bug fix in the same PR as the refactor.",
+      "Switch the recording off."
+    ],
+    "cmd": [
+      "--record and --mix take yes or no.",
+      "--steps goes from 1 to 6.",
+      "refactor --record no"
+    ]
+  },
+  "errors": {
+    "notBool.golden": "--record takes yes or no.",
+    "notBool.mix": "--mix takes yes or no.",
+    "belowMin.steps": "At least {min} step.",
+    "aboveMax.steps": "Up to {max} steps in this simulator."
+  },
+  "controls": {
+    "arg": "Refactor",
+    "golden": "Record 200 real orders first",
+    "mix": "Fix the rounding while at it",
+    "steps": "Steps (commits)"
+  },
+  "scene": {
+    "label": "Refactoring calcularPedido",
+    "empty": "Run to see whether behavior changed.",
+    "mSuite": "suite tests",
+    "mShown": "differences in the recording",
+    "mSilent": "changes nobody saw",
+    "mSearch": "lines to search for the cause",
+    "mReview": "review minutes",
+    "sRecord": "Before",
+    "recOn": "200 orders recorded",
+    "recOff": "only the 140 tests",
+    "sSteps": "Agent",
+    "subSteps": "{steps} step(s) of ~{perStep} lines",
+    "sCompare": "After each step",
+    "cmpNone": "nothing to compare",
+    "cmpMixed": "17 mixed-up differences",
+    "cmpCaught": "3 differences at step {badStep}",
+    "sPr": "PR",
+    "prPure": "refactor only",
+    "prMixed": "refactor + fix",
+    "silentNote": "{silent} orders with a different total, and all {suite} tests green. Behavior changed silently.",
+    "caughtNote": "The recording showed 3 different orders at step {badStep}; the agent undid the rounding swap and the comparison matched all {orders} orders again.",
+    "bigNote": "Just one step: if something changes, the cause is somewhere in {searchLines} lines."
+  },
+  "data": {
+    "howNoGolden": "With no recording, nothing compared before and after.",
+    "howMix": "The recording did show the differences, but mixed with the 14 from the requested fix, and the 3 accidental ones passed as \"expected\"."
+  },
+  "recipe": {
+    "steps": [
+      "Export about 200 real orders, anonymized, to tests/fixtures/orders-200.json and create tests/order.golden.test.ts:\nimport { expect, test } from 'vitest';\nimport orders from './fixtures/orders-200.json';\nimport { calcularPedido } from '../src/pedido';\n\ntest.each(orders)('order $id', (o) => {\n  expect(calcularPedido(o)).toMatchSnapshot();\n});",
+      "Run it once on your machine to record the snapshots and commit them:\nnpx vitest run tests/order.golden.test.ts\ngit add tests\ngit commit -m \"golden master for calcularPedido\"",
+      "Ask the agent: refactor calcularPedido in 4 steps, one commit per step, without changing behavior. After each step run npx vitest run. Never run with -u. Bug fixes go in another PR.",
+      "After each step, check:\nnpx vitest run\ngit status --short"
+    ],
+    "ok": "all 200 snapshots pass after every step and git status shows nothing changed in tests/__snapshots__/."
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "title": "Refatoração assistida",
+  "subtitle": "Mudar a forma sem mudar o comportamento, e provar isso com pedidos reais",
+  "mission": "A função calcularPedido tem 380 linhas e ninguém quer encostar nela. A Bia vai pedir ao agente para quebrá-la em módulos (uns 900 linhas de diff ao todo). A suíte de 140 testes cobre só parte dela. Antes de começar, dá para gravar o resultado de 200 pedidos reais (anonimizados) e comparar depois de cada passo.",
+  "predict": {
+    "question": "o agente terminou um passo e os 140 testes continuam verdes. Comparando com a gravação dos 200 pedidos reais, quantos mudaram de total?",
+    "options": {
+      "zero": "Nenhum: os testes estão verdes",
+      "three": "Uns poucos (3)",
+      "many": "Muitos (uns 50)"
+    }
+  },
+  "feedback": {
+    "right": "isso: 3 pedidos mudaram de total por centavos. O agente trocou a ordem do arredondamento ao mover um trecho, e nenhum dos 140 testes cobria esse caminho. A gravação pegou, e ele corrigiu antes do PR.",
+    "wrong": "foram 3, por centavos. Testes verdes só dizem que o que eles testam não mudou. A gravação de pedidos reais cobre os caminhos que ninguém lembrou de testar.",
+    "skipped": "sem palpite? Olhe \"diferenças na gravação\": foram 3 com tudo verde."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com a gravação ligada; depois desligue e compare.",
+    "cmd": "palpite anotado. Rode como está e depois tente --gravar nao."
+  },
+  "tryNext": {
+    "ui": "Agora ligue \"aproveitar e corrigir o arredondamento\": a gravação mostra 17 diferenças, 14 de propósito e 3 sem querer, e ninguém consegue separar umas das outras.",
+    "cmd": "Rode refatorar --misturar sim e conte as diferenças."
+  },
+  "why": {
+    "simples": "Reorganizar a cozinha não pode mudar o gosto do pão. Um jeito de garantir: antes de mexer, assar 200 pães e anotar como cada um saiu. Depois de cada mudança, assar de novo e comparar.\nE se você quer mudar a receita também, faça outro dia. Senão, quando o pão sair diferente, ninguém sabe se foi a receita ou a cozinha nova.",
+    "dev": "Refatorar é mudar a estrutura sem mudar o comportamento. Com agente: (1) grave o comportamento atual com testes de caracterização (golden master): rode a função com entradas reais e salve as saídas como snapshot (toMatchSnapshot no Vitest ou no Jest); (2) peça a refatoração em passos pequenos, um commit por passo; (3) depois de cada passo, rode a suíte e os snapshots.\nRegra de ouro: o agente nunca atualiza snapshot (nada de vitest -u) num PR de refatoração. Correção de bug vai num PR separado, antes ou depois.",
+    "especialista": "\"Teste de caracterização\" é o nome que Michael Feathers deu, em Working Effectively with Legacy Code, a testes que registram o que o código faz hoje, certo ou errado. Ele protege refatoração, não correção.\nAgentes são ótimos em refatoração mecânica (mover, renomear, extrair) e perigosos em detalhes que parecem neutros: ordem de arredondamento, avaliação preguiçosa, efeitos colaterais escondidos. Passos pequenos também ajudam a achar o culpado: com 4 passos, você procura em uns 225 linhas, não em 900 (e git bisect funciona). Os números aqui são do cenário, não de estudo."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: desligue a gravação dos pedidos reais.",
+      "cmd": "hora de quebrar: rode refatorar --gravar nao"
+    },
+    "success": "Quebrou: os {suite} testes ficaram verdes, mas {silent} dos {orders} pedidos reais mudaram de total e ninguém percebeu. {how} A cliente percebe no recibo.",
+    "calm": "Comportamento preservado: {caught} diferença(s) acidental(is) pega(s) pela gravação e corrigida(s), em {steps} passo(s) de uns {perStep} linhas. Para quebrar, refatore sem gravar."
+  },
+  "hints": {
+    "ui": [
+      "Ligue e desligue a gravação e a mistura; a cena atualiza sozinha.",
+      "\"Misturar\" junta uma correção de bug com a refatoração no mesmo PR.",
+      "Desligue a gravação."
+    ],
+    "cmd": [
+      "--gravar e --misturar aceitam sim ou nao.",
+      "--passos vai de 1 a 6.",
+      "refatorar --gravar nao"
+    ]
+  },
+  "errors": {
+    "notBool.golden": "--gravar aceita sim ou nao.",
+    "notBool.mix": "--misturar aceita sim ou nao.",
+    "belowMin.steps": "Pelo menos {min} passo.",
+    "aboveMax.steps": "Até {max} passos neste simulador."
+  },
+  "controls": {
+    "arg": "Refatoração",
+    "golden": "Gravar 200 pedidos reais antes",
+    "mix": "Aproveitar e corrigir o arredondamento junto",
+    "steps": "Passos (commits)"
+  },
+  "scene": {
+    "label": "Refatorando calcularPedido",
+    "empty": "Rode para ver se o comportamento mudou.",
+    "mSuite": "testes da suíte",
+    "mShown": "diferenças na gravação",
+    "mSilent": "mudanças que ninguém viu",
+    "mSearch": "linhas para procurar a causa",
+    "mReview": "minutos de revisão",
+    "sRecord": "Antes",
+    "recOn": "200 pedidos gravados",
+    "recOff": "só os 140 testes",
+    "sSteps": "Agente",
+    "subSteps": "{steps} passo(s) de ~{perStep} linhas",
+    "sCompare": "Depois de cada passo",
+    "cmpNone": "nada para comparar",
+    "cmpMixed": "17 diferenças misturadas",
+    "cmpCaught": "3 diferenças no passo {badStep}",
+    "sPr": "PR",
+    "prPure": "só refatoração",
+    "prMixed": "refatoração + correção",
+    "silentNote": "{silent} pedidos com total diferente, e os {suite} testes verdes. Comportamento mudou em silêncio.",
+    "caughtNote": "A gravação mostrou 3 pedidos diferentes no passo {badStep}; o agente desfez a troca de arredondamento e a comparação voltou a bater com os {orders} pedidos.",
+    "bigNote": "Um passo só: se algo mudar, a causa está em algum lugar de {searchLines} linhas."
+  },
+  "data": {
+    "howNoGolden": "Sem gravação, nada comparou o antes e o depois.",
+    "howMix": "A gravação até mostrou as diferenças, mas misturadas com as 14 da correção pedida, e as 3 acidentais passaram como \"esperadas\"."
+  },
+  "recipe": {
+    "steps": [
+      "Exporte uns 200 pedidos reais, anonimizados, para tests/fixtures/pedidos-200.json e crie tests/pedido.golden.test.ts:\nimport { expect, test } from 'vitest';\nimport pedidos from './fixtures/pedidos-200.json';\nimport { calcularPedido } from '../src/pedido';\n\ntest.each(pedidos)('pedido $id', (p) => {\n  expect(calcularPedido(p)).toMatchSnapshot();\n});",
+      "Rode uma vez na sua máquina para gravar os snapshots e faça commit deles:\nnpx vitest run tests/pedido.golden.test.ts\ngit add tests\ngit commit -m \"golden master de calcularPedido\"",
+      "Peça ao agente: refatore calcularPedido em 4 passos, um commit por passo, sem mudar comportamento. Depois de cada passo rode npx vitest run. Nunca rode com -u. Correções de bug ficam para outro PR.",
+      "Depois de cada passo, confira:\nnpx vitest run\ngit status --short"
+    ],
+    "ok": "os 200 snapshots passam depois de cada passo e o git status não mostra nada mudado em tests/__snapshots__/."
+  }
+}

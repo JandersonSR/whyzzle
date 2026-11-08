@@ -1,0 +1,118 @@
+{
+  "title": "Repository rules files",
+  "subtitle": "AGENTS.md, CLAUDE.md, copilot-instructions and .cursor/rules: who reads what",
+  "mission": "Everyone on the team uses an agent: Bia uses Claude Code, Caio uses Copilot in VS Code and Rafa uses Cursor. The repo’s most important rule is \"prices always in cents\". Choose which rules files exist in the repository and find out whether all three agents see that rule.",
+  "predict": {
+    "question": "the repo has AGENTS.md and a CLAUDE.md with a single line: @AGENTS.md. How does Bia’s Claude Code get to the rules?",
+    "options": {
+      "direct": "It reads AGENTS.md directly, like the other tools",
+      "import": "It reads CLAUDE.md, which imports AGENTS.md",
+      "never": "It doesn’t: Claude Code ignores AGENTS.md"
+    }
+  },
+  "feedback": {
+    "right": "right. Claude Code’s docs are blunt: it reads CLAUDE.md, not AGENTS.md. The recommended way is a CLAUDE.md with @AGENTS.md, which pulls the content in. Copilot and Cursor read AGENTS.md by themselves.",
+    "wrong": "Claude Code reads CLAUDE.md, not AGENTS.md. The @AGENTS.md line inside CLAUDE.md is an import: AGENTS.md’s content comes along. Without that CLAUDE.md, Bia’s agent has no rules at all.",
+    "skipped": "no guess? Look at the table’s first row: the path the rule takes to Claude Code."
+  },
+  "coach": {
+    "ui": "guess noted. Run with AGENTS.md + CLAUDE.md, then untick CLAUDE.md.",
+    "cmd": "guess noted. Run it as is, then try --files agents-md alone."
+  },
+  "tryNext": {
+    "ui": "Now also tick copilot-instructions and cursor-rules: everyone sees it, but the rule now lives in three places. In three months, someone updates just one.",
+    "cmd": "Run rules --files agents-md,claude-md,copilot-instructions,cursor-rules and look at the copies."
+  },
+  "why": {
+    "simples": "Picture the bakery’s recipe book. If each baker has their own, every cake comes out different. If there’s one book on the counter and everybody knows where it is, everyone bakes the same cake.\nA rules file is that book for agents. The catch is that each agent looks for the book in a different place.",
+    "dev": "Where each one looks (current official docs):\n• Claude Code: CLAUDE.md (or .claude/CLAUDE.md) and .claude/rules/*.md. It doesn’t read AGENTS.md; use a CLAUDE.md with @AGENTS.md (or a symlink). /memory shows what was loaded and /init generates a starting CLAUDE.md.\n• Copilot: .github/copilot-instructions.md for the whole repo, .github/instructions/NAME.instructions.md with applyTo for paths, and AGENTS.md for agents (the cloud agent also accepts CLAUDE.md).\n• Cursor: .cursor/rules/*.mdc (frontmatter with description, globs and alwaysApply) and AGENTS.md at the root and in subfolders.\nOne AGENTS.md as the single source, plus a CLAUDE.md that imports it, covers all three.",
+    "especialista": "Size matters: Claude Code’s docs recommend under 200 lines per CLAUDE.md (a long file uses context and lowers adherence, and it’s loaded in full anyway); Cursor’s docs say keep rules under 500 lines, split into smaller ones. This lesson’s \"adherence\" percentage is a toy.\nPath-scoped rules avoid the giant file: paths: in .claude/rules, applyTo in Copilot, globs in Cursor, and nested AGENTS.md (in Copilot, the nearest one in the tree takes precedence). And remember: a rule in a file is context, not a lock. Whatever must not fail becomes a test, a hook or a CI check."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: leave only agents-md ticked.",
+      "cmd": "time to break it: run rules \"What unit do we store prices in?\" --files agents-md"
+    },
+    "success": "Broken: only {nSee} of 3 agents see the rules. {blindNames} worked without the book and answered \"{wrongAns}\". That’s how a price in reais with decimals shows up in a system that’s all cents.",
+    "calm": "All 3 agents see the rules and answer \"{rightAns}\", with the rule written in {copies} place(s). To break it, leave one agent without the file it reads."
+  },
+  "hints": {
+    "ui": [
+      "Tick and untick files; the table shows what each agent reads.",
+      "Claude Code only gets to AGENTS.md through CLAUDE.md.",
+      "Leave only agents-md ticked."
+    ],
+    "cmd": [
+      "--files takes a comma-separated list.",
+      "Options: agents-md, claude-md, copilot-instructions, cursor-rules. --lines is the file size.",
+      "rules \"What unit do we store prices in?\" --files agents-md"
+    ]
+  },
+  "errors": {
+    "notInEnum.files": "“{value}” isn’t a file here. Options: {options}.",
+    "belowMin.size": "A rules file under {min} lines says almost nothing.",
+    "aboveMax.size": "Over {max} lines? Nobody (not even the agent) follows that. Use up to {max}."
+  },
+  "controls": {
+    "arg": "Question for the agents",
+    "files": "Files in the repository",
+    "size": "Lines in the rules file"
+  },
+  "scene": {
+    "label": "Who reads the book",
+    "empty": "Run to see what each agent reads.",
+    "mSee": "agents with the rules",
+    "mCopies": "places with the rule",
+    "mAdh": "adherence (toy)",
+    "table": "The team’s agents",
+    "colTool": "agent",
+    "colReads": "reads the rules via",
+    "colAnswer": "answer",
+    "tClaude": "Claude Code (Bia)",
+    "tCopilot": "Copilot in VS Code (Caio)",
+    "tCursor": "Cursor (Rafa)",
+    "viaImport": "CLAUDE.md → @AGENTS.md",
+    "viaDangling": "CLAUDE.md imports nothing",
+    "viaNotRead": "nothing: skips AGENTS.md",
+    "viaNone": "no file",
+    "viaAgents": "AGENTS.md",
+    "viaBoth": "AGENTS.md + its own file",
+    "viaCopilotFile": ".github/copilot-instructions.md",
+    "viaCursorFile": ".cursor/rules/*.mdc",
+    "caption": "Rules file with {size} lines.",
+    "blindNote": "{blindNames} sees no rules and answers with what’s common in other projects.",
+    "danglingNote": "CLAUDE.md has @AGENTS.md, but AGENTS.md doesn’t exist: the import brings nothing.",
+    "driftNote": "The same rule written in {copies} files. When it changes, someone will forget a copy. Prefer one AGENTS.md and keep the others only for tool-specific bits.",
+    "longNote": "{size} lines: the whole file goes into every conversation and the important rules get lost in the middle. Trim it, or split it by folder.",
+    "okNote": "One short source, and all three agents reach it. That’s the design."
+  },
+  "data": {
+    "answers": {
+      "What unit do we store prices in?": {
+        "right": "cents, integers (rule)",
+        "wrong": "reais as decimals (guess)"
+      },
+      "Which command runs the tests?": {
+        "right": "npm test",
+        "wrong": "npx jest (guess)"
+      },
+      "Can I edit an old migration?": {
+        "right": "no: create a new one (rule)",
+        "wrong": "sure, just edit it (guess)"
+      }
+    },
+    "answersFallback": {
+      "right": "cents, integers (rule)",
+      "wrong": "reais as decimals (guess)"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "At the repository root, create AGENTS.md (the single source):\n# Repository rules\n- Prices always in cents (integers). Never floats.\n- Tests: npm test (must pass before the PR).\n- Never edit old migrations; create a new one.",
+      "Create CLAUDE.md, also at the root, importing AGENTS.md:\n@AGENTS.md\n\n## Claude Code only\n- Use plan mode for changes under src/payment/.",
+      "Optional, a rule for one folder only. In Cursor, .cursor/rules/money.mdc:\n---\ndescription: Money rules\nglobs: src/**/*.ts\nalwaysApply: false\n---\n- Amounts in cents.\nIn Copilot, .github/instructions/money.instructions.md starting with applyTo: \"src/**/*.ts\" between --- lines.",
+      "In Claude Code, run /memory and check that CLAUDE.md was loaded. Open a new conversation in each tool and ask: what unit do we store prices in?"
+    ],
+    "ok": "/memory lists CLAUDE.md, and in all three tools the answer is \"cents\", citing the AGENTS.md rule."
+  }
+}

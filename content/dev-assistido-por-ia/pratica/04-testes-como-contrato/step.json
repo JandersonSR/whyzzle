@@ -1,0 +1,297 @@
+{
+  "id": "dai-p-testes-como-contrato",
+  "order": 4,
+  "track": "pratica",
+  "kind": "step",
+  "minutes": 18,
+  "tags": [
+    "testes",
+    "contrato",
+    "permissoes",
+    "ci",
+    "tdd"
+  ],
+  "requires": [
+    "dai-p-tarefas-pequenas"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "contrato",
+      "en": "contract"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Frete grátis acima de R$ 100",
+        "en": "Free delivery above R$ 100"
+      },
+      "examples": [
+        {
+          "pt": "Frete grátis acima de R$ 100",
+          "en": "Free delivery above R$ 100"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "testFirst",
+        "alias": {
+          "pt": "teste-primeiro",
+          "en": "test-first"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "lock",
+        "alias": {
+          "pt": "protecao",
+          "en": "protection"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "none",
+            "pt": "nenhuma",
+            "en": "none"
+          },
+          {
+            "id": "rule",
+            "pt": "regra",
+            "en": "rule"
+          },
+          {
+            "id": "enforced",
+            "pt": "bloqueio",
+            "en": "enforced"
+          }
+        ],
+        "default": "enforced",
+        "ui": "select"
+      }
+    ]
+  },
+  "break": {
+    "flag": "fakeGreen"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "runs": {
+          "tenforced": {
+            "total": 12,
+            "passed": 12,
+            "changed": 0,
+            "denied": 2,
+            "c": [
+              true,
+              true,
+              true,
+              true
+            ],
+            "bugs": 0
+          },
+          "trule": {
+            "total": 12,
+            "passed": 12,
+            "changed": 1,
+            "denied": 0,
+            "c": [
+              true,
+              false,
+              true,
+              true
+            ],
+            "bugs": 1
+          },
+          "tnone": {
+            "total": 12,
+            "passed": 12,
+            "changed": 2,
+            "denied": 0,
+            "c": [
+              true,
+              false,
+              true,
+              false
+            ],
+            "bugs": 2
+          },
+          "fnone": {
+            "total": 6,
+            "passed": 6,
+            "changed": 0,
+            "denied": 0,
+            "c": [
+              true,
+              false,
+              true,
+              false
+            ],
+            "bugs": 2
+          },
+          "frule": {
+            "total": 6,
+            "passed": 6,
+            "changed": 0,
+            "denied": 0,
+            "c": [
+              true,
+              false,
+              true,
+              false
+            ],
+            "bugs": 2
+          },
+          "fenforced": {
+            "total": 6,
+            "passed": 6,
+            "changed": 0,
+            "denied": 0,
+            "c": [
+              true,
+              false,
+              true,
+              false
+            ],
+            "bugs": 2
+          }
+        }
+      },
+      "compute": {
+        "cfg": "(testFirst ? 't' : 'f') + lock",
+        "r": "lookup(runs, cfg, runs.tenforced)",
+        "nBugs": "r.bugs",
+        "how": "lookup(hows, cfg, '')",
+        "term": "lookup(terms, cfg, [])"
+      },
+      "cases": [
+        {
+          "when": "nBugs > 0",
+          "flags": [
+            "fakeGreen"
+          ]
+        },
+        {
+          "when": "nBugs == 0",
+          "flags": [
+            "honestGreen"
+          ]
+        },
+        {
+          "when": "r.changed > 0",
+          "flags": [
+            "testsEdited"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "passed": "r.passed",
+            "total": "r.total",
+            "bugs": "nBugs",
+            "changed": "r.changed",
+            "denied": "r.denied",
+            "how": "how"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mSuite",
+              "value": "=r.passed + ' / ' + r.total",
+              "tone": "ok"
+            },
+            {
+              "label": "@mChanged",
+              "value": "=r.changed",
+              "format": "int",
+              "tone": "=r.changed > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@mDenied",
+              "value": "=r.denied",
+              "format": "int",
+              "tone": "=r.denied > 0 ? 'info' : 'dim'"
+            },
+            {
+              "label": "@mBugs",
+              "value": "=nBugs",
+              "format": "int",
+              "tone": "=nBugs > 0 ? 'bad' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "terminal",
+          "label": "@term",
+          "lines": "=term"
+        },
+        {
+          "type": "checks",
+          "label": "@checks",
+          "items": [
+            {
+              "label": "@c1",
+              "ok": "=r.c[0]",
+              "why": "@w1"
+            },
+            {
+              "label": "@c2",
+              "ok": "=r.c[1]",
+              "why": "@w2"
+            },
+            {
+              "label": "@c3",
+              "ok": "=r.c[2]",
+              "why": "@w3"
+            },
+            {
+              "label": "@c4",
+              "ok": "=r.c[3]",
+              "why": "@w4"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=nBugs > 0",
+          "tone": "bad",
+          "text": "@fakeNote"
+        },
+        {
+          "type": "note",
+          "when": "=testFirst && lock == 'rule'",
+          "tone": "warn",
+          "text": "@ruleNote"
+        },
+        {
+          "type": "note",
+          "when": "=nBugs == 0",
+          "tone": "ok",
+          "text": "@okNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "fixcode",
+      "edittest",
+      "giveup"
+    ],
+    "answer": "fixcode"
+  }
+}

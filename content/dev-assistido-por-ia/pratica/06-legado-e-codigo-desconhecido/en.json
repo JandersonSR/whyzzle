@@ -1,0 +1,113 @@
+{
+  "title": "Legacy and unfamiliar code",
+  "subtitle": "The agent explains fast and confidently; you check with file:line and search",
+  "mission": "Pão de Mel bought the invoice system of a partner bakery: PHP from 2014, no tests, and the author is gone. Rafa needs to clean the dead code out of the module. He asks the agent to explain the module first. Choose how to explore and how much to trust what the agent says.",
+  "predict": {
+    "question": "the agent explained the module in 10 statements, all in the same confident tone. How many were wrong?",
+    "options": {
+      "none": "None",
+      "two": "About 2",
+      "six": "More than half"
+    }
+  },
+  "feedback": {
+    "right": "right: 2 of 10. Few, but the dangerous ones: \"gerarFechamento() isn’t used\" (it’s called by name, in a cron string) and \"CFOP is always filled\" (old invoices have an empty CFOP). Search and the file:line requirement caught both.",
+    "wrong": "it was 2 of 10, and both were the ones that mattered for deleting code. The tone is the same for right and wrong ones: confidence isn’t evidence.",
+    "skipped": "no guess? The table shows 4 of the 10 statements; look at the bottom two."
+  },
+  "coach": {
+    "ui": "guess noted. Run with everything on; then switch search off.",
+    "cmd": "guess noted. Run it as is, then try --search no."
+  },
+  "tryNext": {
+    "ui": "Now switch \"read only\" off: the agent starts deleting while it explains. Even if you catch the mistake later, there are 7 touched files to undo.",
+    "cmd": "Run explore --read-only no and look at the touched files."
+  },
+  "why": {
+    "simples": "You inherited another bakery’s kitchen. A new helper looks around and says, very sure: \"that lever does nothing\". Before ripping it out, you follow the lever’s wire. Sometimes it turns off the oven.\nOld code is the same: the agent explains very well and very fast, but the explanation is a guess until someone shows where it’s written.",
+    "dev": "Explore first without editing: in Claude Code, plan mode (claude --permission-mode plan) reads and proposes without touching disk; in Cursor, Plan Mode. Ask for \"one statement per line, each with file:line, and mark 'no evidence' when you can’t find it\".\nThen check what you’re about to delete with tools that don’t guess: git grep -n \"name\" finds the name anywhere, including strings and configs; git log -S \"name\" shows when it appeared or vanished; git log --follow tells the file’s history. Only then write characterization tests and delete.",
+    "especialista": "\"Nobody calls this function\" is the most expensive claim in legacy code, because dynamic calls don’t show up in \"find references\": call_user_func in PHP, routes built from strings, reflection, cron jobs, calls from another system. The agent tends to reason like the references tool and fails with it.\nChesterton’s fence applies: don’t remove the fence before knowing why it was put up. In practice: text search across the whole repo (and neighboring repos), production logs for a few weeks, and removal behind a flag before deleting for good."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch search off.",
+      "cmd": "time to break it: run explore \"Remove the dead code from the invoice module\" --search no"
+    },
+    "success": "Broken: you believed {believed} wrong statement(s) from the agent. {how} Legacy code doesn’t warn you: it breaks at the end of the month.",
+    "calm": "{caught} of {wrong} wrong statements caught before deleting anything. To break it, switch off search or the file:line requirement."
+  },
+  "hints": {
+    "ui": [
+      "Toggle the three switches; the scene updates by itself.",
+      "Each wrong statement is caught by a different tool.",
+      "Switch \"search\" off."
+    ],
+    "cmd": [
+      "All three switches take yes or no.",
+      "--read-only, --cite (file:line) and --search (git grep).",
+      "explore \"Remove the dead code from the invoice module\" --search no"
+    ]
+  },
+  "errors": {
+    "notBool.readOnly": "--read-only takes yes or no.",
+    "notBool.cite": "--cite takes yes or no.",
+    "notBool.search": "--search takes yes or no."
+  },
+  "controls": {
+    "arg": "Rafa’s task",
+    "readOnly": "Explore read-only (plan mode)",
+    "cite": "Require file:line for each statement",
+    "search": "Check with git grep before deleting"
+  },
+  "scene": {
+    "label": "What the agent said about the module",
+    "empty": "Run to see the agent’s explanation.",
+    "mClaims": "agent statements",
+    "mCaught": "wrong and caught",
+    "mBelieved": "wrong and accepted",
+    "mEdited": "files touched before understanding",
+    "table": "4 of the 10 statements",
+    "colClaim": "the agent said",
+    "colStatus": "status",
+    "k1": "invoices use the nf_itens table",
+    "k2": "tax comes from calc_imposto.php",
+    "kA": "gerarFechamento() is unused",
+    "kB": "CFOP is always filled",
+    "stOk": "checks out (file:line)",
+    "stCaughtGrep": "wrong: git grep found it",
+    "stCaughtCite": "wrong: no file:line",
+    "stBelieved": "wrong and you believed it",
+    "caption": "Same confident tone in all 10. Only evidence tells them apart.",
+    "term": "Search before deleting",
+    "brokeNote": "{believed} wrong statement(s) became decisions. The agent didn’t lie on purpose: it reasoned from what it could see.",
+    "blindNote": "Without read-only, the agent touched {edited} files while explaining. Explaining and editing in the same step mixes learning with betting.",
+    "okNote": "The {wrong} wrong statements fell before becoming deleted code. Now you can write characterization tests and clean up calmly."
+  },
+  "data": {
+    "hows": {
+      "01": "The agent deleted gerarFechamento(), which is called by name in config/cron.php, and the month-end close stopped.",
+      "10": "The new validation assumed CFOP is always filled and 3% of old invoices started failing.",
+      "00": "gerarFechamento() was deleted (the month-end cron stopped) and the new validation broke 3% of old invoices, which have no CFOP.",
+      "11": ""
+    },
+    "grepOn": [
+      "$ git grep -n \"gerarFechamento\"",
+      "+ config/cron.php:12:  'fechamento' => 'gerarFechamento',",
+      "+ src/nf/fechamento.php:40: function gerarFechamento() {",
+      "? called by name, via call_user_func: not dead code"
+    ],
+    "grepOff": [
+      "~ no search: trusted \"is unused\"",
+      "$ git rm src/nf/fechamento.php",
+      "! day 30: \"fechamento\" cron failed"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Start with the history, using git (swap the path and name for your project’s):\ngit log --oneline --follow -- src/nf/fechamento.php\ngit grep -n \"gerarFechamento\"\ngit log -S \"gerarFechamento\" --oneline",
+      "Explore without editing. In Claude Code:\nclaude --permission-mode plan\nAsk: explain the src/nf/ module in at most 10 statements, one per line, each with file:line. Mark \"no evidence\" when you can’t find it. Don’t edit anything.\nIn Cursor, use Plan Mode; in Copilot, ask in chat.",
+      "For every \"is unused\" statement, run git grep -n with the name. If it shows up in a string, config or cron, it isn’t dead code. Only then ask for characterization tests and the removal."
+    ],
+    "ok": "you have a list of statements with file:line, some marked \"no evidence\", and git grep showed at least one use the agent’s explanation didn’t mention (or confirmed there are none)."
+  }
+}

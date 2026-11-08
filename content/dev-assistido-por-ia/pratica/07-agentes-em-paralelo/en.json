@@ -1,0 +1,121 @@
+{
+  "title": "Several agents in parallel",
+  "subtitle": "Worktrees isolate the files; merging and reviewing are still yours",
+  "mission": "This week’s sprint: coupon, booking screen, sales report and maybe the delivery change. Bia wants one agent per task, all at once. Choose the tasks, how to isolate the agents and whether she reviews each PR. How long does it really take?",
+  "predict": {
+    "question": "3 agents in separate worktrees (coupon, booking, report), different files, and Bia reviews each PR. What weighs most on the total time?",
+    "options": {
+      "agents": "The agents’ work",
+      "merge": "Merge conflicts",
+      "review": "Bia’s review"
+    }
+  },
+  "feedback": {
+    "right": "right: the agents finish in 35 min, but Bia reviews one PR at a time and needs 55 min. The total is 80 min (against 145 in a queue), and the bottleneck is now people.",
+    "wrong": "the review: the agents finish in 35 min, Bia takes 55 min reviewing one PR at a time. Parallel agents don’t parallelize your attention.",
+    "skipped": "no guess? Compare \"agents\" with \"review\" in the metrics."
+  },
+  "coach": {
+    "ui": "guess noted. Run it as is; then also tick delivery.",
+    "cmd": "guess noted. Run it as is, then try --tasks coupon,delivery."
+  },
+  "tryNext": {
+    "ui": "Now tick coupon and delivery: both touch src/preco.ts. A worktree keeps the agents from trampling each other, but the conflict shows up at merge.",
+    "cmd": "Run parallel --tasks coupon,delivery and see the conflict."
+  },
+  "why": {
+    "simples": "Three bakers at the same counter, with the same bowl, make a mess: one puts sugar in another’s dough. Each at their own counter works. But at the end someone has to taste all three cakes, and that person has only one mouth.\nParallel agents are like that: separating the counters is easy; the tasting is still one at a time.",
+    "dev": "git worktree creates another working folder of the same repository, on another branch: git worktree add ../encomendas-cupom -b feat/cupom. Each agent runs in its own folder; git worktree list shows them all; git worktree remove cleans up. Git won’t let the same branch be checked out in two worktrees.\nIn Claude Code, claude --worktree cupom creates .claude/worktrees/cupom on a worktree-cupom branch (add .claude/worktrees/ to .gitignore; .worktreeinclude copies files like .env). In Cursor, each parallel agent runs in its own worktree (.cursor/worktrees.json sets up the environment, /apply-worktree brings the result back). Copilot’s cloud agent works on a branch and opens one PR per task.",
+    "especialista": "A worktree isolates files, not decisions: two tasks that touch the same module will conflict at merge, so pick parallel tasks along file boundaries and merge the smaller one first. Worktrees share the same .git; a new worktree is a clean checkout (install dependencies, copy .env).\nThe real limit is review and human context: if review adds up to more than the agents’ work, more agents only grow the queue. The times here are made up. In Claude Code you can also isolate subagents with isolation: worktree; in Cursor, the default is up to 25 worktrees per machine."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: switch isolation to \"same folder\".",
+      "cmd": "time to break it: run parallel --isolation same-folder"
+    },
+    "success": "Broken: {n} agents in the same folder share the same files and the same branch. {red} test runs failed on another agent’s half-written code, and the PR came out mixing {n} tasks nobody can review separately.",
+    "calm": "{n} isolated task(s): {wall} min in total ({seq} in a queue), with {conflicts} merge conflict(s). To break it, put the agents in the same folder."
+  },
+  "hints": {
+    "ui": [
+      "Tick tasks and switch isolation; the scene updates by itself.",
+      "Coupon and delivery touch the same file; booking and report don’t.",
+      "Isolation \"same folder\" with 2 or more tasks."
+    ],
+    "cmd": [
+      "--tasks takes a list: coupon, booking, report, delivery.",
+      "--isolation takes same-folder or worktree; --review takes yes or no.",
+      "parallel --isolation same-folder"
+    ]
+  },
+  "errors": {
+    "notInEnum.tasks": "“{value}” isn’t a sprint task. Options: {options}.",
+    "notInEnum.iso": "“{value}” isn’t an isolation option here. Options: {options}.",
+    "notBool.review": "--review takes yes or no.",
+    "model.noTasks": "Pick at least one task."
+  },
+  "controls": {
+    "arg": "Sprint",
+    "tasks": "Tasks (one agent each)",
+    "iso": "Isolation",
+    "review": "Bia reviews each PR"
+  },
+  "scene": {
+    "label": "The sprint in parallel",
+    "empty": "Run to see the sprint.",
+    "mAgents": "agents (the slowest)",
+    "mReview": "Bia’s review",
+    "mWall": "total time",
+    "mSeq": "queued, one at a time",
+    "mConf": "merge conflicts",
+    "table": "Tasks",
+    "colTask": "task",
+    "colFiles": "files",
+    "colAgent": "agent (min)",
+    "colDone": "merged at min",
+    "t_cupom": "coupon",
+    "t_agenda": "booking screen",
+    "t_relatorio": "sales report",
+    "t_frete": "delivery change",
+    "capReview": "Bia reviews one PR at a time, in the order they finish. Made-up times.",
+    "capNoReview": "No review: merge as soon as the agent finishes. Made-up times.",
+    "term": "In Bia’s terminal",
+    "sharedNote": "Same folder: the {n} agents write to the same files and the same branch. One runs the tests while another is mid-edit.",
+    "conflictNote": "{conflictFile} was touched by two tasks: the second merge needs a rebase and one more review (+{rebase} min). A worktree doesn’t prevent conflicts; picking tasks with separate files does.",
+    "noReviewNote": "Faster ({wall} min), but {n} PR(s) went in without anyone reading them. The agents’ mistakes arrive together, and in the shop.",
+    "boundNote": "The agents finish in {agentMax} min; review adds up to {reviewSum} min. The bottleneck is now Bia: more agents would only grow her queue."
+  },
+  "data": {
+    "termOk": [
+      "$ git worktree list",
+      "+ ~/encomendas            main",
+      "+ ~/encomendas-cupom      [feat/cupom]",
+      "+ ~/encomendas-agenda     [feat/agenda]",
+      "$ git merge feat/cupom",
+      "+ merged without conflict"
+    ],
+    "termConflict": [
+      "$ git merge feat/frete",
+      "+ merged without conflict",
+      "$ git merge feat/cupom",
+      "CONFLICT (content): Merge conflict in src/preco.ts",
+      "? resolve it, run npm test, ask for another review"
+    ],
+    "termShared": [
+      "$ git status --short",
+      " M src/preco.ts",
+      " M src/agenda.ts",
+      " M src/relatorio.ts",
+      "$ npm test",
+      "! coupon agent: failed in src/agenda.ts (half-written)"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Create one worktree per task, each on its own branch, and check:\ngit worktree add ../encomendas-cupom -b feat/cupom\ngit worktree add ../encomendas-agenda -b feat/agenda\ngit worktree list",
+      "In one terminal per worktree, set up and open the agent of your choice:\ncd ../encomendas-cupom\nnpm install\nclaude\nIn Claude Code you can also skip step 1 with claude --worktree cupom. In Cursor, use parallel agents (each gets a worktree). In Copilot, assign each issue to Copilot and it opens one PR per task.",
+      "Review and merge one at a time, from main. If there’s a conflict, resolve it, run the tests and ask for another review. Then clean up:\ngit merge feat/cupom\ngit worktree remove ../encomendas-cupom\ngit branch -d feat/cupom"
+    ],
+    "ok": "git worktree list shows the main folder and one line per task, each on its own branch, and git status in each worktree shows only that task’s files."
+  }
+}

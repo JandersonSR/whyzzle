@@ -1,0 +1,230 @@
+{
+  "id": "dai-p-refatoracao-assistida",
+  "order": 5,
+  "track": "pratica",
+  "kind": "step",
+  "minutes": 18,
+  "tags": [
+    "refatoracao",
+    "golden-master",
+    "testes-de-caracterizacao",
+    "snapshot"
+  ],
+  "requires": [
+    "dai-p-testes-como-contrato"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "refatorar",
+      "en": "refactor"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Quebrar calcularPedido (380 linhas) em módulos sem mudar comportamento",
+        "en": "Split calcularPedido (380 lines) into modules without changing behavior"
+      },
+      "examples": [
+        {
+          "pt": "Quebrar calcularPedido (380 linhas) em módulos sem mudar comportamento",
+          "en": "Split calcularPedido (380 lines) into modules without changing behavior"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "golden",
+        "alias": {
+          "pt": "gravar",
+          "en": "record"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "mix",
+        "alias": {
+          "pt": "misturar",
+          "en": "mix"
+        },
+        "type": "bool",
+        "default": false,
+        "ui": "switch"
+      },
+      {
+        "name": "steps",
+        "alias": {
+          "pt": "passos",
+          "en": "steps"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 6,
+        "default": 4,
+        "ui": "slider"
+      }
+    ]
+  },
+  "break": {
+    "flag": "silentChange"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "totalLines": 900,
+        "orders": 200,
+        "accidental": 3,
+        "intended": 14,
+        "suite": 140
+      },
+      "compute": {
+        "perStep": "round(totalLines / steps)",
+        "badStep": "max(1, ceil(steps / 2))",
+        "shown": "golden ? accidental + (mix ? intended : 0) : 0",
+        "silent": "golden ? (mix ? accidental : 0) : accidental",
+        "caught": "accidental - silent",
+        "searchLines": "golden ? perStep : totalLines",
+        "reviewMin": "round(steps * (5 + perStep / 30))",
+        "how": "golden ? (mix ? howMix : '') : howNoGolden"
+      },
+      "cases": [
+        {
+          "when": "silent > 0",
+          "flags": [
+            "silentChange"
+          ]
+        },
+        {
+          "when": "silent == 0",
+          "flags": [
+            "preserved"
+          ]
+        },
+        {
+          "when": "mix",
+          "flags": [
+            "tangled"
+          ]
+        },
+        {
+          "when": "steps == 1",
+          "flags": [
+            "bigBang"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "silent": "silent",
+            "caught": "caught",
+            "shown": "shown",
+            "orders": "orders",
+            "suite": "suite",
+            "steps": "steps",
+            "perStep": "perStep",
+            "badStep": "badStep",
+            "searchLines": "searchLines",
+            "reviewMin": "reviewMin",
+            "how": "how",
+            "intended": "intended"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mSuite",
+              "value": "=suite + ' / ' + suite",
+              "tone": "ok"
+            },
+            {
+              "label": "@mShown",
+              "value": "=golden ? str(shown) : '—'",
+              "tone": "=!golden ? 'dim' : (mix ? 'warn' : 'info')"
+            },
+            {
+              "label": "@mSilent",
+              "value": "=silent",
+              "format": "int",
+              "tone": "=silent > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@mSearch",
+              "value": "=searchLines",
+              "format": "int",
+              "tone": "=searchLines > 400 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@mReview",
+              "value": "=reviewMin",
+              "format": "min",
+              "tone": "info"
+            }
+          ]
+        },
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@sRecord",
+              "sub": "=golden ? '@recOn' : '@recOff'",
+              "tone": "=golden ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@sSteps",
+              "sub": "@subSteps",
+              "tone": "=steps == 1 ? 'warn' : 'ok'"
+            },
+            {
+              "label": "@sCompare",
+              "sub": "=!golden ? '@cmpNone' : (mix ? '@cmpMixed' : '@cmpCaught')",
+              "tone": "=silent > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@sPr",
+              "sub": "=mix ? '@prMixed' : '@prPure'",
+              "tone": "=mix ? 'warn' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=silent > 0",
+          "tone": "bad",
+          "text": "@silentNote"
+        },
+        {
+          "type": "note",
+          "when": "=golden && !mix",
+          "tone": "ok",
+          "text": "@caughtNote"
+        },
+        {
+          "type": "note",
+          "when": "=steps == 1",
+          "tone": "warn",
+          "text": "@bigNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "zero",
+      "three",
+      "many"
+    ],
+    "answer": "three"
+  }
+}

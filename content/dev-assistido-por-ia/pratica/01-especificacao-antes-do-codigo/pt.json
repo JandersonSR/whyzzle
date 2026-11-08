@@ -1,0 +1,129 @@
+{
+  "title": "Especificação antes do código",
+  "subtitle": "Critérios de aceite e \"fora do escopo\" encolhem o diff do agente",
+  "mission": "O app de encomendas da Pão de Mel virou coisa séria: agora são três lojas e um time de verdade. A Duda (analista de produto) escreve as issues, a Bia (tech lead) entrega para o agente de código e revisa o PR. A próxima feature é agendar a retirada. Compare três especificações da mesma feature e veja o que o agente faz com cada uma.",
+  "predict": {
+    "question": "mesma feature, especificação completa (4 critérios de aceite + fora do escopo). Comparado ao pedido vago, o diff do agente fica…",
+    "options": {
+      "smaller": "Menor: o agente faz só o que foi pedido",
+      "same": "Igual: a feature é a mesma",
+      "bigger": "Maior: mais detalhe vira mais código"
+    }
+  },
+  "feedback": {
+    "right": "isso: 180 linhas contra 640. Com o pedido vago o agente \"completou\" a feature com SMS, um campo novo no banco e uma tela de admin que ninguém pediu. Especificação boa encolhe o diff.",
+    "wrong": "olha a tabela: 180 linhas com a especificação completa, 640 com o pedido vago. Lacuna na especificação o agente preenche com código, e geralmente com mais código do que você queria.",
+    "skipped": "sem palpite, tudo bem. A tabela compara as três especificações: repare quem gera o menor diff."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com a especificação completa e depois troque para as outras duas.",
+    "cmd": "palpite anotado. Rode como está e depois troque o texto pelos outros exemplos."
+  },
+  "tryNext": {
+    "ui": "Agora escolha o pedido vago e deixe o plano ligado: o agente faz perguntas antes de codar, e as respostas da Bia viram a especificação que faltava.",
+    "cmd": "Rode especificar \"Quero que o cliente possa agendar a retirada da encomenda.\" --plano sim e compare com --plano nao."
+  },
+  "why": {
+    "simples": "Pedir \"faz um bolo de aniversário\" para a confeitaria rende um bolo de três andares, com vela, glacê e nome escrito. Você queria um bolo simples para 10 pessoas.\nQuem recebe um pedido vago não faz menos: faz o que imagina que você quer. Escrever antes o que é \"pronto\" (e o que não entra) economiza o bolo errado.",
+    "dev": "Uma boa issue para agente tem: objetivo em uma frase, critérios de aceite verificáveis (números, limites, mensagens), o que fica fora do escopo e como verificar (comando de teste). Cada critério vira um teste; \"fora do escopo\" corta as invenções.\nAntes de deixar o agente editar, peça um plano: no Claude Code, `claude --permission-mode plan` (ou Shift+Tab até aparecer \"plan mode on\") faz ele ler e propor sem tocar no disco; no Cursor, o Plan Mode também abre com Shift+Tab. No GitHub, você pode atribuir a issue ao Copilot: o texto da issue é a especificação que ele recebe.",
+    "especialista": "O plano é uma especificação barata escrita \"ao contrário\": o agente mostra o que entendeu, e corrigir um parágrafo custa minutos, enquanto corrigir 640 linhas custa horas e rodadas de revisão. Por isso o pedido vago com plano já fica perto do pedido parcial.\nEm times, vale ter um modelo de issue com seções fixas (Objetivo, Critérios de aceite, Fora do escopo, Como verificar) e um verificador automático que reclama de issue sem critérios antes de ela chegar ao agente. Os números desta lição são de um cenário inventado, mas a direção (escopo aberto → diff maior → mais revisão) é o que times relatam."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: escolha o pedido vago e desligue o plano.",
+      "cmd": "hora de quebrar: rode especificar \"Quero que o cliente possa agendar a retirada da encomenda.\" --plano nao"
+    },
+    "success": "Quebrou: sem critérios e sem plano, o agente entregou {lines} linhas em {files} arquivos, com {extras} coisas que ninguém pediu, e o PR precisou de {rounds} rodadas de revisão ({reworkS} h de retrabalho). O agente não errou o código: errou o pedido, porque ninguém disse qual era.",
+    "calm": "Especificação \"{levelName}\": {lines} linhas, {rounds} rodada(s) de revisão, {reworkS} h de retrabalho. Para quebrar, use o pedido vago sem plano."
+  },
+  "hints": {
+    "ui": [
+      "Escolha uma especificação e rode; a tabela compara as três.",
+      "O plano faz o agente perguntar antes de codar. Veja o que acontece com o pedido vago com e sem ele.",
+      "Pedido vago + plano desligado."
+    ],
+    "cmd": [
+      "A especificação vai entre aspas depois de especificar.",
+      "--plano aceita sim ou nao.",
+      "especificar \"Quero que o cliente possa agendar a retirada da encomenda.\" --plano nao"
+    ]
+  },
+  "errors": {
+    "notBool.plan": "--plano aceita sim ou nao.",
+    "missingArg": "Faltou a especificação entre aspas."
+  },
+  "controls": {
+    "arg": "Especificação da Duda",
+    "plan": "Pedir um plano antes de editar"
+  },
+  "scene": {
+    "label": "Da issue ao PR",
+    "empty": "Rode para ver o PR que o agente entrega.",
+    "sSpec": "Especificação",
+    "subSpec": "{levelName}: {crit} critério(s)",
+    "sPlan": "Plano",
+    "planOn": "agente propõe, Bia aprova",
+    "planOff": "direto para o código",
+    "sDiff": "Diff do agente",
+    "subDiff": "{lines} linhas, {files} arquivos",
+    "sReview": "Revisão",
+    "subReview": "{rounds} rodada(s)",
+    "mLines": "linhas no diff",
+    "mExtras": "coisas não pedidas",
+    "mRounds": "rodadas de revisão",
+    "mReview": "minutos de revisão",
+    "mRework": "retrabalho",
+    "table": "As três especificações",
+    "colSpec": "especificação",
+    "colLines": "linhas",
+    "colRounds": "rodadas",
+    "colReview": "min de revisão",
+    "lvVague": "vaga (0 critérios)",
+    "lvPartial": "parcial (2 critérios)",
+    "lvFull": "completa (4 + fora do escopo)",
+    "capPlan": "Com plano antes de editar. Cenário inventado, números fixos.",
+    "capNoPlan": "Sem plano: o agente vai direto ao código. Cenário inventado.",
+    "creepNote": "{extras} coisa(s) fora do pedido: SMS de lembrete, campo novo no banco, tela de admin. Cada uma é código para revisar, testar e manter.",
+    "planNote": "No plano, o agente pergunta: \"{planQ}\"",
+    "realNote": "Seu modelo contou {crit} critério(s) de aceite e perguntaria: \"{realQ}\"",
+    "brokenNote": "O modelo não devolveu o JSON pedido ({\"criteria\", \"out_of_scope\", \"question\"}); a lição tratou como especificação vaga.",
+    "simNote": "No modo simulado, um texto seu vira \"completa\" se tiver critérios e fora do escopo, \"parcial\" se tiver um dos dois. Com a sua chave, um modelo de verdade avalia."
+  },
+  "data": {
+    "specs": {
+      "Quero que o cliente possa agendar a retirada da encomenda.": "vague",
+      "Agendar retirada: o cliente escolhe dia e horário. Critérios: entre 7h e 19h; no máximo 20 retiradas por hora.": "partial",
+      "Agendar retirada. Critérios de aceite: 1) cliente escolhe dia e horário entre 7h e 19h; 2) no máximo 20 retiradas por hora; 3) agendamento até 2 dias antes; 4) o recibo mostra o horário. Fora do escopo: SMS, pagamento, tela de admin.": "full"
+    },
+    "critWords": [
+      "critério",
+      "criterio",
+      "aceite",
+      "dado que"
+    ],
+    "scopeWords": [
+      "fora do escopo",
+      "não inclui",
+      "nao inclui"
+    ],
+    "levelNames": {
+      "vague": "vaga",
+      "partial": "parcial",
+      "full": "completa"
+    },
+    "planQs": {
+      "vague": "Que horários a loja aceita? Tem limite por hora? Precisa avisar o cliente por SMS? Quem altera agendamentos?",
+      "partial": "Até quantos dias antes dá para agendar? O horário aparece no recibo?",
+      "full": "Nenhuma dúvida: o plano lista um teste por critério e não toca em SMS, pagamento nem admin."
+    },
+    "gradeSystem": "Você avalia especificações de tarefas para um agente de código. Leia a especificação e responda só com JSON: {\"criteria\": número de critérios de aceite verificáveis (com números ou resultados observáveis), \"out_of_scope\": true se ela diz o que fica fora do escopo, \"question\": a pergunta mais importante que você faria antes de programar}."
+  },
+  "recipe": {
+    "steps": [
+      "Crie docs/specs/agendar-retirada.md no seu projeto (troque a feature pela sua):\n# Agendar retirada\n## Critérios de aceite\n- [ ] Cliente escolhe dia e horário entre 7h e 19h\n- [ ] No máximo 20 retiradas por hora\n- [ ] Agendamento até 2 dias antes\n- [ ] O recibo mostra o horário\n## Fora do escopo\n- SMS, pagamento, tela de admin\n## Como verificar\n- npm test",
+      "Peça um plano antes de qualquer edição. No Claude Code:\nclaude --permission-mode plan\nDepois digite: Leia docs/specs/agendar-retirada.md e proponha um plano com os arquivos que vai mudar e um teste por critério. Nada fora do escopo.\nNo Cursor, use o Plan Mode (Shift+Tab no campo do Agent). No Copilot, peça o plano no chat antes de trocar para o modo agente.",
+      "Confira o plano contra a lista: cada critério tem um teste? Algum item fala de SMS, pagamento ou admin? Corrija o plano, aprove e, no fim, rode:\ngit diff --stat"
+    ],
+    "ok": "o plano tem um teste por critério e não cita SMS, pagamento nem admin, e o git diff --stat lista só os arquivos que estavam no plano."
+  }
+}

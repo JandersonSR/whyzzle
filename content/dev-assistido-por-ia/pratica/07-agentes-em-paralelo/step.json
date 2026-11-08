@@ -1,0 +1,645 @@
+{
+  "id": "dai-p-agentes-em-paralelo",
+  "order": 7,
+  "track": "pratica",
+  "kind": "step",
+  "minutes": 20,
+  "tags": [
+    "paralelo",
+    "git-worktree",
+    "isolamento",
+    "merge",
+    "revisao"
+  ],
+  "requires": [
+    "dai-p-legado-e-codigo-desconhecido"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "paralelo",
+      "en": "parallel"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Sprint da semana: uma tarefa por agente",
+        "en": "This week’s sprint: one task per agent"
+      },
+      "examples": [
+        {
+          "pt": "Sprint da semana: uma tarefa por agente",
+          "en": "This week’s sprint: one task per agent"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "tasks",
+        "alias": {
+          "pt": "tarefas",
+          "en": "tasks"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "cupom",
+            "pt": "cupom",
+            "en": "coupon"
+          },
+          {
+            "id": "agenda",
+            "pt": "agenda",
+            "en": "booking"
+          },
+          {
+            "id": "relatorio",
+            "pt": "relatorio",
+            "en": "report"
+          },
+          {
+            "id": "frete",
+            "pt": "frete",
+            "en": "delivery"
+          }
+        ],
+        "default": [
+          "cupom",
+          "agenda",
+          "relatorio"
+        ],
+        "ui": "checkboxes"
+      },
+      {
+        "name": "iso",
+        "alias": {
+          "pt": "isolamento",
+          "en": "isolation"
+        },
+        "type": "enum",
+        "options": [
+          {
+            "id": "folder",
+            "pt": "mesma-pasta",
+            "en": "same-folder"
+          },
+          {
+            "id": "worktree",
+            "pt": "worktree",
+            "en": "worktree"
+          }
+        ],
+        "default": "worktree",
+        "ui": "select"
+      },
+      {
+        "name": "review",
+        "alias": {
+          "pt": "revisar",
+          "en": "review"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "clobbered"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "runs": {
+          "0001": {
+            "n": 1,
+            "agentMax": 20,
+            "reviewSum": 15,
+            "wall": 35,
+            "wallNoReview": 20,
+            "seq": 35,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_frete",
+                2,
+                20,
+                35
+              ]
+            ]
+          },
+          "0010": {
+            "n": 1,
+            "agentMax": 30,
+            "reviewSum": 15,
+            "wall": 45,
+            "wallNoReview": 30,
+            "seq": 45,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_relatorio",
+                2,
+                30,
+                45
+              ]
+            ]
+          },
+          "0011": {
+            "n": 2,
+            "agentMax": 30,
+            "reviewSum": 30,
+            "wall": 50,
+            "wallNoReview": 30,
+            "seq": 80,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_frete",
+                2,
+                20,
+                35
+              ],
+              [
+                "@t_relatorio",
+                2,
+                30,
+                50
+              ]
+            ]
+          },
+          "0100": {
+            "n": 1,
+            "agentMax": 35,
+            "reviewSum": 20,
+            "wall": 55,
+            "wallNoReview": 35,
+            "seq": 55,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_agenda",
+                2,
+                35,
+                55
+              ]
+            ]
+          },
+          "0101": {
+            "n": 2,
+            "agentMax": 35,
+            "reviewSum": 35,
+            "wall": 55,
+            "wallNoReview": 35,
+            "seq": 90,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_frete",
+                2,
+                20,
+                35
+              ],
+              [
+                "@t_agenda",
+                2,
+                35,
+                55
+              ]
+            ]
+          },
+          "0110": {
+            "n": 2,
+            "agentMax": 35,
+            "reviewSum": 35,
+            "wall": 65,
+            "wallNoReview": 35,
+            "seq": 100,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_relatorio",
+                2,
+                30,
+                45
+              ],
+              [
+                "@t_agenda",
+                2,
+                35,
+                65
+              ]
+            ]
+          },
+          "0111": {
+            "n": 3,
+            "agentMax": 35,
+            "reviewSum": 50,
+            "wall": 70,
+            "wallNoReview": 35,
+            "seq": 135,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_frete",
+                2,
+                20,
+                35
+              ],
+              [
+                "@t_relatorio",
+                2,
+                30,
+                50
+              ],
+              [
+                "@t_agenda",
+                2,
+                35,
+                70
+              ]
+            ]
+          },
+          "1000": {
+            "n": 1,
+            "agentMax": 25,
+            "reviewSum": 20,
+            "wall": 45,
+            "wallNoReview": 25,
+            "seq": 45,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_cupom",
+                3,
+                25,
+                45
+              ]
+            ]
+          },
+          "1001": {
+            "n": 2,
+            "agentMax": 25,
+            "reviewSum": 35,
+            "wall": 70,
+            "wallNoReview": 40,
+            "seq": 80,
+            "conflicts": 1,
+            "conflictFile": "src/preco.ts",
+            "rows": [
+              [
+                "@t_frete",
+                2,
+                20,
+                35
+              ],
+              [
+                "@t_cupom",
+                3,
+                25,
+                70
+              ]
+            ]
+          },
+          "1010": {
+            "n": 2,
+            "agentMax": 30,
+            "reviewSum": 35,
+            "wall": 60,
+            "wallNoReview": 30,
+            "seq": 90,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_cupom",
+                3,
+                25,
+                45
+              ],
+              [
+                "@t_relatorio",
+                2,
+                30,
+                60
+              ]
+            ]
+          },
+          "1011": {
+            "n": 3,
+            "agentMax": 30,
+            "reviewSum": 50,
+            "wall": 85,
+            "wallNoReview": 45,
+            "seq": 125,
+            "conflicts": 1,
+            "conflictFile": "src/preco.ts",
+            "rows": [
+              [
+                "@t_frete",
+                2,
+                20,
+                35
+              ],
+              [
+                "@t_cupom",
+                3,
+                25,
+                70
+              ],
+              [
+                "@t_relatorio",
+                2,
+                30,
+                85
+              ]
+            ]
+          },
+          "1100": {
+            "n": 2,
+            "agentMax": 35,
+            "reviewSum": 40,
+            "wall": 65,
+            "wallNoReview": 35,
+            "seq": 100,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_cupom",
+                3,
+                25,
+                45
+              ],
+              [
+                "@t_agenda",
+                2,
+                35,
+                65
+              ]
+            ]
+          },
+          "1101": {
+            "n": 3,
+            "agentMax": 35,
+            "reviewSum": 55,
+            "wall": 90,
+            "wallNoReview": 50,
+            "seq": 135,
+            "conflicts": 1,
+            "conflictFile": "src/preco.ts",
+            "rows": [
+              [
+                "@t_frete",
+                2,
+                20,
+                35
+              ],
+              [
+                "@t_cupom",
+                3,
+                25,
+                70
+              ],
+              [
+                "@t_agenda",
+                2,
+                35,
+                90
+              ]
+            ]
+          },
+          "1110": {
+            "n": 3,
+            "agentMax": 35,
+            "reviewSum": 55,
+            "wall": 80,
+            "wallNoReview": 35,
+            "seq": 145,
+            "conflicts": 0,
+            "conflictFile": "",
+            "rows": [
+              [
+                "@t_cupom",
+                3,
+                25,
+                45
+              ],
+              [
+                "@t_relatorio",
+                2,
+                30,
+                60
+              ],
+              [
+                "@t_agenda",
+                2,
+                35,
+                80
+              ]
+            ]
+          },
+          "1111": {
+            "n": 4,
+            "agentMax": 35,
+            "reviewSum": 70,
+            "wall": 105,
+            "wallNoReview": 50,
+            "seq": 180,
+            "conflicts": 1,
+            "conflictFile": "src/preco.ts",
+            "rows": [
+              [
+                "@t_frete",
+                2,
+                20,
+                35
+              ],
+              [
+                "@t_cupom",
+                3,
+                25,
+                70
+              ],
+              [
+                "@t_relatorio",
+                2,
+                30,
+                85
+              ],
+              [
+                "@t_agenda",
+                2,
+                35,
+                105
+              ]
+            ]
+          }
+        },
+        "order": [
+          "cupom",
+          "agenda",
+          "relatorio",
+          "frete"
+        ],
+        "rebase": 15
+      },
+      "compute": {
+        "mask": "memberall(order, tasks)",
+        "nT": "sum(mask)",
+        "rk": "join(mask, '')",
+        "r": "lookup(runs, rk, runs['1110'])",
+        "shared": "iso == 'folder' && nT >= 2",
+        "red": "shared ? nT * (nT - 1) : 0",
+        "wallMin": "review ? r.wall : r.wallNoReview",
+        "nConf": "iso == 'worktree' ? r.conflicts : 0",
+        "tableRows": "r.rows"
+      },
+      "cases": [
+        {
+          "when": "nT == 0",
+          "error": "noTasks"
+        },
+        {
+          "when": "shared",
+          "flags": [
+            "clobbered"
+          ]
+        },
+        {
+          "when": "iso == 'worktree' && r.conflicts > 0",
+          "flags": [
+            "conflict"
+          ]
+        },
+        {
+          "when": "!review",
+          "flags": [
+            "unreviewed"
+          ]
+        },
+        {
+          "when": "review && r.reviewSum > r.agentMax",
+          "flags": [
+            "reviewBound"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "n": "nT",
+            "red": "red",
+            "wall": "wallMin",
+            "seq": "r.seq",
+            "agentMax": "r.agentMax",
+            "reviewSum": "r.reviewSum",
+            "conflicts": "nConf",
+            "conflictFile": "r.conflictFile",
+            "rebase": "rebase"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mAgents",
+              "value": "=r.agentMax",
+              "format": "min",
+              "tone": "info"
+            },
+            {
+              "label": "@mReview",
+              "value": "=review ? r.reviewSum : 0",
+              "format": "min",
+              "tone": "=review ? (r.reviewSum > r.agentMax ? 'warn' : 'ok') : 'bad'"
+            },
+            {
+              "label": "@mWall",
+              "value": "=wallMin",
+              "format": "min",
+              "tone": "=shared ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@mSeq",
+              "value": "=r.seq",
+              "format": "min",
+              "tone": "dim"
+            },
+            {
+              "label": "@mConf",
+              "value": "=nConf",
+              "format": "int",
+              "tone": "=nConf > 0 ? 'warn' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@colTask",
+            "@colFiles",
+            "@colAgent",
+            "@colDone"
+          ],
+          "rows": "=tableRows",
+          "caption": "=review ? '@capReview' : '@capNoReview'"
+        },
+        {
+          "type": "terminal",
+          "label": "@term",
+          "lines": "=shared ? termShared : (nConf > 0 ? termConflict : termOk)"
+        },
+        {
+          "type": "note",
+          "when": "=shared",
+          "tone": "bad",
+          "text": "@sharedNote"
+        },
+        {
+          "type": "note",
+          "when": "=!shared && nConf > 0",
+          "tone": "warn",
+          "text": "@conflictNote"
+        },
+        {
+          "type": "note",
+          "when": "=!review",
+          "tone": "bad",
+          "text": "@noReviewNote"
+        },
+        {
+          "type": "note",
+          "when": "=!shared && review && r.reviewSum > r.agentMax",
+          "tone": "info",
+          "text": "@boundNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "agents",
+      "merge",
+      "review"
+    ],
+    "answer": "review"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "title": "Vários agentes em paralelo",
+  "subtitle": "Worktrees isolam os arquivos; o merge e a revisão continuam sendo seus",
+  "mission": "Sprint da semana: cupom, tela de agendamento, relatório de vendas e, talvez, a mudança do frete. A Bia quer um agente por tarefa, todos ao mesmo tempo. Escolha as tarefas, como isolar os agentes e se ela revisa cada PR. Quanto tempo leva de verdade?",
+  "predict": {
+    "question": "3 agentes em worktrees separados (cupom, agenda, relatório), arquivos diferentes, e a Bia revisa cada PR. O que mais pesa no tempo total?",
+    "options": {
+      "agents": "O trabalho dos agentes",
+      "merge": "Os conflitos de merge",
+      "review": "A revisão da Bia"
+    }
+  },
+  "feedback": {
+    "right": "isso: os agentes terminam em 35 min, mas a Bia revisa um PR por vez e precisa de 55 min. O total fica em 80 min (contra 145 em fila), e o gargalo passou a ser gente.",
+    "wrong": "a revisão: os agentes acabam em 35 min, a Bia leva 55 min revisando um PR de cada vez. Paralelizar agentes não paraleliza a sua atenção.",
+    "skipped": "sem palpite? Compare \"agentes\" com \"revisão\" nas métricas."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode como está; depois marque também o frete.",
+    "cmd": "palpite anotado. Rode como está e depois tente --tarefas cupom,frete."
+  },
+  "tryNext": {
+    "ui": "Agora marque cupom e frete: as duas mexem em src/preco.ts. Worktree evita que os agentes se atropelem, mas o conflito aparece no merge.",
+    "cmd": "Rode paralelo --tarefas cupom,frete e veja o conflito."
+  },
+  "why": {
+    "simples": "Três confeiteiros na mesma bancada, com a mesma tigela, fazem bagunça: um põe açúcar na massa do outro. Cada um na sua bancada funciona. Mas no fim alguém precisa provar os três bolos, e essa pessoa só tem uma boca.\nAgentes em paralelo são assim: separar as bancadas é fácil; a prova continua sendo uma de cada vez.",
+    "dev": "git worktree cria outra pasta de trabalho do mesmo repositório, com outro branch: git worktree add ../encomendas-cupom -b feat/cupom. Cada agente roda na sua pasta; git worktree list mostra todas; git worktree remove limpa. O git não deixa o mesmo branch em dois worktrees.\nNo Claude Code, claude --worktree cupom cria .claude/worktrees/cupom num branch worktree-cupom (coloque .claude/worktrees/ no .gitignore; .worktreeinclude copia arquivos como .env). No Cursor, cada agente em paralelo roda no seu worktree (.cursor/worktrees.json prepara o ambiente, /apply-worktree traz o resultado). O agente na nuvem do Copilot trabalha num branch e abre um PR por tarefa.",
+    "especialista": "Worktree isola arquivos, não decisões: duas tarefas que mexem no mesmo módulo vão conflitar no merge, então escolha tarefas paralelas por fronteira de arquivos e faça merge do menor primeiro. Worktrees compartilham o mesmo .git; um worktree novo é um checkout limpo (instale dependências, copie .env).\nO limite real é revisão e contexto humano: se a revisão soma mais que o trabalho dos agentes, mais agentes só aumentam a fila. Os tempos aqui são inventados. No Claude Code também dá para isolar subagentes com isolation: worktree; no Cursor, o padrão é até 25 worktrees por máquina."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: troque o isolamento para \"mesma pasta\".",
+      "cmd": "hora de quebrar: rode paralelo --isolamento mesma-pasta"
+    },
+    "success": "Quebrou: {n} agentes na mesma pasta dividem os mesmos arquivos e o mesmo branch. {red} rodadas de teste falharam com código pela metade de outro agente, e o PR saiu misturando {n} tarefas que ninguém consegue revisar separado.",
+    "calm": "{n} tarefa(s) isoladas: {wall} min no total (em fila seriam {seq}), com {conflicts} conflito(s) de merge. Para quebrar, ponha os agentes na mesma pasta."
+  },
+  "hints": {
+    "ui": [
+      "Marque tarefas e troque o isolamento; a cena atualiza sozinha.",
+      "Cupom e frete mexem no mesmo arquivo; agenda e relatório não.",
+      "Isolamento \"mesma pasta\" com 2 ou mais tarefas."
+    ],
+    "cmd": [
+      "--tarefas recebe uma lista: cupom, agenda, relatorio, frete.",
+      "--isolamento aceita mesma-pasta ou worktree; --revisar aceita sim ou nao.",
+      "paralelo --isolamento mesma-pasta"
+    ]
+  },
+  "errors": {
+    "notInEnum.tasks": "“{value}” não é uma tarefa da sprint. Opções: {options}.",
+    "notInEnum.iso": "“{value}” não é um isolamento daqui. Opções: {options}.",
+    "notBool.review": "--revisar aceita sim ou nao.",
+    "model.noTasks": "Escolha pelo menos uma tarefa."
+  },
+  "controls": {
+    "arg": "Sprint",
+    "tasks": "Tarefas (um agente cada)",
+    "iso": "Isolamento",
+    "review": "Bia revisa cada PR"
+  },
+  "scene": {
+    "label": "A sprint em paralelo",
+    "empty": "Rode para ver a sprint.",
+    "mAgents": "agentes (o mais lento)",
+    "mReview": "revisão da Bia",
+    "mWall": "tempo total",
+    "mSeq": "em fila, um por vez",
+    "mConf": "conflitos de merge",
+    "table": "Tarefas",
+    "colTask": "tarefa",
+    "colFiles": "arquivos",
+    "colAgent": "agente (min)",
+    "colDone": "merge no min",
+    "t_cupom": "cupom",
+    "t_agenda": "tela de agendamento",
+    "t_relatorio": "relatório de vendas",
+    "t_frete": "mudança do frete",
+    "capReview": "A Bia revisa um PR por vez, na ordem em que ficam prontos. Tempos inventados.",
+    "capNoReview": "Sem revisão: merge assim que o agente termina. Tempos inventados.",
+    "term": "No terminal da Bia",
+    "sharedNote": "Mesma pasta: os {n} agentes escrevem nos mesmos arquivos e no mesmo branch. Um roda os testes enquanto o outro está no meio de uma edição.",
+    "conflictNote": "{conflictFile} foi mexido por duas tarefas: o segundo merge precisa de rebase e de uma revisão a mais (+{rebase} min). Worktree não evita conflito; escolher tarefas com arquivos separados evita.",
+    "noReviewNote": "Mais rápido ({wall} min), mas {n} PR(s) entraram sem ninguém ler. Os erros dos agentes chegam juntos, e na loja.",
+    "boundNote": "Os agentes terminam em {agentMax} min; a revisão soma {reviewSum} min. O gargalo agora é a Bia: mais agentes só aumentariam a fila dela."
+  },
+  "data": {
+    "termOk": [
+      "$ git worktree list",
+      "+ ~/encomendas            main",
+      "+ ~/encomendas-cupom      [feat/cupom]",
+      "+ ~/encomendas-agenda     [feat/agenda]",
+      "$ git merge feat/cupom",
+      "+ merge sem conflito"
+    ],
+    "termConflict": [
+      "$ git merge feat/frete",
+      "+ merge sem conflito",
+      "$ git merge feat/cupom",
+      "CONFLICT (content): Merge conflict in src/preco.ts",
+      "? resolva, rode npm test, peça nova revisão"
+    ],
+    "termShared": [
+      "$ git status --short",
+      " M src/preco.ts",
+      " M src/agenda.ts",
+      " M src/relatorio.ts",
+      "$ npm test",
+      "! agente do cupom: falhou em src/agenda.ts (pela metade)"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Crie um worktree por tarefa, cada um no seu branch, e confira:\ngit worktree add ../encomendas-cupom -b feat/cupom\ngit worktree add ../encomendas-agenda -b feat/agenda\ngit worktree list",
+      "Em um terminal por worktree, prepare e abra o agente da sua escolha:\ncd ../encomendas-cupom\nnpm install\nclaude\nNo Claude Code também dá para pular o passo 1 com claude --worktree cupom. No Cursor, use os agentes em paralelo (cada um ganha um worktree). No Copilot, atribua cada issue ao Copilot e ele abre um PR por tarefa.",
+      "Revise e faça merge de um por vez, a partir do main. Se der conflito, resolva, rode os testes e peça nova revisão. Depois limpe:\ngit merge feat/cupom\ngit worktree remove ../encomendas-cupom\ngit branch -d feat/cupom"
+    ],
+    "ok": "git worktree list mostra a pasta principal e uma linha por tarefa, cada uma com seu branch, e o git status de cada worktree só mostra os arquivos daquela tarefa."
+  }
+}

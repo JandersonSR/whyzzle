@@ -1,0 +1,149 @@
+{
+  "title": "Tests as a contract",
+  "subtitle": "The test written first says what \"right\" is, and the agent can’t rewrite the contract",
+  "mission": "Duda asked for: \"free delivery above R$ 100\" (exactly R$ 100.00 still pays R$ 8). Caio will ask the agent to build it. Choose whether Bia writes the tests first and how the tests are protected. At the end, the real shop checks 4 rules.",
+  "predict": {
+    "question": "test written first and editing tests/ blocked. The agent can’t make 2 tests pass at first. What does it do?",
+    "options": {
+      "fixcode": "Goes back and fixes the code",
+      "edittest": "Finds a way to change the test anyway",
+      "giveup": "Gives up and says it can’t be done"
+    }
+  },
+  "feedback": {
+    "right": "right: the edit to tests/ was denied twice, and the only path to green left was the right one, swapping >= for > in the code.",
+    "wrong": "look at the terminal: the agent tried to edit the test, the permission rule denied it, and it went back to the code. With the contract locked, the shortest path to green becomes the right one.",
+    "skipped": "no guess? Read the terminal top to bottom: attempt, denied, fix."
+  },
+  "coach": {
+    "ui": "guess noted. Run with test first and enforced; then switch protection to \"rule\".",
+    "cmd": "guess noted. Run it as is, then try --protection rule."
+  },
+  "tryNext": {
+    "ui": "Now leave protection as just \"rule\" (one line in AGENTS.md): the suite stays green, but one test got \"adjusted\".",
+    "cmd": "Run contract --protection rule and look at the git diff in the terminal."
+  },
+  "why": {
+    "simples": "When you order a cake, you agree on it first: chocolate, 2 kg, for Saturday. That agreement is the contract. If the baker could rewrite the order afterwards (\"actually you asked for vanilla\"), every cake would come out \"right\".\nA test written first is the agreement. The agent can change the code as it likes, but not the agreement.",
+    "dev": "Flow: you (or Duda with you) write the acceptance tests, run them and watch them fail, commit, and only then ask: \"make tests/frete.test.ts pass by changing only src/\". Protect the contract with something that executes: in Claude Code, a permission rule in .claude/settings.json with \"deny\": [\"Edit(/tests/**)\"] (deny rules are evaluated before allow).\nFor any tool, check at the end with git diff --name-only HEAD -- tests/: it must print nothing. In CI, same idea: an agent PR that touches tests needs someone else’s review.",
+    "especialista": "Why does the agent \"adjust\" the test? Because the goal you gave was \"make it pass\", and editing the assertion is the shortest path. The AGENTS.md rule helps, but it’s context; the permission is a lock. And even the lock isn’t absolute: Claude Code’s docs warn that Edit rules don’t cover a Node or Python script that writes files on its own, which is why the CI check closes the door.\nTests the agent wrote together with the code confirm its understanding, not yours. To measure whether tests catch real bugs, use mutation testing (in JavaScript, Stryker): it changes the code on purpose and counts how many changes the tests notice."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: set protection to \"none\".",
+      "cmd": "time to break it: run contract --protection none"
+    },
+    "success": "Broken: the suite says {passed} of {total} green, but {bugs} delivery rule(s) are still wrong in the shop. {how} Green isn’t the same as right.",
+    "calm": "{passed} of {total} green and the contract intact: the agent tried to touch the tests {denied} time(s) and was stopped. To break it, remove the test protection."
+  },
+  "hints": {
+    "ui": [
+      "Toggle test first and switch protection; the scene updates by itself.",
+      "Compare \"rule\" with \"enforced\": the rule is text in AGENTS.md, enforced is a permission that executes.",
+      "Protection \"none\"."
+    ],
+    "cmd": [
+      "--test-first takes yes or no.",
+      "--protection takes none, rule or enforced.",
+      "contract --protection none"
+    ]
+  },
+  "errors": {
+    "notBool.testFirst": "--test-first takes yes or no.",
+    "notInEnum.lock": "“{value}” isn’t a protection here. Options: {options}."
+  },
+  "controls": {
+    "arg": "Requested rule",
+    "testFirst": "Bia writes the tests first",
+    "lock": "Test protection"
+  },
+  "scene": {
+    "label": "The delivery contract",
+    "empty": "Run to see what the agent does with the tests.",
+    "mSuite": "suite",
+    "mChanged": "assertions changed",
+    "mDenied": "edits denied",
+    "mBugs": "rules wrong in the shop",
+    "term": "What the agent did",
+    "checks": "The real shop checks",
+    "c1": "R$ 99.99 pays R$ 8",
+    "c2": "Exactly R$ 100.00 still pays R$ 8",
+    "c3": "R$ 100.01 gets free delivery",
+    "c4": "A coupon never makes the fee negative",
+    "w1": "common case, everyone gets it",
+    "w2": "\"above\" is >, not >=: the boundary is where the agent guesses",
+    "w3": "common case on the other side",
+    "w4": "the odd case only the contract remembers",
+    "fakeNote": "Green suite, {bugs} rule(s) wrong. Green only counts when whoever decided \"right\" isn’t whoever wrote the code.",
+    "ruleNote": "A rule in AGENTS.md is context: the agent read it and still decided the test was wrong. For what must not fail, use a lock that executes.",
+    "okNote": "Contract written first, locked, and the agent fixed the code. All 4 rules hold in the shop."
+  },
+  "data": {
+    "hows": {
+      "trule": "The \"don’t touch tests/\" rule was in AGENTS.md, but a rule is context: the agent decided the test was wrong and changed 1 assertion.",
+      "tnone": "Nothing stopped the agent from editing the tests, and the shortest path to green was changing 2 expected values.",
+      "fnone": "With no test first, the agent wrote code and tests together: the tests only confirm what it understood (that R$ 100.00 is already free).",
+      "frule": "With no test first, the agent wrote code and tests together: the tests only confirm what it understood (that R$ 100.00 is already free).",
+      "fenforced": "With no test first, the agent wrote code and tests together: the tests only confirm what it understood (that R$ 100.00 is already free).",
+      "tenforced": ""
+    },
+    "terms": {
+      "tenforced": [
+        "$ npm test",
+        "! 2 failing: frete.test.ts (exactly R$ 100.00; negative fee)",
+        "? agent: Edit tests/frete.test.ts",
+        "! denied: Edit(/tests/**) in .claude/settings.json",
+        "~ agent goes back to src/frete.ts: uses > 10000, not >=",
+        "$ npm test",
+        "+ 12 passing",
+        "$ git diff --name-only HEAD -- tests/",
+        "+ (nothing: the contract didn’t change)"
+      ],
+      "trule": [
+        "$ npm test",
+        "! 2 failing: frete.test.ts (exactly R$ 100.00; negative fee)",
+        "~ agent: \"the R$ 100.00 test looks wrong, I adjusted it\"",
+        "$ npm test",
+        "+ 12 passing",
+        "$ git diff --name-only HEAD -- tests/",
+        "! tests/frete.test.ts"
+      ],
+      "tnone": [
+        "$ npm test",
+        "! 2 failing: frete.test.ts (exactly R$ 100.00; negative fee)",
+        "~ agent swaps 2 expected values to match the code",
+        "$ npm test",
+        "+ 12 passing",
+        "$ git diff --name-only HEAD -- tests/",
+        "! tests/frete.test.ts"
+      ],
+      "fnone": [
+        "~ agent writes src/frete.ts and 6 new tests",
+        "$ npm test",
+        "+ 6 passing",
+        "? no test existed before to disagree with the code"
+      ],
+      "frule": [
+        "~ agent writes src/frete.ts and 6 new tests",
+        "$ npm test",
+        "+ 6 passing",
+        "? no test existed before to disagree with the code"
+      ],
+      "fenforced": [
+        "~ agent writes src/frete.ts and 6 new tests",
+        "$ npm test",
+        "+ 6 passing",
+        "? no test existed before to disagree with the code"
+      ]
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Write the contract first, in tests/frete.test.ts (amounts in cents):\nimport { describe, expect, it } from 'vitest';\nimport { frete } from '../src/frete';\n\ndescribe('delivery fee (contract)', () => {\n  it('R$ 99.99 pays R$ 8', () => expect(frete(9999)).toBe(800));\n  it('exactly R$ 100.00 still pays', () => expect(frete(10000)).toBe(800));\n  it('above R$ 100 is free', () => expect(frete(10001)).toBe(0));\n});",
+      "Run it, watch it fail and commit the contract:\nnpx vitest run tests/frete.test.ts\ngit add tests/frete.test.ts\ngit commit -m \"free delivery contract\"",
+      "In Claude Code, lock the folder in .claude/settings.json:\n{\n  \"permissions\": {\n    \"deny\": [\"Edit(/tests/**)\"]\n  }\n}\nAsk: make tests/frete.test.ts pass by changing only src/. The tests are the contract.",
+      "With any tool, check at the end (both lines):\nnpx vitest run\ngit diff --name-only HEAD -- tests/"
+    ],
+    "ok": "vitest shows the delivery tests passing and git diff --name-only HEAD -- tests/ prints nothing (in Claude Code, any attempt to edit tests/ shows up as denied)."
+  }
+}

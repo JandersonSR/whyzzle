@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Gravar o comportamento atual antes de refatorar (golden master).",
+      "Separar refatoração de correção de bug.",
+      "Refatorar em passos pequenos para achar o culpado rápido."
+    ],
+    "minutes": 20,
+    "activity": "A turma recebe uma função curta e feia com um bug de arredondamento. Primeiro grava 10 entradas e saídas numa tabela; depois refatora em dupla com o agente e compara a tabela a cada passo. Só no fim, num commit separado, corrige o bug.",
+    "discussion": [
+      "Por que o teste de caracterização \"trava\" até o comportamento errado?",
+      "Que dados reais você poderia gravar no seu sistema sem expor ninguém?"
+    ],
+    "misconceptions": [
+      "\"Os testes passaram, então a refatoração está certa.\" Só o que eles testam está protegido.",
+      "\"Já que estou mexendo, aproveito e corrijo.\" Misturar esconde as mudanças acidentais no meio das propositais."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Record current behavior before refactoring (golden master).",
+      "Keep refactoring and bug fixing apart.",
+      "Refactor in small steps to find the culprit fast."
+    ],
+    "minutes": 20,
+    "activity": "The class gets a short, ugly function with a rounding bug. First they record 10 inputs and outputs in a table; then they refactor in pairs with the agent and compare the table at every step. Only at the end, in a separate commit, do they fix the bug.",
+    "discussion": [
+      "Why does a characterization test \"lock in\" even wrong behavior?",
+      "What real data could you record in your system without exposing anyone?"
+    ],
+    "misconceptions": [
+      "\"The tests passed, so the refactor is right.\" Only what they test is protected.",
+      "\"Since I’m in there, I’ll fix it too.\" Mixing hides accidental changes among the intended ones."
+    ]
+  }
+}

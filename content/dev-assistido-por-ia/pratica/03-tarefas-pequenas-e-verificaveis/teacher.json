@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Quebrar uma feature em fatias com \"feito quando\" e comando de verificação.",
+      "Relacionar tamanho do diff com qualidade da revisão.",
+      "Reconhecer o custo de fatiar demais."
+    ],
+    "minutes": 20,
+    "activity": "Cada grupo pega uma feature grande de um sistema conhecido e escreve de 4 a 6 fatias, cada uma com \"feito quando\" e \"verificar\". Depois os grupos trocam e tentam achar uma fatia que não dá para verificar só com o comando escrito.",
+    "discussion": [
+      "Qual o maior PR que você já revisou com atenção de verdade?",
+      "Quando faz sentido aceitar uma fatia maior?"
+    ],
+    "misconceptions": [
+      "\"O agente é rápido, então manda tudo de uma vez.\" O gargalo é a revisão, não a escrita.",
+      "\"Quanto menor a fatia, melhor.\" Abaixo de um tamanho, só aumenta o custo fixo por PR."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Break a feature into slices with \"done when\" and a verification command.",
+      "Connect diff size with review quality.",
+      "Recognize the cost of over-slicing."
+    ],
+    "minutes": 20,
+    "activity": "Each group takes a big feature from a familiar system and writes 4 to 6 slices, each with \"done when\" and \"verify\". Then groups swap and try to find a slice that can’t be verified with the written command alone.",
+    "discussion": [
+      "What’s the biggest PR you ever reviewed with real attention?",
+      "When does it make sense to accept a bigger slice?"
+    ],
+    "misconceptions": [
+      "\"The agent is fast, so send it all at once.\" The bottleneck is review, not writing.",
+      "\"The smaller the slice, the better.\" Below a certain size, it only adds fixed cost per PR."
+    ]
+  }
+}

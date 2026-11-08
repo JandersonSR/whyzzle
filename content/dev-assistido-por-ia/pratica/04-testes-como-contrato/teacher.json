@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Escrever os testes de aceite antes de pedir o código.",
+      "Diferenciar regra (contexto) de trava (permissão, CI).",
+      "Desconfiar de testes escritos junto com o código pelo mesmo agente."
+    ],
+    "minutes": 20,
+    "activity": "Em duplas: uma pessoa escreve 3 testes de uma regra de negócio com um caso de limite; a outra faz o papel do agente e tenta deixar tudo verde do jeito mais preguiçoso possível. Depois discutem que proteção teria impedido cada atalho.",
+    "discussion": [
+      "Quem deve aprovar uma mudança em teste num PR feito por agente?",
+      "Que regra de negócio do seu sistema tem um limite (>, >=) que ninguém escreveu?"
+    ],
+    "misconceptions": [
+      "\"Suíte verde = feature certa.\" Só se o \"certo\" foi definido antes e por outra pessoa.",
+      "\"Escrevi no AGENTS.md para não mexer nos testes, então está resolvido.\" Regra é contexto; trava é permissão ou CI."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Write acceptance tests before asking for code.",
+      "Tell a rule (context) from a lock (permission, CI).",
+      "Distrust tests written together with the code by the same agent."
+    ],
+    "minutes": 20,
+    "activity": "In pairs: one person writes 3 tests for a business rule with a boundary case; the other plays the agent and tries to make everything green the laziest way possible. Then they discuss which protection would have blocked each shortcut.",
+    "discussion": [
+      "Who should approve a test change in an agent-made PR?",
+      "Which business rule in your system has a boundary (>, >=) nobody wrote down?"
+    ],
+    "misconceptions": [
+      "\"Green suite = correct feature.\" Only if \"correct\" was defined first, by someone else.",
+      "\"I wrote in AGENTS.md not to touch tests, so it’s solved.\" A rule is context; a lock is a permission or CI."
+    ]
+  }
+}

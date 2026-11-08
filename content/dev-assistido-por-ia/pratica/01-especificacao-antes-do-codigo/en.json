@@ -1,0 +1,129 @@
+{
+  "title": "Spec before code",
+  "subtitle": "Acceptance criteria and \"out of scope\" shrink the agent’s diff",
+  "mission": "The Pão de Mel order app got serious: three shops now, and a real team. Duda (product analyst) writes the issues, Bia (tech lead) hands them to the coding agent and reviews the PR. Next feature: scheduling pickups. Compare three specs of the same feature and see what the agent does with each one.",
+  "predict": {
+    "question": "same feature, full spec (4 acceptance criteria + out of scope). Compared with the vague request, the agent’s diff is…",
+    "options": {
+      "smaller": "Smaller: the agent does only what was asked",
+      "same": "The same: it’s the same feature",
+      "bigger": "Bigger: more detail means more code"
+    }
+  },
+  "feedback": {
+    "right": "right: 180 lines against 640. With the vague request the agent \"completed\" the feature with SMS, a new database column and an admin screen nobody asked for. A good spec shrinks the diff.",
+    "wrong": "look at the table: 180 lines with the full spec, 640 with the vague request. The agent fills gaps in the spec with code, usually more code than you wanted.",
+    "skipped": "no guess, that’s fine. The table compares the three specs: notice which one produces the smallest diff."
+  },
+  "coach": {
+    "ui": "guess noted. Run with the full spec, then switch to the other two.",
+    "cmd": "guess noted. Run it as is, then swap the text for the other examples."
+  },
+  "tryNext": {
+    "ui": "Now pick the vague request and keep the plan on: the agent asks questions before coding, and Bia’s answers become the missing spec.",
+    "cmd": "Run specify \"I want customers to be able to schedule their order pickup.\" --plan yes and compare with --plan no."
+  },
+  "why": {
+    "simples": "Ask a bakery for \"a birthday cake\" and you get three tiers, candles, frosting and a name on top. You wanted a simple cake for 10 people.\nWhoever gets a vague order doesn’t do less: they do what they imagine you want. Writing down first what \"done\" means (and what’s out) saves you the wrong cake.",
+    "dev": "A good issue for an agent has: the goal in one sentence, verifiable acceptance criteria (numbers, limits, messages), what’s out of scope and how to verify (test command). Each criterion becomes a test; \"out of scope\" cuts the inventions.\nBefore letting the agent edit, ask for a plan: in Claude Code, `claude --permission-mode plan` (or Shift+Tab until \"plan mode on\" shows) makes it read and propose without touching disk; in Cursor, Plan Mode also opens with Shift+Tab. On GitHub you can assign the issue to Copilot: the issue text is the spec it gets.",
+    "especialista": "A plan is a cheap spec written \"backwards\": the agent shows what it understood, and fixing a paragraph takes minutes, while fixing 640 lines takes hours and review rounds. That’s why the vague request with a plan already lands close to the partial one.\nIn teams it pays to have an issue template with fixed sections (Goal, Acceptance criteria, Out of scope, How to verify) and an automatic checker that complains about issues without criteria before they reach the agent. This lesson’s numbers come from a made-up scenario, but the direction (open scope → bigger diff → more review) is what teams report."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: pick the vague request and turn the plan off.",
+      "cmd": "time to break it: run specify \"I want customers to be able to schedule their order pickup.\" --plan no"
+    },
+    "success": "Broken: with no criteria and no plan, the agent delivered {lines} lines in {files} files, with {extras} things nobody asked for, and the PR needed {rounds} review rounds ({reworkS} h of rework). The agent didn’t get the code wrong: it got the request wrong, because nobody said what it was.",
+    "calm": "\"{levelName}\" spec: {lines} lines, {rounds} review round(s), {reworkS} h of rework. To break it, use the vague request with no plan."
+  },
+  "hints": {
+    "ui": [
+      "Pick a spec and run; the table compares all three.",
+      "The plan makes the agent ask before coding. See what happens to the vague request with and without it.",
+      "Vague request + plan off."
+    ],
+    "cmd": [
+      "The spec goes in quotes after specify.",
+      "--plan takes yes or no.",
+      "specify \"I want customers to be able to schedule their order pickup.\" --plan no"
+    ]
+  },
+  "errors": {
+    "notBool.plan": "--plan takes yes or no.",
+    "missingArg": "The spec is missing, in quotes."
+  },
+  "controls": {
+    "arg": "Duda’s spec",
+    "plan": "Ask for a plan before editing"
+  },
+  "scene": {
+    "label": "From issue to PR",
+    "empty": "Run to see the PR the agent delivers.",
+    "sSpec": "Spec",
+    "subSpec": "{levelName}: {crit} criteria",
+    "sPlan": "Plan",
+    "planOn": "agent proposes, Bia approves",
+    "planOff": "straight to code",
+    "sDiff": "Agent’s diff",
+    "subDiff": "{lines} lines, {files} files",
+    "sReview": "Review",
+    "subReview": "{rounds} round(s)",
+    "mLines": "lines in the diff",
+    "mExtras": "unrequested things",
+    "mRounds": "review rounds",
+    "mReview": "review minutes",
+    "mRework": "rework",
+    "table": "The three specs",
+    "colSpec": "spec",
+    "colLines": "lines",
+    "colRounds": "rounds",
+    "colReview": "review min",
+    "lvVague": "vague (0 criteria)",
+    "lvPartial": "partial (2 criteria)",
+    "lvFull": "full (4 + out of scope)",
+    "capPlan": "With a plan before editing. Made-up scenario, fixed numbers.",
+    "capNoPlan": "No plan: the agent goes straight to code. Made-up scenario.",
+    "creepNote": "{extras} thing(s) beyond the request: reminder SMS, a new database column, an admin screen. Each one is code to review, test and maintain.",
+    "planNote": "In the plan, the agent asks: \"{planQ}\"",
+    "realNote": "Your model counted {crit} acceptance criteria and would ask: \"{realQ}\"",
+    "brokenNote": "The model didn’t return the requested JSON ({\"criteria\", \"out_of_scope\", \"question\"}); the lesson treated it as a vague spec.",
+    "simNote": "In simulated mode, your own text counts as \"full\" if it has criteria and out of scope, \"partial\" if it has one of them. With your key, a real model grades it."
+  },
+  "data": {
+    "specs": {
+      "I want customers to be able to schedule their order pickup.": "vague",
+      "Schedule pickup: the customer picks a day and time. Criteria: between 7am and 7pm; at most 20 pickups per hour.": "partial",
+      "Schedule pickup. Acceptance criteria: 1) customer picks a day and time between 7am and 7pm; 2) at most 20 pickups per hour; 3) booking up to 2 days ahead; 4) the receipt shows the time. Out of scope: SMS, payment, admin screen.": "full"
+    },
+    "critWords": [
+      "criteria",
+      "criterion",
+      "acceptance",
+      "given "
+    ],
+    "scopeWords": [
+      "out of scope",
+      "not included",
+      "does not include"
+    ],
+    "levelNames": {
+      "vague": "vague",
+      "partial": "partial",
+      "full": "full"
+    },
+    "planQs": {
+      "vague": "What times does the shop take? Is there a per-hour limit? Should the customer get an SMS? Who changes bookings?",
+      "partial": "How many days ahead can people book? Does the time show on the receipt?",
+      "full": "No questions: the plan lists one test per criterion and doesn’t touch SMS, payment or admin."
+    },
+    "gradeSystem": "You grade task specs for a coding agent. Read the spec and reply with JSON only: {\"criteria\": number of verifiable acceptance criteria (with numbers or observable results), \"out_of_scope\": true if it says what is out of scope, \"question\": the most important question you would ask before coding}."
+  },
+  "recipe": {
+    "steps": [
+      "Create docs/specs/schedule-pickup.md in your project (swap the feature for yours):\n# Schedule pickup\n## Acceptance criteria\n- [ ] Customer picks a day and time between 7am and 7pm\n- [ ] At most 20 pickups per hour\n- [ ] Booking up to 2 days ahead\n- [ ] The receipt shows the time\n## Out of scope\n- SMS, payment, admin screen\n## How to verify\n- npm test",
+      "Ask for a plan before any edit. In Claude Code:\nclaude --permission-mode plan\nThen type: Read docs/specs/schedule-pickup.md and propose a plan with the files you will change and one test per criterion. Nothing out of scope.\nIn Cursor, use Plan Mode (Shift+Tab in the Agent input). In Copilot, ask for the plan in chat before switching to agent mode.",
+      "Check the plan against the list: does each criterion have a test? Does any item mention SMS, payment or admin? Fix the plan, approve it and, at the end, run:\ngit diff --stat"
+    ],
+    "ok": "the plan has one test per criterion and doesn’t mention SMS, payment or admin, and git diff --stat lists only the files that were in the plan."
+  }
+}

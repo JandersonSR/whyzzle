@@ -1,0 +1,94 @@
+{
+  "title": "Tarefas pequenas e verificáveis",
+  "subtitle": "Fatiar a feature em PRs que cabem numa revisão, cada um com um comando que prova",
+  "mission": "A Duda escreveu a issue do programa de fidelidade: 1.200 linhas de mudança, segundo o plano do agente. O agente vai inserir 8 bugs pelo caminho (no simulador, sempre 8). Escolha em quantas fatias dividir e se cada fatia termina com testes e checagem de tipos. Quantos bugs chegam na loja?",
+  "predict": {
+    "question": "tudo numa fatia só (1.200 linhas num PR) e sem verificação por fatia: dos 8 bugs, quantos escapam da revisão? (o gráfico mostra)",
+    "options": {
+      "few": "1 ou 2: a Bia revisa com cuidado",
+      "half": "Uns 4",
+      "most": "Uns 6: num diff gigante, quase tudo passa"
+    }
+  },
+  "feedback": {
+    "right": "isso: 6 dos 8. Ninguém lê 1.200 linhas com a mesma atenção que lê 200. Com 6 fatias e testes no fim de cada uma, escapa zero.",
+    "wrong": "escapam 6. Na barra \"1\" do gráfico (sem verificar), a revisão acha só 2 dos 8. Diff gigante cansa e esconde; testes por fatia pegam bugs antes de chegar na revisão.",
+    "skipped": "sem palpite? Olhe a barra \"1\" do gráfico, a série sem verificar."
+  },
+  "coach": {
+    "ui": "palpite anotado. A cena já mostra 6 fatias com verificação; o gráfico compara todas as quantidades.",
+    "cmd": "palpite anotado. Rode como está e depois teste --fatias 1 --verificar nao."
+  },
+  "tryNext": {
+    "ui": "Agora suba para 8 fatias: o número de bugs não melhora, mas o tempo de revisão sobe. Fatia pequena demais também tem custo.",
+    "cmd": "Rode fatiar --fatias 8 e compare o tempo total com --fatias 6."
+  },
+  "why": {
+    "simples": "Conferir uma fornada de 200 pães é fácil: dá para olhar um por um. Conferir 1.200 pães de uma vez, no fim do dia, cansado? Os queimados passam.\nCom o agente é igual: tarefa pequena, com um jeito claro de conferir no fim (\"os testes passaram?\"), é tarefa que você consegue revisar de verdade.",
+    "dev": "Cada fatia tem três coisas: um objetivo pequeno, um \"feito quando\" e um comando de verificação (ex.: npm test -- pontos e npx tsc --noEmit). Peça ao agente uma fatia por vez e que ele rode a verificação e pare. Um commit por fatia, e git diff --stat antes de abrir o PR para ver o tamanho.\nA documentação do Claude Code dá a mesma dica para refatoração: mudanças em incrementos pequenos e testáveis. O agente não cansa; quem cansa é a revisão.",
+    "especialista": "O modelo do simulador é de brinquedo: a revisão acha 90% dos bugs até 200 linhas, 75% até 400, 50% até 600 e 25% acima disso, e a verificação automática pega 5 dos 8. A forma da curva é o que importa: abaixo de um tamanho, fatiar mais só soma custo fixo de revisão (contexto, CI, troca de assunto).\nVerificação forte deixa fatias maiores seguras: tipos, testes de propriedade e testes de contrato pegam o que olho humano não pega. E fatia vertical (um pedaço da feature funcionando ponta a ponta) costuma revisar melhor que fatia horizontal (só o banco, depois só a API)."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: 1 fatia só e verificação desligada.",
+      "cmd": "hora de quebrar: rode fatiar --fatias 1 --verificar nao"
+    },
+    "success": "Quebrou: {lines} linhas por PR e nenhum teste no caminho. A revisão achou {found} dos {bugs} bugs e {escaped} foram parar na loja, cada um custando retrabalho. Tempo total: {totalMin} min.",
+    "calm": "{slices} fatia(s) de {lines} linhas: {escaped} bug(s) escaparam, {totalMin} min no total. Para quebrar, junte tudo numa fatia só e desligue a verificação."
+  },
+  "hints": {
+    "ui": [
+      "Mexa no número de fatias; a cena atualiza sozinha.",
+      "O gráfico mostra bugs que escapam para cada número de fatias, com e sem verificação.",
+      "1 fatia e verificação desligada."
+    ],
+    "cmd": [
+      "--fatias vai de 1 a 8.",
+      "--verificar sim roda testes e checagem de tipos no fim de cada fatia.",
+      "fatiar --fatias 1 --verificar nao"
+    ]
+  },
+  "errors": {
+    "belowMin.slices": "Pelo menos {min} fatia.",
+    "aboveMax.slices": "Até {max} fatias neste simulador.",
+    "notBool.verify": "--verificar aceita sim ou nao."
+  },
+  "controls": {
+    "arg": "Feature",
+    "slices": "Fatias (PRs)",
+    "verify": "Testes e tipos no fim de cada fatia"
+  },
+  "scene": {
+    "label": "Da feature aos PRs",
+    "empty": "Rode para ver quantos bugs chegam na loja.",
+    "sTask": "Feature",
+    "subTask": "1.200 linhas, 8 bugs",
+    "sSlices": "Fatias",
+    "subSlices": "{slices} PR(s) de {lines} linhas",
+    "sVerify": "Verificação",
+    "verifyOn": "pegou 5 antes da revisão",
+    "verifyOff": "nenhuma",
+    "sReview": "Revisão",
+    "subReview": "achou {found} de {remaining} ({ratePct}%)",
+    "mLines": "linhas por PR",
+    "mAuto": "pegos pelos testes",
+    "mFound": "pegos na revisão",
+    "mEscaped": "chegaram na loja",
+    "mTotal": "tempo total",
+    "chart": "Bugs que chegam na loja, por número de fatias",
+    "serV": "com verificação",
+    "serN": "sem verificação",
+    "leakNote": "{escaped} bugs na loja. Cada um custa uns 45 min de retrabalho (de brinquedo), fora a cliente brava.",
+    "overNote": "{slices} fatias: bugs não caem mais, mas a revisão sobe para {reviewMin} min. Cada PR tem custo fixo.",
+    "calmNote": "Revisão: {reviewMin} min ao todo; tempo total com retrabalho: {totalMin} min."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Peça ao agente (em plan mode) para quebrar a issue e salve em docs/plano-fidelidade.md, com este formato:\n## Fatia 1: modelo de pontos\nFeito quando: ganhar e expirar pontos têm teste\nVerificar: npm test -- pontos\n## Fatia 2: resgate no checkout\nFeito quando: resgate desconta do total em centavos\nVerificar: npm test -- checkout",
+      "Peça uma fatia por vez:\nFaça só a Fatia 1 de docs/plano-fidelidade.md. No fim rode npm test -- pontos e npx tsc --noEmit, mostre a saída e pare.",
+      "Antes de aceitar, veja o tamanho e faça um commit por fatia:\ngit diff --stat\ngit add -A\ngit commit -m \"fidelidade: fatia 1 (modelo de pontos)\""
+    ],
+    "ok": "o agente parou depois da Fatia 1, os testes e o tsc passaram, e o git diff --stat mostra poucos arquivos e algumas centenas de linhas no máximo."
+  }
+}

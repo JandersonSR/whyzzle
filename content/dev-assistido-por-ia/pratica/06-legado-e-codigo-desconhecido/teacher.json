@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Explorar código desconhecido sem editar (plan mode).",
+      "Exigir evidência (arquivo:linha) das afirmações do agente.",
+      "Conferir \"código morto\" com busca textual e histórico do git."
+    ],
+    "minutes": 20,
+    "activity": "A turma pega um repositório aberto antigo e pede ao agente 10 afirmações sobre um módulo, com arquivo:linha. Cada grupo confere 2 afirmações com git grep e git log -S e marca certa, errada ou sem evidência.",
+    "discussion": [
+      "Que tipos de chamada não aparecem em \"localizar referências\" no seu sistema?",
+      "Quanto tempo de observação em produção você exigiria antes de apagar algo?"
+    ],
+    "misconceptions": [
+      "\"O agente leu o código inteiro, então sabe.\" Ele vê o que cabe no contexto e raciocina pelo que dá para ver.",
+      "\"Se o tom é confiante, deve estar certo.\" O tom é igual nas afirmações certas e nas erradas."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Explore unfamiliar code without editing (plan mode).",
+      "Require evidence (file:line) for the agent’s statements.",
+      "Check \"dead code\" with text search and git history."
+    ],
+    "minutes": 20,
+    "activity": "The class takes an old open-source repo and asks the agent for 10 statements about a module, with file:line. Each group checks 2 statements with git grep and git log -S and marks them right, wrong or no evidence.",
+    "discussion": [
+      "Which kinds of calls don’t show up in \"find references\" in your system?",
+      "How long would you watch production before deleting something?"
+    ],
+    "misconceptions": [
+      "\"The agent read the whole codebase, so it knows.\" It sees what fits in context and reasons from what it can see.",
+      "\"If the tone is confident, it must be right.\" The tone is the same for right and wrong statements."
+    ]
+  }
+}

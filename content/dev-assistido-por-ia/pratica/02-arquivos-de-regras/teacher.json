@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Saber qual arquivo de regras cada ferramenta lê.",
+      "Manter uma fonte única (AGENTS.md) e importar no CLAUDE.md.",
+      "Manter o arquivo curto e separar regras por caminho."
+    ],
+    "minutes": 20,
+    "activity": "A turma escreve o AGENTS.md de um projeto real em 10 linhas no máximo. Depois cada grupo testa em uma ferramenta (Claude Code, Copilot, Cursor) se a regra principal aparece na resposta do agente, numa conversa nova.",
+    "discussion": [
+      "O que entra no arquivo de regras e o que deveria virar teste ou checagem no CI?",
+      "Quem é dono do AGENTS.md no time?"
+    ],
+    "misconceptions": [
+      "\"Todas as ferramentas leem AGENTS.md.\" O Claude Code lê CLAUDE.md; o AGENTS.md entra por import.",
+      "\"Escrevi a regra no arquivo, então está garantida.\" Arquivo de regras é contexto; o que não pode falhar precisa de teste ou trava."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Know which rules file each tool reads.",
+      "Keep one source (AGENTS.md) and import it in CLAUDE.md.",
+      "Keep the file short and split rules by path."
+    ],
+    "minutes": 20,
+    "activity": "The class writes the AGENTS.md for a real project in at most 10 lines. Then each group checks in one tool (Claude Code, Copilot, Cursor) whether the main rule shows up in the agent’s answer, in a fresh conversation.",
+    "discussion": [
+      "What goes in the rules file, and what should become a test or a CI check?",
+      "Who owns AGENTS.md on the team?"
+    ],
+    "misconceptions": [
+      "\"Every tool reads AGENTS.md.\" Claude Code reads CLAUDE.md; AGENTS.md comes in through an import.",
+      "\"I wrote the rule in the file, so it’s guaranteed.\" A rules file is context; what must not fail needs a test or a lock."
+    ]
+  }
+}

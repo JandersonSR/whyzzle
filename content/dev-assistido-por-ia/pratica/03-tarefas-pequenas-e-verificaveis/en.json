@@ -1,0 +1,94 @@
+{
+  "title": "Small, verifiable tasks",
+  "subtitle": "Slice the feature into PRs that fit in one review, each with a command that proves it",
+  "mission": "Duda wrote the loyalty program issue: 1,200 lines of change, according to the agent’s plan. The agent will slip in 8 bugs along the way (in the simulator, always 8). Choose how many slices to cut it into and whether each slice ends with tests and a type check. How many bugs reach the shop?",
+  "predict": {
+    "question": "everything in one slice (1,200 lines in one PR) with no per-slice verification: of the 8 bugs, how many slip past review? (the chart shows it)",
+    "options": {
+      "few": "1 or 2: Bia reviews carefully",
+      "half": "About 4",
+      "most": "About 6: in a giant diff, almost everything slips"
+    }
+  },
+  "feedback": {
+    "right": "right: 6 of 8. Nobody reads 1,200 lines with the attention they give 200. With 6 slices and tests at the end of each, zero slip.",
+    "wrong": "6 slip. In bar \"1\" of the chart (no verification), review finds only 2 of the 8. A giant diff tires and hides; per-slice tests catch bugs before review.",
+    "skipped": "no guess? Look at bar \"1\" on the chart, the no-verification series."
+  },
+  "coach": {
+    "ui": "guess noted. The scene already shows 6 slices with verification; the chart compares every count.",
+    "cmd": "guess noted. Run it as is, then try --slices 1 --verify no."
+  },
+  "tryNext": {
+    "ui": "Now go up to 8 slices: the bug count doesn’t improve, but review time goes up. Too-small slices have a cost too.",
+    "cmd": "Run slice --slices 8 and compare total time with --slices 6."
+  },
+  "why": {
+    "simples": "Checking a batch of 200 rolls is easy: you can look at each one. Checking 1,200 at once, at the end of the day, tired? The burnt ones get through.\nSame with the agent: a small task, with a clear way to check it at the end (\"did the tests pass?\"), is a task you can actually review.",
+    "dev": "Each slice has three things: a small goal, a \"done when\" and a verification command (e.g., npm test -- points and npx tsc --noEmit). Ask the agent for one slice at a time, have it run the verification and stop. One commit per slice, and git diff --stat before opening the PR to see the size.\nClaude Code’s docs give the same tip for refactoring: changes in small, testable increments. The agent doesn’t get tired; the review does.",
+    "especialista": "The simulator’s model is a toy: review finds 90% of bugs up to 200 lines, 75% up to 400, 50% up to 600 and 25% above that, and automatic verification catches 5 of the 8. The shape of the curve is what matters: below a certain size, more slicing only adds fixed review cost (context, CI, switching topics).\nStrong verification makes bigger slices safe: types, property tests and contract tests catch what human eyes miss. And a vertical slice (a piece of the feature working end to end) usually reviews better than a horizontal one (only the database, then only the API)."
+  },
+  "break": {
+    "mission": {
+      "ui": "time to break it: just 1 slice and verification off.",
+      "cmd": "time to break it: run slice --slices 1 --verify no"
+    },
+    "success": "Broken: {lines} lines per PR and no tests along the way. Review found {found} of the {bugs} bugs and {escaped} ended up in the shop, each costing rework. Total time: {totalMin} min.",
+    "calm": "{slices} slice(s) of {lines} lines: {escaped} bug(s) slipped, {totalMin} min in total. To break it, put everything in one slice and turn verification off."
+  },
+  "hints": {
+    "ui": [
+      "Move the slice count; the scene updates by itself.",
+      "The chart shows bugs that slip for each slice count, with and without verification.",
+      "1 slice and verification off."
+    ],
+    "cmd": [
+      "--slices goes from 1 to 8.",
+      "--verify yes runs tests and a type check at the end of each slice.",
+      "slice --slices 1 --verify no"
+    ]
+  },
+  "errors": {
+    "belowMin.slices": "At least {min} slice.",
+    "aboveMax.slices": "Up to {max} slices in this simulator.",
+    "notBool.verify": "--verify takes yes or no."
+  },
+  "controls": {
+    "arg": "Feature",
+    "slices": "Slices (PRs)",
+    "verify": "Tests and types at the end of each slice"
+  },
+  "scene": {
+    "label": "From feature to PRs",
+    "empty": "Run to see how many bugs reach the shop.",
+    "sTask": "Feature",
+    "subTask": "1,200 lines, 8 bugs",
+    "sSlices": "Slices",
+    "subSlices": "{slices} PR(s) of {lines} lines",
+    "sVerify": "Verification",
+    "verifyOn": "caught 5 before review",
+    "verifyOff": "none",
+    "sReview": "Review",
+    "subReview": "found {found} of {remaining} ({ratePct}%)",
+    "mLines": "lines per PR",
+    "mAuto": "caught by tests",
+    "mFound": "caught in review",
+    "mEscaped": "reached the shop",
+    "mTotal": "total time",
+    "chart": "Bugs reaching the shop, by slice count",
+    "serV": "with verification",
+    "serN": "without verification",
+    "leakNote": "{escaped} bugs in the shop. Each costs about 45 min of rework (toy number), plus an angry customer.",
+    "overNote": "{slices} slices: bugs don’t drop any further, but review goes up to {reviewMin} min. Each PR has a fixed cost.",
+    "calmNote": "Review: {reviewMin} min in all; total time with rework: {totalMin} min."
+  },
+  "data": {},
+  "recipe": {
+    "steps": [
+      "Ask the agent (in plan mode) to break the issue down and save it as docs/loyalty-plan.md, in this format:\n## Slice 1: points model\nDone when: earning and expiring points have tests\nVerify: npm test -- points\n## Slice 2: redemption at checkout\nDone when: redemption subtracts from the total in cents\nVerify: npm test -- checkout",
+      "Ask for one slice at a time:\nDo only Slice 1 of docs/loyalty-plan.md. At the end run npm test -- points and npx tsc --noEmit, show the output and stop.",
+      "Before accepting, check the size and make one commit per slice:\ngit diff --stat\ngit add -A\ngit commit -m \"loyalty: slice 1 (points model)\""
+    ],
+    "ok": "the agent stopped after Slice 1, tests and tsc passed, and git diff --stat shows a few files and a few hundred lines at most."
+  }
+}

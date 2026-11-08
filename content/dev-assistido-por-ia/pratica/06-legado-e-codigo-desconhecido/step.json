@@ -1,0 +1,227 @@
+{
+  "id": "dai-p-legado-e-codigo-desconhecido",
+  "order": 6,
+  "track": "pratica",
+  "kind": "step",
+  "minutes": 18,
+  "tags": [
+    "legado",
+    "exploracao",
+    "plan-mode",
+    "git-grep",
+    "alucinacao"
+  ],
+  "requires": [
+    "dai-p-refatoracao-assistida"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "explorar",
+      "en": "explore"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Remover o código morto do módulo de nota fiscal",
+        "en": "Remove the dead code from the invoice module"
+      },
+      "examples": [
+        {
+          "pt": "Remover o código morto do módulo de nota fiscal",
+          "en": "Remove the dead code from the invoice module"
+        },
+        {
+          "pt": "Entender o módulo de nota fiscal antes de mexer",
+          "en": "Understand the invoice module before touching it"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "readOnly",
+        "alias": {
+          "pt": "so-leitura",
+          "en": "read-only"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "cite",
+        "alias": {
+          "pt": "citar",
+          "en": "cite"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      },
+      {
+        "name": "search",
+        "alias": {
+          "pt": "buscar",
+          "en": "search"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "brokeLegacy"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "claims": 10,
+        "wrong": 2
+      },
+      "compute": {
+        "believed": "(search ? 0 : 1) + (cite ? 0 : 1)",
+        "caughtN": "wrong - believed",
+        "key": "(search ? '1' : '0') + (cite ? '1' : '0')",
+        "how": "lookup(hows, key, '')",
+        "edited": "readOnly ? 0 : 7",
+        "statusA": "search ? '@stCaughtGrep' : '@stBelieved'",
+        "statusB": "cite ? '@stCaughtCite' : '@stBelieved'",
+        "grepLines": "search ? grepOn : grepOff"
+      },
+      "cases": [
+        {
+          "when": "believed > 0",
+          "flags": [
+            "brokeLegacy"
+          ]
+        },
+        {
+          "when": "believed == 0",
+          "flags": [
+            "understood"
+          ]
+        },
+        {
+          "when": "!readOnly",
+          "flags": [
+            "editedBlind"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "believed": "believed",
+            "caught": "caughtN",
+            "claims": "claims",
+            "wrong": "wrong",
+            "edited": "edited",
+            "how": "how"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mClaims",
+              "value": "=claims",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@mCaught",
+              "value": "=caughtN",
+              "format": "int",
+              "tone": "=caughtN == wrong ? 'ok' : 'warn'"
+            },
+            {
+              "label": "@mBelieved",
+              "value": "=believed",
+              "format": "int",
+              "tone": "=believed > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@mEdited",
+              "value": "=edited",
+              "format": "int",
+              "tone": "=edited > 0 ? 'warn' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@colClaim",
+            "@colStatus"
+          ],
+          "rows": [
+            [
+              "@k1",
+              "@stOk"
+            ],
+            [
+              "@k2",
+              "@stOk"
+            ],
+            [
+              "@kA",
+              "=statusA"
+            ],
+            [
+              "@kB",
+              "=statusB"
+            ]
+          ],
+          "tones": [
+            "ok",
+            "ok",
+            "=search ? 'warn' : 'bad'",
+            "=cite ? 'warn' : 'bad'"
+          ],
+          "caption": "@caption"
+        },
+        {
+          "type": "terminal",
+          "label": "@term",
+          "lines": "=grepLines"
+        },
+        {
+          "type": "note",
+          "when": "=believed > 0",
+          "tone": "bad",
+          "text": "@brokeNote"
+        },
+        {
+          "type": "note",
+          "when": "=!readOnly",
+          "tone": "warn",
+          "text": "@blindNote"
+        },
+        {
+          "type": "note",
+          "when": "=believed == 0",
+          "tone": "ok",
+          "text": "@okNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "none",
+      "two",
+      "six"
+    ],
+    "answer": "two"
+  }
+}

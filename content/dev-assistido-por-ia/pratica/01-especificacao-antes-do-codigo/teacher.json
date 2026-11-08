@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Escrever critérios de aceite verificáveis e uma seção \"fora do escopo\".",
+      "Pedir um plano ao agente antes de deixá-lo editar.",
+      "Relacionar especificação vaga com diff maior e mais revisão."
+    ],
+    "minutes": 25,
+    "activity": "Cada dupla recebe uma issue vaga do próprio sistema da empresa (ou da padaria) e reescreve com 3 a 5 critérios de aceite e um \"fora do escopo\". Depois trocam as issues e cada dupla tenta achar um jeito de \"cumprir\" a issue do outro fazendo algo que ninguém queria.",
+    "discussion": [
+      "Que perguntas o agente fez no plano que a issue já devia responder?",
+      "Quem deve escrever os critérios: produto, dev ou os dois juntos?"
+    ],
+    "misconceptions": [
+      "\"Especificar é burocracia; o agente é rápido, depois a gente ajusta.\" Cada lacuna vira código, e código a mais custa revisão e manutenção.",
+      "\"Mais detalhe gera mais código.\" O detalhe certo (limites e fora do escopo) corta código."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Write verifiable acceptance criteria and an \"out of scope\" section.",
+      "Ask the agent for a plan before letting it edit.",
+      "Connect vague specs with bigger diffs and more review."
+    ],
+    "minutes": 25,
+    "activity": "Each pair gets a vague issue from the company’s own system (or the bakery’s) and rewrites it with 3 to 5 acceptance criteria and an \"out of scope\". Then pairs swap issues and each tries to find a way to \"meet\" the other’s issue by doing something nobody wanted.",
+    "discussion": [
+      "Which questions did the agent ask in the plan that the issue should already answer?",
+      "Who should write the criteria: product, dev or both together?"
+    ],
+    "misconceptions": [
+      "\"Specs are red tape; the agent is fast, we’ll adjust later.\" Every gap becomes code, and extra code costs review and maintenance.",
+      "\"More detail produces more code.\" The right detail (limits and out of scope) cuts code."
+    ]
+  }
+}

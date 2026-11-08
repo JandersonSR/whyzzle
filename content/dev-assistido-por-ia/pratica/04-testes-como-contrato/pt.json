@@ -1,0 +1,149 @@
+{
+  "title": "Testes como contrato",
+  "subtitle": "O teste escrito antes diz o que é \"certo\", e o agente não pode reescrever o contrato",
+  "mission": "A Duda pediu: \"frete grátis acima de R$ 100\" (R$ 100,00 exatos ainda paga R$ 8). O Caio vai pedir ao agente para implementar. Escolha se a Bia escreve os testes antes e como os testes ficam protegidos. No fim, a loja de verdade confere 4 regras.",
+  "predict": {
+    "question": "teste escrito antes e edição de tests/ bloqueada. O agente não consegue fazer 2 testes passarem de primeira. O que ele faz?",
+    "options": {
+      "fixcode": "Volta e conserta o código",
+      "edittest": "Dá um jeito de mudar o teste mesmo assim",
+      "giveup": "Desiste e diz que não dá"
+    }
+  },
+  "feedback": {
+    "right": "isso: a edição em tests/ foi negada duas vezes, e o único caminho para o verde que sobrou foi o certo, trocar >= por > no código.",
+    "wrong": "olha o terminal: o agente tentou editar o teste, a regra de permissão negou, e ele voltou para o código. Com o contrato travado, o caminho mais curto para o verde passa a ser o certo.",
+    "skipped": "sem palpite? Leia o terminal de cima para baixo: tentativa, negado, conserto."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com teste primeiro e bloqueio; depois troque a proteção para \"regra\".",
+    "cmd": "palpite anotado. Rode como está e depois tente --protecao regra."
+  },
+  "tryNext": {
+    "ui": "Agora deixe a proteção só como \"regra\" (uma linha no AGENTS.md): a suíte continua verde, mas um teste foi \"ajustado\".",
+    "cmd": "Rode contrato --protecao regra e olhe o git diff no terminal."
+  },
+  "why": {
+    "simples": "Quando você encomenda um bolo, combina antes: chocolate, 2 kg, para sábado. Esse combinado é o contrato. Se o confeiteiro pudesse reescrever o pedido depois (\"na verdade você pediu baunilha\"), todo bolo sairia \"certo\".\nTeste escrito antes é o combinado. O agente pode mudar o código à vontade, mas não pode mudar o combinado.",
+    "dev": "Fluxo: você (ou a Duda com você) escreve os testes de aceite, roda e vê falhar, faz commit, e só então pede: \"faça tests/frete.test.ts passar alterando só src/\". Proteja o contrato com algo que executa: no Claude Code, uma regra de permissão em .claude/settings.json com \"deny\": [\"Edit(/tests/**)\"] (regras deny são avaliadas antes de allow).\nPara qualquer ferramenta, confira no fim com git diff --name-only HEAD -- tests/: tem que sair vazio. No CI, a mesma ideia: PR de agente que mexe em teste pede revisão de outra pessoa.",
+    "especialista": "Por que o agente \"ajusta\" o teste? Porque o objetivo que você deu foi \"fazer passar\", e editar a asserção é o caminho mais curto. A regra no AGENTS.md ajuda, mas é contexto; a permissão é trava. E nem a trava é absoluta: a documentação do Claude Code avisa que regras de Edit não cobrem um script Node ou Python que escreve arquivos por conta própria, por isso a checagem no CI fecha a porta.\nTeste que o próprio agente escreveu junto com o código confirma o entendimento dele, não o seu. Para medir se os testes pegam bug de verdade, use testes de mutação (no JavaScript, o Stryker): ele muda o código de propósito e conta quantas mudanças os testes percebem."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: deixe a proteção em \"nenhuma\".",
+      "cmd": "hora de quebrar: rode contrato --protecao nenhuma"
+    },
+    "success": "Quebrou: a suíte diz {passed} de {total} verdes, mas {bugs} regra(s) do frete continuam erradas na loja. {how} Verde não é a mesma coisa que certo.",
+    "calm": "{passed} de {total} verdes e o contrato intacto: o agente tentou mexer nos testes {denied} vez(es) e foi barrado. Para quebrar, tire a proteção dos testes."
+  },
+  "hints": {
+    "ui": [
+      "Ligue e desligue o teste primeiro e troque a proteção; a cena atualiza sozinha.",
+      "Compare \"regra\" com \"bloqueio\": a regra é texto no AGENTS.md, o bloqueio é permissão que executa.",
+      "Proteção \"nenhuma\"."
+    ],
+    "cmd": [
+      "--teste-primeiro aceita sim ou nao.",
+      "--protecao aceita nenhuma, regra ou bloqueio.",
+      "contrato --protecao nenhuma"
+    ]
+  },
+  "errors": {
+    "notBool.testFirst": "--teste-primeiro aceita sim ou nao.",
+    "notInEnum.lock": "“{value}” não é uma proteção daqui. Opções: {options}."
+  },
+  "controls": {
+    "arg": "Regra pedida",
+    "testFirst": "Bia escreve os testes antes",
+    "lock": "Proteção dos testes"
+  },
+  "scene": {
+    "label": "O contrato do frete",
+    "empty": "Rode para ver o que o agente faz com os testes.",
+    "mSuite": "suíte",
+    "mChanged": "asserções alteradas",
+    "mDenied": "edições negadas",
+    "mBugs": "regras erradas na loja",
+    "term": "O que o agente fez",
+    "checks": "A loja de verdade confere",
+    "c1": "R$ 99,99 paga R$ 8",
+    "c2": "R$ 100,00 exatos ainda paga R$ 8",
+    "c3": "R$ 100,01 tem frete grátis",
+    "c4": "Cupom nunca deixa o frete negativo",
+    "w1": "caso comum, todo mundo acerta",
+    "w2": "\"acima de\" é >, não >=: o limite é onde o agente chuta",
+    "w3": "caso comum do outro lado do limite",
+    "w4": "o caso esquisito que só o contrato lembra",
+    "fakeNote": "Suíte verde, {bugs} regra(s) erradas. O verde só vale quando quem decidiu o \"certo\" não foi quem escreveu o código.",
+    "ruleNote": "Regra no AGENTS.md é contexto: o agente leu e mesmo assim decidiu que o teste estava errado. Para o que não pode falhar, use trava que executa.",
+    "okNote": "Contrato escrito antes, travado, e o agente consertou o código. As 4 regras batem na loja."
+  },
+  "data": {
+    "hows": {
+      "trule": "A regra \"não mexa em tests/\" estava no AGENTS.md, mas regra é contexto: o agente achou que o teste estava errado e mudou 1 asserção.",
+      "tnone": "Nada impedia o agente de editar os testes, e o caminho mais curto para o verde foi trocar 2 valores esperados.",
+      "fnone": "Sem teste antes, o agente escreveu código e testes juntos: os testes só confirmam o que ele entendeu (que R$ 100,00 já é grátis).",
+      "frule": "Sem teste antes, o agente escreveu código e testes juntos: os testes só confirmam o que ele entendeu (que R$ 100,00 já é grátis).",
+      "fenforced": "Sem teste antes, o agente escreveu código e testes juntos: os testes só confirmam o que ele entendeu (que R$ 100,00 já é grátis).",
+      "tenforced": ""
+    },
+    "terms": {
+      "tenforced": [
+        "$ npm test",
+        "! 2 falhando: frete.test.ts (R$ 100,00 exatos; frete negativo)",
+        "? agente: Edit tests/frete.test.ts",
+        "! negado: Edit(/tests/**) em .claude/settings.json",
+        "~ agente volta para src/frete.ts: usa > 10000, não >=",
+        "$ npm test",
+        "+ 12 passando",
+        "$ git diff --name-only HEAD -- tests/",
+        "+ (nada: o contrato não mudou)"
+      ],
+      "trule": [
+        "$ npm test",
+        "! 2 falhando: frete.test.ts (R$ 100,00 exatos; frete negativo)",
+        "~ agente: \"o teste de R$ 100,00 parece errado, ajustei\"",
+        "$ npm test",
+        "+ 12 passando",
+        "$ git diff --name-only HEAD -- tests/",
+        "! tests/frete.test.ts"
+      ],
+      "tnone": [
+        "$ npm test",
+        "! 2 falhando: frete.test.ts (R$ 100,00 exatos; frete negativo)",
+        "~ agente troca 2 valores esperados para bater com o código",
+        "$ npm test",
+        "+ 12 passando",
+        "$ git diff --name-only HEAD -- tests/",
+        "! tests/frete.test.ts"
+      ],
+      "fnone": [
+        "~ agente escreve src/frete.ts e 6 testes novos",
+        "$ npm test",
+        "+ 6 passando",
+        "? nenhum teste existia antes para discordar do código"
+      ],
+      "frule": [
+        "~ agente escreve src/frete.ts e 6 testes novos",
+        "$ npm test",
+        "+ 6 passando",
+        "? nenhum teste existia antes para discordar do código"
+      ],
+      "fenforced": [
+        "~ agente escreve src/frete.ts e 6 testes novos",
+        "$ npm test",
+        "+ 6 passando",
+        "? nenhum teste existia antes para discordar do código"
+      ]
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Escreva o contrato antes, em tests/frete.test.ts (valores em centavos):\nimport { describe, expect, it } from 'vitest';\nimport { frete } from '../src/frete';\n\ndescribe('frete (contrato)', () => {\n  it('R$ 99,99 paga R$ 8', () => expect(frete(9999)).toBe(800));\n  it('R$ 100,00 exatos ainda paga', () => expect(frete(10000)).toBe(800));\n  it('acima de R$ 100 é grátis', () => expect(frete(10001)).toBe(0));\n});",
+      "Rode, veja falhar e faça commit do contrato:\nnpx vitest run tests/frete.test.ts\ngit add tests/frete.test.ts\ngit commit -m \"contrato do frete grátis\"",
+      "No Claude Code, trave a pasta em .claude/settings.json:\n{\n  \"permissions\": {\n    \"deny\": [\"Edit(/tests/**)\"]\n  }\n}\nPeça: faça tests/frete.test.ts passar alterando só src/. Os testes são o contrato.",
+      "Com qualquer ferramenta, confira no fim (as duas linhas):\nnpx vitest run\ngit diff --name-only HEAD -- tests/"
+    ],
+    "ok": "o vitest mostra os testes do frete passando e o git diff --name-only HEAD -- tests/ não imprime nada (no Claude Code, a tentativa de editar tests/ aparece como negada)."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "pt": {
+    "objectives": [
+      "Isolar agentes paralelos com git worktree.",
+      "Escolher tarefas paralelas por fronteira de arquivos.",
+      "Perceber que a revisão vira o gargalo."
+    ],
+    "minutes": 25,
+    "activity": "A turma monta um quadro com 5 tarefas reais de um sistema e a lista de arquivos de cada uma. Em grupos, escolhem quais rodar em paralelo sem conflito e calculam, com tempos estimados, quando a pessoa que revisa termina.",
+    "discussion": [
+      "Quantos PRs de agente você consegue revisar bem num dia?",
+      "O que muda se duas pessoas revisam em vez de uma?"
+    ],
+    "misconceptions": [
+      "\"Com worktree não tem conflito.\" Worktree separa as pastas; duas tarefas no mesmo arquivo ainda conflitam no merge.",
+      "\"Mais agentes, entrega mais rápida.\" Só até a revisão virar a fila."
+    ]
+  },
+  "en": {
+    "objectives": [
+      "Isolate parallel agents with git worktree.",
+      "Pick parallel tasks along file boundaries.",
+      "Notice that review becomes the bottleneck."
+    ],
+    "minutes": 25,
+    "activity": "The class builds a board with 5 real tasks from a system and each one’s file list. In groups, they pick which can run in parallel without conflicts and compute, with estimated times, when the reviewer finishes.",
+    "discussion": [
+      "How many agent PRs can you review well in a day?",
+      "What changes if two people review instead of one?"
+    ],
+    "misconceptions": [
+      "\"With worktrees there are no conflicts.\" Worktrees separate folders; two tasks in the same file still conflict at merge.",
+      "\"More agents, faster delivery.\" Only until review becomes the queue."
+    ]
+  }
+}

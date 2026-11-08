@@ -1,0 +1,346 @@
+{
+  "id": "dai-p-especificacao-antes-do-codigo",
+  "order": 1,
+  "track": "pratica",
+  "kind": "step",
+  "minutes": 18,
+  "tags": [
+    "especificacao",
+    "criterios-de-aceite",
+    "plano",
+    "escopo"
+  ],
+  "requires": [
+    "dai-missao-bug-com-teste"
+  ],
+  "executors": [
+    "simulado",
+    "sua-chave"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "especificar",
+      "en": "specify"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Agendar retirada. Critérios de aceite: 1) cliente escolhe dia e horário entre 7h e 19h; 2) no máximo 20 retiradas por hora; 3) agendamento até 2 dias antes; 4) o recibo mostra o horário. Fora do escopo: SMS, pagamento, tela de admin.",
+        "en": "Schedule pickup. Acceptance criteria: 1) customer picks a day and time between 7am and 7pm; 2) at most 20 pickups per hour; 3) booking up to 2 days ahead; 4) the receipt shows the time. Out of scope: SMS, payment, admin screen."
+      },
+      "examples": [
+        {
+          "pt": "Agendar retirada. Critérios de aceite: 1) cliente escolhe dia e horário entre 7h e 19h; 2) no máximo 20 retiradas por hora; 3) agendamento até 2 dias antes; 4) o recibo mostra o horário. Fora do escopo: SMS, pagamento, tela de admin.",
+          "en": "Schedule pickup. Acceptance criteria: 1) customer picks a day and time between 7am and 7pm; 2) at most 20 pickups per hour; 3) booking up to 2 days ahead; 4) the receipt shows the time. Out of scope: SMS, payment, admin screen."
+        },
+        {
+          "pt": "Agendar retirada: o cliente escolhe dia e horário. Critérios: entre 7h e 19h; no máximo 20 retiradas por hora.",
+          "en": "Schedule pickup: the customer picks a day and time. Criteria: between 7am and 7pm; at most 20 pickups per hour."
+        },
+        {
+          "pt": "Quero que o cliente possa agendar a retirada da encomenda.",
+          "en": "I want customers to be able to schedule their order pickup."
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "plan",
+        "alias": {
+          "pt": "plano",
+          "en": "plan"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "rework"
+  },
+  "data": {
+    "sim": {
+      "live": false,
+      "consts": {
+        "real": false,
+        "realFields": {},
+        "realValid": false,
+        "critOf": {
+          "vague": 0,
+          "partial": 2,
+          "full": 4
+        },
+        "runs": {
+          "vague0": {
+            "lines": 640,
+            "files": 14,
+            "extras": 3,
+            "rounds": 4,
+            "reviewMin": 95,
+            "rework": 6.0
+          },
+          "vague1": {
+            "lines": 260,
+            "files": 7,
+            "extras": 0,
+            "rounds": 2,
+            "reviewMin": 35,
+            "rework": 1.5
+          },
+          "partial0": {
+            "lines": 310,
+            "files": 8,
+            "extras": 1,
+            "rounds": 2,
+            "reviewMin": 45,
+            "rework": 2.0
+          },
+          "partial1": {
+            "lines": 210,
+            "files": 6,
+            "extras": 0,
+            "rounds": 1,
+            "reviewMin": 25,
+            "rework": 0.5
+          },
+          "full0": {
+            "lines": 180,
+            "files": 5,
+            "extras": 0,
+            "rounds": 1,
+            "reviewMin": 20,
+            "rework": 0.0
+          },
+          "full1": {
+            "lines": 180,
+            "files": 5,
+            "extras": 0,
+            "rounds": 1,
+            "reviewMin": 20,
+            "rework": 0.0
+          }
+        }
+      },
+      "compute": {
+        "pk": "plan ? '1' : '0'",
+        "known": "lookup(specs, text, '')",
+        "hCrit": "containsany(text, critWords)",
+        "hScope": "containsany(text, scopeWords)",
+        "simLevel": "known != '' ? known : ((hCrit && hScope) ? 'full' : ((hCrit || hScope) ? 'partial' : 'vague'))",
+        "rCrit": "real && realValid ? number(realFields.criteria) : 0",
+        "rScope": "real && realValid ? realFields.out_of_scope == true : false",
+        "level": "real ? (realValid ? ((rCrit >= 3 && rScope) ? 'full' : (rCrit >= 1 ? 'partial' : 'vague')) : 'vague') : simLevel",
+        "nCrit": "real ? rCrit : lookup(critOf, level, 0)",
+        "run": "lookup(runs, level + pk, runs.vague0)",
+        "lines": "run.lines",
+        "files": "run.files",
+        "extras": "run.extras",
+        "rounds": "run.rounds",
+        "reviewMin": "run.reviewMin",
+        "reworkS": "fmt(run.rework, 1, lang)",
+        "rV": "lookup(runs, 'vague' + pk, runs.vague0)",
+        "rP": "lookup(runs, 'partial' + pk, runs.vague0)",
+        "rF": "lookup(runs, 'full' + pk, runs.vague0)",
+        "levelName": "lookup(levelNames, level, '')",
+        "planQ": "lookup(planQs, level, '')",
+        "realQ": "real && realValid ? str(realFields.question) : ''"
+      },
+      "cases": [
+        {
+          "when": "real && !realValid",
+          "flags": [
+            "gradeBroken"
+          ]
+        },
+        {
+          "when": "rounds >= 3",
+          "flags": [
+            "rework"
+          ]
+        },
+        {
+          "when": "extras > 0",
+          "flags": [
+            "creep"
+          ]
+        },
+        {
+          "when": "rounds == 1",
+          "flags": [
+            "lean"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "lines": "lines",
+            "files": "files",
+            "extras": "extras",
+            "rounds": "rounds",
+            "reviewMin": "reviewMin",
+            "reworkS": "reworkS",
+            "crit": "nCrit",
+            "levelName": "levelName",
+            "planQ": "planQ",
+            "realQ": "realQ"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@sSpec",
+              "sub": "@subSpec",
+              "tone": "=level == 'full' ? 'ok' : (level == 'partial' ? 'warn' : 'bad')"
+            },
+            {
+              "label": "@sPlan",
+              "sub": "=plan ? '@planOn' : '@planOff'",
+              "tone": "=plan ? 'info' : 'dim'"
+            },
+            {
+              "label": "@sDiff",
+              "sub": "@subDiff",
+              "tone": "=extras > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@sReview",
+              "sub": "@subReview",
+              "tone": "=rounds >= 3 ? 'bad' : (rounds == 2 ? 'warn' : 'ok')"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mLines",
+              "value": "=lines",
+              "format": "int",
+              "tone": "=lines > 400 ? 'bad' : (lines > 250 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@mExtras",
+              "value": "=extras",
+              "format": "int",
+              "tone": "=extras > 0 ? 'bad' : 'ok'"
+            },
+            {
+              "label": "@mRounds",
+              "value": "=rounds",
+              "format": "int",
+              "tone": "=rounds >= 3 ? 'bad' : (rounds == 2 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@mReview",
+              "value": "=reviewMin",
+              "format": "min",
+              "tone": "info"
+            },
+            {
+              "label": "@mRework",
+              "value": "=reworkS + ' h'",
+              "tone": "=run.rework > 0 ? 'warn' : 'ok'"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@colSpec",
+            "@colLines",
+            "@colRounds",
+            "@colReview"
+          ],
+          "rows": [
+            [
+              "@lvVague",
+              "=rV.lines",
+              "=rV.rounds",
+              "=rV.reviewMin"
+            ],
+            [
+              "@lvPartial",
+              "=rP.lines",
+              "=rP.rounds",
+              "=rP.reviewMin"
+            ],
+            [
+              "@lvFull",
+              "=rF.lines",
+              "=rF.rounds",
+              "=rF.reviewMin"
+            ]
+          ],
+          "tones": [
+            "=level == 'vague' ? 'bad' : 'dim'",
+            "=level == 'partial' ? 'warn' : 'dim'",
+            "=level == 'full' ? 'ok' : 'dim'"
+          ],
+          "caption": "=plan ? '@capPlan' : '@capNoPlan'"
+        },
+        {
+          "type": "note",
+          "when": "=extras > 0",
+          "tone": "bad",
+          "text": "@creepNote"
+        },
+        {
+          "type": "note",
+          "when": "=plan && !real",
+          "tone": "info",
+          "text": "@planNote"
+        },
+        {
+          "type": "note",
+          "when": "=real && realValid",
+          "tone": "info",
+          "text": "@realNote"
+        },
+        {
+          "type": "note",
+          "when": "=real && !realValid",
+          "tone": "warn",
+          "text": "@brokenNote"
+        },
+        {
+          "type": "note",
+          "when": "=!real",
+          "tone": "dim",
+          "text": "@simNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "smaller",
+      "same",
+      "bigger"
+    ],
+    "answer": "smaller"
+  },
+  "real": {
+    "sua-chave": {
+      "adapter": "declarative",
+      "op": "json",
+      "args": {
+        "system": "{gradeSystem}",
+        "user": "{text}",
+        "schema": {
+          "criteria": "number",
+          "out_of_scope": "boolean",
+          "question": "string"
+        }
+      }
+    }
+  }
+}

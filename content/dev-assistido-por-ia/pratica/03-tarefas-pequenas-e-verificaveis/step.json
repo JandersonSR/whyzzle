@@ -1,0 +1,422 @@
+{
+  "id": "dai-p-tarefas-pequenas",
+  "order": 3,
+  "track": "pratica",
+  "kind": "step",
+  "minutes": 18,
+  "tags": [
+    "fatiar",
+    "tarefas-pequenas",
+    "verificacao",
+    "revisao",
+    "diff"
+  ],
+  "requires": [
+    "dai-p-arquivos-de-regras"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "fatiar",
+      "en": "slice"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Programa de fidelidade: pontos por compra, resgate e expiração",
+        "en": "Loyalty program: points per purchase, redemption and expiry"
+      },
+      "examples": [
+        {
+          "pt": "Programa de fidelidade: pontos por compra, resgate e expiração",
+          "en": "Loyalty program: points per purchase, redemption and expiry"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "slices",
+        "alias": {
+          "pt": "fatias",
+          "en": "slices"
+        },
+        "type": "int",
+        "min": 1,
+        "max": 8,
+        "default": 6,
+        "ui": "slider"
+      },
+      {
+        "name": "verify",
+        "alias": {
+          "pt": "verificar",
+          "en": "verify"
+        },
+        "type": "bool",
+        "default": true,
+        "ui": "switch"
+      }
+    ]
+  },
+  "break": {
+    "flag": "leak"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "runs": {
+          "11": {
+            "lines": 1200,
+            "ratePct": 25,
+            "auto": 5,
+            "found": 1,
+            "escaped": 2,
+            "reviewMin": 65,
+            "verifyMin": 2,
+            "totalMin": 157
+          },
+          "10": {
+            "lines": 1200,
+            "ratePct": 25,
+            "auto": 0,
+            "found": 2,
+            "escaped": 6,
+            "reviewMin": 65,
+            "verifyMin": 0,
+            "totalMin": 335
+          },
+          "21": {
+            "lines": 600,
+            "ratePct": 50,
+            "auto": 5,
+            "found": 2,
+            "escaped": 1,
+            "reviewMin": 70,
+            "verifyMin": 4,
+            "totalMin": 119
+          },
+          "20": {
+            "lines": 600,
+            "ratePct": 50,
+            "auto": 0,
+            "found": 4,
+            "escaped": 4,
+            "reviewMin": 70,
+            "verifyMin": 0,
+            "totalMin": 250
+          },
+          "31": {
+            "lines": 400,
+            "ratePct": 75,
+            "auto": 5,
+            "found": 2,
+            "escaped": 1,
+            "reviewMin": 75,
+            "verifyMin": 6,
+            "totalMin": 126
+          },
+          "30": {
+            "lines": 400,
+            "ratePct": 75,
+            "auto": 0,
+            "found": 6,
+            "escaped": 2,
+            "reviewMin": 75,
+            "verifyMin": 0,
+            "totalMin": 165
+          },
+          "41": {
+            "lines": 300,
+            "ratePct": 75,
+            "auto": 5,
+            "found": 2,
+            "escaped": 1,
+            "reviewMin": 80,
+            "verifyMin": 8,
+            "totalMin": 133
+          },
+          "40": {
+            "lines": 300,
+            "ratePct": 75,
+            "auto": 0,
+            "found": 6,
+            "escaped": 2,
+            "reviewMin": 80,
+            "verifyMin": 0,
+            "totalMin": 170
+          },
+          "51": {
+            "lines": 240,
+            "ratePct": 75,
+            "auto": 5,
+            "found": 2,
+            "escaped": 1,
+            "reviewMin": 85,
+            "verifyMin": 10,
+            "totalMin": 140
+          },
+          "50": {
+            "lines": 240,
+            "ratePct": 75,
+            "auto": 0,
+            "found": 6,
+            "escaped": 2,
+            "reviewMin": 85,
+            "verifyMin": 0,
+            "totalMin": 175
+          },
+          "61": {
+            "lines": 200,
+            "ratePct": 90,
+            "auto": 5,
+            "found": 3,
+            "escaped": 0,
+            "reviewMin": 90,
+            "verifyMin": 12,
+            "totalMin": 102
+          },
+          "60": {
+            "lines": 200,
+            "ratePct": 90,
+            "auto": 0,
+            "found": 7,
+            "escaped": 1,
+            "reviewMin": 90,
+            "verifyMin": 0,
+            "totalMin": 135
+          },
+          "71": {
+            "lines": 171,
+            "ratePct": 90,
+            "auto": 5,
+            "found": 3,
+            "escaped": 0,
+            "reviewMin": 95,
+            "verifyMin": 14,
+            "totalMin": 109
+          },
+          "70": {
+            "lines": 171,
+            "ratePct": 90,
+            "auto": 0,
+            "found": 7,
+            "escaped": 1,
+            "reviewMin": 95,
+            "verifyMin": 0,
+            "totalMin": 140
+          },
+          "81": {
+            "lines": 150,
+            "ratePct": 90,
+            "auto": 5,
+            "found": 3,
+            "escaped": 0,
+            "reviewMin": 100,
+            "verifyMin": 16,
+            "totalMin": 116
+          },
+          "80": {
+            "lines": 150,
+            "ratePct": 90,
+            "auto": 0,
+            "found": 7,
+            "escaped": 1,
+            "reviewMin": 100,
+            "verifyMin": 0,
+            "totalMin": 145
+          }
+        },
+        "bugs": 8,
+        "prodMin": 45,
+        "total": 1200,
+        "nLabels": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
+        ],
+        "escV": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "escN": [
+          6,
+          4,
+          2,
+          2,
+          2,
+          1,
+          1,
+          1
+        ]
+      },
+      "compute": {
+        "r": "lookup(runs, str(slices) + (verify ? '1' : '0'), runs['61'])",
+        "linesPer": "r.lines",
+        "esc": "r.escaped",
+        "found": "r.found",
+        "auto": "r.auto",
+        "remaining": "bugs - r.auto",
+        "reviewMin": "r.reviewMin",
+        "verifyMin": "r.verifyMin",
+        "totalMin": "r.totalMin"
+      },
+      "cases": [
+        {
+          "when": "esc >= 3",
+          "flags": [
+            "leak"
+          ]
+        },
+        {
+          "when": "esc == 0",
+          "flags": [
+            "clean"
+          ]
+        },
+        {
+          "when": "slices >= 8",
+          "flags": [
+            "overSliced"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "slices": "slices",
+            "lines": "linesPer",
+            "escaped": "esc",
+            "found": "found",
+            "auto": "auto",
+            "bugs": "bugs",
+            "remaining": "remaining",
+            "reviewMin": "reviewMin",
+            "totalMin": "totalMin",
+            "ratePct": "r.ratePct"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "flow",
+          "steps": [
+            {
+              "label": "@sTask",
+              "sub": "@subTask",
+              "tone": "info"
+            },
+            {
+              "label": "@sSlices",
+              "sub": "@subSlices",
+              "tone": "=linesPer > 400 ? 'bad' : (linesPer > 200 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@sVerify",
+              "sub": "=verify ? '@verifyOn' : '@verifyOff'",
+              "tone": "=verify ? 'ok' : 'dim'"
+            },
+            {
+              "label": "@sReview",
+              "sub": "@subReview",
+              "tone": "=esc >= 3 ? 'bad' : (esc > 0 ? 'warn' : 'ok')"
+            }
+          ]
+        },
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mLines",
+              "value": "=linesPer",
+              "format": "int",
+              "tone": "=linesPer > 400 ? 'bad' : (linesPer > 200 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@mAuto",
+              "value": "=auto",
+              "format": "int",
+              "tone": "=auto > 0 ? 'ok' : 'dim'"
+            },
+            {
+              "label": "@mFound",
+              "value": "=found",
+              "format": "int",
+              "tone": "info"
+            },
+            {
+              "label": "@mEscaped",
+              "value": "=esc",
+              "format": "int",
+              "tone": "=esc >= 3 ? 'bad' : (esc > 0 ? 'warn' : 'ok')"
+            },
+            {
+              "label": "@mTotal",
+              "value": "=totalMin",
+              "format": "min",
+              "tone": "info"
+            }
+          ]
+        },
+        {
+          "type": "chart",
+          "label": "@chart",
+          "kind": "bar",
+          "labels": "=nLabels",
+          "series": [
+            {
+              "label": "@serV",
+              "values": "=escV"
+            },
+            {
+              "label": "@serN",
+              "values": "=escN"
+            }
+          ]
+        },
+        {
+          "type": "note",
+          "when": "=esc >= 3",
+          "tone": "bad",
+          "text": "@leakNote"
+        },
+        {
+          "type": "note",
+          "when": "=slices >= 8",
+          "tone": "warn",
+          "text": "@overNote"
+        },
+        {
+          "type": "note",
+          "when": "=esc < 3 && slices < 8",
+          "tone": "=esc == 0 ? 'ok' : 'info'",
+          "text": "@calmNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "few",
+      "half",
+      "most"
+    ],
+    "answer": "most"
+  }
+}

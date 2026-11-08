@@ -1,0 +1,264 @@
+{
+  "id": "dai-p-arquivos-de-regras",
+  "order": 2,
+  "track": "pratica",
+  "kind": "step",
+  "minutes": 18,
+  "tags": [
+    "agents-md",
+    "claude-md",
+    "copilot-instructions",
+    "cursor-rules",
+    "contexto"
+  ],
+  "requires": [
+    "dai-p-especificacao-antes-do-codigo"
+  ],
+  "executors": [
+    "simulado"
+  ],
+  "model": "declarative",
+  "scene": "widgets",
+  "command": {
+    "verb": {
+      "pt": "regras",
+      "en": "rules"
+    },
+    "arg": {
+      "name": "text",
+      "required": false,
+      "ui": "examples",
+      "default": {
+        "pt": "Em que unidade guardamos os preços?",
+        "en": "What unit do we store prices in?"
+      },
+      "examples": [
+        {
+          "pt": "Em que unidade guardamos os preços?",
+          "en": "What unit do we store prices in?"
+        },
+        {
+          "pt": "Qual comando roda os testes?",
+          "en": "Which command runs the tests?"
+        },
+        {
+          "pt": "Posso editar uma migration antiga?",
+          "en": "Can I edit an old migration?"
+        }
+      ]
+    },
+    "flags": [
+      {
+        "name": "files",
+        "alias": {
+          "pt": "arquivos",
+          "en": "files"
+        },
+        "type": "list",
+        "options": [
+          {
+            "id": "agents",
+            "pt": "agents-md",
+            "en": "agents-md"
+          },
+          {
+            "id": "claude",
+            "pt": "claude-md",
+            "en": "claude-md"
+          },
+          {
+            "id": "copilot",
+            "pt": "copilot-instructions",
+            "en": "copilot-instructions"
+          },
+          {
+            "id": "cursor",
+            "pt": "cursor-rules",
+            "en": "cursor-rules"
+          }
+        ],
+        "default": [
+          "agents",
+          "claude"
+        ],
+        "ui": "checkboxes"
+      },
+      {
+        "name": "size",
+        "alias": {
+          "pt": "linhas",
+          "en": "lines"
+        },
+        "type": "int",
+        "min": 5,
+        "max": 1000,
+        "default": 60,
+        "ui": "slider"
+      }
+    ]
+  },
+  "break": {
+    "flag": "blind"
+  },
+  "data": {
+    "sim": {
+      "live": true,
+      "consts": {
+        "toolNames": [
+          "Claude Code",
+          "Copilot",
+          "Cursor"
+        ]
+      },
+      "compute": {
+        "hasA": "includes(files, 'agents')",
+        "hasC": "includes(files, 'claude')",
+        "hasP": "includes(files, 'copilot')",
+        "hasR": "includes(files, 'cursor')",
+        "seeC": "hasC && hasA",
+        "seeP": "hasP || hasA",
+        "seeR": "hasR || hasA",
+        "nSee": "(seeC ? 1 : 0) + (seeP ? 1 : 0) + (seeR ? 1 : 0)",
+        "blindNames": "join(maskfilter(toolNames, [!seeC, !seeP, !seeR]), \", \")",
+        "copies": "(hasA ? 1 : 0) + (hasP ? 1 : 0) + (hasR ? 1 : 0)",
+        "adh": "size <= 200 ? 95 : (size <= 500 ? 80 : 60)",
+        "ans": "lookup(answers, text, answersFallback)",
+        "viaC": "seeC ? '@viaImport' : (hasC ? '@viaDangling' : (hasA ? '@viaNotRead' : '@viaNone'))",
+        "viaP": "hasP && hasA ? '@viaBoth' : (hasP ? '@viaCopilotFile' : (hasA ? '@viaAgents' : '@viaNone'))",
+        "viaR": "hasR && hasA ? '@viaBoth' : (hasR ? '@viaCursorFile' : (hasA ? '@viaAgents' : '@viaNone'))"
+      },
+      "cases": [
+        {
+          "when": "nSee < 3",
+          "flags": [
+            "blind"
+          ]
+        },
+        {
+          "when": "nSee == 3",
+          "flags": [
+            "allSee"
+          ]
+        },
+        {
+          "when": "copies >= 2",
+          "flags": [
+            "drift"
+          ]
+        },
+        {
+          "when": "size > 200",
+          "flags": [
+            "long"
+          ]
+        },
+        {
+          "when": "true",
+          "vars": {
+            "nSee": "nSee",
+            "blindNames": "blindNames",
+            "copies": "copies",
+            "adh": "adh",
+            "size": "size",
+            "rightAns": "ans.right",
+            "wrongAns": "ans.wrong"
+          }
+        }
+      ],
+      "widgets": [
+        {
+          "type": "metrics",
+          "items": [
+            {
+              "label": "@mSee",
+              "value": "=nSee + ' / 3'",
+              "tone": "=nSee == 3 ? 'ok' : 'bad'"
+            },
+            {
+              "label": "@mCopies",
+              "value": "=copies",
+              "format": "int",
+              "tone": "=copies >= 2 ? 'warn' : (copies == 1 ? 'ok' : 'bad')"
+            },
+            {
+              "label": "@mAdh",
+              "value": "=adh",
+              "format": "pct",
+              "tone": "=adh >= 90 ? 'ok' : (adh >= 80 ? 'warn' : 'bad')"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "label": "@table",
+          "columns": [
+            "@colTool",
+            "@colReads",
+            "@colAnswer"
+          ],
+          "rows": [
+            [
+              "@tClaude",
+              "=viaC",
+              "=seeC ? ans.right : ans.wrong"
+            ],
+            [
+              "@tCopilot",
+              "=viaP",
+              "=seeP ? ans.right : ans.wrong"
+            ],
+            [
+              "@tCursor",
+              "=viaR",
+              "=seeR ? ans.right : ans.wrong"
+            ]
+          ],
+          "tones": [
+            "=seeC ? 'ok' : 'bad'",
+            "=seeP ? 'ok' : 'bad'",
+            "=seeR ? 'ok' : 'bad'"
+          ],
+          "caption": "@caption"
+        },
+        {
+          "type": "note",
+          "when": "=nSee < 3",
+          "tone": "bad",
+          "text": "@blindNote"
+        },
+        {
+          "type": "note",
+          "when": "=hasC && !hasA",
+          "tone": "warn",
+          "text": "@danglingNote"
+        },
+        {
+          "type": "note",
+          "when": "=copies >= 2",
+          "tone": "warn",
+          "text": "@driftNote"
+        },
+        {
+          "type": "note",
+          "when": "=size > 200",
+          "tone": "warn",
+          "text": "@longNote"
+        },
+        {
+          "type": "note",
+          "when": "=nSee == 3 && copies == 1 && size <= 200",
+          "tone": "ok",
+          "text": "@okNote"
+        }
+      ]
+    }
+  },
+  "predict": {
+    "options": [
+      "direct",
+      "import",
+      "never"
+    ],
+    "answer": "import"
+  }
+}

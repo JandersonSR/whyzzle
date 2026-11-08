@@ -1,0 +1,118 @@
+{
+  "title": "Arquivos de regras do repositório",
+  "subtitle": "AGENTS.md, CLAUDE.md, copilot-instructions e .cursor/rules: quem lê o quê",
+  "mission": "Cada pessoa do time usa um agente: a Bia usa Claude Code, o Caio usa Copilot no VS Code e o Rafa usa Cursor. A regra mais importante do repositório é \"preço sempre em centavos\". Escolha quais arquivos de regras existem no repositório e descubra se os três agentes enxergam essa regra.",
+  "predict": {
+    "question": "o repositório tem AGENTS.md e um CLAUDE.md com uma linha só: @AGENTS.md. Como o Claude Code da Bia chega nas regras?",
+    "options": {
+      "direct": "Lê o AGENTS.md direto, como as outras ferramentas",
+      "import": "Lê o CLAUDE.md, que importa o AGENTS.md",
+      "never": "Não chega: o Claude Code ignora AGENTS.md"
+    }
+  },
+  "feedback": {
+    "right": "isso. A documentação do Claude Code é direta: ele lê CLAUDE.md, não AGENTS.md. O jeito recomendado é um CLAUDE.md com @AGENTS.md, que puxa o conteúdo para dentro. Copilot e Cursor leem o AGENTS.md sozinhos.",
+    "wrong": "o Claude Code lê CLAUDE.md, não AGENTS.md. A linha @AGENTS.md dentro do CLAUDE.md é um import: o conteúdo do AGENTS.md entra junto. Sem esse CLAUDE.md, o agente da Bia fica sem regra nenhuma.",
+    "skipped": "sem palpite? Olha a primeira linha da tabela: o caminho que a regra faz até o Claude Code."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com AGENTS.md + CLAUDE.md e depois desmarque o CLAUDE.md.",
+    "cmd": "palpite anotado. Rode como está e depois tente --arquivos agents-md sozinho."
+  },
+  "tryNext": {
+    "ui": "Agora marque também copilot-instructions e cursor-rules: todo mundo enxerga, mas a regra passa a morar em três lugares. Em três meses, alguém atualiza só um.",
+    "cmd": "Rode regras --arquivos agents-md,claude-md,copilot-instructions,cursor-rules e olhe as cópias."
+  },
+  "why": {
+    "simples": "Imagine o caderno de receitas da padaria. Se cada confeiteiro tem o seu, cada bolo sai de um jeito. Se existe um caderno só, na bancada, e cada um sabe onde ele fica, todo mundo faz o mesmo bolo.\nArquivo de regras é esse caderno para os agentes. O truque é que cada agente procura o caderno num lugar diferente.",
+    "dev": "Onde cada um procura (documentação oficial atual):\n• Claude Code: CLAUDE.md (ou .claude/CLAUDE.md) e .claude/rules/*.md. Ele não lê AGENTS.md; use um CLAUDE.md com @AGENTS.md (ou um link simbólico). /memory mostra o que foi carregado e /init gera um CLAUDE.md inicial.\n• Copilot: .github/copilot-instructions.md para o repositório todo, .github/instructions/NOME.instructions.md com applyTo para caminhos, e AGENTS.md para os agentes (o agente na nuvem também aceita CLAUDE.md).\n• Cursor: .cursor/rules/*.mdc (frontmatter com description, globs e alwaysApply) e AGENTS.md na raiz e em subpastas.\nUm AGENTS.md como fonte única, mais um CLAUDE.md que o importa, cobre os três.",
+    "especialista": "Tamanho importa: a documentação do Claude Code recomenda menos de 200 linhas por CLAUDE.md (arquivo longo gasta contexto e reduz a adesão, e ele é carregado inteiro mesmo assim); a do Cursor fala em regras abaixo de 500 linhas, quebradas em regras menores. A porcentagem de \"adesão\" desta lição é de brinquedo.\nRegras por caminho evitam o arquivo gigante: paths: em .claude/rules, applyTo no Copilot, globs no Cursor, e AGENTS.md aninhado (no Copilot, o mais próximo na árvore tem precedência). E lembre: regra em arquivo é contexto, não trava. O que não pode falhar vira teste, hook ou checagem no CI."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: deixe marcado só o agents-md.",
+      "cmd": "hora de quebrar: rode regras \"Em que unidade guardamos os preços?\" --arquivos agents-md"
+    },
+    "success": "Quebrou: só {nSee} de 3 agentes enxergam as regras. {blindNames} trabalhou sem caderno e respondeu \"{wrongAns}\". É assim que aparece um preço em reais com vírgula num sistema todo em centavos.",
+    "calm": "Os 3 agentes enxergam as regras e respondem \"{rightAns}\", com a regra escrita em {copies} lugar(es). Para quebrar, deixe um agente sem o arquivo que ele lê."
+  },
+  "hints": {
+    "ui": [
+      "Marque e desmarque arquivos; a tabela mostra o que cada agente lê.",
+      "O Claude Code só chega no AGENTS.md através do CLAUDE.md.",
+      "Deixe marcado só agents-md."
+    ],
+    "cmd": [
+      "--arquivos recebe uma lista separada por vírgula.",
+      "Opções: agents-md, claude-md, copilot-instructions, cursor-rules. --linhas é o tamanho do arquivo.",
+      "regras \"Em que unidade guardamos os preços?\" --arquivos agents-md"
+    ]
+  },
+  "errors": {
+    "notInEnum.files": "“{value}” não é um arquivo daqui. Opções: {options}.",
+    "belowMin.size": "Um arquivo de regras com menos de {min} linhas não diz quase nada.",
+    "aboveMax.size": "Mais de {max} linhas? Ninguém (nem o agente) segue isso. Use até {max}."
+  },
+  "controls": {
+    "arg": "Pergunta para os agentes",
+    "files": "Arquivos no repositório",
+    "size": "Linhas no arquivo de regras"
+  },
+  "scene": {
+    "label": "Quem lê o caderno",
+    "empty": "Rode para ver o que cada agente lê.",
+    "mSee": "agentes com as regras",
+    "mCopies": "lugares com a regra",
+    "mAdh": "adesão (de brinquedo)",
+    "table": "Os agentes do time",
+    "colTool": "agente",
+    "colReads": "lê as regras por",
+    "colAnswer": "resposta",
+    "tClaude": "Claude Code (Bia)",
+    "tCopilot": "Copilot no VS Code (Caio)",
+    "tCursor": "Cursor (Rafa)",
+    "viaImport": "CLAUDE.md → @AGENTS.md",
+    "viaDangling": "CLAUDE.md importa o nada",
+    "viaNotRead": "nada: não lê AGENTS.md",
+    "viaNone": "nenhum arquivo",
+    "viaAgents": "AGENTS.md",
+    "viaBoth": "AGENTS.md + arquivo próprio",
+    "viaCopilotFile": ".github/copilot-instructions.md",
+    "viaCursorFile": ".cursor/rules/*.mdc",
+    "caption": "Arquivo de regras com {size} linhas.",
+    "blindNote": "{blindNames} não enxerga regra nenhuma e responde com o que é comum em outros projetos.",
+    "danglingNote": "O CLAUDE.md tem @AGENTS.md, mas o AGENTS.md não existe: o import não traz nada.",
+    "driftNote": "A mesma regra escrita em {copies} arquivos. Quando ela mudar, alguém vai esquecer uma cópia. Prefira um AGENTS.md e deixe os outros só com o que é específico de cada ferramenta.",
+    "longNote": "{size} linhas: o arquivo inteiro entra em toda conversa e as regras importantes se perdem no meio. Corte, ou separe por pasta.",
+    "okNote": "Uma fonte só, curta, e os três agentes chegam nela. É esse o desenho."
+  },
+  "data": {
+    "answers": {
+      "Em que unidade guardamos os preços?": {
+        "right": "centavos, inteiros (regra)",
+        "wrong": "reais com decimal (chute)"
+      },
+      "Qual comando roda os testes?": {
+        "right": "npm test",
+        "wrong": "npx jest (chute)"
+      },
+      "Posso editar uma migration antiga?": {
+        "right": "não: crie uma nova (regra)",
+        "wrong": "pode, é só editar (chute)"
+      }
+    },
+    "answersFallback": {
+      "right": "centavos, inteiros (regra)",
+      "wrong": "reais com decimal (chute)"
+    }
+  },
+  "recipe": {
+    "steps": [
+      "Na raiz do repositório, crie o AGENTS.md (a fonte única):\n# Regras do repositório\n- Preços sempre em centavos (inteiros). Nunca float.\n- Testes: npm test (precisa passar antes do PR).\n- Nunca edite migrations antigas; crie uma nova.",
+      "Crie o CLAUDE.md, também na raiz, importando o AGENTS.md:\n@AGENTS.md\n\n## Só para o Claude Code\n- Use plan mode para mudanças em src/pagamento/.",
+      "Opcional, regra só para uma pasta. No Cursor, .cursor/rules/dinheiro.mdc:\n---\ndescription: Regras de dinheiro\nglobs: src/**/*.ts\nalwaysApply: false\n---\n- Valores em centavos.\nNo Copilot, .github/instructions/dinheiro.instructions.md começando com applyTo: \"src/**/*.ts\" entre linhas ---.",
+      "No Claude Code, rode /memory e confira que o CLAUDE.md foi carregado. Abra uma conversa nova em cada ferramenta e pergunte: em que unidade guardamos os preços?"
+    ],
+    "ok": "o /memory lista o CLAUDE.md, e nas três ferramentas a resposta é \"centavos\", citando a regra do AGENTS.md."
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "title": "Legado e código desconhecido",
+  "subtitle": "O agente explica rápido e com confiança; você confere com arquivo:linha e busca",
+  "mission": "A Pão de Mel comprou o sistema de nota fiscal de uma padaria parceira: PHP de 2014, sem testes, e o autor sumiu. O Rafa precisa limpar o código morto do módulo. Ele pede ao agente para explicar o módulo primeiro. Escolha como explorar e quanto confiar no que o agente diz.",
+  "predict": {
+    "question": "o agente explicou o módulo em 10 afirmações, todas com o mesmo tom confiante. Quantas estavam erradas?",
+    "options": {
+      "none": "Nenhuma",
+      "two": "Umas 2",
+      "six": "Mais da metade"
+    }
+  },
+  "feedback": {
+    "right": "isso: 2 de 10. Poucas, mas justo as perigosas: \"gerarFechamento() não é usada\" (é chamada por nome, num texto do cron) e \"o CFOP sempre vem preenchido\" (notas antigas têm CFOP vazio). A busca e a exigência de arquivo:linha pegaram as duas.",
+    "wrong": "foram 2 de 10, e as duas eram as que importavam para apagar código. O tom é o mesmo nas certas e nas erradas: confiança não é evidência.",
+    "skipped": "sem palpite? A tabela mostra 4 das 10 afirmações; olhe as duas de baixo."
+  },
+  "coach": {
+    "ui": "palpite anotado. Rode com tudo ligado; depois desligue a busca.",
+    "cmd": "palpite anotado. Rode como está e depois tente --buscar nao."
+  },
+  "tryNext": {
+    "ui": "Agora desligue \"só leitura\": o agente já sai apagando enquanto explica. Mesmo se você pegar o erro depois, tem 7 arquivos mexidos para desfazer.",
+    "cmd": "Rode explorar --so-leitura nao e olhe os arquivos mexidos."
+  },
+  "why": {
+    "simples": "Você herdou a cozinha de outra padaria. Um ajudante novo olha tudo e diz, todo seguro: \"essa alavanca aí não serve para nada\". Antes de arrancar, você segue o fio da alavanca. Às vezes ela desliga o forno.\nCom código antigo é igual: o agente explica muito bem e muito rápido, mas a explicação é um palpite até alguém mostrar onde está escrito.",
+    "dev": "Explore primeiro sem editar: no Claude Code, plan mode (claude --permission-mode plan) lê e propõe sem tocar no disco; no Cursor, o Plan Mode. Peça \"uma afirmação por linha, cada uma com arquivo:linha, e marque 'sem evidência' quando não achar\".\nDepois confira o que vai apagar com ferramentas que não chutam: git grep -n \"nome\" acha o nome em qualquer lugar, inclusive em textos e configs; git log -S \"nome\" mostra quando ele apareceu ou sumiu; git log --follow conta a história do arquivo. Só então escreva testes de caracterização e apague.",
+    "especialista": "\"Ninguém chama esta função\" é a afirmação mais cara em código legado, porque chamadas dinâmicas não aparecem em \"localizar referências\": call_user_func em PHP, rotas montadas com texto, reflexão, jobs de cron, chamadas de outro sistema. O agente costuma raciocinar como a ferramenta de referências e erra junto.\nA cerca de Chesterton vale aqui: não tire a cerca antes de saber por que ela foi posta. Na prática: busca textual em todo o repositório (e nos repositórios vizinhos), logs de produção por algumas semanas e remoção atrás de uma flag antes de apagar de vez."
+  },
+  "break": {
+    "mission": {
+      "ui": "hora de quebrar: desligue a busca.",
+      "cmd": "hora de quebrar: rode explorar \"Remover o código morto do módulo de nota fiscal\" --buscar nao"
+    },
+    "success": "Quebrou: você acreditou em {believed} afirmação(ões) erradas do agente. {how} Código legado não avisa: ele quebra no fim do mês.",
+    "calm": "{caught} de {wrong} afirmações erradas pegas antes de apagar qualquer coisa. Para quebrar, desligue a busca ou a exigência de arquivo:linha."
+  },
+  "hints": {
+    "ui": [
+      "Ligue e desligue as três chaves; a cena atualiza sozinha.",
+      "Cada afirmação errada é pega por uma ferramenta diferente.",
+      "Desligue \"buscar\"."
+    ],
+    "cmd": [
+      "As três chaves aceitam sim ou nao.",
+      "--so-leitura, --citar (arquivo:linha) e --buscar (git grep).",
+      "explorar \"Remover o código morto do módulo de nota fiscal\" --buscar nao"
+    ]
+  },
+  "errors": {
+    "notBool.readOnly": "--so-leitura aceita sim ou nao.",
+    "notBool.cite": "--citar aceita sim ou nao.",
+    "notBool.search": "--buscar aceita sim ou nao."
+  },
+  "controls": {
+    "arg": "Tarefa do Rafa",
+    "readOnly": "Explorar só lendo (plan mode)",
+    "cite": "Exigir arquivo:linha em cada afirmação",
+    "search": "Conferir com git grep antes de apagar"
+  },
+  "scene": {
+    "label": "O que o agente disse do módulo",
+    "empty": "Rode para ver a explicação do agente.",
+    "mClaims": "afirmações do agente",
+    "mCaught": "erradas e pegas",
+    "mBelieved": "erradas e aceitas",
+    "mEdited": "arquivos mexidos antes de entender",
+    "table": "4 das 10 afirmações",
+    "colClaim": "o agente disse",
+    "colStatus": "situação",
+    "k1": "nota usa a tabela nf_itens",
+    "k2": "imposto sai de calc_imposto.php",
+    "kA": "gerarFechamento() não é usada",
+    "kB": "CFOP sempre vem preenchido",
+    "stOk": "confere (arquivo:linha)",
+    "stCaughtGrep": "errada: git grep achou",
+    "stCaughtCite": "errada: sem arquivo:linha",
+    "stBelieved": "errada e você acreditou",
+    "caption": "Mesmo tom de confiança nas 10. Só a evidência separa.",
+    "term": "Busca antes de apagar",
+    "brokeNote": "{believed} afirmação(ões) errada(s) viraram decisão. O agente não mentiu de propósito: ele raciocinou pelo que dava para ver.",
+    "blindNote": "Sem só leitura, o agente mexeu em {edited} arquivos enquanto explicava. Explicação e edição no mesmo passo misturam aprender com apostar.",
+    "okNote": "As {wrong} afirmações erradas caíram antes de virar código apagado. Agora dá para escrever testes de caracterização e limpar com calma."
+  },
+  "data": {
+    "hows": {
+      "01": "O agente apagou gerarFechamento(), que é chamada por nome no config/cron.php, e o fechamento do mês parou.",
+      "10": "A nova validação assumiu CFOP sempre preenchido e 3% das notas antigas passaram a dar erro.",
+      "00": "gerarFechamento() foi apagada (o cron do fechamento parou) e a validação nova quebrou 3% das notas antigas, sem CFOP.",
+      "11": ""
+    },
+    "grepOn": [
+      "$ git grep -n \"gerarFechamento\"",
+      "+ config/cron.php:12:  'fechamento' => 'gerarFechamento',",
+      "+ src/nf/fechamento.php:40: function gerarFechamento() {",
+      "? chamada por nome, via call_user_func: não é código morto"
+    ],
+    "grepOff": [
+      "~ nenhuma busca: confiou em \"não é usada\"",
+      "$ git rm src/nf/fechamento.php",
+      "! dia 30: cron \"fechamento\" falhou"
+    ]
+  },
+  "recipe": {
+    "steps": [
+      "Comece pela história, com git (troque o caminho e o nome pelos do seu projeto):\ngit log --oneline --follow -- src/nf/fechamento.php\ngit grep -n \"gerarFechamento\"\ngit log -S \"gerarFechamento\" --oneline",
+      "Explore sem editar. No Claude Code:\nclaude --permission-mode plan\nPeça: explique o módulo src/nf/ em até 10 afirmações, uma por linha, cada uma com arquivo:linha. Marque \"sem evidência\" quando não achar. Não edite nada.\nNo Cursor, use o Plan Mode; no Copilot, faça a pergunta no chat.",
+      "Para cada afirmação do tipo \"não é usada\", rode git grep -n com o nome. Se aparecer em texto, config ou cron, não é código morto. Só depois peça os testes de caracterização e a remoção."
+    ],
+    "ok": "você tem uma lista de afirmações com arquivo:linha, algumas marcadas \"sem evidência\", e o git grep mostrou pelo menos um uso que a explicação do agente não citou (ou confirmou que não há nenhum)."
+  }
+}
