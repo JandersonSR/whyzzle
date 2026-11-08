@@ -116,7 +116,7 @@ Depende das etapas de plataforma PL1 a PL3.
 ### Produção (empresas e times)
 - [x] **Etapa R1 · Avaliação e qualidade** (7 lições): conjunto de avaliação versionado; métricas de RAG (fidelidade, relevância); LLM como juiz e sua calibração; testes de regressão no CI; testes A/B de prompt; casos difíceis e perguntas sem resposta; ciclo de feedback de usuários.
 - [ ] → **Etapa R2 · Segurança, privacidade e governança** (7 lições): prompt injection direta e indireta; guardrails de entrada e saída; vazamento de dados e permissões por documento; dados pessoais e LGPD (minimização, retenção, base legal); jailbreak e red teaming; auditoria e rastreabilidade; política de uso de IA na empresa.
-  - Em andamento: escrita das 7 lições começou (subagente); falta revisão independente e publicação.
+  - Em andamento: lições 1 a 4 escritas (branch wip/ia-producao-r2), falta 5 a 7, revisão independente e publicação.
 - [ ] **Etapa R3 · Custo, latência e operação** (7 lições): custo por token e por conversa; cache de prompt e de respostas; roteamento entre modelos; streaming e latência percebida; limites de taxa e filas; observabilidade de LLM (traces, custo, qualidade); incidentes e rollback de prompt.
 - [ ] **Etapa R4 · Casos reais de empresa** (8 lições): FAQ de RH; atendimento com triagem e passagem para humano; triagem de documentos; revisão de PR assistida; assistente de tech lead (reuniões, status, riscos); skills e regras para o LLM consultar a documentação e os sistemas internos; IA para análise de logs; plano de implantação e ROI.
 - [ ] **Missão final da Produção**: colocar no ar o assistente de atendimento de uma empresa fictícia, com avaliação no CI, guardrails, custo por conversa dentro do orçamento, LGPD atendida e painel de monitoramento.
@@ -177,7 +177,7 @@ Depende das etapas de plataforma PL1 a PL3.
 ## 6. System design e sistemas distribuídos
 - **Fundamentos**
   - [ ] → F1 · Como sistemas grandes funcionam (6): cliente e servidor; escalar vertical × horizontal; balanceador; cache; banco e réplica; fila.
-    - Em andamento: escrita das lições e da missão começou (subagente); falta revisão independente e publicação.
+    - Em andamento: lições escritas, falta gerador final e testes (branch wip/system-design-f1); falta revisão independente e publicação.
   - [ ] Missão: desenhar um encurtador de links para uma escola.
 - **Prática**
   - [ ] P1 · Método de system design (7): requisitos; estimativas de capacidade; API; modelo de dados; blocos de construção; gargalos; trade-offs.
